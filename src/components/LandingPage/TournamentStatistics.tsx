@@ -12,6 +12,11 @@ import {
     Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import goalIcon from '../../../public/goal-icon.svg';
+import playerIcon from '../../../public/player-icon.svg';
+import Image from 'next/image';
+import matchIcon from '../../../public/match-icon.svg';
+import teamIcon from '../../../public/team-icon.svg';
 
 interface StatCard {
     id: string;
@@ -35,28 +40,28 @@ const TournamentStatistics = () => {
             id: '1',
             label: 'Total Matches',
             value: 48,
-            icon: <Calendar className="h-6 w-6" />,
+            icon: <Image src={matchIcon} alt="Match Icon" width={40} height={40} />,
             color: 'text-blue-500',
         },
         {
             id: '2',
             label: 'Total Teams',
             value: 12,
-            icon: <Users className="h-6 w-6" />,
+            icon: <Image src={teamIcon} alt="Team Icon" width={32} height={32} />,
             color: 'text-green-500',
         },
         {
             id: '3',
             label: 'Total Goals',
             value: 156,
-            icon: <Target className="h-6 w-6" />,
+            icon: <Image src={goalIcon} alt="Goal Icon" width={32} height={32} />,
             color: 'text-purple-500',
         },
         {
             id: '4',
             label: 'Avg Goals/Match',
             value: '3.25',
-            icon: <TrendingUp className="h-6 w-6" />,
+            icon: <Image src={playerIcon} alt="Player Icon" width={32} height={32} />,
             color: 'text-orange-500',
         },
     ];

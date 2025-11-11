@@ -3,8 +3,11 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Trophy, Users, Calendar } from 'lucide-react';
+import { ArrowRight, Trophy, } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import goalIcon from '../../../public/goal-icon.svg';
+import matchIcon from '../../../public/match-icon.svg';
+import teamIcon from '../../../public/team-icon.svg';
 
 const Hero = () => {
     return (
@@ -54,21 +57,22 @@ const Hero = () => {
                     <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3">
                         <div className="flex flex-col items-center">
                             <div className="mb-2 rounded-full bg-primary/10 p-3">
-                                <Trophy className="h-6 w-6 text-primary" />
+                                {/* <Trophy className="h-8 w-8 text-primary" /> */}
+                                <Image src={teamIcon} alt="Team Icon" width={32} height={32} />
                             </div>
                             <div className="text-3xl font-bold">12</div>
                             <div className="text-sm text-muted-foreground">Teams Competing</div>
                         </div>
                         <div className="flex flex-col items-center">
                             <div className="mb-2 rounded-full bg-primary/10 p-3">
-                                <Calendar className="h-6 w-6 text-primary" />
+                                <Image src={matchIcon} alt="Match Icon" width={40} height={40} />
                             </div>
                             <div className="text-3xl font-bold">48</div>
                             <div className="text-sm text-muted-foreground">Matches Played</div>
                         </div>
                         <div className="flex flex-col items-center">
                             <div className="mb-2 rounded-full bg-primary/10 p-3">
-                                <Users className="h-6 w-6 text-primary" />
+                                <Image src={goalIcon} alt="Goal Icon" width={32} height={32} />
                             </div>
                             <div className="text-3xl font-bold">156</div>
                             <div className="text-sm text-muted-foreground">Goals Scored</div>
