@@ -11,6 +11,7 @@ import {
     ArrowDown,
     Filter,
     X,
+    ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -191,27 +192,33 @@ const PlayerStandings = () => {
                         <div className="flex flex-wrap items-center gap-3">
                             <div className="flex items-center gap-2">
                                 <Filter className="h-4 w-4 text-muted-foreground" />
+                                <div className="relative">
+                                    <select
+                                        value={filterTeam}
+                                        onChange={(e) => setFilterTeam(e.target.value)}
+                                        className="rounded-md border border-input bg-background px-3 py-1.5 pr-8 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer appearance-none"
+                                    >
+                                        <option value="">All Teams</option>
+                                        {uniqueTeams.map(team => (
+                                            <option key={team} value={team}>{team}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 pointer-events-none text-muted-foreground" />
+                                </div>
+                            </div>
+                            <div className="relative">
                                 <select
-                                    value={filterTeam}
-                                    onChange={(e) => setFilterTeam(e.target.value)}
-                                    className="rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                                    value={filterPosition}
+                                    onChange={(e) => setFilterPosition(e.target.value)}
+                                    className="rounded-md border border-input bg-background px-3 py-1.5 pr-8 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer appearance-none"
                                 >
-                                    <option value="">All Teams</option>
-                                    {uniqueTeams.map(team => (
-                                        <option key={team} value={team}>{team}</option>
+                                    <option value="">All Positions</option>
+                                    {uniquePositions.map(position => (
+                                        <option key={position} value={position}>{position}</option>
                                     ))}
                                 </select>
+                                <ChevronDown className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 pointer-events-none text-muted-foreground" />
                             </div>
-                            <select
-                                value={filterPosition}
-                                onChange={(e) => setFilterPosition(e.target.value)}
-                                className="rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                            >
-                                <option value="">All Positions</option>
-                                {uniquePositions.map(position => (
-                                    <option key={position} value={position}>{position}</option>
-                                ))}
-                            </select>
                             {(filterTeam || filterPosition) && (
                                 <button
                                     onClick={() => {

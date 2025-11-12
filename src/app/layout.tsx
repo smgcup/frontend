@@ -27,17 +27,18 @@ export default function RootLayout({
             menu={[
               { title: "Home", url: "/" },
               {
-                title: "Tournaments",
-                url: "#",
+                title: "Matches",
+                url: "/matches",
               },
               {
-                title: "About",
-                url: "#",
+                title: "Player Standings",
+                url: "/standings",
               },
               {
-                title: "Contact",
-                url: "#",
+                title: "News",
+                url: "/news",
               },
+
             ]}
             auth={{
               login: { title: "Login", url: "/login" },
