@@ -1,20 +1,8 @@
-"use client";
-
 import React from 'react';
 import Link from 'next/link';
-import { Calendar, Clock, MapPin, ArrowRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-interface Match {
-    id: string;
-    team1: string;
-    team2: string;
-    date: string;
-    time: string;
-    venue?: string;
-    status: 'upcoming' | 'live' | 'completed';
-}
+import MatchCard, { Match } from '@/features/matches/components/MatchCard';
 
 const UpcomingMatches = () => {
     // Sample data - replace with actual data from your API
@@ -27,6 +15,7 @@ const UpcomingMatches = () => {
             time: '14:00',
             venue: 'Main Field',
             status: 'upcoming',
+            round: 1,
         },
         {
             id: '2',
@@ -36,6 +25,7 @@ const UpcomingMatches = () => {
             time: '15:30',
             venue: 'Main Field',
             status: 'upcoming',
+            round: 1,
         },
         {
             id: '3',
@@ -45,6 +35,7 @@ const UpcomingMatches = () => {
             time: '16:00',
             venue: 'Main Field',
             status: 'upcoming',
+            round: 1,
         },
         {
             id: '4',
@@ -54,17 +45,9 @@ const UpcomingMatches = () => {
             time: '14:30',
             venue: 'Main Field',
             status: 'upcoming',
+            round: 1,
         },
     ];
-
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-        });
-    };
 
     // Show only first 3 matches
     const displayedMatches = matches.slice(0, 3);
@@ -96,77 +79,7 @@ const UpcomingMatches = () => {
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {displayedMatches.map((match) => (
-                        <div
-                            key={match.id}
-                            className="group relative overflow-hidden rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md"
-                        >
-                            <div className="flex flex-col space-y-4">
-                                {/* Teams */}
-                                <div className="flex items-center justify-between">
-                                    <div className="flex-1 text-center">
-                                        <Link
-                                            href={`/teams/${match.team1.toLowerCase()}`}
-                                            className="text-lg font-semibold hover:text-primary transition-colors"
-                                        >
-                                            {match.team1}
-                                        </Link>
-                                    </div>
-                                    <div className="mx-4 flex-shrink-0">
-                                        <span className="text-2xl font-bold text-muted-foreground">
-                                            VS
-                                        </span>
-                                    </div>
-                                    <div className="flex-1 text-center">
-                                        <Link
-                                            href={`/teams/${match.team2.toLowerCase()}`}
-                                            className="text-lg font-semibold hover:text-primary transition-colors"
-                                        >
-                                            {match.team2}
-                                        </Link>
-                                    </div>
-                                </div>
-
-                                {/* Divider */}
-                                <div className="border-t" />
-
-                                {/* Match Details */}
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Calendar className="h-4 w-4" />
-                                        <span>{formatDate(match.date)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Clock className="h-4 w-4" />
-                                        <span>{match.time}</span>
-                                    </div>
-                                    {match.venue && (
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <MapPin className="h-4 w-4" />
-                                            <span>SMG Arena</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Status Badge */}
-                                <div className="pt-2">
-                                    <span
-                                        className={cn(
-                                            "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium",
-                                            match.status === 'upcoming' &&
-                                            "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-                                            match.status === 'live' &&
-                                            "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-                                            match.status === 'completed' &&
-                                            "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                        )}
-                                    >
-                                        {match.status === 'upcoming' && 'Upcoming'}
-                                        {match.status === 'live' && 'Live'}
-                                        {match.status === 'completed' && 'Completed'}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                        <MatchCard key={match.id} match={match} />
                     ))}
                 </div>
 

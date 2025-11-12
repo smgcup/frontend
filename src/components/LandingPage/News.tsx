@@ -1,11 +1,10 @@
-"use client";
 
 import React from 'react';
 import Link from 'next/link';
-import { Calendar, ArrowRight, Clock } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-interface NewsArticle {
+type NewsArticle = {
     id: string;
     title: string;
     excerpt: string;

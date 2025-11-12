@@ -1,15 +1,11 @@
-"use client";
 
 import React from 'react';
+import Image from 'next/image';
 import {
     Trophy,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import goalIcon from '../../../public/goal-icon.svg';
-import playerIcon from '../../../public/player-icon.svg';
-import Image from 'next/image';
-import matchIcon from '../../../public/match-icon.svg';
-import teamIcon from '../../../public/team-icon.svg';
+import { goalIcon, matchIcon, playerIcon, teamIcon } from '../../../public/icons';
 
 interface StatCard {
     id: string;

@@ -15,8 +15,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import Image from 'next/image';
-import playerIcon from '../../../public/player-icon.svg';
+import MobilePageHeader from '../MobilePageHeader';
+import { playerIcon } from '../../../public/icons';
 
 interface Player {
     id: string;
@@ -124,27 +124,7 @@ const PlayerStandings = () => {
     return (
         <div className="min-h-screen bg-background">
             {/* Header */}
-            <div className="border-b bg-card">
-                <div className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                    <Link
-                        href="/"
-                        className="mb-4 inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                        ← Back to Home
-                    </Link>
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-primary">
-                            <Image src={playerIcon} alt="Player Icon" width={40} height={40} />
-                        </div>
-                        <div>
-                            <h1 className="text-4xl font-bold tracking-tight">Player Standings</h1>
-                            <p className="mt-2 text-lg text-muted-foreground">
-                                Top performers and statistics across all teams
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <MobilePageHeader title="Player Standings" description="Top performers and statistics across all teams" icon={playerIcon} />
 
             <div className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 {/* Top Stats Cards */}
