@@ -47,7 +47,7 @@ const Hero = () => {
                             </Link>
                         </Button>
                         <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-                            <Link href="/teams">
+                            <Link href="/news">
                                 Explore News
                             </Link>
                         </Button>

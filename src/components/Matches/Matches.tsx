@@ -40,12 +40,9 @@ const sampleMatches: Match[] = [
 ];
 
 const Matches = () => {
-    const [filterStatus, setFilterStatus] = useState<'upcoming' | 'completed' | 'all'>('all');
+    const [filterStatus, setFilterStatus] = useState<'upcoming' | 'completed'>('upcoming');
 
     const filteredMatches = useMemo(() => {
-        if (filterStatus === 'all') {
-            return sampleMatches;
-        }
         return sampleMatches.filter(match => match.status === filterStatus);
     }, [filterStatus]);
 
