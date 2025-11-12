@@ -48,7 +48,7 @@ const Hero = () => {
                         </Button>
                         <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
                             <Link href="/teams">
-                                Explore Teams
+                                Explore News
                             </Link>
                         </Button>
                     </div>

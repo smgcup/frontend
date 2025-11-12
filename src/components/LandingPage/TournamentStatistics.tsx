@@ -3,13 +3,6 @@
 import React from 'react';
 import {
     Trophy,
-    Users,
-    Target,
-    TrendingUp,
-    Activity,
-    Award,
-    Calendar,
-    Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import goalIcon from '../../../public/goal-icon.svg';
@@ -29,8 +22,14 @@ interface StatCard {
 interface TopTeam {
     id: string;
     name: string;
+    played: number;
+    won: number;
+    drawn: number;
+    lost: number;
+    goalsFor: number;
+    goalsAgainst: number;
+    goalDifference: number;
     points: number;
-    wins: number;
 }
 
 const TournamentStatistics = () => {
@@ -67,10 +66,18 @@ const TournamentStatistics = () => {
     ];
 
     const topTeams: TopTeam[] = [
-        { id: '1', name: '12A', points: 28, wins: 9 },
-        { id: '2', name: '11A', points: 25, wins: 8 },
-        { id: '3', name: '10A', points: 22, wins: 7 },
-        { id: '4', name: '12B', points: 19, wins: 6 },
+        { id: '1', name: '12A', played: 11, won: 9, drawn: 1, lost: 1, goalsFor: 32, goalsAgainst: 12, goalDifference: 20, points: 28 },
+        { id: '2', name: '11A', played: 11, won: 8, drawn: 1, lost: 2, goalsFor: 28, goalsAgainst: 15, goalDifference: 13, points: 25 },
+        { id: '3', name: '10A', played: 11, won: 7, drawn: 1, lost: 3, goalsFor: 25, goalsAgainst: 18, goalDifference: 7, points: 22 },
+        { id: '4', name: '12B', played: 11, won: 6, drawn: 1, lost: 4, goalsFor: 22, goalsAgainst: 19, goalDifference: 3, points: 19 },
+        { id: '5', name: '11B', played: 11, won: 5, drawn: 1, lost: 5, goalsFor: 20, goalsAgainst: 21, goalDifference: -1, points: 16 },
+        { id: '6', name: '10B', played: 11, won: 5, drawn: 0, lost: 6, goalsFor: 18, goalsAgainst: 22, goalDifference: -4, points: 15 },
+        { id: '7', name: '9A', played: 11, won: 4, drawn: 0, lost: 7, goalsFor: 16, goalsAgainst: 24, goalDifference: -8, points: 12 },
+        { id: '8', name: '9B', played: 11, won: 3, drawn: 1, lost: 7, goalsFor: 14, goalsAgainst: 25, goalDifference: -11, points: 10 },
+        { id: '9', name: '8A', played: 11, won: 2, drawn: 2, lost: 7, goalsFor: 12, goalsAgainst: 26, goalDifference: -14, points: 8 },
+        { id: '10', name: '8B', played: 11, won: 2, drawn: 0, lost: 9, goalsFor: 10, goalsAgainst: 28, goalDifference: -18, points: 6 },
+        { id: '11', name: '7A', played: 11, won: 1, drawn: 1, lost: 9, goalsFor: 8, goalsAgainst: 30, goalDifference: -22, points: 4 },
+        { id: '12', name: '7B', played: 11, won: 0, drawn: 2, lost: 9, goalsFor: 5, goalsAgainst: 32, goalDifference: -27, points: 2 },
     ];
 
     return (
@@ -109,49 +116,88 @@ const TournamentStatistics = () => {
                     ))}
                 </div>
 
-                {/* Top Teams */}
+                {/* Standings Table */}
                 <div className="rounded-lg border bg-card p-6 shadow-sm">
                     <div className="mb-6 flex items-center gap-2">
                         <Trophy className="h-6 w-6 text-yellow-500" />
-                        <h3 className="text-2xl font-bold">Top Teams</h3>
+                        <h3 className="text-2xl font-bold">Standings</h3>
                     </div>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        {topTeams.map((team, index) => (
-                            <div
-                                key={team.id}
-                                className="group relative overflow-hidden rounded-lg border bg-background p-4 transition-all hover:shadow-md"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div
-                                            className={cn(
-                                                "flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold",
-                                                index === 0 &&
-                                                "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-                                                index === 1 &&
-                                                "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
-                                                index === 2 &&
-                                                "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
-                                                index >= 3 &&
-                                                "bg-muted text-muted-foreground"
-                                            )}
-                                        >
-                                            {index + 1}
-                                        </div>
-                                        <div>
-                                            <p className="font-semibold">Team {team.name}</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {team.wins} wins
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b">
+                                    <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">Pos</th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">Team</th>
+                                    <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">P</th>
+                                    <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">W</th>
+                                    <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">D</th>
+                                    <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">L</th>
+                                    <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">GF</th>
+                                    <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">GA</th>
+                                    <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">GD</th>
+                                    <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">Pts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {topTeams.map((team, index) => (
+                                    <tr
+                                        key={team.id}
+                                        className="border-b transition-colors hover:bg-muted/50"
+                                    >
+                                        <td className="px-3 py-4 text-center">
+                                            <div
+                                                className={cn(
+                                                    "mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold",
+                                                    index === 0 &&
+                                                    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+                                                    index === 1 &&
+                                                    "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
+                                                    index === 2 &&
+                                                    "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+                                                    index >= 3 &&
+                                                    "bg-muted text-muted-foreground"
+                                                )}
+                                            >
+                                                {index + 1}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                            <p className="font-semibold">{team.name}</p>
+                                        </td>
+                                        <td className="px-3 py-4 text-center">
+                                            <p className="font-medium">{team.played}</p>
+                                        </td>
+                                        <td className="px-3 py-4 text-center">
+                                            <p className="font-medium">{team.won}</p>
+                                        </td>
+                                        <td className="px-3 py-4 text-center">
+                                            <p className="font-medium">{team.drawn}</p>
+                                        </td>
+                                        <td className="px-3 py-4 text-center">
+                                            <p className="font-medium">{team.lost}</p>
+                                        </td>
+                                        <td className="px-3 py-4 text-center">
+                                            <p className="font-medium">{team.goalsFor}</p>
+                                        </td>
+                                        <td className="px-3 py-4 text-center">
+                                            <p className="font-medium">{team.goalsAgainst}</p>
+                                        </td>
+                                        <td className="px-3 py-4 text-center">
+                                            <p className={cn(
+                                                "font-medium",
+                                                team.goalDifference > 0 && "text-green-600 dark:text-green-400",
+                                                team.goalDifference < 0 && "text-red-600 dark:text-red-400"
+                                            )}>
+                                                {team.goalDifference > 0 ? '+' : ''}{team.goalDifference}
                                             </p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-lg font-bold">{team.points}</p>
-                                        <p className="text-xs text-muted-foreground">pts</p>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                                        </td>
+                                        <td className="px-3 py-4 text-center">
+                                            <p className="font-bold">{team.points}</p>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

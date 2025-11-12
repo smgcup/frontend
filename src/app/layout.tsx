@@ -19,7 +19,7 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
@@ -41,7 +41,6 @@ export default function RootLayout({
             ]}
             auth={{
               login: { title: "Login", url: "/login" },
-              signup: { title: "Sign up", url: "/signup" },
             }}
           />
           {children}
