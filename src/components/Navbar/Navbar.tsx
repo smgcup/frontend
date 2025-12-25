@@ -31,6 +31,7 @@ const menu: MenuItem[] = [
 	{ title: 'Matches', url: '/matches' },
 	{ title: 'Player Standings', url: '/players' },
 	{ title: 'News', url: '/news' },
+	{ title: 'Games', url: '/games' },
 ];
 
 const renderMenuItem = (item: MenuItem) => {
