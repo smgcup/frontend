@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Inter } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar/Navbar';
+import Providers from './providers';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 const geistSans = Geist({
@@ -25,12 +26,14 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className={inter.variable}>
+		<html lang="en" suppressHydrationWarning className={inter.variable}>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
 			>
-				<Navbar />
-				{children}
+				<Providers>
+					<Navbar />
+					{children}
+				</Providers>
 			</body>
 		</html>
 	);
