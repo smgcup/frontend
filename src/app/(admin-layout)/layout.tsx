@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Inter } from 'next/font/google';
 import '../../app/globals.css';
-import Navbar from '@/components/Navbar/Navbar';
 import Providers from '../providers';
+import Sidebar from '@/domains/admin/auth/components/Sidebar';
+import { HomeIcon, CalendarIcon, UsersIcon } from 'lucide-react';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 const geistSans = Geist({
@@ -31,8 +32,30 @@ export default function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
 			>
 				<Providers>
-					<Navbar />
-					{children}
+					<Sidebar
+						items={[
+							{
+								title: 'Dashboard',
+								url: '/admin',
+								icon: <HomeIcon />,
+							},
+							{
+								title: 'Matches',
+								url: '/admin/matches',
+								icon: <CalendarIcon />,
+							},
+							{
+								title: 'Teams',
+								url: '/admin/teams',
+								icon: <UsersIcon />,
+							},
+						]}
+					/>
+					<main className="lg:ml-64 min-h-screen">
+						<div className="pt-16 lg:pt-0 px-4 lg:px-6 py-6">
+							{children}
+						</div>
+					</main>
 				</Providers>
 			</body>
 		</html>

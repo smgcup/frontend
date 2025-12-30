@@ -1,0 +1,5 @@
+mutation AdminCreateTeam($createTeamDto: CreateTeamDto!) {
+	createTeam(createTeamDto: $createTeamDto) {
+		name
+	}
+}

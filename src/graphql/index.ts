@@ -5,4 +5,5 @@
 export * from '../generated/types';
 
 // Export all generated operations, fragments, and documents
+export * from './mutations/AdminCreateTeam.generated';
 export * from './mutations/AdminLogin.generated';

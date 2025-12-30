@@ -1,7 +1,7 @@
-import AdminAuthView from '@/domains/admin/auth/AdminAuthView';
-
-const page = () => {
-	return <AdminAuthView />;
+import React from 'react';
+import AdminHomeView from '@/domains/admin/home/AdminHomeView';
+const AdminPage = () => {
+	return <AdminHomeView />;
 };
 
-export default page;
+export default AdminPage;
