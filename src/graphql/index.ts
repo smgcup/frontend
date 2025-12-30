@@ -5,6 +5,7 @@
 export * from '../generated/types';
 
 // Export all generated operations, fragments, and documents
+export * from './mutations/AdminCreatePlayer.generated';
 export * from './mutations/AdminCreateTeam.generated';
 export * from './mutations/AdminLogin.generated';
 export * from './queries/GetTeams.generated';

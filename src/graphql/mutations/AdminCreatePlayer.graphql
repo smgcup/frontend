@@ -1,0 +1,5 @@
+mutation AdminCreatePlayer($createPlayerDto: CreatePlayerDto!) {
+	createPlayer(createPlayerDto: $createPlayerDto) {
+		id
+	}
+}
