@@ -1,7 +1,9 @@
 import HomeView from '@/domains/home/HomeView';
+import { getHomePageData } from '@/domains/home/ssr/getHomePageData';
 
-const page = () => {
-	return <HomeView />;
+const page = async () => {
+	const { teams, error } = await getHomePageData();
+	return <HomeView teams={teams} />;
 };
 
 export default page;

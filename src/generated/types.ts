@@ -73,6 +73,7 @@ export type Query = {
   health: Scalars['String']['output'];
   playerById: Player;
   teamById: Team;
+  teams: Array<Team>;
 };
 
 
@@ -87,6 +88,7 @@ export type QueryTeamByIdArgs = {
 
 export type Team = {
   __typename?: 'Team';
+  createdAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   players?: Maybe<Array<Player>>;
@@ -98,4 +100,5 @@ export enum Queries {
   health = 'health',
   playerById = 'playerById',
   teamById = 'teamById',
+  teams = 'teams',
 }

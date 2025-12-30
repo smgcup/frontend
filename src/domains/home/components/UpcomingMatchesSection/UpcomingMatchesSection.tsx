@@ -3,9 +3,12 @@ import Link from 'next/link';
 import MatchCard, { Match } from '@/domains/matches/components/MatchCard';
 import { Button } from '@/components/ui';
 import { ArrowRight } from 'lucide-react';
+import { Team } from '@/domains/team/contracts';
 
-const UpcomingMatchesSection = () => {
-	// Sample data - replace with actual data from your API
+type UpcomingMatchesSectionProps = {
+	teams: Team[];
+};
+const UpcomingMatchesSection = ({ teams }: UpcomingMatchesSectionProps) => {
 	const matches: Match[] = [
 		{
 			id: '1',

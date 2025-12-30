@@ -5,12 +5,16 @@ import {
 	TournamentStatistics,
 	News,
 } from './components';
-const HomeViewUi = () => {
+import { Team } from '@/domains/team/contracts';
+type HomeViewUiProps = {
+	teams: Team[];
+};
+const HomeViewUi = ({ teams }: HomeViewUiProps) => {
 	return (
 		<>
 			<HeroSection />
-			<UpcomingMatchesSection />
-			<TournamentStatistics />
+			<UpcomingMatchesSection teams={teams} />
+			<TournamentStatistics teams={teams} />
 			<News />
 		</>
 	);
