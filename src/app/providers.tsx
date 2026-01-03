@@ -5,7 +5,8 @@ import { makeClient } from '../lib/apollo';
 
 export default function Providers({ children }: { children: ReactNode }) {
 	return (
-		<ApolloNextAppProvider makeClient={() => makeClient()}>
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		<ApolloNextAppProvider makeClient={() => makeClient() as any}>
 			<ThemeProvider
 				attribute="class"
 				defaultTheme="dark"

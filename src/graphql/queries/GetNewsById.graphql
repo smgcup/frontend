@@ -1,0 +1,10 @@
+query GetNewsById($newsByIdId: String!) {
+	newsById(id: $newsByIdId) {
+		category
+		content
+		createdAt
+		id
+		imageUrl
+		title
+	}
+}
