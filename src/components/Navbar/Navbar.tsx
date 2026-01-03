@@ -145,7 +145,7 @@ const Navbar = () => {
 								className="transition-all duration-300"
 							/>
 							<span className="font-semibold tracking-tighter transition-all duration-300 text-lg">
-								SMG Cup Championship
+								SMG Champions League
 							</span>
 						</Link>
 					</div>
