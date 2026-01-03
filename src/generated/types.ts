@@ -64,6 +64,8 @@ export type Mutation = {
   createNews: News;
   createPlayer: Player;
   createTeam: Team;
+  deleteNews: News;
+  updateNews: News;
 };
 
 
@@ -84,6 +86,17 @@ export type MutationCreatePlayerArgs = {
 
 export type MutationCreateTeamArgs = {
   createTeamDto: CreateTeamDto;
+};
+
+
+export type MutationDeleteNewsArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateNewsArgs = {
+  id: Scalars['String']['input'];
+  updateNewsDto: UpdateNewsDto;
 };
 
 export type News = {
@@ -141,6 +154,13 @@ export type Team = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   players?: Maybe<Array<Player>>;
+};
+
+export type UpdateNewsDto = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 
