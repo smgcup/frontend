@@ -1,6 +1,6 @@
 query Teams {
-	teams {
-		id
-		name
-	}
+  teams {
+    id
+    name
+  }
 }

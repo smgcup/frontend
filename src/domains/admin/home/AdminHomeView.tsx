@@ -1,7 +1,7 @@
 import AdminHomeViewUi from './AdminHomeViewUi';
 
 const AdminHomeView = () => {
-	return <AdminHomeViewUi />;
+  return <AdminHomeViewUi />;
 };
 
 export default AdminHomeView;

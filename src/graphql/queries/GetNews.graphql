@@ -1,10 +1,10 @@
 query GetNews {
-	news {
-		category
-		content
-		createdAt
-		id
-		imageUrl
-		title
-	}
+  news {
+    category
+    content
+    createdAt
+    id
+    imageUrl
+    title
+  }
 }

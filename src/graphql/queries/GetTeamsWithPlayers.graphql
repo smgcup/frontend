@@ -1,19 +1,18 @@
 query TeamsWithPlayers {
-	teams {
-		id
-		name
-		createdAt
-		players {
-			id
-			firstName
-			lastName
-			position
-			prefferedFoot
-			height
-			weight
-			yearOfBirth
-			imageUrl
-		}
-	}
+  teams {
+    id
+    name
+    createdAt
+    players {
+      id
+      firstName
+      lastName
+      position
+      prefferedFoot
+      height
+      weight
+      yearOfBirth
+      imageUrl
+    }
+  }
 }
-

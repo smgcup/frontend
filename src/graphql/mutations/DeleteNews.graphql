@@ -1,6 +1,6 @@
 mutation DeleteNews($id: String!) {
-	deleteNews(id: $id) {
-		id
-		title
-	}
+  deleteNews(id: $id) {
+    id
+    title
+  }
 }
