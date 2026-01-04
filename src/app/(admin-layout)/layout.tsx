@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Inter } from 'next/font/google';
 import '../../app/globals.css';
 import Providers from '../providers';
 import Sidebar from '@/domains/admin/auth/components/Sidebar';
-import { HomeIcon, CalendarIcon, UsersIcon } from 'lucide-react';
+import { HomeIcon, CalendarIcon, UsersIcon, FileText } from 'lucide-react';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 const geistSans = Geist({
@@ -38,6 +38,11 @@ export default function RootLayout({
 								title: 'Dashboard',
 								url: '/admin',
 								icon: <HomeIcon />,
+							},
+							{
+								title: 'News',
+								url: '/admin/news',
+								icon: <FileText />,
 							},
 							{
 								title: 'Matches',
