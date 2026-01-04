@@ -24,15 +24,34 @@ export type AdminLoginResult = {
 export type CreatePlayerDto = {
   firstName: Scalars['String']['input'];
   height: Scalars['Float']['input'];
-  imageUrl: Scalars['String']['input'];
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
   lastName: Scalars['String']['input'];
+  position: Scalars['String']['input'];
+  prefferedFoot: Scalars['String']['input'];
   teamId: Scalars['String']['input'];
+  weight: Scalars['Float']['input'];
   yearOfBirth: Scalars['Float']['input'];
 };
 
 export type CreateTeamDto = {
   name: Scalars['String']['input'];
 };
+
+export type Match = {
+  __typename?: 'Match';
+  date: Scalars['Date']['output'];
+  firstOpponent: Team;
+  id: Scalars['ID']['output'];
+  secondOpponent: Team;
+  status: MatchStatus;
+};
+
+export enum MatchStatus {
+  Cancelled = 'CANCELLED',
+  Finished = 'FINISHED',
+  Live = 'LIVE',
+  Scheduled = 'SCHEDULED'
+}
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -64,7 +83,10 @@ export type Player = {
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
   lastName: Scalars['String']['output'];
+  position: Scalars['String']['output'];
+  prefferedFoot: Scalars['String']['output'];
   team: Team;
+  weight: Scalars['Float']['output'];
   yearOfBirth: Scalars['Float']['output'];
 };
 
@@ -93,12 +115,3 @@ export type Team = {
   name: Scalars['String']['output'];
   players?: Maybe<Array<Player>>;
 };
-
-
-export enum Queries {
-  __typename = '__typename',
-  health = 'health',
-  playerById = 'playerById',
-  teamById = 'teamById',
-  teams = 'teams',
-}
