@@ -1,6 +1,6 @@
 "use client";
 
-import { CreatePlayerDto, TeamsDocument, TeamsQuery } from "@/graphql";
+import { CreatePlayerDto, PlayerPosition, PreferredFoot, TeamsDocument, TeamsQuery } from "@/graphql";
 import { ErrorLike } from "@apollo/client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,19 @@ const AdminPlayerCreateViewUi = ({
 	adminPlayerCreateLoading,
 	adminPlayerCreateError,
 }: AdminPlayerCreateViewUiProps) => {
-	const [formData, setFormData] = useState({
+	type FormState = {
+		firstName: string;
+		lastName: string;
+		teamId: string;
+		height: string;
+		weight: string;
+		yearOfBirth: string;
+		imageUrl: string;
+		position: PlayerPosition | "";
+		prefferedFoot: PreferredFoot | "";
+	};
+
+	const [formData, setFormData] = useState<FormState>({
 		firstName: "",
 		lastName: "",
 		teamId: "",
@@ -47,6 +59,16 @@ const AdminPlayerCreateViewUi = ({
 		if (errors.teamId) setErrors((prev) => ({ ...prev, teamId: "" }));
 	};
 
+	const handlePositionChange = (value: PlayerPosition) => {
+		setFormData((prev) => ({ ...prev, position: value }));
+		if (errors.position) setErrors((prev) => ({ ...prev, position: "" }));
+	};
+
+	const handlePreferredFootChange = (value: PreferredFoot) => {
+		setFormData((prev) => ({ ...prev, prefferedFoot: value }));
+		if (errors.prefferedFoot) setErrors((prev) => ({ ...prev, prefferedFoot: "" }));
+	};
+
 	const validateForm = () => {
 		const newErrors: Record<string, string> = {};
 		if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
@@ -69,10 +91,10 @@ const AdminPlayerCreateViewUi = ({
 		} else if (isNaN(parseFloat(formData.yearOfBirth))) {
 			newErrors.yearOfBirth = "Year of birth must be a number";
 		}
-		if (!formData.position.trim()) {
+		if (!formData.position) {
 			newErrors.position = "Position is required";
 		}
-		if (!formData.prefferedFoot.trim()) {
+		if (!formData.prefferedFoot) {
 			newErrors.prefferedFoot = "Preferred foot is required";
 		}
 
@@ -92,8 +114,8 @@ const AdminPlayerCreateViewUi = ({
 			weight: parseFloat(formData.weight),
 			yearOfBirth: parseFloat(formData.yearOfBirth),
 			imageUrl: formData.imageUrl.trim() || "",
-			position: formData.position.trim(),
-			prefferedFoot: formData.prefferedFoot.trim(),
+			position: formData.position as PlayerPosition,
+			prefferedFoot: formData.prefferedFoot as PreferredFoot,
 		});
 
 		window.history.back();
@@ -238,15 +260,20 @@ const AdminPlayerCreateViewUi = ({
 							<Field>
 								<FieldLabel htmlFor="position">Position *</FieldLabel>
 								<FieldContent>
-									<Input
-										id="position"
-										name="position"
-										type="text"
-										placeholder="e.g. Forward"
-										value={formData.position}
-										onChange={handleChange}
-										aria-invalid={!!errors.position}
-									/>
+									<Select
+										onValueChange={(v) => handlePositionChange(v as PlayerPosition)}
+										value={formData.position || undefined}
+									>
+										<SelectTrigger aria-invalid={!!errors.position} className="w-full">
+											<SelectValue placeholder="Select position" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value={PlayerPosition.Goalkeeper}>Goalkeeper</SelectItem>
+											<SelectItem value={PlayerPosition.Defender}>Defender</SelectItem>
+											<SelectItem value={PlayerPosition.Midfielder}>Midfielder</SelectItem>
+											<SelectItem value={PlayerPosition.Forward}>Forward</SelectItem>
+										</SelectContent>
+									</Select>
 									{errors.position && <FieldError>{errors.position}</FieldError>}
 								</FieldContent>
 							</Field>
@@ -254,15 +281,19 @@ const AdminPlayerCreateViewUi = ({
 							<Field>
 								<FieldLabel htmlFor="prefferedFoot">Preferred Foot *</FieldLabel>
 								<FieldContent>
-									<Input
-										id="prefferedFoot"
-										name="prefferedFoot"
-										type="text"
-										placeholder="e.g. Left, Right"
-										value={formData.prefferedFoot}
-										onChange={handleChange}
-										aria-invalid={!!errors.prefferedFoot}
-									/>
+									<Select
+										onValueChange={(v) => handlePreferredFootChange(v as PreferredFoot)}
+										value={formData.prefferedFoot || undefined}
+									>
+										<SelectTrigger aria-invalid={!!errors.prefferedFoot} className="w-full">
+											<SelectValue placeholder="Select preferred foot" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value={PreferredFoot.Left}>Left</SelectItem>
+											<SelectItem value={PreferredFoot.Right}>Right</SelectItem>
+											<SelectItem value={PreferredFoot.Both}>Both</SelectItem>
+										</SelectContent>
+									</Select>
 									{errors.prefferedFoot && <FieldError>{errors.prefferedFoot}</FieldError>}
 								</FieldContent>
 							</Field>
