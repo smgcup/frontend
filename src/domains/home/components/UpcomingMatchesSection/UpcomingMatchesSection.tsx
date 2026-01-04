@@ -1,9 +1,8 @@
-import React from 'react';
 import Link from 'next/link';
-import MatchCard, { Match } from '@/domains/matches/components/MatchCard';
+import MatchCard, { type Match } from '@/domains/matches/components/MatchCard';
 import { Button } from '@/components/ui';
-import { ArrowRight } from 'lucide-react';
-import { Team } from '@/domains/team/contracts';
+import { ArrowRight, Trophy } from 'lucide-react';
+import type { Team } from '@/domains/team/contracts';
 
 type UpcomingMatchesSectionProps = {
   teams: Team[];
@@ -57,36 +56,44 @@ const UpcomingMatchesSection = ({ teams }: UpcomingMatchesSectionProps) => {
   const hasMoreMatches = matches.length > 3;
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8">
-      <div className="container mx-auto max-w-7xl">
-        <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
+
+      <div className="container relative mx-auto max-w-7xl">
+        <div className="mb-14 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="text-center sm:text-left">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Upcoming Matches</h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <div className="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold">
+              <Trophy className="h-4 w-4" />
+              <span>Live Schedule</span>
+            </div>
+            <h2 className="text-4xl font-black tracking-tight sm:text-5xl bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Upcoming Matches
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground max-w-2xl leading-relaxed">
               Don&apos;t miss the exciting matches between the teams in the league
             </p>
           </div>
           {hasMoreMatches && (
             <div className="flex justify-center sm:justify-end">
-              <Button asChild variant="outline" size="lg">
+              <Button asChild variant="default" size="lg" className="gap-2 shadow-lg shadow-primary/20">
                 <Link href="/matches">
                   View All Matches
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
             </div>
           )}
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {displayedMatches.map((match) => (
             <MatchCard key={match.id} match={match} />
           ))}
         </div>
 
         {displayedMatches.length === 0 && (
-          <div className="py-12 text-center">
-            <p className="text-muted-foreground">No upcoming matches scheduled at the moment.</p>
+          <div className="py-16 text-center">
+            <p className="text-lg text-muted-foreground">No upcoming matches scheduled at the moment.</p>
           </div>
         )}
       </div>
