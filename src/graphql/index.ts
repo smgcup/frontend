@@ -14,3 +14,4 @@ export * from './mutations/UpdateNews.generated';
 export * from './queries/GetNews.generated';
 export * from './queries/GetNewsById.generated';
 export * from './queries/GetTeams.generated';
+export * from './queries/GetTeamsWithPlayers.generated';

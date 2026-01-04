@@ -49,11 +49,11 @@ export default function RootLayout({
 								url: '/admin/matches',
 								icon: <CalendarIcon />,
 							},
-							{
-								title: 'Teams',
-								url: '/admin/teams',
-								icon: <UsersIcon />,
-							},
+						{
+							title: 'Teams & Players',
+							url: '/admin/teams',
+							icon: <UsersIcon />,
+						},
 						]}
 					/>
 					<main className="lg:ml-64 min-h-screen">
