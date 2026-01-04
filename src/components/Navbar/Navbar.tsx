@@ -26,6 +26,8 @@ type MenuItem = {
   items?: MenuItem[];
 };
 
+const logoUrl = '/favicon.png';
+
 const menu: MenuItem[] = [
   { title: 'Home', url: '/' },
   { title: 'Matches', url: '/matches' },
@@ -154,14 +156,7 @@ const Navbar = () => {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <Image
-                src={
-                  'https://github.com/BorisAngelov23/smgCLFinalProject/blob/master/static_files/images/favicon.png?raw=true'
-                }
-                alt="SMG Cup Championship Logo"
-                width={50}
-                height={50}
-              />
+              <Image src={logoUrl} alt="SMG Cup Championship Logo" width={50} height={50} />
             </Link>
             <div className="flex items-center gap-2">
               {false ? (
