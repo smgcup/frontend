@@ -1,0 +1,10 @@
+mutation UpdateNews($id: String!, $updateNewsDto: UpdateNewsDto!) {
+	updateNews(id: $id, updateNewsDto: $updateNewsDto) {
+		id
+		title
+		content
+		createdAt
+		category
+		imageUrl
+	}
+}
