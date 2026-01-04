@@ -19,6 +19,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'SMG Cup Championship',
   description: 'Experience the SMG Cup Championship—the best football tournament among them all. ',
+  icons: {
+    icon: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
