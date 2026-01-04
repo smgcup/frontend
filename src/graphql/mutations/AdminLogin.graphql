@@ -1,5 +1,5 @@
 mutation AdminLogin($passkey: String!) {
-	adminLogin(passkey: $passkey) {
-		ok
-	}
+  adminLogin(passkey: $passkey) {
+    ok
+  }
 }

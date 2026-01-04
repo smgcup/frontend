@@ -1,5 +1,5 @@
 mutation CreateNews($createNewsDto: CreateNewsDto!) {
-	createNews(createNewsDto: $createNewsDto) {
-		id
-	}
+  createNews(createNewsDto: $createNewsDto) {
+    id
+  }
 }

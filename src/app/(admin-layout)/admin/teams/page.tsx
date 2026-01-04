@@ -1,8 +1,7 @@
 import AdminTeamsView from '@/domains/admin/teams/AdminTeamsView';
 
 const AdminTeamsPage = () => {
-	return <AdminTeamsView />;
+  return <AdminTeamsView />;
 };
 
 export default AdminTeamsPage;
-

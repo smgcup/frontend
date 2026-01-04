@@ -1,7 +1,7 @@
 import AdminAuthView from '@/domains/admin/auth/AdminAuthView';
 
 const page = () => {
-	return <AdminAuthView />;
+  return <AdminAuthView />;
 };
 
 export default page;

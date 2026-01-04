@@ -1,5 +1,5 @@
 mutation AdminCreatePlayer($createPlayerDto: CreatePlayerDto!) {
-	createPlayer(createPlayerDto: $createPlayerDto) {
-		id
-	}
+  createPlayer(createPlayerDto: $createPlayerDto) {
+    id
+  }
 }

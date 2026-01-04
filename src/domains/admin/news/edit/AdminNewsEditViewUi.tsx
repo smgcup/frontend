@@ -6,370 +6,307 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import {
-	Field,
-	FieldContent,
-	FieldDescription,
-	FieldError,
-	FieldGroup,
-	FieldLabel,
-} from '@/components/ui/field';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, ImageIcon, Loader2, Eye, Save } from 'lucide-react';
 import { GetNewsByIdQuery, UpdateNewsDto } from '@/graphql';
 
 type AdminNewsEditViewUiProps = {
-	news: GetNewsByIdQuery['newsById'] | null;
-	newsLoading: boolean;
-	updateLoading: boolean;
-	onUpdateNews: (updateNewsDto: UpdateNewsDto) => Promise<unknown>;
+  news: GetNewsByIdQuery['newsById'] | null;
+  newsLoading: boolean;
+  updateLoading: boolean;
+  onUpdateNews: (updateNewsDto: UpdateNewsDto) => Promise<unknown>;
 };
 
 const CATEGORIES = [
-	{ value: 'match', label: 'Match' },
-	{ value: 'team', label: 'Team' },
-	{ value: 'player', label: 'Player' },
-	{ value: 'tournament', label: 'Tournament' },
-	{ value: 'announcement', label: 'Announcement' },
+  { value: 'match', label: 'Match' },
+  { value: 'team', label: 'Team' },
+  { value: 'player', label: 'Player' },
+  { value: 'tournament', label: 'Tournament' },
+  { value: 'announcement', label: 'Announcement' },
 ];
 
-const AdminNewsEditViewUi = ({
-	news,
-	newsLoading,
-	updateLoading,
-	onUpdateNews,
-}: AdminNewsEditViewUiProps) => {
-	const [formData, setFormData] = useState({
-		title: '',
-		content: '',
-		imageUrl: '',
-		category: '',
-	});
+const AdminNewsEditViewUi = ({ news, newsLoading, updateLoading, onUpdateNews }: AdminNewsEditViewUiProps) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    content: '',
+    imageUrl: '',
+    category: '',
+  });
 
-	const [errors, setErrors] = useState<Record<string, string>>({});
-	const [showPreview, setShowPreview] = useState(true);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPreview, setShowPreview] = useState(true);
 
-	useEffect(() => {
-		if (news) {
-			setFormData({
-				title: news.title,
-				content: news.content,
-				imageUrl: news.imageUrl,
-				category: news.category,
-			});
-		}
-	}, [news]);
+  useEffect(() => {
+    if (news) {
+      setFormData({
+        title: news.title,
+        content: news.content,
+        imageUrl: news.imageUrl,
+        category: news.category,
+      });
+    }
+  }, [news]);
 
-	const handleChange = (
-		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-	) => {
-		const { name, value } = e.target;
-		setFormData(prev => ({ ...prev, [name]: value }));
-		if (errors[name]) {
-			setErrors(prev => ({ ...prev, [name]: '' }));
-		}
-	};
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
 
-	const handleCategoryChange = (value: string) => {
-		setFormData(prev => ({ ...prev, category: value }));
-		if (errors.category) {
-			setErrors(prev => ({ ...prev, category: '' }));
-		}
-	};
+  const handleCategoryChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, category: value }));
+    if (errors.category) {
+      setErrors((prev) => ({ ...prev, category: '' }));
+    }
+  };
 
-	const validateForm = () => {
-		const newErrors: Record<string, string> = {};
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
 
-		if (!formData.title.trim()) {
-			newErrors.title = 'Title is required';
-		} else if (formData.title.trim().length < 5) {
-			newErrors.title = 'Title must be at least 5 characters';
-		}
+    if (!formData.title.trim()) {
+      newErrors.title = 'Title is required';
+    } else if (formData.title.trim().length < 5) {
+      newErrors.title = 'Title must be at least 5 characters';
+    }
 
-		if (!formData.content.trim()) {
-			newErrors.content = 'Content is required';
-		} else if (formData.content.trim().length < 20) {
-			newErrors.content = 'Content must be at least 20 characters';
-		}
+    if (!formData.content.trim()) {
+      newErrors.content = 'Content is required';
+    } else if (formData.content.trim().length < 20) {
+      newErrors.content = 'Content must be at least 20 characters';
+    }
 
-		if (!formData.imageUrl.trim()) {
-			newErrors.imageUrl = 'Image URL is required';
-		} else if (!isValidUrl(formData.imageUrl)) {
-			newErrors.imageUrl = 'Please enter a valid URL';
-		}
+    if (!formData.imageUrl.trim()) {
+      newErrors.imageUrl = 'Image URL is required';
+    } else if (!isValidUrl(formData.imageUrl)) {
+      newErrors.imageUrl = 'Please enter a valid URL';
+    }
 
-		if (!formData.category) {
-			newErrors.category = 'Category is required';
-		}
+    if (!formData.category) {
+      newErrors.category = 'Category is required';
+    }
 
-		setErrors(newErrors);
-		return Object.keys(newErrors).length === 0;
-	};
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-	const isValidUrl = (url: string) => {
-		try {
-			new URL(url);
-			return true;
-		} catch {
-			return false;
-		}
-	};
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!validateForm()) return;
-		await onUpdateNews(formData);
-	};
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    await onUpdateNews(formData);
+  };
 
-	if (newsLoading) {
-		return (
-			<div className="flex items-center justify-center min-h-[400px]">
-				<div className="flex flex-col items-center gap-4">
-					<Loader2 className="h-8 w-8 animate-spin text-primary" />
-					<p className="text-muted-foreground">Loading article...</p>
-				</div>
-			</div>
-		);
-	}
+  if (newsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading article...</p>
+        </div>
+      </div>
+    );
+  }
 
-	if (!news) {
-		return (
-			<div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-				<h2 className="text-xl font-semibold">Article not found</h2>
-				<Button asChild>
-					<Link href="/admin/news">Back to News</Link>
-				</Button>
-			</div>
-		);
-	}
+  if (!news) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <h2 className="text-xl font-semibold">Article not found</h2>
+        <Button asChild>
+          <Link href="/admin/news">Back to News</Link>
+        </Button>
+      </div>
+    );
+  }
 
-	return (
-		<div className="space-y-6 max-w-4xl mx-auto">
-			{/* Page Header */}
-			<div className="flex items-center gap-4">
-				<Button variant="ghost" size="icon" asChild className="shrink-0">
-					<Link href="/admin/news">
-						<ArrowLeft className="h-4 w-4" />
-					</Link>
-				</Button>
-				<div className="flex-1 min-w-0">
-					<h1 className="text-3xl font-bold tracking-tight truncate">
-						Edit Article
-					</h1>
-					<p className="mt-1 text-muted-foreground truncate">
-						Editing: {news.title}
-					</p>
-				</div>
-			</div>
+  return (
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Page Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild className="shrink-0">
+          <Link href="/admin/news">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-3xl font-bold tracking-tight truncate">Edit Article</h1>
+          <p className="mt-1 text-muted-foreground truncate">Editing: {news.title}</p>
+        </div>
+      </div>
 
-			<div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-				{/* Main Form */}
-				<Card>
-					<CardHeader>
-						<CardTitle>Article Details</CardTitle>
-						<CardDescription>
-							Update the article information below
-						</CardDescription>
-					</CardHeader>
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        {/* Main Form */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Article Details</CardTitle>
+            <CardDescription>Update the article information below</CardDescription>
+          </CardHeader>
 
-					<form onSubmit={handleSubmit}>
-						<CardContent className="space-y-6">
-							<FieldGroup>
-								{/* Title */}
-								<Field>
-									<FieldLabel htmlFor="title">Title *</FieldLabel>
-									<FieldContent>
-										<Input
-											id="title"
-											name="title"
-											type="text"
-											placeholder="Enter article title"
-											value={formData.title}
-											onChange={handleChange}
-											aria-invalid={!!errors.title}
-											className="text-base"
-										/>
-										{errors.title && <FieldError>{errors.title}</FieldError>}
-									</FieldContent>
-								</Field>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-6">
+              <FieldGroup>
+                {/* Title */}
+                <Field>
+                  <FieldLabel htmlFor="title">Title *</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      id="title"
+                      name="title"
+                      type="text"
+                      placeholder="Enter article title"
+                      value={formData.title}
+                      onChange={handleChange}
+                      aria-invalid={!!errors.title}
+                      className="text-base"
+                    />
+                    {errors.title && <FieldError>{errors.title}</FieldError>}
+                  </FieldContent>
+                </Field>
 
-								{/* Category */}
-								<Field>
-									<FieldLabel htmlFor="category">Category *</FieldLabel>
-									<FieldContent>
-										<Select
-											value={formData.category}
-											onValueChange={handleCategoryChange}
-										>
-											<SelectTrigger
-												id="category"
-												aria-invalid={!!errors.category}
-											>
-												<SelectValue placeholder="Select a category" />
-											</SelectTrigger>
-											<SelectContent>
-												{CATEGORIES.map(cat => (
-													<SelectItem key={cat.value} value={cat.value}>
-														{cat.label}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										{errors.category && (
-											<FieldError>{errors.category}</FieldError>
-										)}
-									</FieldContent>
-								</Field>
+                {/* Category */}
+                <Field>
+                  <FieldLabel htmlFor="category">Category *</FieldLabel>
+                  <FieldContent>
+                    <Select value={formData.category} onValueChange={handleCategoryChange}>
+                      <SelectTrigger id="category" aria-invalid={!!errors.category}>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CATEGORIES.map((cat) => (
+                          <SelectItem key={cat.value} value={cat.value}>
+                            {cat.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.category && <FieldError>{errors.category}</FieldError>}
+                  </FieldContent>
+                </Field>
 
-								{/* Image URL */}
-								<Field>
-									<FieldLabel htmlFor="imageUrl">Image URL *</FieldLabel>
-									<FieldContent>
-										<Input
-											id="imageUrl"
-											name="imageUrl"
-											type="url"
-											placeholder="https://example.com/image.jpg"
-											value={formData.imageUrl}
-											onChange={handleChange}
-											aria-invalid={!!errors.imageUrl}
-										/>
-										{errors.imageUrl && (
-											<FieldError>{errors.imageUrl}</FieldError>
-										)}
-										<FieldDescription>
-											Provide a direct link to the article cover image
-										</FieldDescription>
-									</FieldContent>
-								</Field>
+                {/* Image URL */}
+                <Field>
+                  <FieldLabel htmlFor="imageUrl">Image URL *</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      id="imageUrl"
+                      name="imageUrl"
+                      type="url"
+                      placeholder="https://example.com/image.jpg"
+                      value={formData.imageUrl}
+                      onChange={handleChange}
+                      aria-invalid={!!errors.imageUrl}
+                    />
+                    {errors.imageUrl && <FieldError>{errors.imageUrl}</FieldError>}
+                    <FieldDescription>Provide a direct link to the article cover image</FieldDescription>
+                  </FieldContent>
+                </Field>
 
-								{/* Content */}
-								<Field>
-									<FieldLabel htmlFor="content">Content *</FieldLabel>
-									<FieldContent>
-										<Textarea
-											id="content"
-											name="content"
-											placeholder="Write your article content here... (Markdown supported)"
-											value={formData.content}
-											onChange={handleChange}
-											aria-invalid={!!errors.content}
-											rows={12}
-											className="resize-none font-mono text-sm"
-										/>
-										{errors.content && (
-											<FieldError>{errors.content}</FieldError>
-										)}
-										<FieldDescription>
-											You can use Markdown for formatting
-										</FieldDescription>
-									</FieldContent>
-								</Field>
-							</FieldGroup>
-						</CardContent>
+                {/* Content */}
+                <Field>
+                  <FieldLabel htmlFor="content">Content *</FieldLabel>
+                  <FieldContent>
+                    <Textarea
+                      id="content"
+                      name="content"
+                      placeholder="Write your article content here... (Markdown supported)"
+                      value={formData.content}
+                      onChange={handleChange}
+                      aria-invalid={!!errors.content}
+                      rows={12}
+                      className="resize-none font-mono text-sm"
+                    />
+                    {errors.content && <FieldError>{errors.content}</FieldError>}
+                    <FieldDescription>You can use Markdown for formatting</FieldDescription>
+                  </FieldContent>
+                </Field>
+              </FieldGroup>
+            </CardContent>
 
-						<CardFooter className="flex flex-col sm:flex-row gap-3 sm:justify-end border-t pt-6">
-							<Button
-								type="button"
-								variant="outline"
-								asChild
-								className="w-full sm:w-auto"
-							>
-								<Link href="/admin/news">Cancel</Link>
-							</Button>
-							<Button
-								type="submit"
-								disabled={updateLoading}
-								className="w-full sm:w-auto gap-2"
-							>
-								{updateLoading ? (
-									<Loader2 className="h-4 w-4 animate-spin" />
-								) : (
-									<Save className="h-4 w-4" />
-								)}
-								{updateLoading ? 'Saving...' : 'Save Changes'}
-							</Button>
-						</CardFooter>
-					</form>
-				</Card>
+            <CardFooter className="flex flex-col sm:flex-row gap-3 sm:justify-end border-t pt-6">
+              <Button type="button" variant="outline" asChild className="w-full sm:w-auto">
+                <Link href="/admin/news">Cancel</Link>
+              </Button>
+              <Button type="submit" disabled={updateLoading} className="w-full sm:w-auto gap-2">
+                {updateLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                {updateLoading ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
 
-				{/* Preview Panel */}
-				<div className="space-y-4">
-					<Card>
-						<CardHeader className="pb-3">
-							<div className="flex items-center justify-between">
-								<CardTitle className="text-base">Image Preview</CardTitle>
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => setShowPreview(!showPreview)}
-									className="gap-1 text-xs"
-								>
-									<Eye className="h-3 w-3" />
-									{showPreview ? 'Hide' : 'Show'}
-								</Button>
-							</div>
-						</CardHeader>
-						{showPreview && (
-							<CardContent>
-								<div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-									{formData.imageUrl && isValidUrl(formData.imageUrl) ? (
-										<Image
-											src={formData.imageUrl}
-											alt="Preview"
-											fill
-											className="object-cover"
-											onError={e => {
-												(e.target as HTMLImageElement).style.display = 'none';
-											}}
-										/>
-									) : (
-										<div className="flex h-full items-center justify-center">
-											<ImageIcon className="h-12 w-12 text-muted-foreground/30" />
-										</div>
-									)}
-								</div>
-							</CardContent>
-						)}
-					</Card>
+        {/* Preview Panel */}
+        <div className="space-y-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">Image Preview</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowPreview(!showPreview)}
+                  className="gap-1 text-xs"
+                >
+                  <Eye className="h-3 w-3" />
+                  {showPreview ? 'Hide' : 'Show'}
+                </Button>
+              </div>
+            </CardHeader>
+            {showPreview && (
+              <CardContent>
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
+                  {formData.imageUrl && isValidUrl(formData.imageUrl) ? (
+                    <Image
+                      src={formData.imageUrl}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <ImageIcon className="h-12 w-12 text-muted-foreground/30" />
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            )}
+          </Card>
 
-					<Card className="bg-muted/30">
-						<CardHeader className="pb-3">
-							<CardTitle className="text-base">Article Info</CardTitle>
-						</CardHeader>
-						<CardContent className="text-sm text-muted-foreground space-y-2">
-							<p>
-								<strong>ID:</strong>{' '}
-								<span className="font-mono text-xs">{news.id}</span>
-							</p>
-							<p>
-								<strong>Created:</strong>{' '}
-								{new Date(news.createdAt).toLocaleDateString('en-US', {
-									month: 'long',
-									day: 'numeric',
-									year: 'numeric',
-								})}
-							</p>
-						</CardContent>
-					</Card>
-				</div>
-			</div>
-		</div>
-	);
+          <Card className="bg-muted/30">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Article Info</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground space-y-2">
+              <p>
+                <strong>ID:</strong> <span className="font-mono text-xs">{news.id}</span>
+              </p>
+              <p>
+                <strong>Created:</strong>{' '}
+                {new Date(news.createdAt).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default AdminNewsEditViewUi;
