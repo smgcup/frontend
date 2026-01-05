@@ -1,6 +1,7 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
+import logoPng from '@/public/favicon.png';
 import {
   Button,
   NavigationMenu,
@@ -26,7 +27,7 @@ type MenuItem = {
   items?: MenuItem[];
 };
 
-const logoUrl = '/favicon.png';
+const logoUrl = logoPng;
 
 const menu: MenuItem[] = [
   { title: 'Home', url: '/' },
@@ -119,9 +120,7 @@ const Navbar = () => {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
               <Image
-                src={
-                  'https://github.com/BorisAngelov23/smgCLFinalProject/blob/master/static_files/images/favicon.png?raw=true'
-                }
+                src={logoUrl}
                 alt="SMG Cup Championship Logo"
                 width={70}
                 height={70}
