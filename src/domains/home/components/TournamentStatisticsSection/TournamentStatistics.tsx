@@ -4,6 +4,9 @@ import { Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { goalIcon, matchIcon, playerIcon, teamIcon } from '@/public/icons';
 import { Team } from '@/domains/team/contracts';
+import type { News } from '@/domains/news/contracts';
+import { AnimatedNumber } from '@/components/motion/AnimatedNumber';
+import { Reveal } from '@/components/motion/Reveal';
 
 type Statistic = {
   id: string;
@@ -15,35 +18,47 @@ type Statistic = {
 
 type TournamentStatisticsProps = {
   teams: Team[];
+  news: News[];
 };
-const TournamentStatistics = ({ teams }: TournamentStatisticsProps) => {
+const TournamentStatistics = ({ teams, news }: TournamentStatisticsProps) => {
+  const latestNews = [...(news ?? [])].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  )[0];
+
+  const daysSinceLatestUpdate = latestNews
+    ? Math.max(
+        0,
+        Math.floor((Date.now() - new Date(latestNews.createdAt).getTime()) / (1000 * 60 * 60 * 24)),
+      )
+    : 0;
+
   const overallStats: Statistic[] = [
     {
-      id: '1',
-      label: 'Total Matches',
-      value: 48,
-      icon: <Image src={matchIcon} alt="Match Icon" width={40} height={40} />,
-      color: 'text-blue-500',
-    },
-    {
-      id: '2',
-      label: 'Total Teams',
+      id: 'teams',
+      label: 'Teams',
       value: teams.length,
       icon: <Image src={teamIcon} alt="Team Icon" width={32} height={32} />,
       color: 'text-green-500',
     },
     {
-      id: '3',
-      label: 'Total Goals',
-      value: 156,
-      icon: <Image src={goalIcon} alt="Goal Icon" width={32} height={32} />,
+      id: 'news',
+      label: 'News Posts',
+      value: news.length,
+      icon: <Image src={matchIcon} alt="News Icon" width={40} height={40} />,
+      color: 'text-blue-500',
+    },
+    {
+      id: 'freshness',
+      label: 'Days Since Update',
+      value: daysSinceLatestUpdate,
+      icon: <Image src={goalIcon} alt="Update Icon" width={32} height={32} />,
       color: 'text-purple-500',
     },
     {
-      id: '4',
-      label: 'Avg Goals/Match',
-      value: '3.25',
-      icon: <Image src={playerIcon} alt="Player Icon" width={32} height={32} />,
+      id: 'season',
+      label: 'Season Status',
+      value: 'Live',
+      icon: <Image src={playerIcon} alt="Status Icon" width={32} height={32} />,
       color: 'text-orange-500',
     },
   ];
@@ -198,109 +213,57 @@ const TournamentStatistics = ({ teams }: TournamentStatisticsProps) => {
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
       <div className="container mx-auto max-w-7xl">
-        <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Tournament Statistics</h2>
-          <p className="mt-4 text-lg text-muted-foreground">Overview of the league performance and key metrics</p>
-        </div>
+        <Reveal>
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Tournament Statistics</h2>
+            <p className="mt-4 text-lg text-muted-foreground">A real-time snapshot of what&apos;s happening</p>
+          </div>
+        </Reveal>
 
         {/* Overall Stats Grid */}
         <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {overallStats.map((stat) => (
-            <div
-              key={stat.id}
-              className="group relative overflow-hidden rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                  <p className="mt-2 text-3xl font-bold">{stat.value}</p>
+            <Reveal key={stat.id} delayMs={60}>
+              <div className="group relative overflow-hidden rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
+                <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                    <p className="mt-2 text-3xl font-bold tabular-nums">
+                      {typeof stat.value === 'number' ? <AnimatedNumber value={stat.value} /> : stat.value}
+                    </p>
+                  </div>
+                  <div className={cn('opacity-80', stat.color)}>{stat.icon}</div>
                 </div>
-                <div className={cn('opacity-80', stat.color)}>{stat.icon}</div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
 
-        {/* Standings Table */}
-        <div className="rounded-lg border bg-card p-6 shadow-sm">
-          <div className="mb-6 flex items-center gap-2">
-            <Trophy className="h-6 w-6 text-yellow-500" />
-            <h3 className="text-2xl font-bold">Standings</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">Pos</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">Team</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">P</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">W</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">D</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">L</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">GF</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">GA</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">GD</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">Pts</th>
-                </tr>
-              </thead>
-              <tbody>
-                {teams.map((team, index) => (
-                  <tr key={team.id} className="border-b transition-colors hover:bg-muted/50">
-                    <td className="px-3 py-4 text-center">
-                      <div
-                        className={cn(
-                          'mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold',
-                          index === 0 && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-                          index === 1 && 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-                          index === 2 && 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-                          index >= 3 && 'bg-muted text-muted-foreground',
-                        )}
-                      >
-                        {index + 1}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <p className="font-semibold">{team.name}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-medium">{0}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-medium">{0}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-medium">{0}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-medium">{0}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-medium">{0}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-medium">{0}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p
-                        className={cn(
-                          'font-medium',
-                          0 > 0 && 'text-green-600 dark:text-green-400',
-                          0 < 0 && 'text-red-600 dark:text-red-400',
-                        )}
-                      >
-                        {0 > 0 ? '+' : ''}
-                        {0}
-                      </p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-bold">{0}</p>
-                    </td>
-                  </tr>
+        <Reveal>
+          <div className="rounded-lg border bg-card p-6 shadow-sm">
+            <div className="mb-6 flex items-center gap-2">
+              <Trophy className="h-6 w-6 text-yellow-500" />
+              <h3 className="text-2xl font-bold">Teams</h3>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[...teams]
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((team, idx) => (
+                  <div
+                    key={team.id}
+                    className="group rounded-xl border bg-background/50 p-4 transition-all hover:shadow-md hover:-translate-y-0.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="font-semibold">{team.name}</div>
+                      <div className="text-xs font-semibold text-muted-foreground">#{idx + 1}</div>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              {teams.length === 0 && <div className="text-muted-foreground">No teams available.</div>}
+            </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

@@ -9,9 +9,9 @@ type HomeViewUiProps = {
 const HomeViewUi = ({ teams, news }: HomeViewUiProps) => {
   return (
     <>
-      <HeroSection />
-      <UpcomingMatchesSection teams={teams} />
-      <TournamentStatistics teams={teams} />
+      <HeroSection teams={teams} news={news} />
+      <UpcomingMatchesSection teams={teams} news={news} />
+      <TournamentStatistics teams={teams} news={news} />
       <NewsSection news={news} />
     </>
   );

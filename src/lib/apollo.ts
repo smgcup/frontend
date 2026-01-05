@@ -5,24 +5,14 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { createAuthLink, AUTH_COOKIE_NAME } from './auth';
 import { getCookie } from './cookies';
+import { getBrowserGraphqlEndpoint } from '@/lib/graphqlEndpoint';
 
 export const makeClient = (): ApolloClient => {
-  // Get the GraphQL endpoint, using current hostname if it's localhost
-  const getGraphQLEndpoint = () => {
-    if (typeof window !== 'undefined') {
-      const currentHost = window.location.hostname;
-      const endpoint = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:4000/graphql';
-      // If endpoint uses localhost but we're accessing via IP, replace it
-      if (endpoint.includes('localhost') && currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
-        return endpoint.replace('localhost', currentHost);
-      }
-      return endpoint;
-    }
-    return process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT!;
-  };
+  // Browser-safe endpoint. If env is "/graphql", keep it relative.
+  const endpoint = getBrowserGraphqlEndpoint();
 
   const httpLink = new HttpLink({
-    uri: getGraphQLEndpoint(),
+    uri: endpoint,
     fetchOptions: { cache: 'no-store' },
     // credentials: "include",
     headers: process.env.NEXT_PUBLIC_GRAPHQL_TOKEN

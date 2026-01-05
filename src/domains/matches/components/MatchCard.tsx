@@ -1,7 +1,6 @@
 'use client';
 
 import type React from 'react';
-import Link from 'next/link';
 import { Calendar, Clock, MapPin, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -59,14 +58,14 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
 
         <div className="flex items-center justify-between gap-4">
           <div className="flex-1">
-            <Link href={`/teams/${match.team1.toLowerCase()}`} className="block text-center group/team">
-              <div className="text-2xl font-bold tracking-tight group-hover/team:text-primary transition-colors">
+            <div className="block text-center">
+              <div className="text-2xl font-bold tracking-tight group-hover:text-primary transition-colors">
                 {match.team1}
               </div>
               {match.status === 'completed' && match.score1 !== undefined && (
                 <div className="text-3xl font-black mt-2 text-primary">{match.score1}</div>
               )}
-            </Link>
+            </div>
           </div>
 
           <div className="shrink-0 flex flex-col items-center">
@@ -83,14 +82,14 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
           </div>
 
           <div className="flex-1">
-            <Link href={`/teams/${match.team2.toLowerCase()}`} className="block text-center group/team">
-              <div className="text-2xl font-bold tracking-tight group-hover/team:text-primary transition-colors">
+            <div className="block text-center">
+              <div className="text-2xl font-bold tracking-tight group-hover:text-primary transition-colors">
                 {match.team2}
               </div>
               {match.status === 'completed' && match.score2 !== undefined && (
                 <div className="text-3xl font-black mt-2 text-primary">{match.score2}</div>
               )}
-            </Link>
+            </div>
           </div>
         </div>
 
@@ -106,7 +105,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
           {match.venue && (
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <MapPin className="h-4 w-4 text-primary/70" />
-              <span className="font-medium">SMG Arena</span>
+              <span className="font-medium">{match.venue}</span>
             </div>
           )}
         </div>

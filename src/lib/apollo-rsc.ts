@@ -2,16 +2,18 @@ import { registerApolloClient } from '@apollo/client-integration-nextjs';
 import { HttpLink } from '@apollo/client';
 import { ApolloClient, InMemoryCache } from '@apollo/client-integration-nextjs';
 import { cookies } from 'next/headers';
+import { getServerGraphqlEndpoint } from '@/lib/graphqlEndpoint.server';
 
 export const { getClient } = registerApolloClient(async () => {
   // Get auth token from cookies
   const cookieStore = await cookies();
   const authToken = cookieStore.get(`sb-${process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID}-auth-token`)?.value;
+  const uri = await getServerGraphqlEndpoint();
 
   return new ApolloClient({
     cache: new InMemoryCache(),
     link: new HttpLink({
-      uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT!,
+      uri,
       fetchOptions: { cache: 'no-store' },
       headers: {
         ...(process.env.GRAPHQL_SERVER_TOKEN && {

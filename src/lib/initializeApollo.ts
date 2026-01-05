@@ -2,6 +2,7 @@ import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
 import { registerApolloClient } from '@apollo/client-integration-nextjs';
 import { headers } from 'next/headers';
 import { AUTH_COOKIE_NAME } from '@/lib/auth';
+import { getServerGraphqlEndpoint } from '@/lib/graphqlEndpoint.server';
 
 function getCookieValue(cookieHeader: string, name: string): string | null {
   // Simple cookie parser (works for typical cookie strings)
@@ -21,11 +22,12 @@ export const { getClient } = registerApolloClient(async () => {
   const token = tokenFromCookie ?? process.env.NEXT_PUBLIC_GRAPHQL_TOKEN ?? null;
 
   const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+  const uri = await getServerGraphqlEndpoint();
 
   return new ApolloClient({
     cache: new InMemoryCache(),
     link: new HttpLink({
-      uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT,
+      uri,
       fetch,
       headers: {
         // forward cookies for session-based auth if your API uses them
