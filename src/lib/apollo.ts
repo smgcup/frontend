@@ -18,7 +18,12 @@ export const makeClient = (): ApolloClient => {
       }
       return endpoint;
     }
-    return process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT!;
+    const endpoint = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:4000/graphql';
+    // If someone configured a relative endpoint (e.g. "/graphql"), Node fetch needs an absolute URL
+    if (endpoint.startsWith('/') && endpoint.length > 1) {
+      return `http://localhost:${process.env.PORT ?? 3000}${endpoint}`;
+    }
+    return endpoint;
   };
 
   const httpLink = new HttpLink({

@@ -1,5 +1,5 @@
 import Sidebar from '@/domains/admin/auth/components/Sidebar';
-import { HomeIcon, CalendarIcon, UsersIcon, FileText } from 'lucide-react';
+import { HomeIcon, CalendarIcon, UsersIcon, FileText, User } from 'lucide-react';
 
 export default function AdminLayout({
   children,
@@ -29,6 +29,11 @@ export default function AdminLayout({
             title: 'Teams & Players',
             url: '/admin/teams',
             icon: <UsersIcon />,
+          },
+          {
+            title: 'Players',
+            url: '/admin/players',
+            icon: <User />,
           },
         ]}
       />

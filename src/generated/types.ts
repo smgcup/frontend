@@ -68,7 +68,11 @@ export type Mutation = {
   createPlayer: Player;
   createTeam: Team;
   deleteNews: News;
+  deletePlayer: Player;
+  deleteTeam: Team;
   updateNews: News;
+  updatePlayer: Player;
+  updateTeam: Team;
 };
 
 
@@ -97,9 +101,31 @@ export type MutationDeleteNewsArgs = {
 };
 
 
+export type MutationDeletePlayerArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteTeamArgs = {
+  id: Scalars['String']['input'];
+};
+
+
 export type MutationUpdateNewsArgs = {
   id: Scalars['String']['input'];
   updateNewsDto: UpdateNewsDto;
+};
+
+
+export type MutationUpdatePlayerArgs = {
+  id: Scalars['String']['input'];
+  updatePlayerDto: UpdatePlayerDto;
+};
+
+
+export type MutationUpdateTeamArgs = {
+  id: Scalars['String']['input'];
+  updateTeamDto: UpdateTeamDto;
 };
 
 export type News = {
@@ -179,13 +205,18 @@ export type UpdateNewsDto = {
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdatePlayerDto = {
+  firstName?: InputMaybe<Scalars['String']['input']>;
+  height?: InputMaybe<Scalars['Float']['input']>;
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  lastName?: InputMaybe<Scalars['String']['input']>;
+  position?: InputMaybe<PlayerPosition>;
+  prefferedFoot?: InputMaybe<PreferredFoot>;
+  teamId?: InputMaybe<Scalars['String']['input']>;
+  weight?: InputMaybe<Scalars['Float']['input']>;
+  yearOfBirth?: InputMaybe<Scalars['Float']['input']>;
+};
 
-export enum Queries {
-  __typename = '__typename',
-  health = 'health',
-  news = 'news',
-  newsById = 'newsById',
-  playerById = 'playerById',
-  teamById = 'teamById',
-  teams = 'teams',
-}
+export type UpdateTeamDto = {
+  name?: InputMaybe<Scalars['String']['input']>;
+};

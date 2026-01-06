@@ -1,0 +1,19 @@
+query PlayerById($id: String!) {
+  playerById(id: $id) {
+    id
+    firstName
+    lastName
+    yearOfBirth
+    height
+    weight
+    imageUrl
+    prefferedFoot
+    position
+    team {
+      id
+      name
+    }
+  }
+}
+
+
