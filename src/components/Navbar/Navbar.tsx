@@ -170,14 +170,19 @@ const Navbar = () => {
                   <Link href={'/login'}>{'Login'}</Link>
                 </Button>
               )}
-              <Button variant="outline" size="icon" className="relative" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative h-10 w-10 -mr-3"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
                 <Menu
-                  className={`size-4 transition-all duration-300 ${
+                  className={`size-5.5 transition-all duration-300 ${
                     isMenuOpen ? 'opacity-0 rotate-90 scale-0' : 'opacity-100 rotate-0 scale-100'
                   }`}
                 />
                 <X
-                  className={`absolute size-4 transition-all duration-300 ${
+                  className={`absolute size-5.5 transition-all duration-300 ${
                     isMenuOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0'
                   }`}
                 />

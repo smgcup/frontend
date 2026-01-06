@@ -48,10 +48,16 @@ const HeroSection = () => {
           </div>
 
           {/* Quick Stats */}
-          <div className="mt-16 flex justify-center sm:grid grid-cols-1 gap-8 sm:grid-cols-3">
-            <HeroStatistic icon={teamIcon} value={12} label="Teams Competing" />
-            <HeroStatistic icon={matchIcon} value={48} label="Matches Played" />
-            <HeroStatistic icon={goalIcon} value={156} label="Goals Scored" />
+          <div className="mt-16 grid grid-cols-1 justify-items-center gap-8 sm:grid-cols-3">
+            <div className="w-full max-w-[16rem] sm:max-w-none">
+              <HeroStatistic icon={teamIcon} value={12} label="Teams Competing" />
+            </div>
+            <div className="w-full max-w-[16rem] sm:max-w-none">
+              <HeroStatistic icon={matchIcon} value={48} label="Matches Played" />
+            </div>
+            <div className="w-full max-w-[16rem] sm:max-w-none">
+              <HeroStatistic icon={goalIcon} value={156} label="Goals Scored" />
+            </div>
           </div>
         </div>
       </div>
