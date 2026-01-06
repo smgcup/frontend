@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreateTeamDto } from '@/graphql';
+import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 type AdminTeamCreateViewUiProps = {
   onAdminCreateTeam: (createTeamDto: CreateTeamDto) => void;
   adminCreateTeamLoading: boolean;
@@ -55,12 +56,8 @@ const AdminTeamCreateViewUi = ({ onAdminCreateTeam, adminCreateTeamLoading }: Ad
   };
 
   return (
-    <div className="space-y-6 p-4 lg:p-6 max-w-4xl mx-auto">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight ">Create Team</h1>
-        <p className="mt-2 text-muted-foreground">Add a new team to the tournament</p>
-      </div>
+    <div className="space-y-6 max-w-4xl mx-auto">
+      <AdminPageHeader title="Create team" description="Add a new team to the tournament" backHref="/admin/teams" />
 
       {/* Form Card */}
       <Card>

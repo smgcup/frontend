@@ -22,7 +22,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Loader2, Save, Trash2 } from 'lucide-react';
+import { Loader2, Save, Trash2 } from 'lucide-react';
+import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminPlayerEditViewUiProps = {
   player:
@@ -263,19 +264,8 @@ const AdminPlayerEditViewUi = ({
   }, [teamsData, formData.teamId, player?.team?.name]);
 
   return (
-    <div className="space-y-6 p-4 lg:p-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Player</h1>
-          <p className="mt-2 text-muted-foreground">Update player details</p>
-        </div>
-        <Button asChild variant="outline">
-          <Link href="/admin/players">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Link>
-        </Button>
-      </div>
+    <div className="space-y-6 max-w-4xl mx-auto">
+      <AdminPageHeader title="Edit player" description="Update player details" backHref="/admin/players" />
 
       <Card>
         <CardHeader>

@@ -20,18 +20,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Pencil, Plus, Trash2, User } from 'lucide-react';
 import type { DeletePlayerMutation, DeletePlayerMutationVariables, TeamsWithPlayersQuery } from '@/graphql';
 import { DeletePlayerDocument } from '@/graphql';
+import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type Player = NonNullable<TeamsWithPlayersQuery['teams'][0]['players']>[0];
 
 type AdminPlayersListViewUiProps = {
   teams: TeamsWithPlayersQuery['teams'];
   players: Player[];
+  currentYear: number;
   error?: unknown;
 };
 
-const AdminPlayersListViewUi = ({ teams, players, error }: AdminPlayersListViewUiProps) => {
+const AdminPlayersListViewUi = ({ teams, players, currentYear, error }: AdminPlayersListViewUiProps) => {
   const router = useRouter();
-  const currentYear = new Date().getFullYear();
 
   const [actionError, setActionError] = useState<string | null>(null);
   const [deletingPlayerId, setDeletingPlayerId] = useState<string | null>(null);
@@ -82,27 +83,28 @@ const AdminPlayersListViewUi = ({ teams, players, error }: AdminPlayersListViewU
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Players</h1>
-          <p className="mt-1 text-muted-foreground">Edit or delete players</p>
-        </div>
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-          <Button asChild className="w-full sm:w-auto">
-            <Link href="/admin/players/create">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Player
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="w-full sm:w-auto">
-            <Link href="/admin/teams">
-              <User className="mr-2 h-4 w-4" />
-              Teams & Players
-            </Link>
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-8 py-4 lg:p-10">
+      <AdminPageHeader
+        title="Players"
+        subtitle={`${players.length} total`}
+        description="Create, edit, or delete players"
+        actions={
+          <>
+            <Button asChild className="w-full sm:w-auto">
+              <Link href="/admin/players/create">
+                <Plus className="mr-2 h-4 w-4" />
+                Create player
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full sm:w-auto">
+              <Link href="/admin/teams">
+                <User className="mr-2 h-4 w-4" />
+                View teams
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {actionError && (
         <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">

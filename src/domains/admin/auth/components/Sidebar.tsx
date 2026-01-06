@@ -1,10 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '@/components/ui';
-import { Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 type SidebarItem = {
@@ -15,53 +13,48 @@ type SidebarItem = {
 
 type SidebarProps = {
   items?: SidebarItem[];
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
-const Sidebar = ({ items = [] }: SidebarProps) => {
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+const Sidebar = ({ items = [], isOpen = false, onOpenChange }: SidebarProps) => {
   const pathname = usePathname();
 
   const logoUrl =
     'https://github.com/BorisAngelov23/smgCLFinalProject/blob/master/static_files/images/favicon.png?raw=true';
 
-  const toggleMobileMenu = () => {
-    setIsMobileOpen(!isMobileOpen);
-  };
+  const setOpen = (open: boolean) => onOpenChange?.(open);
 
-  const closeMobileMenu = () => {
-    setIsMobileOpen(false);
-  };
+  // Close on Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen]);
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <Button variant="outline" size="icon" className="fixed top-4 left-4 z-50 lg:hidden" onClick={toggleMobileMenu}>
-        <Menu
-          className={`size-4 transition-all duration-300 ${
-            isMobileOpen ? 'opacity-0 rotate-90 scale-0' : 'opacity-100 rotate-0 scale-100'
-          }`}
-        />
-        <X
-          className={`absolute size-4 transition-all duration-300 ${
-            isMobileOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0'
-          }`}
-        />
-      </Button>
-
       {/* Mobile Overlay */}
-      {isMobileOpen && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden" onClick={closeMobileMenu} />
+      {isOpen && (
+        <div
+          className="fixed left-0 right-0 bottom-0 top-14 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border z-40 transition-transform duration-300 ease-in-out ${
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        className={`fixed left-0 lg:top-0 top-14 lg:h-full h-[calc(100%-3.5rem)] bg-sidebar border-r border-sidebar-border z-40 transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } w-64 flex flex-col`}
       >
         {/* Logo Section */}
         <div className="flex items-center gap-2 px-6 py-6 border-b border-sidebar-border">
-          <Link href="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
+          <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
             <Image
               src={logoUrl}
               alt="SMG Cup Championship Logo"
@@ -84,7 +77,7 @@ const Sidebar = ({ items = [] }: SidebarProps) => {
                 <li key={item.title}>
                   <Link
                     href={item.url}
-                    onClick={closeMobileMenu}
+                    onClick={() => setOpen(false)}
                     className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
                         ? 'bg-sidebar-accent text-sidebar-accent-foreground'
