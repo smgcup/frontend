@@ -94,7 +94,7 @@ const AdminHomeViewUi = () => {
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8 py-4 lg:p-10">
       <AdminPageHeader title="Overview" description="Quick navigation and snapshot of your tournament management" />
 
       {/* Navigation Cards */}

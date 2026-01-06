@@ -161,10 +161,8 @@ const AdminMatchesListViewUi = ({
             return (
               <div
                 key={match.id}
-                className="group relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1"
+                className="group relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm"
               >
-                <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
                 <div className="relative p-6 flex flex-col space-y-6">
                   {/* Header with Round and Status */}
                   <div className="flex items-center justify-between">
