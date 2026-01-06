@@ -1,12 +1,12 @@
 import AdminTeamsViewUi from './AdminTeamsViewUi';
 import { getClient } from '@/lib/apollo-rsc';
-import { TeamsDocument, TeamsQuery, TeamsQueryVariables } from '@/graphql';
+import { TeamsWithPlayersDocument, TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables } from '@/graphql';
 
 const AdminTeamsView = async () => {
   const client = await getClient();
 
-  const { data, error } = await client.query<TeamsQuery, TeamsQueryVariables>({
-    query: TeamsDocument,
+  const { data, error } = await client.query<TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables>({
+    query: TeamsWithPlayersDocument,
   });
 
   const teams = data?.teams ?? [];
