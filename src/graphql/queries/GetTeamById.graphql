@@ -1,0 +1,14 @@
+query TeamById($id: String!) {
+  teamById(id: $id) {
+    id
+    name
+    createdAt
+    players {
+      id
+      firstName
+      lastName
+    }
+  }
+}
+
+

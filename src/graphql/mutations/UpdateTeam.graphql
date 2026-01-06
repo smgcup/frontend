@@ -1,0 +1,9 @@
+mutation UpdateTeam($id: String!, $dto: UpdateTeamDto!) {
+  updateTeam(id: $id, updateTeamDto: $dto) {
+    id
+    name
+    createdAt
+  }
+}
+
+

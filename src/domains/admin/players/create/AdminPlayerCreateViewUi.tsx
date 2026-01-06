@@ -9,6 +9,7 @@ import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLab
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@apollo/client/react';
+import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminPlayerCreateViewUiProps = {
   onAdminPlayerCreate: (createPlayerDto: CreatePlayerDto) => void;
@@ -126,11 +127,8 @@ const AdminPlayerCreateViewUi = ({
   };
 
   return (
-    <div className="space-y-6 p-4 lg:p-6 max-w-4xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight ">Create Player</h1>
-        <p className="mt-2 text-muted-foreground">Add a new player to a team</p>
-      </div>
+    <div className="space-y-6 max-w-4xl mx-auto">
+      <AdminPageHeader title="Create player" description="Add a new player to a team" backHref="/admin/players" />
 
       <Card>
         <CardHeader>

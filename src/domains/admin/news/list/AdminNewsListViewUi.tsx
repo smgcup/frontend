@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,17 +19,19 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Plus, Pencil, Trash2, Clock, FileText, ImageIcon, Loader2 } from 'lucide-react';
 import { GetNewsQuery } from '@/graphql';
+import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type NewsItem = GetNewsQuery['news'][number];
 
 type AdminNewsListViewUiProps = {
   news: NewsItem[];
   newsLoading: boolean;
+  newsError?: unknown;
   deleteLoading: boolean;
   onDeleteNews: (id: string) => Promise<void>;
 };
 
-const AdminNewsListViewUi = ({ news, newsLoading, deleteLoading, onDeleteNews }: AdminNewsListViewUiProps) => {
+const AdminNewsListViewUi = ({ news, newsLoading, newsError, deleteLoading, onDeleteNews }: AdminNewsListViewUiProps) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const formatDate = (dateString: string) => {
@@ -59,47 +61,42 @@ const AdminNewsListViewUi = ({ news, newsLoading, deleteLoading, onDeleteNews }:
 
   if (newsLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Loading news...</p>
+      <div className="py-4 lg:p-10">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading news...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (newsError) {
+    return (
+      <div className="py-4 lg:p-10">
+        <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
+          <p>Error loading news. Please try again later.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Page Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">News Management</h1>
-          <p className="mt-1 text-muted-foreground">Create, edit, and manage news articles</p>
-        </div>
-        <Button asChild className="gap-2">
-          <Link href="/admin/news/create">
-            <Plus className="h-4 w-4" />
-            Create Article
-          </Link>
-        </Button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="rounded-full bg-blue-500/20 p-3">
-                <FileText className="h-5 w-5 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{news.length}</p>
-                <p className="text-sm text-muted-foreground">Total Articles</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+    <div className="space-y-8 py-4 lg:p-10">
+      <AdminPageHeader
+        title="News"
+        subtitle={`${news.length} total`}
+        description="Create, edit, and manage news articles"
+        actions={
+          <Button asChild className="gap-2 w-full sm:w-auto">
+            <Link href="/admin/news/create">
+              <Plus className="h-4 w-4" />
+              Create article
+            </Link>
+          </Button>
+        }
+      />
 
       {/* News List */}
       {news.length === 0 ? (
@@ -191,7 +188,11 @@ const AdminNewsListViewUi = ({ news, newsLoading, deleteLoading, onDeleteNews }:
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction variant="destructive" onClick={() => handleDelete(item.id)}>
+                            <AlertDialogAction
+                              variant="destructive"
+                              onClick={() => handleDelete(item.id)}
+                              disabled={deleteLoading || deletingId === item.id}
+                            >
                               Delete
                             </AlertDialogAction>
                           </AlertDialogFooter>

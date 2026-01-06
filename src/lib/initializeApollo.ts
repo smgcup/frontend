@@ -22,10 +22,21 @@ export const { getClient } = registerApolloClient(async () => {
 
   const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
 
+  const rawEndpoint = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:4000/graphql';
+  const endpoint =
+    rawEndpoint.startsWith('/') && rawEndpoint.length > 1
+      ? (() => {
+          const proto = h.get('x-forwarded-proto') ?? 'http';
+          const host = h.get('x-forwarded-host') ?? h.get('host');
+          if (host) return `${proto}://${host}${rawEndpoint}`;
+          return `http://localhost:${process.env.PORT ?? 3000}${rawEndpoint}`;
+        })()
+      : rawEndpoint;
+
   return new ApolloClient({
     cache: new InMemoryCache(),
     link: new HttpLink({
-      uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT,
+      uri: endpoint,
       fetch,
       headers: {
         // forward cookies for session-based auth if your API uses them

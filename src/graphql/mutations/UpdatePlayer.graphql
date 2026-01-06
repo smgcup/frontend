@@ -1,0 +1,7 @@
+mutation UpdatePlayer($id: String!, $dto: UpdatePlayerDto!) {
+  updatePlayer(id: $id, updatePlayerDto: $dto) {
+    id
+  }
+}
+
+
