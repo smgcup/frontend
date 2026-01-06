@@ -7,7 +7,7 @@ import type { Team } from '@/domains/team/contracts';
 type UpcomingMatchesSectionProps = {
   teams: Team[];
 };
-const UpcomingMatchesSection = ({ teams }: UpcomingMatchesSectionProps) => {
+const UpcomingMatchesSection = ({}: UpcomingMatchesSectionProps) => {
   const matches: Match[] = [
     {
       id: '1',
@@ -57,7 +57,7 @@ const UpcomingMatchesSection = ({ teams }: UpcomingMatchesSectionProps) => {
 
   return (
     <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
+      <div className="absolute inset-0 bg-linear-to-b from-background via-primary/5 to-background" />
 
       <div className="container relative mx-auto max-w-7xl">
         <div className="mb-14 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
@@ -66,7 +66,7 @@ const UpcomingMatchesSection = ({ teams }: UpcomingMatchesSectionProps) => {
               <Trophy className="h-4 w-4" />
               <span>Live Schedule</span>
             </div>
-            <h2 className="text-4xl font-black tracking-tight sm:text-5xl bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+            <h2 className="text-4xl font-black tracking-tight sm:text-5xl bg-linear-to-b from-foreground to-foreground/70 bg-clip-text text-transparent pb-1.5">
               Upcoming Matches
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl leading-relaxed">
