@@ -45,7 +45,15 @@ type AdminMatchLiveViewUiProps = {
   events: MatchEvent[];
   matchLoading: boolean;
   currentMinute: number;
-  onAddEvent: (data: { type: MatchEventType; minute: number; playerId?: string; teamId: string }) => Promise<void>;
+  onAddEvent: (data: {
+    type: MatchEventType;
+    minute: number;
+    playerId?: string;
+    teamId: string;
+    payload?: unknown;
+  }) => Promise<void>;
+  onDeleteEvent?: (id: string) => Promise<void>;
+  deletingEventId?: string | null;
   onEndMatch: () => Promise<void>;
 };
 
@@ -74,6 +82,8 @@ const AdminMatchLiveViewUi = ({
   matchLoading,
   currentMinute,
   onAddEvent,
+  onDeleteEvent,
+  deletingEventId,
   onEndMatch,
 }: AdminMatchLiveViewUiProps) => {
   const [endingMatch, setEndingMatch] = useState(false);
@@ -213,6 +223,8 @@ const AdminMatchLiveViewUi = ({
             events={events}
             firstOpponentName={match.firstOpponent.name}
             secondOpponentName={match.secondOpponent.name}
+            onDeleteEvent={onDeleteEvent}
+            deletingEventId={deletingEventId}
           />
         </CardContent>
       </Card>

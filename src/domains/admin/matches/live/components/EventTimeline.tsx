@@ -2,7 +2,8 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Goal, AlertTriangle, Ban, Shield, Target, X, Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, Goal, AlertTriangle, Ban, Shield, Target, X, Calendar, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export enum MatchEventType {
@@ -20,6 +21,8 @@ type MatchEvent = {
   id: string;
   type: MatchEventType;
   minute: number;
+  payload?: unknown;
+  createdAt?: string;
   player?: {
     id: string;
     firstName: string;
@@ -35,6 +38,8 @@ type EventTimelineProps = {
   events: MatchEvent[];
   firstOpponentName: string;
   secondOpponentName: string;
+  onDeleteEvent?: (id: string) => Promise<void>;
+  deletingEventId?: string | null;
 };
 
 const getEventIcon = (type: MatchEventType) => {
@@ -103,7 +108,7 @@ const getEventColor = (type: MatchEventType) => {
   }
 };
 
-const EventTimeline = ({ events, firstOpponentName, secondOpponentName }: EventTimelineProps) => {
+const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEventId }: EventTimelineProps) => {
   if (events.length === 0) {
     return (
       <Card className="border-dashed">
@@ -118,14 +123,14 @@ const EventTimeline = ({ events, firstOpponentName, secondOpponentName }: EventT
 
   return (
     <div className="space-y-3">
-      {events.map((event, index) => {
+      {events.map((event) => {
         const isFirstTeam = event.team.name === firstOpponentName;
         return (
           <div
             key={event.id}
             className={cn(
               'flex items-start gap-4 p-4 rounded-lg border bg-card transition-all',
-              isFirstTeam ? 'border-l-4 border-l-primary' : 'border-r-4 border-r-primary'
+              isFirstTeam ? 'border-l-4 border-l-primary' : 'border-r-4 border-r-primary',
             )}
           >
             <div className="shrink-0">
@@ -149,9 +154,25 @@ const EventTimeline = ({ events, firstOpponentName, secondOpponentName }: EventT
                   <p className="text-sm text-muted-foreground">{event.team.name}</p>
                 </div>
                 <div className="shrink-0">
-                  <Badge variant="outline" className="font-mono">
-                    {event.minute}'
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="font-mono">
+                      {event.minute}
+                    </Badge>
+                    {onDeleteEvent && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => onDeleteEvent(event.id)}
+                        disabled={Boolean(deletingEventId)}
+                        className="h-8 w-8"
+                        aria-label="Delete event"
+                        title="Delete event"
+                      >
+                        <Trash2 className={cn('h-4 w-4', deletingEventId === event.id && 'opacity-50')} />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -163,4 +184,3 @@ const EventTimeline = ({ events, firstOpponentName, secondOpponentName }: EventT
 };
 
 export default EventTimeline;
-

@@ -8,10 +8,20 @@ query MatchById($id: String!) {
     firstOpponent {
       id
       name
+      players {
+        id
+        firstName
+        lastName
+      }
     }
     secondOpponent {
       id
       name
+      players {
+        id
+        firstName
+        lastName
+      }
     }
   }
 }

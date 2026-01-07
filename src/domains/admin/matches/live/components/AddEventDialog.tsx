@@ -38,6 +38,7 @@ type AddEventDialogProps = {
     minute: number;
     playerId?: string;
     teamId: string;
+    payload?: unknown;
   }) => Promise<void>;
   trigger: React.ReactNode;
 };
@@ -71,6 +72,7 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventD
     minute: currentMinute.toString(),
     teamId: '',
     playerId: '',
+    payload: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -121,6 +123,17 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventD
       newErrors.minute = 'Minute must be between 0 and 120';
     }
 
+    if (formData.payload) {
+      try {
+        const parsed = JSON.parse(formData.payload);
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+          newErrors.payload = 'Payload must be a JSON object';
+        }
+      } catch {
+        newErrors.payload = 'Payload must be valid JSON';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -132,11 +145,14 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventD
 
     setLoading(true);
     try {
+      const payload =
+        formData.payload.trim().length > 0 ? (JSON.parse(formData.payload) as unknown) : undefined;
       await onAddEvent({
         type: selectedEventType,
         minute: parseInt(formData.minute),
         teamId: formData.teamId,
         playerId: needsPlayer ? formData.playerId : undefined,
+        payload,
       });
       setOpen(false);
       // Reset form
@@ -145,6 +161,7 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventD
         minute: currentMinute.toString(),
         teamId: '',
         playerId: '',
+        payload: '',
       });
       setErrors({});
     } catch (error) {
@@ -243,6 +260,24 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventD
                 />
                 {errors.minute && <FieldError>{errors.minute}</FieldError>}
                 <FieldDescription>Enter the minute when the event occurred</FieldDescription>
+              </FieldContent>
+            </Field>
+
+            {/* Payload (optional) */}
+            <Field>
+              <FieldLabel htmlFor="payload">Payload (JSON)</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="payload"
+                  name="payload"
+                  type="text"
+                  placeholder='{"key":"value"}'
+                  value={formData.payload}
+                  onChange={handleChange}
+                  aria-invalid={!!errors.payload}
+                />
+                {errors.payload && <FieldError>{errors.payload}</FieldError>}
+                <FieldDescription>Optional JSON object (leave empty if not needed)</FieldDescription>
               </FieldContent>
             </Field>
           </FieldGroup>
