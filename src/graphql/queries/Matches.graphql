@@ -1,0 +1,19 @@
+query Matches {
+  matches {
+    id
+    date
+    status
+    score1
+    score2
+    firstOpponent {
+      id
+      name
+    }
+    secondOpponent {
+      id
+      name
+    }
+  }
+}
+
+

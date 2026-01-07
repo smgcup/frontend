@@ -1,26 +1,98 @@
 'use client';
 
 import AdminMatchCreateViewUi from './AdminMatchCreateViewUi';
+import { useMutation, useQuery } from '@apollo/client/react';
+import { useRouter } from 'next/navigation';
+import {
+  CreateMatchDocument,
+  type CreateMatchMutation,
+  type CreateMatchMutationVariables,
+  MatchStatus,
+  TeamsDocument,
+  type TeamsQuery,
+} from '@/graphql';
+import { useMemo, useState } from 'react';
 
-// Mock data for UI - replace with actual hook later
 const AdminMatchCreateView = () => {
-  const teams: Parameters<typeof AdminMatchCreateViewUi>[0]['teams'] = [
-    { id: 'team1', name: '12A' },
-    { id: 'team2', name: '12B' },
-    { id: 'team3', name: '11A' },
-    { id: 'team4', name: '11B' },
-    { id: 'team5', name: '10A' },
-    { id: 'team6', name: '10B' },
-    { id: 'team7', name: '9A' },
-    { id: 'team8', name: '9B' },
-    { id: 'team9', name: '8A' },
-    { id: 'team10', name: '8B' },
-  ];
+  const router = useRouter();
 
-  const createLoading = false;
-  const onCreateMatch = async (_data: Parameters<typeof AdminMatchCreateViewUi>[0]['onCreateMatch'] extends (data: infer T) => any ? T : never) => {};
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [externalErrors, setExternalErrors] = useState<Record<string, string>>({});
 
-  return <AdminMatchCreateViewUi teams={teams} onCreateMatch={onCreateMatch} createLoading={createLoading} />;
+  const { data: teamsData, loading: teamsLoading, error: teamsError } = useQuery<TeamsQuery>(TeamsDocument);
+
+  const [createMatchMutation, { loading: createLoading }] = useMutation<
+    CreateMatchMutation,
+    CreateMatchMutationVariables
+  >(CreateMatchDocument);
+
+  const teams: Parameters<typeof AdminMatchCreateViewUi>[0]['teams'] = useMemo(
+    () => teamsData?.teams?.map((t) => ({ id: t.id, name: t.name })) ?? [],
+    [teamsData],
+  );
+
+  const getTranslationCode = (e: unknown) => {
+    if (!e || typeof e !== 'object') return null;
+    const graphQLErrors = (e as { graphQLErrors?: unknown }).graphQLErrors;
+    if (!Array.isArray(graphQLErrors) || graphQLErrors.length === 0) return null;
+    const first = graphQLErrors[0] as { extensions?: unknown };
+    const code = (first.extensions as { translationCode?: unknown } | undefined)?.translationCode;
+    if (typeof code === 'string') return code;
+    return null;
+  };
+
+  const onCreateMatch: Parameters<typeof AdminMatchCreateViewUi>[0]['onCreateMatch'] = async (data) => {
+    setSubmitError(null);
+    setExternalErrors({});
+
+    const d = new Date(data.date);
+    if (Number.isNaN(d.getTime())) {
+      setExternalErrors({ date: 'Invalid date' });
+      return;
+    }
+
+    try {
+      await createMatchMutation({
+        variables: {
+          dto: {
+            firstOpponentId: data.firstOpponentId,
+            secondOpponentId: data.secondOpponentId,
+            date: d.toISOString(),
+            status: data.status as MatchStatus,
+          },
+        },
+      });
+      router.push('/admin/matches');
+      router.refresh();
+    } catch (e) {
+      const code = getTranslationCode(e);
+      if (code === 'opponentTeamsMustBeDifferent') {
+        setExternalErrors({ secondOpponentId: 'Teams must be different' });
+        return;
+      }
+      if (code === 'invalidMatchDate') {
+        setExternalErrors({ date: 'Invalid date' });
+        return;
+      }
+      if (code === 'opponentTeamNotFound') {
+        setExternalErrors({ firstOpponentId: 'Team not found', secondOpponentId: 'Team not found' });
+        return;
+      }
+      setSubmitError(code ?? (e instanceof Error ? e.message : 'Failed to create match'));
+    }
+  };
+
+  return (
+    <AdminMatchCreateViewUi
+      teams={teams}
+      teamsLoading={teamsLoading}
+      teamsError={teamsError}
+      externalErrors={externalErrors}
+      submitError={submitError}
+      onCreateMatch={onCreateMatch}
+      createLoading={createLoading}
+    />
+  );
 };
 
 export default AdminMatchCreateView;

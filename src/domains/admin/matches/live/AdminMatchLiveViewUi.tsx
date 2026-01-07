@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -46,21 +45,26 @@ type AdminMatchLiveViewUiProps = {
   events: MatchEvent[];
   matchLoading: boolean;
   currentMinute: number;
-  onAddEvent: (data: {
-    type: MatchEventType;
-    minute: number;
-    playerId?: string;
-    teamId: string;
-  }) => Promise<void>;
+  onAddEvent: (data: { type: MatchEventType; minute: number; playerId?: string; teamId: string }) => Promise<void>;
   onEndMatch: () => Promise<void>;
 };
 
 const QUICK_EVENTS = [
   { type: MatchEventType.GOAL, label: 'Goal', icon: Goal, color: 'bg-green-500 hover:bg-green-600' },
-  { type: MatchEventType.YELLOW_CARD, label: 'Yellow Card', icon: AlertTriangle, color: 'bg-yellow-500 hover:bg-yellow-600' },
+  {
+    type: MatchEventType.YELLOW_CARD,
+    label: 'Yellow Card',
+    icon: AlertTriangle,
+    color: 'bg-yellow-500 hover:bg-yellow-600',
+  },
   { type: MatchEventType.RED_CARD, label: 'Red Card', icon: Ban, color: 'bg-red-500 hover:bg-red-600' },
   { type: MatchEventType.GOALKEEPER_SAVE, label: 'Save', icon: Shield, color: 'bg-blue-500 hover:bg-blue-600' },
-  { type: MatchEventType.PENALTY_SCORED, label: 'Penalty Goal', icon: Target, color: 'bg-green-500 hover:bg-green-600' },
+  {
+    type: MatchEventType.PENALTY_SCORED,
+    label: 'Penalty Goal',
+    icon: Target,
+    color: 'bg-green-500 hover:bg-green-600',
+  },
   { type: MatchEventType.PENALTY_MISSED, label: 'Penalty Miss', icon: X, color: 'bg-gray-500 hover:bg-gray-600' },
 ];
 
@@ -119,11 +123,14 @@ const AdminMatchLiveViewUi = ({
       {/* Match Score Card */}
       <Card className="border-2 border-primary/20">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-around">
             <CardTitle className="text-2xl">Match Score</CardTitle>
-            <Badge variant="outline" className="bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20 animate-pulse">
+            <Badge
+              variant="outline"
+              className="bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20 animate-pulse"
+            >
               <Clock className="h-3 w-3 mr-1" />
-              LIVE - {currentMinute}'
+              LIVE - {currentMinute}
             </Badge>
           </div>
         </CardHeader>
@@ -179,12 +186,7 @@ const AdminMatchLiveViewUi = ({
                 </Button>
               }
             />
-            <Button
-              variant="destructive"
-              onClick={handleEndMatch}
-              disabled={endingMatch}
-              className="flex-1"
-            >
+            <Button variant="destructive" onClick={handleEndMatch} disabled={endingMatch} className="flex-1">
               {endingMatch ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -219,4 +221,3 @@ const AdminMatchLiveViewUi = ({
 };
 
 export default AdminMatchLiveViewUi;
-

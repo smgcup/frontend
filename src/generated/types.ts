@@ -21,6 +21,13 @@ export type AdminLoginResult = {
   ok: Scalars['Boolean']['output'];
 };
 
+export type CreateMatchDto = {
+  date: Scalars['Date']['input'];
+  firstOpponentId: Scalars['String']['input'];
+  secondOpponentId: Scalars['String']['input'];
+  status: MatchStatus;
+};
+
 export type CreateNewsDto = {
   category: Scalars['String']['input'];
   content: Scalars['String']['input'];
@@ -49,6 +56,8 @@ export type Match = {
   date: Scalars['Date']['output'];
   firstOpponent: Team;
   id: Scalars['ID']['output'];
+  score1?: Maybe<Scalars['Int']['output']>;
+  score2?: Maybe<Scalars['Int']['output']>;
   secondOpponent: Team;
   status: MatchStatus;
 };
@@ -64,12 +73,15 @@ export type Mutation = {
   __typename?: 'Mutation';
   adminLogin: AdminLoginResult;
   adminLogout: AdminLoginResult;
+  createMatch: Match;
   createNews: News;
   createPlayer: Player;
   createTeam: Team;
+  deleteMatch: Match;
   deleteNews: News;
   deletePlayer: Player;
   deleteTeam: Team;
+  updateMatch: Match;
   updateNews: News;
   updatePlayer: Player;
   updateTeam: Team;
@@ -78,6 +90,11 @@ export type Mutation = {
 
 export type MutationAdminLoginArgs = {
   passkey: Scalars['String']['input'];
+};
+
+
+export type MutationCreateMatchArgs = {
+  createMatchDto: CreateMatchDto;
 };
 
 
@@ -96,6 +113,11 @@ export type MutationCreateTeamArgs = {
 };
 
 
+export type MutationDeleteMatchArgs = {
+  id: Scalars['String']['input'];
+};
+
+
 export type MutationDeleteNewsArgs = {
   id: Scalars['String']['input'];
 };
@@ -108,6 +130,12 @@ export type MutationDeletePlayerArgs = {
 
 export type MutationDeleteTeamArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateMatchArgs = {
+  id: Scalars['String']['input'];
+  updateMatchDto: UpdateMatchDto;
 };
 
 
@@ -168,11 +196,18 @@ export enum PreferredFoot {
 export type Query = {
   __typename?: 'Query';
   health: Scalars['String']['output'];
+  matchById?: Maybe<Match>;
+  matches: Array<Match>;
   news: Array<News>;
   newsById: News;
   playerById: Player;
   teamById: Team;
   teams: Array<Team>;
+};
+
+
+export type QueryMatchByIdArgs = {
+  id: Scalars['String']['input'];
 };
 
 
@@ -196,6 +231,15 @@ export type Team = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   players?: Maybe<Array<Player>>;
+};
+
+export type UpdateMatchDto = {
+  date?: InputMaybe<Scalars['Date']['input']>;
+  firstOpponentId?: InputMaybe<Scalars['String']['input']>;
+  score1?: InputMaybe<Scalars['Int']['input']>;
+  score2?: InputMaybe<Scalars['Int']['input']>;
+  secondOpponentId?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<MatchStatus>;
 };
 
 export type UpdateNewsDto = {

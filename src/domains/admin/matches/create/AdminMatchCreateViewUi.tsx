@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -15,7 +15,11 @@ type Team = {
 
 type AdminMatchCreateViewUiProps = {
   teams: Team[];
-  onCreateMatch: (data: { firstOpponentId: string; secondOpponentId: string; date: string; status: string }) => void;
+  teamsLoading?: boolean;
+  teamsError?: unknown;
+  externalErrors?: Record<string, string>;
+  submitError?: string | null;
+  onCreateMatch: (data: { firstOpponentId: string; secondOpponentId: string; date: string; status: string }) => Promise<void>;
   createLoading: boolean;
 };
 
@@ -26,7 +30,15 @@ const MATCH_STATUSES = [
   { value: 'CANCELLED', label: 'Cancelled' },
 ];
 
-const AdminMatchCreateViewUi = ({ teams, onCreateMatch, createLoading }: AdminMatchCreateViewUiProps) => {
+const AdminMatchCreateViewUi = ({
+  teams,
+  teamsLoading,
+  teamsError,
+  externalErrors,
+  submitError,
+  onCreateMatch,
+  createLoading,
+}: AdminMatchCreateViewUiProps) => {
   const [formData, setFormData] = useState({
     firstOpponentId: '',
     secondOpponentId: '',
@@ -35,6 +47,12 @@ const AdminMatchCreateViewUi = ({ teams, onCreateMatch, createLoading }: AdminMa
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (externalErrors && Object.keys(externalErrors).length > 0) {
+      setErrors((prev) => ({ ...prev, ...externalErrors }));
+    }
+  }, [externalErrors]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -104,6 +122,19 @@ const AdminMatchCreateViewUi = ({ teams, onCreateMatch, createLoading }: AdminMa
 
         <form onSubmit={handleSubmit} className="space-y-10">
           <CardContent>
+            {(Boolean(submitError) || Boolean(teamsError)) && (
+              <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive mb-6">
+                <p className="font-medium">Operation failed</p>
+                {submitError && <p className="mt-1 text-sm">{submitError}</p>}
+                {Boolean(teamsError) && (
+                  <p className="mt-1 text-sm">
+                    {typeof teamsError === 'object' && teamsError && 'message' in teamsError
+                      ? String((teamsError as { message?: unknown }).message ?? 'Failed to load teams.')
+                      : 'Failed to load teams.'}
+                  </p>
+                )}
+              </div>
+            )}
             <FieldGroup>
               {/* First Opponent */}
               <Field>
@@ -112,6 +143,7 @@ const AdminMatchCreateViewUi = ({ teams, onCreateMatch, createLoading }: AdminMa
                   <Select
                     value={formData.firstOpponentId}
                     onValueChange={(value) => handleSelectChange('firstOpponentId', value)}
+                    disabled={teamsLoading || createLoading}
                   >
                     <SelectTrigger id="firstOpponentId" className="w-full" aria-invalid={!!errors.firstOpponentId}>
                       <SelectValue placeholder="Select first team" />
@@ -136,6 +168,7 @@ const AdminMatchCreateViewUi = ({ teams, onCreateMatch, createLoading }: AdminMa
                   <Select
                     value={formData.secondOpponentId}
                     onValueChange={(value) => handleSelectChange('secondOpponentId', value)}
+                    disabled={teamsLoading || createLoading}
                   >
                     <SelectTrigger id="secondOpponentId" className="w-full" aria-invalid={!!errors.secondOpponentId}>
                       <SelectValue placeholder="Select second team" />
@@ -164,6 +197,7 @@ const AdminMatchCreateViewUi = ({ teams, onCreateMatch, createLoading }: AdminMa
                     value={formData.date}
                     onChange={handleChange}
                     aria-invalid={!!errors.date}
+                    disabled={createLoading}
                   />
                   {errors.date && <FieldError>{errors.date}</FieldError>}
                   <FieldDescription>Select the date and time for the match</FieldDescription>
@@ -174,7 +208,11 @@ const AdminMatchCreateViewUi = ({ teams, onCreateMatch, createLoading }: AdminMa
               <Field>
                 <FieldLabel htmlFor="status">Status *</FieldLabel>
                 <FieldContent>
-                  <Select value={formData.status} onValueChange={(value) => handleSelectChange('status', value)}>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => handleSelectChange('status', value)}
+                    disabled={createLoading}
+                  >
                     <SelectTrigger id="status" className="w-full" aria-invalid={!!errors.status}>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -197,7 +235,11 @@ const AdminMatchCreateViewUi = ({ teams, onCreateMatch, createLoading }: AdminMa
             <Button type="button" variant="outline" onClick={handleCancel} className="w-full sm:w-auto cursor-pointer">
               Cancel
             </Button>
-            <Button type="submit" disabled={createLoading} className="w-full sm:w-auto cursor-pointer">
+            <Button
+              type="submit"
+              disabled={createLoading || teamsLoading}
+              className="w-full sm:w-auto cursor-pointer"
+            >
               {createLoading ? 'Creating...' : 'Create Match'}
             </Button>
           </CardFooter>
