@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button } from '@/components/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,11 +16,9 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Loader2, Pencil, Plus, Trash2, User, Users } from 'lucide-react';
-import type { DeleteTeamMutation, DeleteTeamMutationVariables, TeamsWithPlayersQuery } from '@/graphql';
-import { DeleteTeamDocument } from '@/graphql';
-import { useMutation } from '@apollo/client/react';
-import { useRouter } from 'next/navigation';
+import type { TeamsWithPlayersQuery } from '@/graphql';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
+import { useAdminTeams } from './hooks/useAdminTeams';
 
 type AdminTeamsViewUiProps = {
   teams: TeamsWithPlayersQuery['teams'];
@@ -28,33 +26,7 @@ type AdminTeamsViewUiProps = {
 };
 
 const AdminTeamsViewUi = ({ teams, error }: AdminTeamsViewUiProps) => {
-  const router = useRouter();
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [deletingTeamId, setDeletingTeamId] = useState<string | null>(null);
-
-  const [deleteTeamMutation] = useMutation<DeleteTeamMutation, DeleteTeamMutationVariables>(DeleteTeamDocument);
-
-  const getErrorMessage = (e: unknown) => {
-    if (!e) return 'Unknown error';
-    if (typeof e === 'string') return e;
-    if (typeof e === 'object' && e && 'message' in e && typeof (e as { message: unknown }).message === 'string') {
-      return (e as { message: string }).message;
-    }
-    return String(e);
-  };
-
-  const handleDeleteTeam = async (id: string) => {
-    setActionError(null);
-    setDeletingTeamId(id);
-    try {
-      await deleteTeamMutation({ variables: { id } });
-      router.refresh();
-    } catch (e) {
-      setActionError(getErrorMessage(e));
-    } finally {
-      setDeletingTeamId(null);
-    }
-  };
+  const { actionError, deletingTeamId, onDeleteTeam } = useAdminTeams();
 
   if (error) {
     return (
@@ -151,7 +123,7 @@ const AdminTeamsViewUi = ({ teams, error }: AdminTeamsViewUiProps) => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction variant="destructive" onClick={() => handleDeleteTeam(team.id)}>
+                          <AlertDialogAction variant="destructive" onClick={() => onDeleteTeam(team.id)}>
                             Delete
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -208,7 +180,7 @@ const AdminTeamsViewUi = ({ teams, error }: AdminTeamsViewUiProps) => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction variant="destructive" onClick={() => handleDeleteTeam(team.id)}>
+                          <AlertDialogAction variant="destructive" onClick={() => onDeleteTeam(team.id)}>
                             Delete
                           </AlertDialogAction>
                         </AlertDialogFooter>

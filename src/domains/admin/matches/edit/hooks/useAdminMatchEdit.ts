@@ -1,0 +1,138 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { useMutation, useQuery } from '@apollo/client/react';
+import { useRouter } from 'next/navigation';
+import {
+  MatchByIdDocument,
+  type MatchByIdQuery,
+  type MatchByIdQueryVariables,
+  MatchStatus,
+  TeamsDocument,
+  type TeamsQuery,
+  UpdateMatchDocument,
+  type UpdateMatchMutation,
+  type UpdateMatchMutationVariables,
+} from '@/graphql';
+import { mapTeam } from '@/domains/team/mappers/mapTeam';
+
+export type AdminMatchEditFormData = {
+  firstOpponentId: string;
+  secondOpponentId: string;
+  date: string;
+  status: MatchStatus | string;
+};
+
+const getTranslationCode = (e: unknown) => {
+  if (!e || typeof e !== 'object') return null;
+  const graphQLErrors = (e as { graphQLErrors?: unknown }).graphQLErrors;
+  if (!Array.isArray(graphQLErrors) || graphQLErrors.length === 0) return null;
+  const first = graphQLErrors[0] as { extensions?: unknown };
+  const code = (first.extensions as { translationCode?: unknown } | undefined)?.translationCode;
+  if (typeof code === 'string') return code;
+  return null;
+};
+
+export const useAdminMatchEdit = (matchId: string) => {
+  const router = useRouter();
+
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [externalErrors, setExternalErrors] = useState<Record<string, string>>({});
+
+  const {
+    data: matchData,
+    loading: matchLoading,
+    error: matchError,
+  } = useQuery<MatchByIdQuery, MatchByIdQueryVariables>(MatchByIdDocument, {
+    variables: { id: matchId },
+  });
+
+  const { data: teamsData, loading: teamsLoading, error: teamsError } = useQuery<TeamsQuery>(TeamsDocument);
+
+  const [updateMatchMutation, { loading: updateLoading }] = useMutation<
+    UpdateMatchMutation,
+    UpdateMatchMutationVariables
+  >(UpdateMatchDocument);
+
+  const match = useMemo(() => {
+    const row = matchData?.matchById;
+    if (!row) return null;
+    return {
+      id: row.id,
+      firstOpponent: { id: row.firstOpponent.id, name: row.firstOpponent.name },
+      secondOpponent: { id: row.secondOpponent.id, name: row.secondOpponent.name },
+      date: String(row.date),
+      status: row.status,
+    };
+  }, [matchData]);
+
+  const teams = useMemo(() => (teamsData?.teams ?? []).map(mapTeam), [teamsData]);
+
+  const onUpdateMatch = async (data: AdminMatchEditFormData) => {
+    setSubmitError(null);
+    setExternalErrors({});
+
+    const d = new Date(data.date);
+    if (Number.isNaN(d.getTime())) {
+      setExternalErrors({ date: 'Invalid date' });
+      return;
+    }
+
+    const status = data.status as MatchStatus;
+
+    try {
+      await updateMatchMutation({
+        variables: {
+          id: matchId,
+          dto: {
+            firstOpponentId: data.firstOpponentId,
+            secondOpponentId: data.secondOpponentId,
+            date: d.toISOString(),
+            status,
+            ...(status === MatchStatus.Live || status === MatchStatus.Finished ? {} : { score1: null, score2: null }),
+          },
+        },
+      });
+      router.push('/admin/matches');
+      router.refresh();
+    } catch (e) {
+      const code = getTranslationCode(e);
+      if (code === 'matchNotFound') {
+        setSubmitError('matchNotFound');
+        return;
+      }
+      if (code === 'opponentTeamsMustBeDifferent') {
+        setExternalErrors({ secondOpponentId: 'Teams must be different' });
+        return;
+      }
+      if (code === 'invalidMatchDate') {
+        setExternalErrors({ date: 'Invalid date' });
+        return;
+      }
+      if (code === 'opponentTeamNotFound') {
+        setExternalErrors({ firstOpponentId: 'Team not found', secondOpponentId: 'Team not found' });
+        return;
+      }
+      if (code === 'scoreNotAllowedForStatus') {
+        setSubmitError('scoreNotAllowedForStatus');
+        return;
+      }
+      setSubmitError(code ?? (e instanceof Error ? e.message : 'Failed to update match'));
+    }
+  };
+
+  return {
+    match,
+    teams,
+    matchLoading,
+    matchError,
+    teamsLoading,
+    teamsError,
+    updateLoading,
+    externalErrors,
+    submitError,
+    onUpdateMatch,
+  };
+};
+
+
