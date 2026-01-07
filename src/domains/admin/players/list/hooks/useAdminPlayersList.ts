@@ -1,10 +1,14 @@
 'use client';
 
-import { useMutation } from '@apollo/client/react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import type { DeletePlayerMutation, DeletePlayerMutationVariables } from '@/graphql';
-import { DeletePlayerDocument } from '@/graphql';
+import { useMemo, useState } from 'react';
+import { useMutation, useQuery } from '@apollo/client/react';
+import type {
+  DeletePlayerMutation,
+  DeletePlayerMutationVariables,
+  TeamsWithPlayersQuery,
+  TeamsWithPlayersQueryVariables,
+} from '@/graphql';
+import { DeletePlayerDocument, TeamsWithPlayersDocument } from '@/graphql';
 
 const getErrorMessage = (e: unknown) => {
   if (!e) return 'Unknown error';
@@ -16,7 +20,12 @@ const getErrorMessage = (e: unknown) => {
 };
 
 export const useAdminPlayersList = () => {
-  const router = useRouter();
+  const { data, loading, error, refetch } = useQuery<TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables>(
+    TeamsWithPlayersDocument,
+  );
+
+  const teams = useMemo(() => data?.teams ?? [], [data?.teams]);
+  const players = useMemo(() => teams.flatMap((t) => t.players ?? []), [teams]);
 
   const [actionError, setActionError] = useState<string | null>(null);
   const [deletingPlayerId, setDeletingPlayerId] = useState<string | null>(null);
@@ -28,7 +37,7 @@ export const useAdminPlayersList = () => {
     setDeletingPlayerId(id);
     try {
       await deletePlayerMutation({ variables: { id } });
-      router.refresh();
+      await refetch();
     } catch (e) {
       setActionError(getErrorMessage(e));
     } finally {
@@ -37,10 +46,12 @@ export const useAdminPlayersList = () => {
   };
 
   return {
+    teams,
+    players,
+    loading,
+    error,
     actionError,
     deletingPlayerId,
     onDeletePlayer,
   };
 };
-
-

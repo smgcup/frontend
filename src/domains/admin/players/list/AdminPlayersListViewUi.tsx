@@ -1,9 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useMutation } from '@apollo/client/react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,8 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Pencil, Plus, Trash2, User } from 'lucide-react';
-import type { DeletePlayerMutation, DeletePlayerMutationVariables, TeamsWithPlayersQuery } from '@/graphql';
-import { DeletePlayerDocument } from '@/graphql';
+import type { TeamsWithPlayersQuery } from '@/graphql';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type Player = NonNullable<TeamsWithPlayersQuery['teams'][0]['players']>[0];
@@ -28,17 +25,23 @@ type AdminPlayersListViewUiProps = {
   teams: TeamsWithPlayersQuery['teams'];
   players: Player[];
   currentYear: number;
+  loading: boolean;
   error?: unknown;
+  actionError: string | null;
+  deletingPlayerId: string | null;
+  onDeletePlayer: (id: string) => Promise<void>;
 };
 
-const AdminPlayersListViewUi = ({ teams, players, currentYear, error }: AdminPlayersListViewUiProps) => {
-  const router = useRouter();
-
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [deletingPlayerId, setDeletingPlayerId] = useState<string | null>(null);
-
-  const [deletePlayerMutation] = useMutation<DeletePlayerMutation, DeletePlayerMutationVariables>(DeletePlayerDocument);
-
+const AdminPlayersListViewUi = ({
+  teams,
+  players,
+  currentYear,
+  loading,
+  error,
+  actionError,
+  deletingPlayerId,
+  onDeletePlayer,
+}: AdminPlayersListViewUiProps) => {
   const playerTeamNameByPlayerId = useMemo(() => {
     const map = new Map<string, string>();
     for (const team of teams) {
@@ -50,27 +53,18 @@ const AdminPlayersListViewUi = ({ teams, players, currentYear, error }: AdminPla
     return map;
   }, [teams]);
 
-  const getErrorMessage = (e: unknown) => {
-    if (!e) return 'Unknown error';
-    if (typeof e === 'string') return e;
-    if (typeof e === 'object' && e && 'message' in e && typeof (e as { message: unknown }).message === 'string') {
-      return (e as { message: string }).message;
-    }
-    return String(e);
-  };
-
-  const handleDeletePlayer = async (id: string) => {
-    setActionError(null);
-    setDeletingPlayerId(id);
-    try {
-      await deletePlayerMutation({ variables: { id } });
-      router.refresh();
-    } catch (e) {
-      setActionError(getErrorMessage(e));
-    } finally {
-      setDeletingPlayerId(null);
-    }
-  };
+  if (loading) {
+    return (
+      <div className="py-4 lg:p-10">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading players...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -180,7 +174,7 @@ const AdminPlayersListViewUi = ({ teams, players, currentYear, error }: AdminPla
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction variant="destructive" onClick={() => handleDeletePlayer(player.id)}>
+                          <AlertDialogAction variant="destructive" onClick={() => onDeletePlayer(player.id)}>
                             Delete
                           </AlertDialogAction>
                         </AlertDialogFooter>
