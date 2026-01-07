@@ -1,18 +1,12 @@
+'use client';
+
 import AdminTeamsViewUi from './AdminTeamsViewUi';
-import { getClient } from '@/lib/apollo-rsc';
-import { TeamsWithPlayersDocument, TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables } from '@/graphql';
-import { mapTeamWithPlayers } from '@/domains/team/mappers/mapTeamWithPlayers';
+import { useAdminTeamsList } from './hooks/useAdminTeamsList';
 
-const AdminTeamsView = async () => {
-  const client = await getClient();
+const AdminTeamsView = () => {
+  const { teams, teamsLoading, teamsError } = useAdminTeamsList();
 
-  const { data, error } = await client.query<TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables>({
-    query: TeamsWithPlayersDocument,
-  });
-
-  const teams = (data?.teams ?? []).map((t) => mapTeamWithPlayers(t));
-
-  return <AdminTeamsViewUi teams={teams} error={error} />;
+  return <AdminTeamsViewUi teams={teams} loading={teamsLoading} error={teamsError} />;
 };
 
 export default AdminTeamsView;

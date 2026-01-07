@@ -22,11 +22,25 @@ import { useAdminTeams } from './hooks/useAdminTeams';
 
 type AdminTeamsViewUiProps = {
   teams: TeamWithPlayers[];
+  loading?: boolean;
   error?: unknown;
 };
 
-const AdminTeamsViewUi = ({ teams, error }: AdminTeamsViewUiProps) => {
+const AdminTeamsViewUi = ({ teams, loading, error }: AdminTeamsViewUiProps) => {
   const { actionError, deletingTeamId, onDeleteTeam } = useAdminTeams();
+
+  if (loading) {
+    return (
+      <div className="py-4 lg:p-10">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading teams...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
