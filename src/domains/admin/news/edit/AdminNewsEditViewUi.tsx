@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -10,11 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ImageIcon, Loader2, Eye, Save } from 'lucide-react';
-import { GetNewsByIdQuery, UpdateNewsDto } from '@/graphql';
+import { UpdateNewsDto } from '@/graphql';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
+import type { News } from '@/domains/news/contracts';
 
 type AdminNewsEditViewUiProps = {
-  news: GetNewsByIdQuery['newsById'] | null;
+  news: News | null;
   newsLoading: boolean;
   updateLoading: boolean;
   onUpdateNews: (updateNewsDto: UpdateNewsDto) => Promise<unknown>;
@@ -28,27 +29,21 @@ const CATEGORIES = [
   { value: 'announcement', label: 'Announcement' },
 ];
 
-const AdminNewsEditViewUi = ({ news, newsLoading, updateLoading, onUpdateNews }: AdminNewsEditViewUiProps) => {
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    imageUrl: '',
-    category: '',
-  });
+type AdminNewsEditFormProps = {
+  news: News;
+  updateLoading: boolean;
+  onUpdateNews: (updateNewsDto: UpdateNewsDto) => Promise<unknown>;
+};
 
+const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditFormProps) => {
+  const [formData, setFormData] = useState(() => ({
+    title: news.title,
+    content: news.content,
+    imageUrl: news.imageUrl,
+    category: news.category,
+  }));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPreview, setShowPreview] = useState(true);
-
-  useEffect(() => {
-    if (news) {
-      setFormData({
-        title: news.title,
-        content: news.content,
-        imageUrl: news.imageUrl,
-        category: news.category,
-      });
-    }
-  }, [news]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -109,40 +104,10 @@ const AdminNewsEditViewUi = ({ news, newsLoading, updateLoading, onUpdateNews }:
     await onUpdateNews(formData);
   };
 
-  if (newsLoading) {
-    return (
-      <div className="py-4 lg:p-10">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading article...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!news) {
-    return (
-      <div className="py-4 lg:p-10">
-        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-          <h2 className="text-xl font-semibold">Article not found</h2>
-          <Button asChild>
-            <Link href="/admin/news">Back to News</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="py-4 lg:p-10">
       <div className="space-y-6 max-w-4xl mx-auto">
-        <AdminPageHeader
-          title="Edit article"
-          subtitle={`Editing: ${news.title}`}
-          backHref="/admin/news"
-        />
+        <AdminPageHeader title="Edit article" subtitle={`Editing: ${news.title}`} backHref="/admin/news" />
 
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
           {/* Main Form */}
@@ -307,6 +272,36 @@ const AdminNewsEditViewUi = ({ news, newsLoading, updateLoading, onUpdateNews }:
       </div>
     </div>
   );
+};
+
+const AdminNewsEditViewUi = ({ news, newsLoading, updateLoading, onUpdateNews }: AdminNewsEditViewUiProps) => {
+  if (newsLoading) {
+    return (
+      <div className="py-4 lg:p-10">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading article...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!news) {
+    return (
+      <div className="py-4 lg:p-10">
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+          <h2 className="text-xl font-semibold">Article not found</h2>
+          <Button asChild>
+            <Link href="/admin/news">Back to News</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return <AdminNewsEditForm key={news.id} news={news} updateLoading={updateLoading} onUpdateNews={onUpdateNews} />;
 };
 
 export default AdminNewsEditViewUi;
