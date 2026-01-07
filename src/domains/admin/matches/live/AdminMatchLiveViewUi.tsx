@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,11 +9,13 @@ import { cn } from '@/lib/utils';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import EventTimeline, { MatchEventType } from './components/EventTimeline';
 import AddEventDialog from './components/AddEventDialog';
+import type { PlayerPosition } from '@/generated/types';
 
 type Player = {
   id: string;
   firstName: string;
   lastName: string;
+  position?: PlayerPosition;
 };
 
 type Team = {
@@ -88,6 +90,22 @@ const AdminMatchLiveViewUi = ({
 }: AdminMatchLiveViewUiProps) => {
   const [endingMatch, setEndingMatch] = useState(false);
 
+  const teams = useMemo(() => (match ? [match.firstOpponent, match.secondOpponent] : []), [match]);
+  const { score1, score2 } = useMemo(() => {
+    if (!match) return { score1: 0, score2: 0 };
+    const scoringTypes = new Set<MatchEventType>([MatchEventType.GOAL, MatchEventType.PENALTY_SCORED]);
+    const firstId = match.firstOpponent.id;
+    const secondId = match.secondOpponent.id;
+    let s1 = 0;
+    let s2 = 0;
+    for (const e of events) {
+      if (!scoringTypes.has(e.type)) continue;
+      if (e.team.id === firstId) s1 += 1;
+      if (e.team.id === secondId) s2 += 1;
+    }
+    return { score1: Math.max(match.score1 ?? 0, s1), score2: Math.max(match.score2 ?? 0, s2) };
+  }, [events, match]);
+
   const handleEndMatch = async () => {
     setEndingMatch(true);
     try {
@@ -120,8 +138,6 @@ const AdminMatchLiveViewUi = ({
     );
   }
 
-  const teams = [match.firstOpponent, match.secondOpponent];
-
   return (
     <div className="space-y-6 py-4 lg:p-10">
       <AdminPageHeader
@@ -148,12 +164,12 @@ const AdminMatchLiveViewUi = ({
           <div className="flex items-center justify-between gap-8">
             <div className="flex-1 text-center">
               <p className="text-2xl font-bold mb-2">{match.firstOpponent.name}</p>
-              <p className="text-5xl font-black text-primary">{match.score1}</p>
+              <p className="text-5xl font-black text-primary">{score1}</p>
             </div>
             <div className="shrink-0 text-3xl font-bold text-muted-foreground">—</div>
             <div className="flex-1 text-center">
               <p className="text-2xl font-bold mb-2">{match.secondOpponent.name}</p>
-              <p className="text-5xl font-black text-primary">{match.score2}</p>
+              <p className="text-5xl font-black text-primary">{score2}</p>
             </div>
           </div>
         </CardContent>
@@ -174,6 +190,8 @@ const AdminMatchLiveViewUi = ({
                   teams={teams}
                   currentMinute={currentMinute}
                   onAddEvent={onAddEvent}
+                  mode="quick"
+                  presetType={event.type}
                   trigger={
                     <Button variant="outline" className={cn('h-auto flex-col gap-2 py-4', event.color)}>
                       <Icon className="h-5 w-5" />
@@ -192,7 +210,7 @@ const AdminMatchLiveViewUi = ({
               trigger={
                 <Button variant="outline" className="flex-1">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Custom Event
+                  Add Other Event
                 </Button>
               }
             />

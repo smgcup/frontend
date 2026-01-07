@@ -60,6 +60,7 @@ const AdminMatchLiveView = ({ matchId }: AdminMatchLiveViewProps) => {
               id: p.id,
               firstName: p.firstName,
               lastName: p.lastName,
+              position: p.position,
             })) ?? [],
         },
         secondOpponent: {
@@ -70,6 +71,7 @@ const AdminMatchLiveView = ({ matchId }: AdminMatchLiveViewProps) => {
               id: p.id,
               firstName: p.firstName,
               lastName: p.lastName,
+              position: p.position,
             })) ?? [],
         },
         date: String(matchData.matchById.date),

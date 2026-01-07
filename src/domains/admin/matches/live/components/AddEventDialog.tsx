@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,11 +17,13 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { MatchEventType } from './EventTimeline';
+import type { PlayerPosition } from '@/generated/types';
 
 type Player = {
   id: string;
   firstName: string;
   lastName: string;
+  position?: PlayerPosition;
 };
 
 type Team = {
@@ -41,6 +43,8 @@ type AddEventDialogProps = {
     payload?: unknown;
   }) => Promise<void>;
   trigger: React.ReactNode;
+  mode?: 'full' | 'quick';
+  presetType?: MatchEventType;
 };
 
 const EVENT_TYPES = [
@@ -54,6 +58,10 @@ const EVENT_TYPES = [
   { value: MatchEventType.FULL_TIME, label: 'Full Time' },
 ];
 
+const requiresTeam = (type: MatchEventType): boolean => {
+  return ![MatchEventType.HALF_TIME, MatchEventType.FULL_TIME].includes(type);
+};
+
 const requiresPlayer = (type: MatchEventType): boolean => {
   return [
     MatchEventType.GOAL,
@@ -65,10 +73,25 @@ const requiresPlayer = (type: MatchEventType): boolean => {
   ].includes(type);
 };
 
-const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventDialogProps) => {
+const positionShortLabel = (position?: PlayerPosition) => {
+  switch (position) {
+    case 'GOALKEEPER':
+      return 'GK';
+    case 'DEFENDER':
+      return 'DEF';
+    case 'MIDFIELDER':
+      return 'MID';
+    case 'FORWARD':
+      return 'FWD';
+    default:
+      return undefined;
+  }
+};
+
+const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger, mode = 'full', presetType }: AddEventDialogProps) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    type: MatchEventType.GOAL,
+    type: presetType ?? MatchEventType.GOAL,
     minute: currentMinute.toString(),
     teamId: '',
     playerId: '',
@@ -77,9 +100,37 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventD
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
+  const isQuick = mode === 'quick';
   const selectedTeam = teams.find((t) => t.id === formData.teamId);
-  const selectedEventType = formData.type as MatchEventType;
+  const selectedEventType = (presetType ?? formData.type) as MatchEventType;
   const needsPlayer = requiresPlayer(selectedEventType);
+  const needsTeam = requiresTeam(selectedEventType);
+
+  const allPlayers = useMemo(() => {
+    const rows = teams.flatMap((team) =>
+      team.players.map((player) => ({
+        ...player,
+        teamId: team.id,
+        teamName: team.name,
+      })),
+    );
+    return rows.sort((a, b) => {
+      const teamCmp = a.teamName.localeCompare(b.teamName);
+      if (teamCmp !== 0) return teamCmp;
+      const lnCmp = a.lastName.localeCompare(b.lastName);
+      if (lnCmp !== 0) return lnCmp;
+      return a.firstName.localeCompare(b.firstName);
+    });
+  }, [teams]);
+
+  useEffect(() => {
+    if (!open) return;
+    setFormData((prev) => ({
+      ...prev,
+      minute: currentMinute.toString(),
+      type: presetType ?? prev.type,
+    }));
+  }, [open, currentMinute, presetType]);
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => {
@@ -87,6 +138,19 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventD
       // Reset player when team changes
       if (name === 'teamId') {
         newData.playerId = '';
+      }
+      // Clear team+player if event does not require a team
+      if (name === 'type') {
+        const newType = value as MatchEventType;
+        if (!requiresTeam(newType)) {
+          newData.teamId = '';
+          newData.playerId = '';
+        }
+      }
+      // Infer team in quick mode
+      if (name === 'playerId' && isQuick) {
+        const selected = allPlayers.find((p) => p.id === value);
+        newData.teamId = selected?.teamId ?? '';
       }
       return newData;
     });
@@ -110,12 +174,16 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventD
       newErrors.type = 'Event type is required';
     }
 
-    if (!formData.teamId) {
+    if (needsTeam && !formData.teamId) {
       newErrors.teamId = 'Team is required';
     }
 
     if (needsPlayer && !formData.playerId) {
       newErrors.playerId = 'Player is required for this event type';
+    }
+
+    if (isQuick && needsPlayer && formData.playerId && !formData.teamId) {
+      newErrors.playerId = 'Selected player must belong to a team';
     }
 
     const minute = parseInt(formData.minute);
@@ -147,17 +215,18 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventD
     try {
       const payload =
         formData.payload.trim().length > 0 ? (JSON.parse(formData.payload) as unknown) : undefined;
+      const fallbackTeamId = teams[0]?.id ?? '';
       await onAddEvent({
         type: selectedEventType,
         minute: parseInt(formData.minute),
-        teamId: formData.teamId,
+        teamId: needsTeam ? formData.teamId : fallbackTeamId,
         playerId: needsPlayer ? formData.playerId : undefined,
         payload,
       });
       setOpen(false);
       // Reset form
       setFormData({
-        type: MatchEventType.GOAL,
+        type: presetType ?? MatchEventType.GOAL,
         minute: currentMinute.toString(),
         teamId: '',
         playerId: '',
@@ -183,47 +252,81 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventD
         <div className="space-y-4 py-4">
           <FieldGroup>
             {/* Event Type */}
-            <Field>
-              <FieldLabel htmlFor="type">Event Type *</FieldLabel>
-              <FieldContent>
-                <Select value={formData.type} onValueChange={(value) => handleSelectChange('type', value)}>
-                  <SelectTrigger id="type" className="w-full" aria-invalid={!!errors.type}>
-                    <SelectValue placeholder="Select event type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {EVENT_TYPES.map((event) => (
-                      <SelectItem key={event.value} value={event.value}>
-                        {event.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.type && <FieldError>{errors.type}</FieldError>}
-              </FieldContent>
-            </Field>
+            {!isQuick && (
+              <Field>
+                <FieldLabel htmlFor="type">Event Type *</FieldLabel>
+                <FieldContent>
+                  <Select value={formData.type} onValueChange={(value) => handleSelectChange('type', value)}>
+                    <SelectTrigger id="type" className="w-full" aria-invalid={!!errors.type}>
+                      <SelectValue placeholder="Select event type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {EVENT_TYPES.map((event) => (
+                        <SelectItem key={event.value} value={event.value}>
+                          {event.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.type && <FieldError>{errors.type}</FieldError>}
+                </FieldContent>
+              </Field>
+            )}
 
             {/* Team */}
-            <Field>
-              <FieldLabel htmlFor="teamId">Team *</FieldLabel>
-              <FieldContent>
-                <Select value={formData.teamId} onValueChange={(value) => handleSelectChange('teamId', value)}>
-                  <SelectTrigger id="teamId" className="w-full" aria-invalid={!!errors.teamId}>
-                    <SelectValue placeholder="Select team" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {teams.map((team) => (
-                      <SelectItem key={team.id} value={team.id}>
-                        {team.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.teamId && <FieldError>{errors.teamId}</FieldError>}
-              </FieldContent>
-            </Field>
+            {!isQuick && needsTeam && (
+              <Field>
+                <FieldLabel htmlFor="teamId">Team *</FieldLabel>
+                <FieldContent>
+                  <Select value={formData.teamId} onValueChange={(value) => handleSelectChange('teamId', value)}>
+                    <SelectTrigger id="teamId" className="w-full" aria-invalid={!!errors.teamId}>
+                      <SelectValue placeholder="Select team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.teamId && <FieldError>{errors.teamId}</FieldError>}
+                </FieldContent>
+              </Field>
+            )}
 
             {/* Player (conditional) */}
-            {needsPlayer && selectedTeam && (
+            {needsPlayer && isQuick && (
+              <Field>
+                <FieldLabel htmlFor="playerId">Player *</FieldLabel>
+                <FieldContent>
+                  <Select value={formData.playerId} onValueChange={(value) => handleSelectChange('playerId', value)}>
+                    <SelectTrigger id="playerId" className="w-full" aria-invalid={!!errors.playerId}>
+                      <SelectValue placeholder="Select player" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allPlayers.map((player) => {
+                        const pos = positionShortLabel(player.position);
+                        return (
+                          <SelectItem key={player.id} value={player.id}>
+                            <span className="flex w-full items-center justify-between gap-3">
+                              <span className="truncate">
+                                {player.firstName} {player.lastName}
+                              </span>
+                              <span className="shrink-0 text-muted-foreground">
+                                {pos ? `${pos} · ${player.teamName}` : player.teamName}
+                              </span>
+                            </span>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                  {errors.playerId && <FieldError>{errors.playerId}</FieldError>}
+                </FieldContent>
+              </Field>
+            )}
+            {needsPlayer && !isQuick && selectedTeam && (
               <Field>
                 <FieldLabel htmlFor="playerId">Player *</FieldLabel>
                 <FieldContent>
@@ -234,7 +337,12 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventD
                     <SelectContent>
                       {selectedTeam.players.map((player) => (
                         <SelectItem key={player.id} value={player.id}>
-                          {player.firstName} {player.lastName}
+                          <span className="flex w-full items-center justify-between gap-3">
+                            <span className="truncate">
+                              {player.firstName} {player.lastName}
+                            </span>
+                            <span className="shrink-0 text-muted-foreground">{positionShortLabel(player.position) ?? ''}</span>
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -264,22 +372,24 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger }: AddEventD
             </Field>
 
             {/* Payload (optional) */}
-            <Field>
-              <FieldLabel htmlFor="payload">Payload (JSON)</FieldLabel>
-              <FieldContent>
-                <Input
-                  id="payload"
-                  name="payload"
-                  type="text"
-                  placeholder='{"key":"value"}'
-                  value={formData.payload}
-                  onChange={handleChange}
-                  aria-invalid={!!errors.payload}
-                />
-                {errors.payload && <FieldError>{errors.payload}</FieldError>}
-                <FieldDescription>Optional JSON object (leave empty if not needed)</FieldDescription>
-              </FieldContent>
-            </Field>
+            {!isQuick && (
+              <Field>
+                <FieldLabel htmlFor="payload">Payload (JSON)</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="payload"
+                    name="payload"
+                    type="text"
+                    placeholder='{"key":"value"}'
+                    value={formData.payload}
+                    onChange={handleChange}
+                    aria-invalid={!!errors.payload}
+                  />
+                  {errors.payload && <FieldError>{errors.payload}</FieldError>}
+                  <FieldDescription>Optional JSON object (leave empty if not needed)</FieldDescription>
+                </FieldContent>
+              </Field>
+            )}
           </FieldGroup>
         </div>
 

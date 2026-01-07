@@ -12,6 +12,7 @@ query MatchById($id: String!) {
         id
         firstName
         lastName
+        position
       }
     }
     secondOpponent {
@@ -21,6 +22,7 @@ query MatchById($id: String!) {
         id
         firstName
         lastName
+        position
       }
     }
   }
