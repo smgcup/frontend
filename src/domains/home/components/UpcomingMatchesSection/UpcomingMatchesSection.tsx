@@ -1,53 +1,42 @@
 import Link from 'next/link';
-import MatchCard, { type Match } from '@/domains/matches/components/MatchCard';
+import MatchCard from '@/domains/matches/components/MatchCard';
 import { Button } from '@/components/ui';
 import { ArrowRight, Trophy } from 'lucide-react';
 import type { Team } from '@/domains/team/contracts';
+import type { MatchListItem } from '@/domains/matches/ssr/getMatchesPageData';
 
 type UpcomingMatchesSectionProps = {
   teams: Team[];
 };
 const UpcomingMatchesSection = ({}: UpcomingMatchesSectionProps) => {
-  const matches: Match[] = [
+  const matches: MatchListItem[] = [
     {
       id: '1',
-      team1: '10A',
-      team2: '10B',
-      date: '2024-01-15',
-      time: '14:00',
-      venue: 'Main Field',
-      status: 'upcoming',
-      round: 1,
+      date: '2024-01-15T14:00:00',
+      status: 'SCHEDULED',
+      firstOpponent: { id: '10a', name: '10A' },
+      secondOpponent: { id: '10b', name: '10B' },
     },
     {
       id: '2',
-      team1: '11A',
-      team2: '11B',
-      date: '2024-01-16',
-      time: '15:30',
-      venue: 'Main Field',
-      status: 'upcoming',
-      round: 1,
+      date: '2024-01-16T15:30:00',
+      status: 'SCHEDULED',
+      firstOpponent: { id: '11a', name: '11A' },
+      secondOpponent: { id: '11b', name: '11B' },
     },
     {
       id: '3',
-      team1: '12A',
-      team2: '12B',
-      date: '2024-01-17',
-      time: '16:00',
-      venue: 'Main Field',
-      status: 'upcoming',
-      round: 1,
+      date: '2024-01-17T16:00:00',
+      status: 'SCHEDULED',
+      firstOpponent: { id: '12a', name: '12A' },
+      secondOpponent: { id: '12b', name: '12B' },
     },
     {
       id: '4',
-      team1: '9A',
-      team2: '9B',
-      date: '2024-01-18',
-      time: '14:30',
-      venue: 'Main Field',
-      status: 'upcoming',
-      round: 1,
+      date: '2024-01-18T14:30:00',
+      status: 'SCHEDULED',
+      firstOpponent: { id: '9a', name: '9A' },
+      secondOpponent: { id: '9b', name: '9B' },
     },
   ];
 

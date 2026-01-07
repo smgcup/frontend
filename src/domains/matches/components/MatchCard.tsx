@@ -1,36 +1,39 @@
-'use client';
-
 import type React from 'react';
-import Link from 'next/link';
-import { Calendar, Clock, MapPin, Trophy } from 'lucide-react';
+import { Calendar, Clock, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-export type Match = {
-  id: string;
-  team1: string;
-  team2: string;
-  date: string;
-  time: string;
-  venue?: string;
-  status: 'upcoming' | 'live' | 'completed';
-  score1?: number;
-  score2?: number;
-  round: number;
-};
+import type { MatchListItem } from '../ssr/getMatchesPageData';
 
 type MatchCardProps = {
-  match: Match;
+  match: MatchListItem;
 };
 
 const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+  const formatDate = (dateString: string) =>
+    new Intl.DateTimeFormat('bg-BG', {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
-    });
-  };
+      timeZone: 'Europe/Sofia',
+    }).format(new Date(dateString));
+
+  const formatTime = (dateString: string) =>
+    new Intl.DateTimeFormat('bg-BG', {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Europe/Sofia',
+    }).format(new Date(dateString));
+
+  const statusConfig = (() => {
+    const statusMap: Record<MatchListItem['status'], { label: string; className: string }> = {
+      SCHEDULED: { label: 'Upcoming', className: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
+      LIVE: { label: '● Live', className: 'bg-red-500/10 text-red-600 dark:text-red-400 animate-pulse' },
+      FINISHED: { label: 'Completed', className: 'bg-green-500/10 text-green-600 dark:text-green-400' },
+      CANCELLED: { label: 'Cancelled', className: 'bg-gray-500/10 text-gray-600 dark:text-gray-400' },
+    };
+    return statusMap[match.status];
+  })();
+
+  const showScore = match.status === 'FINISHED' || match.status === 'LIVE';
 
   return (
     <div className="group relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1">
@@ -40,38 +43,36 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <Trophy className="h-3.5 w-3.5" />
-            <span>Round {match.round}</span>
+            <span>Match</span>
           </div>
           {/* Status Badge */}
           <span
             className={cn(
               'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold',
-              match.status === 'upcoming' && 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-              match.status === 'live' && 'bg-red-500/10 text-red-600 dark:text-red-400 animate-pulse',
-              match.status === 'completed' && 'bg-green-500/10 text-green-600 dark:text-green-400',
+              statusConfig.className,
             )}
           >
-            {match.status === 'upcoming' && 'Upcoming'}
-            {match.status === 'live' && '● Live'}
-            {match.status === 'completed' && 'Completed'}
+            {statusConfig.label}
           </span>
         </div>
 
         <div className="flex items-center justify-between gap-4">
           <div className="flex-1">
-            <Link href={`/teams/${match.team1.toLowerCase()}`} className="block text-center group/team">
-              <div className="text-2xl font-bold tracking-tight group-hover/team:text-primary transition-colors">
-                {match.team1}
+            <div className="block text-center">
+              <div className="text-2xl font-bold tracking-tight transition-colors group-hover:text-primary">
+                {match.firstOpponent.name}
               </div>
-              {match.status === 'completed' && match.score1 !== undefined && (
+              {showScore && match.score1 !== undefined && (
                 <div className="text-3xl font-black mt-2 text-primary">{match.score1}</div>
               )}
-            </Link>
+            </div>
           </div>
 
           <div className="shrink-0 flex flex-col items-center">
-            {match.status === 'completed' ? (
+            {match.status === 'FINISHED' ? (
               <span className="text-2xl font-bold text-muted-foreground/30">—</span>
+            ) : match.status === 'CANCELLED' ? (
+              <span className="text-2xl font-bold text-muted-foreground/30">×</span>
             ) : (
               <>
                 <div className="relative">
@@ -83,14 +84,14 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
           </div>
 
           <div className="flex-1">
-            <Link href={`/teams/${match.team2.toLowerCase()}`} className="block text-center group/team">
-              <div className="text-2xl font-bold tracking-tight group-hover/team:text-primary transition-colors">
-                {match.team2}
+            <div className="block text-center">
+              <div className="text-2xl font-bold tracking-tight transition-colors group-hover:text-primary">
+                {match.secondOpponent.name}
               </div>
-              {match.status === 'completed' && match.score2 !== undefined && (
+              {showScore && match.score2 !== undefined && (
                 <div className="text-3xl font-black mt-2 text-primary">{match.score2}</div>
               )}
-            </Link>
+            </div>
           </div>
         </div>
 
@@ -101,14 +102,8 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
           </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <Clock className="h-4 w-4 text-primary/70" />
-            <span className="font-medium">{match.time}</span>
+            <span className="font-medium">{formatTime(match.date)}</span>
           </div>
-          {match.venue && (
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4 text-primary/70" />
-              <span className="font-medium">SMG Arena</span>
-            </div>
-          )}
         </div>
       </div>
     </div>

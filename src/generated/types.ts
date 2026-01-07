@@ -14,6 +14,7 @@ export type Scalars = {
   Float: { input: number; output: number; }
   Date: { input: any; output: any; }
   DateSimple: { input: any; output: any; }
+  JSON: { input: any; output: any; }
 };
 
 export type AdminLoginResult = {
@@ -26,6 +27,15 @@ export type CreateMatchDto = {
   firstOpponentId: Scalars['String']['input'];
   secondOpponentId: Scalars['String']['input'];
   status: MatchStatus;
+};
+
+export type CreateMatchEventDto = {
+  matchId: Scalars['String']['input'];
+  minute: Scalars['Int']['input'];
+  payload?: InputMaybe<Scalars['JSON']['input']>;
+  playerId?: InputMaybe<Scalars['String']['input']>;
+  teamId: Scalars['String']['input'];
+  type: MatchEventType;
 };
 
 export type CreateNewsDto = {
@@ -62,6 +72,29 @@ export type Match = {
   status: MatchStatus;
 };
 
+export type MatchEvent = {
+  __typename?: 'MatchEvent';
+  createdAt: Scalars['Date']['output'];
+  id: Scalars['ID']['output'];
+  match: Match;
+  minute: Scalars['Float']['output'];
+  payload?: Maybe<Scalars['JSON']['output']>;
+  player?: Maybe<Player>;
+  team: Team;
+  type: MatchEventType;
+};
+
+export enum MatchEventType {
+  FullTime = 'FULL_TIME',
+  Goal = 'GOAL',
+  GoalkeeperSave = 'GOALKEEPER_SAVE',
+  HalfTime = 'HALF_TIME',
+  PenaltyMissed = 'PENALTY_MISSED',
+  PenaltyScored = 'PENALTY_SCORED',
+  RedCard = 'RED_CARD',
+  YellowCard = 'YELLOW_CARD'
+}
+
 export enum MatchStatus {
   Cancelled = 'CANCELLED',
   Finished = 'FINISHED',
@@ -74,10 +107,12 @@ export type Mutation = {
   adminLogin: AdminLoginResult;
   adminLogout: AdminLoginResult;
   createMatch: Match;
+  createMatchEvent: MatchEvent;
   createNews: News;
   createPlayer: Player;
   createTeam: Team;
   deleteMatch: Match;
+  deleteMatchEvent: MatchEvent;
   deleteNews: News;
   deletePlayer: Player;
   deleteTeam: Team;
@@ -98,6 +133,11 @@ export type MutationCreateMatchArgs = {
 };
 
 
+export type MutationCreateMatchEventArgs = {
+  createMatchEventDto: CreateMatchEventDto;
+};
+
+
 export type MutationCreateNewsArgs = {
   createNewsDto: CreateNewsDto;
 };
@@ -114,6 +154,11 @@ export type MutationCreateTeamArgs = {
 
 
 export type MutationDeleteMatchArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteMatchEventArgs = {
   id: Scalars['String']['input'];
 };
 
@@ -197,6 +242,7 @@ export type Query = {
   __typename?: 'Query';
   health: Scalars['String']['output'];
   matchById?: Maybe<Match>;
+  matchEvents: Array<MatchEvent>;
   matches: Array<Match>;
   news: Array<News>;
   newsById: News;
@@ -208,6 +254,11 @@ export type Query = {
 
 export type QueryMatchByIdArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryMatchEventsArgs = {
+  matchId: Scalars['String']['input'];
 };
 
 
