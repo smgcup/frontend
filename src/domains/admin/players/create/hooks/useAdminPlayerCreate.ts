@@ -4,11 +4,12 @@ import {
   AdminCreatePlayerDocument,
   AdminCreatePlayerMutation,
   AdminCreatePlayerMutationVariables,
-  CreatePlayerDto,
   TeamsDocument,
   TeamsQuery,
 } from '@/graphql';
 import { mapPlayerTeam } from '@/domains/player/mappers/mapPlayerTeam';
+import type { PlayerCreate } from '@/domains/player/contracts';
+import { mapPlayerCreateToDto } from '@/domains/player/mappers/mapPlayerCreateToDto';
 export const useAdminPlayerCreate = () => {
   const { data: teamsData, loading: teamsLoading, error: teamsError } = useQuery<TeamsQuery>(TeamsDocument);
 
@@ -19,9 +20,9 @@ export const useAdminPlayerCreate = () => {
     AdminCreatePlayerMutationVariables
   >(AdminCreatePlayerDocument);
 
-  const handleAdminPlayerCreate = async (createPlayerDto: CreatePlayerDto) => {
+  const handleAdminPlayerCreate = async (createPlayer: PlayerCreate) => {
     await adminCreatePlayerMutation({
-      variables: { createPlayerDto },
+      variables: { createPlayerDto: mapPlayerCreateToDto(createPlayer) },
     });
   };
   return {

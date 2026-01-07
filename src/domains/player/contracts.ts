@@ -52,3 +52,15 @@ export type PlayerUpdate = Partial<{
   position: PlayerPosition;
   preferredFoot: PreferredFoot;
 }>;
+
+export type PlayerCreate = {
+  firstName: string;
+  lastName: string;
+  teamId: string;
+  height: number;
+  weight: number;
+  yearOfBirth: number;
+  imageUrl: string;
+  position: PlayerPosition;
+  preferredFoot: PreferredFoot;
+};

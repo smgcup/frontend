@@ -10,15 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ImageIcon, Loader2, Eye, Save } from 'lucide-react';
-import { UpdateNewsDto } from '@/graphql';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
-import type { News } from '@/domains/news/contracts';
+import type { News, NewsUpdate } from '@/domains/news/contracts';
 
 type AdminNewsEditViewUiProps = {
   news: News | null;
   newsLoading: boolean;
   updateLoading: boolean;
-  onUpdateNews: (updateNewsDto: UpdateNewsDto) => Promise<unknown>;
+  onUpdateNews: (updateNews: NewsUpdate) => Promise<unknown>;
 };
 
 const CATEGORIES = [
@@ -32,7 +31,7 @@ const CATEGORIES = [
 type AdminNewsEditFormProps = {
   news: News;
   updateLoading: boolean;
-  onUpdateNews: (updateNewsDto: UpdateNewsDto) => Promise<unknown>;
+  onUpdateNews: (updateNews: NewsUpdate) => Promise<unknown>;
 };
 
 const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditFormProps) => {

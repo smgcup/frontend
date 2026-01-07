@@ -8,3 +8,11 @@ export type TeamWithPlayers = {
   name: string;
   players: import('../player/contracts').PlayerListItem[];
 };
+
+export type TeamCreate = {
+  name: string;
+};
+
+export type TeamUpdate = {
+  name: string;
+};

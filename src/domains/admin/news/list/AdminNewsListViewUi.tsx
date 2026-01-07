@@ -18,10 +18,10 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Plus, Pencil, Trash2, Clock, FileText, ImageIcon, Loader2 } from 'lucide-react';
-import { GetNewsQuery } from '@/graphql';
+import type { News } from '@/domains/news/contracts';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
-type NewsItem = GetNewsQuery['news'][number];
+type NewsItem = News;
 
 type AdminNewsListViewUiProps = {
   news: NewsItem[];

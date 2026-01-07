@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ErrorLike } from '@apollo/client';
-import type { TeamByIdQuery, UpdateTeamDto } from '@/graphql';
+import type { Team, TeamUpdate } from '@/domains/team/contracts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,14 +24,14 @@ import { Loader2, Save, Trash2 } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminTeamEditViewUiProps = {
-  team: TeamByIdQuery['teamById'] | undefined;
+  team: Team | undefined;
   teamLoading: boolean;
   teamError: ErrorLike | null | undefined;
   updateLoading: boolean;
   updateError: ErrorLike | null | undefined;
   deleteLoading: boolean;
   deleteError: ErrorLike | null | undefined;
-  onUpdateTeam: (dto: UpdateTeamDto) => Promise<unknown>;
+  onUpdateTeam: (dto: TeamUpdate) => Promise<unknown>;
   onDeleteTeam: () => Promise<unknown>;
 };
 

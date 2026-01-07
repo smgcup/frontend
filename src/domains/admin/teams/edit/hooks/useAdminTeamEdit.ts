@@ -9,10 +9,12 @@ import {
   TeamByIdQuery,
   TeamByIdQueryVariables,
   UpdateTeamDocument,
-  UpdateTeamDto,
   UpdateTeamMutation,
   UpdateTeamMutationVariables,
 } from '@/graphql';
+import type { TeamUpdate } from '@/domains/team/contracts';
+import { mapTeam } from '@/domains/team/mappers/mapTeam';
+import { mapTeamUpdateToDto } from '@/domains/team/mappers/mapTeamDto';
 
 export const useAdminTeamEdit = (teamId: string) => {
   const { data, loading: teamLoading, error: teamError } = useQuery<TeamByIdQuery, TeamByIdQueryVariables>(
@@ -30,9 +32,9 @@ export const useAdminTeamEdit = (teamId: string) => {
     DeleteTeamMutationVariables
   >(DeleteTeamDocument);
 
-  const handleUpdateTeam = async (dto: UpdateTeamDto) => {
+  const handleUpdateTeam = async (dto: TeamUpdate) => {
     return await updateTeamMutation({
-      variables: { id: teamId, dto },
+      variables: { id: teamId, dto: mapTeamUpdateToDto(dto) },
     });
   };
 
@@ -43,7 +45,7 @@ export const useAdminTeamEdit = (teamId: string) => {
   };
 
   return {
-    team: data?.teamById,
+    team: data?.teamById ? mapTeam(data.teamById) : undefined,
     teamLoading,
     teamError,
     updateLoading,

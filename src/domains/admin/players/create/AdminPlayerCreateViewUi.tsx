@@ -1,7 +1,7 @@
 'use client';
 
-import type { PlayerTeam } from '@/domains/player/contracts';
-import { CreatePlayerDto, PlayerPosition, PreferredFoot } from '@/graphql';
+import type { PlayerCreate, PlayerTeam } from '@/domains/player/contracts';
+import { PlayerPosition, PreferredFoot } from '@/domains/player/contracts';
 import { ErrorLike } from '@apollo/client';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ type AdminPlayerCreateViewUiProps = {
   teams: PlayerTeam[];
   teamsLoading: boolean;
   teamsError: ErrorLike | null;
-  onAdminPlayerCreate: (createPlayerDto: CreatePlayerDto) => void;
+  onAdminPlayerCreate: (createPlayer: PlayerCreate) => void | Promise<unknown>;
   adminPlayerCreateLoading: boolean;
   adminPlayerCreateError: ErrorLike | null;
 };
@@ -36,7 +36,7 @@ const AdminPlayerCreateViewUi = ({
     yearOfBirth: string;
     imageUrl: string;
     position: PlayerPosition | '';
-    prefferedFoot: PreferredFoot | '';
+    preferredFoot: PreferredFoot | '';
   };
 
   const [formData, setFormData] = useState<FormState>({
@@ -48,7 +48,7 @@ const AdminPlayerCreateViewUi = ({
     yearOfBirth: '',
     imageUrl: '',
     position: '',
-    prefferedFoot: '',
+    preferredFoot: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -70,8 +70,8 @@ const AdminPlayerCreateViewUi = ({
   };
 
   const handlePreferredFootChange = (value: PreferredFoot) => {
-    setFormData((prev) => ({ ...prev, prefferedFoot: value }));
-    if (errors.prefferedFoot) setErrors((prev) => ({ ...prev, prefferedFoot: '' }));
+    setFormData((prev) => ({ ...prev, preferredFoot: value }));
+    if (errors.preferredFoot) setErrors((prev) => ({ ...prev, preferredFoot: '' }));
   };
 
   const validateForm = () => {
@@ -99,8 +99,8 @@ const AdminPlayerCreateViewUi = ({
     if (!formData.position) {
       newErrors.position = 'Position is required';
     }
-    if (!formData.prefferedFoot) {
-      newErrors.prefferedFoot = 'Preferred foot is required';
+    if (!formData.preferredFoot) {
+      newErrors.preferredFoot = 'Preferred foot is required';
     }
 
     setErrors(newErrors);
@@ -120,7 +120,7 @@ const AdminPlayerCreateViewUi = ({
       yearOfBirth: parseFloat(formData.yearOfBirth),
       imageUrl: formData.imageUrl.trim() || '',
       position: formData.position as PlayerPosition,
-      prefferedFoot: formData.prefferedFoot as PreferredFoot,
+      preferredFoot: formData.preferredFoot as PreferredFoot,
     });
 
     window.history.back();
@@ -275,13 +275,13 @@ const AdminPlayerCreateViewUi = ({
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="prefferedFoot">Preferred Foot *</FieldLabel>
+                <FieldLabel htmlFor="preferredFoot">Preferred Foot *</FieldLabel>
                 <FieldContent>
                   <Select
                     onValueChange={(v) => handlePreferredFootChange(v as PreferredFoot)}
-                    value={formData.prefferedFoot || undefined}
+                    value={formData.preferredFoot || undefined}
                   >
-                    <SelectTrigger aria-invalid={!!errors.prefferedFoot} className="w-full">
+                    <SelectTrigger aria-invalid={!!errors.preferredFoot} className="w-full">
                       <SelectValue placeholder="Select preferred foot" />
                     </SelectTrigger>
                     <SelectContent>
@@ -290,7 +290,7 @@ const AdminPlayerCreateViewUi = ({
                       <SelectItem value={PreferredFoot.Both}>Both</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.prefferedFoot && <FieldError>{errors.prefferedFoot}</FieldError>}
+                  {errors.preferredFoot && <FieldError>{errors.preferredFoot}</FieldError>}
                 </FieldContent>
               </Field>
 
