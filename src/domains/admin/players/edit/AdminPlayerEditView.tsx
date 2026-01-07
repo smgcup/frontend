@@ -9,6 +9,9 @@ type AdminPlayerEditViewProps = {
 
 const AdminPlayerEditView = ({ playerId }: AdminPlayerEditViewProps) => {
   const {
+    teams,
+    teamsLoading,
+    teamsError,
     player,
     playerLoading,
     playerError,
@@ -22,6 +25,9 @@ const AdminPlayerEditView = ({ playerId }: AdminPlayerEditViewProps) => {
 
   return (
     <AdminPlayerEditViewUi
+      teams={teams}
+      teamsLoading={teamsLoading}
+      teamsError={teamsError}
       player={player}
       playerLoading={playerLoading}
       playerError={playerError}

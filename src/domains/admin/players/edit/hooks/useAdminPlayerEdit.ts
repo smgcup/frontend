@@ -1,6 +1,7 @@
 'use client';
 
 import { useMutation, useQuery } from '@apollo/client/react';
+import { useMemo } from 'react';
 import {
   DeletePlayerDocument,
   DeletePlayerMutation,
@@ -13,6 +14,7 @@ import {
   UpdatePlayerMutation,
   UpdatePlayerMutationVariables,
 } from '@/graphql';
+import { mapPlayerTeam } from '@/domains/player/mappers/mapPlayerTeam';
 
 export const useAdminPlayerEdit = (playerId: string) => {
   // NOTE: We intentionally avoid `playerById { team { ... } }` because the backend can throw:
@@ -21,9 +23,11 @@ export const useAdminPlayerEdit = (playerId: string) => {
   // TeamsWithPlayers does not request `Player.team`, so we can still load player data and derive the team from nesting.
   const {
     data: teamsData,
-    loading: playerLoading,
-    error: playerError,
+    loading: teamsLoading,
+    error: teamsError,
   } = useQuery<TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables>(TeamsWithPlayersDocument);
+
+  const teams = useMemo(() => (teamsData?.teams ?? []).map(mapPlayerTeam), [teamsData]);
 
   const player = (() => {
     const teams = teamsData?.teams ?? [];
@@ -62,9 +66,12 @@ export const useAdminPlayerEdit = (playerId: string) => {
   };
 
   return {
+    teams,
+    teamsLoading,
+    teamsError: teamsError ?? null,
     player,
-    playerLoading,
-    playerError,
+    playerLoading: teamsLoading,
+    playerError: teamsError,
     updateLoading,
     updateError,
     deleteLoading,

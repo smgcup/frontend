@@ -1,11 +1,10 @@
 'use client';
 
+import type { PlayerTeam } from '@/domains/player/contracts';
 import { useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@apollo/client/react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ErrorLike } from '@apollo/client';
-import { PreferredFoot, PlayerPosition, TeamsDocument, TeamsQuery, UpdatePlayerDto } from '@/graphql';
+import { PreferredFoot, PlayerPosition, UpdatePlayerDto } from '@/graphql';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,6 +25,9 @@ import { Loader2, Save, Trash2 } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminPlayerEditViewUiProps = {
+  teams: PlayerTeam[];
+  teamsLoading: boolean;
+  teamsError: ErrorLike | null;
   player:
     | {
         id: string;
@@ -65,6 +67,9 @@ type FormState = {
 type FieldName = keyof FormState;
 
 const AdminPlayerEditViewUi = ({
+  teams,
+  teamsLoading,
+  teamsError,
   player,
   playerLoading,
   playerError,
@@ -76,7 +81,6 @@ const AdminPlayerEditViewUi = ({
   onDeletePlayer,
 }: AdminPlayerEditViewUiProps) => {
   const router = useRouter();
-  const { data: teamsData, loading: teamsLoading, error: teamsError } = useQuery<TeamsQuery>(TeamsDocument);
 
   const [formData, setFormData] = useState<FormState>({
     firstName: '',
@@ -257,11 +261,11 @@ const AdminPlayerEditViewUi = ({
   const dirtyClass = (field: FieldName) => (dirtyFields[field] ? 'ring-1 ring-primary bg-primary/5' : '');
 
   const selectedTeamName = useMemo(() => {
-    if (teamsData?.teams?.length && formData.teamId) {
-      return teamsData.teams.find((t) => t.id === formData.teamId)?.name ?? null;
+    if (teams.length && formData.teamId) {
+      return teams.find((t) => t.id === formData.teamId)?.name ?? null;
     }
     return player?.team?.name ?? null;
-  }, [teamsData, formData.teamId, player?.team?.name]);
+  }, [teams, formData.teamId, player?.team?.name]);
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -342,10 +346,10 @@ const AdminPlayerEditViewUi = ({
                         <SelectValue placeholder={teamsLoading ? 'Loading teams...' : 'Select a team'} />
                       </SelectTrigger>
                       <SelectContent>
-                        {formData.teamId &&
-                          !teamsData?.teams?.some((t) => t.id === formData.teamId) &&
-                          selectedTeamName && <SelectItem value={formData.teamId}>{selectedTeamName}</SelectItem>}
-                        {teamsData?.teams?.map((team) => (
+                        {formData.teamId && !teams.some((t) => t.id === formData.teamId) && selectedTeamName && (
+                          <SelectItem value={formData.teamId}>{selectedTeamName}</SelectItem>
+                        )}
+                        {teams.map((team) => (
                           <SelectItem key={team.id} value={team.id}>
                             {team.name}
                           </SelectItem>

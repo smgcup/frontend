@@ -1,6 +1,7 @@
 'use client';
 
-import { CreatePlayerDto, PlayerPosition, PreferredFoot, TeamsDocument, TeamsQuery } from '@/graphql';
+import type { PlayerTeam } from '@/domains/player/contracts';
+import { CreatePlayerDto, PlayerPosition, PreferredFoot } from '@/graphql';
 import { ErrorLike } from '@apollo/client';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -8,15 +9,20 @@ import { Input } from '@/components/ui/input';
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useQuery } from '@apollo/client/react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminPlayerCreateViewUiProps = {
+  teams: PlayerTeam[];
+  teamsLoading: boolean;
+  teamsError: ErrorLike | null;
   onAdminPlayerCreate: (createPlayerDto: CreatePlayerDto) => void;
   adminPlayerCreateLoading: boolean;
   adminPlayerCreateError: ErrorLike | null;
 };
 const AdminPlayerCreateViewUi = ({
+  teams,
+  teamsLoading,
+  teamsError,
   onAdminPlayerCreate,
   adminPlayerCreateLoading,
   adminPlayerCreateError,
@@ -46,8 +52,6 @@ const AdminPlayerCreateViewUi = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const { data: teamsData, loading: teamsLoading, error: teamsError } = useQuery<TeamsQuery>(TeamsDocument);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -143,8 +147,8 @@ const AdminPlayerCreateViewUi = ({
                 {adminPlayerCreateError && 'message' in adminPlayerCreateError
                   ? adminPlayerCreateError.message
                   : adminPlayerCreateError
-                    ? String(adminPlayerCreateError)
-                    : null}
+                  ? String(adminPlayerCreateError)
+                  : null}
                 {teamsError && <div>{teamsError.message || 'Failed to load teams.'}</div>}
               </div>
             )}
@@ -189,7 +193,7 @@ const AdminPlayerCreateViewUi = ({
                       <SelectValue placeholder={teamsLoading ? 'Loading teams...' : 'Select a team'} />
                     </SelectTrigger>
                     <SelectContent>
-                      {teamsData?.teams?.map((team) => (
+                      {teams.map((team) => (
                         <SelectItem key={team.id} value={team.id}>
                           {team.name}
                         </SelectItem>
