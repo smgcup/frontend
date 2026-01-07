@@ -9,6 +9,7 @@ import type {
   TeamsWithPlayersQueryVariables,
 } from '@/graphql';
 import { DeletePlayerDocument, TeamsWithPlayersDocument } from '@/graphql';
+import { mapTeamWithPlayers } from '@/domains/team/mappers/mapTeamWithPlayers';
 
 const getErrorMessage = (e: unknown) => {
   if (!e) return 'Unknown error';
@@ -24,8 +25,8 @@ export const useAdminPlayersList = () => {
     TeamsWithPlayersDocument,
   );
 
-  const teams = useMemo(() => data?.teams ?? [], [data?.teams]);
-  const players = useMemo(() => teams.flatMap((t) => t.players ?? []), [teams]);
+  const teams = useMemo(() => (data?.teams ?? []).map((t) => mapTeamWithPlayers(t as any)), [data?.teams]);
+  const players = useMemo(() => teams.flatMap((t) => t.players), [teams]);
 
   const [actionError, setActionError] = useState<string | null>(null);
   const [deletingPlayerId, setDeletingPlayerId] = useState<string | null>(null);

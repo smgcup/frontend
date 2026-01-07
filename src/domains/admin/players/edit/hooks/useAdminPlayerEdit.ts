@@ -10,11 +10,15 @@ import {
   TeamsWithPlayersQuery,
   TeamsWithPlayersQueryVariables,
   UpdatePlayerDocument,
-  UpdatePlayerDto,
   UpdatePlayerMutation,
   UpdatePlayerMutationVariables,
+  type UpdatePlayerDto,
+  type PreferredFoot as GqlPreferredFoot,
+  type PlayerPosition as GqlPlayerPosition,
 } from '@/graphql';
 import { mapPlayerTeam } from '@/domains/player/mappers/mapPlayerTeam';
+import { mapPlayerEdit } from '@/domains/player/mappers/mapPlayerEdit';
+import type { PlayerUpdate } from '@/domains/player/contracts';
 
 export const useAdminPlayerEdit = (playerId: string) => {
   // NOTE: We intentionally avoid `playerById { team { ... } }` because the backend can throw:
@@ -29,19 +33,16 @@ export const useAdminPlayerEdit = (playerId: string) => {
 
   const teams = useMemo(() => (teamsData?.teams ?? []).map(mapPlayerTeam), [teamsData]);
 
-  const player = (() => {
+  const player = useMemo(() => {
     const teams = teamsData?.teams ?? [];
     for (const team of teams) {
       const found = (team.players ?? []).find((p) => p.id === playerId);
       if (found) {
-        return {
-          ...found,
-          team: { id: team.id, name: team.name },
-        };
+        return mapPlayerEdit(found, { id: team.id, name: team.name });
       }
     }
     return undefined;
-  })();
+  }, [teamsData?.teams, playerId]);
 
   const [updatePlayerMutation, { loading: updateLoading, error: updateError }] = useMutation<
     UpdatePlayerMutation,
@@ -53,9 +54,20 @@ export const useAdminPlayerEdit = (playerId: string) => {
     DeletePlayerMutationVariables
   >(DeletePlayerDocument);
 
-  const handleUpdatePlayer = async (dto: UpdatePlayerDto) => {
+  const handleUpdatePlayer = async (dto: PlayerUpdate) => {
+    const gqlDto: UpdatePlayerDto = {};
+    if (dto.firstName !== undefined) gqlDto.firstName = dto.firstName;
+    if (dto.lastName !== undefined) gqlDto.lastName = dto.lastName;
+    if (dto.teamId !== undefined) gqlDto.teamId = dto.teamId;
+    if (dto.height !== undefined) gqlDto.height = dto.height;
+    if (dto.weight !== undefined) gqlDto.weight = dto.weight;
+    if (dto.yearOfBirth !== undefined) gqlDto.yearOfBirth = dto.yearOfBirth;
+    if (dto.imageUrl !== undefined) gqlDto.imageUrl = dto.imageUrl;
+    if (dto.position !== undefined) gqlDto.position = dto.position as unknown as GqlPlayerPosition;
+    if (dto.preferredFoot !== undefined) gqlDto.prefferedFoot = dto.preferredFoot as unknown as GqlPreferredFoot;
+
     return await updatePlayerMutation({
-      variables: { id: playerId, dto },
+      variables: { id: playerId, dto: gqlDto },
     });
   };
 

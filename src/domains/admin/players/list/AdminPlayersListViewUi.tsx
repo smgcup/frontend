@@ -16,14 +16,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Pencil, Plus, Trash2, User } from 'lucide-react';
-import type { TeamsWithPlayersQuery } from '@/graphql';
+import type { PlayerListItem } from '@/domains/player/contracts';
+import type { TeamWithPlayers } from '@/domains/team/contracts';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
-type Player = NonNullable<TeamsWithPlayersQuery['teams'][0]['players']>[0];
-
 type AdminPlayersListViewUiProps = {
-  teams: TeamsWithPlayersQuery['teams'];
-  players: Player[];
+  teams: TeamWithPlayers[];
+  players: PlayerListItem[];
   currentYear: number;
   loading: boolean;
   error?: unknown;
@@ -45,8 +44,7 @@ const AdminPlayersListViewUi = ({
   const playerTeamNameByPlayerId = useMemo(() => {
     const map = new Map<string, string>();
     for (const team of teams) {
-      const teamPlayers = team.players ?? [];
-      for (const player of teamPlayers) {
+      for (const player of team.players) {
         map.set(player.id, team.name);
       }
     }
@@ -188,7 +186,7 @@ const AdminPlayersListViewUi = ({
                   <p className="text-muted-foreground">Age: {currentYear - Math.round(player.yearOfBirth)}</p>
                   <p className="text-muted-foreground">Height: {player.height} cm</p>
                   <p className="text-muted-foreground">Weight: {player.weight} kg</p>
-                  <p className="text-muted-foreground">Foot: {player.prefferedFoot}</p>
+                  <p className="text-muted-foreground">Foot: {player.preferredFoot}</p>
                 </div>
               </CardContent>
             </Card>

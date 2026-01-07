@@ -1,10 +1,10 @@
 'use client';
 
-import type { PlayerTeam } from '@/domains/player/contracts';
+import type { PlayerEdit, PlayerTeam, PlayerUpdate } from '@/domains/player/contracts';
+import { PreferredFoot, PlayerPosition } from '@/domains/player/contracts';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ErrorLike } from '@apollo/client';
-import { PreferredFoot, PlayerPosition, UpdatePlayerDto } from '@/graphql';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,27 +28,14 @@ type AdminPlayerEditViewUiProps = {
   teams: PlayerTeam[];
   teamsLoading: boolean;
   teamsError: ErrorLike | null;
-  player:
-    | {
-        id: string;
-        firstName: string;
-        lastName: string;
-        yearOfBirth: number;
-        height: number;
-        weight: number;
-        imageUrl?: string | null;
-        prefferedFoot: PreferredFoot;
-        position: PlayerPosition;
-        team?: { id: string; name: string } | null;
-      }
-    | undefined;
+  player: PlayerEdit | undefined;
   playerLoading: boolean;
   playerError: ErrorLike | null | undefined;
   updateLoading: boolean;
   updateError: ErrorLike | null | undefined;
   deleteLoading: boolean;
   deleteError: ErrorLike | null | undefined;
-  onUpdatePlayer: (dto: UpdatePlayerDto) => Promise<unknown>;
+  onUpdatePlayer: (dto: PlayerUpdate) => Promise<unknown>;
   onDeletePlayer: () => Promise<unknown>;
 };
 
@@ -61,7 +48,7 @@ type FormState = {
   yearOfBirth: string;
   imageUrl: string;
   position: PlayerPosition | '';
-  prefferedFoot: PreferredFoot | '';
+  preferredFoot: PreferredFoot | '';
 };
 
 type FieldName = keyof FormState;
@@ -91,7 +78,7 @@ const AdminPlayerEditViewUi = ({
     yearOfBirth: '',
     imageUrl: '',
     position: '',
-    prefferedFoot: '',
+    preferredFoot: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -106,7 +93,7 @@ const AdminPlayerEditViewUi = ({
     yearOfBirth: false,
     imageUrl: false,
     position: false,
-    prefferedFoot: false,
+    preferredFoot: false,
   });
 
   useEffect(() => {
@@ -120,7 +107,7 @@ const AdminPlayerEditViewUi = ({
       yearOfBirth: String(player.yearOfBirth ?? ''),
       imageUrl: player.imageUrl ?? '',
       position: player.position ?? '',
-      prefferedFoot: player.prefferedFoot ?? '',
+      preferredFoot: player.preferredFoot ?? '',
     };
     // Avoid synchronous setState inside an effect body (can cause cascading renders)
     // Defer the state sync to a microtask and cancel if the effect is cleaned up.
@@ -138,7 +125,7 @@ const AdminPlayerEditViewUi = ({
         yearOfBirth: false,
         imageUrl: false,
         position: false,
-        prefferedFoot: false,
+        preferredFoot: false,
       });
     });
 
@@ -205,7 +192,7 @@ const AdminPlayerEditViewUi = ({
     else if (isNaN(parseFloat(formData.yearOfBirth))) newErrors.yearOfBirth = 'Year of birth must be a number';
 
     if (!formData.position) newErrors.position = 'Position is required';
-    if (!formData.prefferedFoot) newErrors.prefferedFoot = 'Preferred foot is required';
+    if (!formData.preferredFoot) newErrors.preferredFoot = 'Preferred foot is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -217,8 +204,8 @@ const AdminPlayerEditViewUi = ({
     if (!validateForm()) return;
 
     try {
-      // Only send changed fields (UpdatePlayerDto fields are optional)
-      const dto: UpdatePlayerDto = {};
+      // Only send changed fields (all fields are optional on PlayerUpdate)
+      const dto: PlayerUpdate = {};
       if (dirtyFields.firstName) dto.firstName = formData.firstName.trim();
       if (dirtyFields.lastName) dto.lastName = formData.lastName.trim();
       if (dirtyFields.teamId) dto.teamId = formData.teamId;
@@ -227,7 +214,7 @@ const AdminPlayerEditViewUi = ({
       if (dirtyFields.yearOfBirth) dto.yearOfBirth = parseFloat(formData.yearOfBirth);
       if (dirtyFields.imageUrl) dto.imageUrl = formData.imageUrl.trim() || '';
       if (dirtyFields.position) dto.position = formData.position as PlayerPosition;
-      if (dirtyFields.prefferedFoot) dto.prefferedFoot = formData.prefferedFoot as PreferredFoot;
+      if (dirtyFields.preferredFoot) dto.preferredFoot = formData.preferredFoot as PreferredFoot;
 
       // If nothing changed, just go back (no-op update)
       if (Object.keys(dto).length === 0) {
@@ -463,15 +450,15 @@ const AdminPlayerEditViewUi = ({
                   <FieldContent>
                     <Select
                       onValueChange={(value) => {
-                        setFormData((prev) => ({ ...prev, prefferedFoot: value as PreferredFoot }));
-                        if (errors.prefferedFoot) setErrors((prev) => ({ ...prev, prefferedFoot: '' }));
-                        markDirty('prefferedFoot', value as PreferredFoot);
+                        setFormData((prev) => ({ ...prev, preferredFoot: value as PreferredFoot }));
+                        if (errors.preferredFoot) setErrors((prev) => ({ ...prev, preferredFoot: '' }));
+                        markDirty('preferredFoot', value as PreferredFoot);
                       }}
-                      value={formData.prefferedFoot}
+                      value={formData.preferredFoot}
                     >
                       <SelectTrigger
-                        aria-invalid={!!errors.prefferedFoot}
-                        className={`w-full ${dirtyFields.prefferedFoot ? 'ring-1 ring-primary bg-primary/5' : ''}`}
+                        aria-invalid={!!errors.preferredFoot}
+                        className={`w-full ${dirtyFields.preferredFoot ? 'ring-1 ring-primary bg-primary/5' : ''}`}
                       >
                         <SelectValue placeholder="Select preferred foot" />
                       </SelectTrigger>
@@ -483,7 +470,7 @@ const AdminPlayerEditViewUi = ({
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.prefferedFoot && <FieldError>{errors.prefferedFoot}</FieldError>}
+                    {errors.preferredFoot && <FieldError>{errors.preferredFoot}</FieldError>}
                     <FieldDescription />
                   </FieldContent>
                 </Field>
