@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -34,6 +35,8 @@ const AdminMatchCreateViewUi = ({
   onCreateMatch,
   createLoading,
 }: AdminMatchCreateViewUiProps) => {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     firstOpponentId: '',
     secondOpponentId: '',
@@ -41,43 +44,36 @@ const AdminMatchCreateViewUi = ({
     status: MatchStatus.Scheduled,
   });
 
-  const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
-  const [clearedExternalErrorMessages, setClearedExternalErrorMessages] = useState<Record<string, string>>({});
+  // Local (client-side) validation errors. External errors come from the server via props.
+  // We intentionally *do not* sync external errors into local state to avoid setState-in-effect warnings.
+  const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
 
-  const errors = useMemo(() => {
-    const merged: Record<string, string> = { ...clientErrors };
+  // Merge local and external errors - local errors take precedence
+  const getError = (field: string): string => {
+    return Object.prototype.hasOwnProperty.call(localErrors, field)
+      ? localErrors[field]
+      : externalErrors?.[field] ?? '';
+  };
 
-    if (externalErrors) {
-      for (const [field, message] of Object.entries(externalErrors)) {
-        if (!message) continue;
-        if (clearedExternalErrorMessages[field] === message) continue;
-        merged[field] = message;
-      }
-    }
-
-    return merged;
-  }, [clientErrors, externalErrors, clearedExternalErrorMessages]);
+  const errors = {
+    firstOpponentId: getError('firstOpponentId'),
+    secondOpponentId: getError('secondOpponentId'),
+    date: getError('date'),
+    status: getError('status'),
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setClientErrors((prev) => ({ ...prev, [name]: '' }));
-      const msg = externalErrors?.[name];
-      if (msg) {
-        setClearedExternalErrorMessages((prev) => ({ ...prev, [name]: msg }));
-      }
+    if (errors[name as keyof typeof errors]) {
+      setLocalErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setClientErrors((prev) => ({ ...prev, [name]: '' }));
-      const msg = externalErrors?.[name];
-      if (msg) {
-        setClearedExternalErrorMessages((prev) => ({ ...prev, [name]: msg }));
-      }
+    if (errors[name as keyof typeof errors]) {
+      setLocalErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -104,11 +100,12 @@ const AdminMatchCreateViewUi = ({
       newErrors.date = 'Date is required';
     }
 
-    if (!formData.status) {
+    // Status has a default value, but validate it's a valid enum value
+    if (!formData.status || !Object.values(MatchStatus).includes(formData.status as MatchStatus)) {
       newErrors.status = 'Status is required';
     }
 
-    setClientErrors(newErrors);
+    setLocalErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -123,7 +120,7 @@ const AdminMatchCreateViewUi = ({
   };
 
   const handleCancel = () => {
-    window.history.back();
+    router.push('/admin/matches');
   };
 
   return (
@@ -159,21 +156,32 @@ const AdminMatchCreateViewUi = ({
                   <Select
                     value={formData.firstOpponentId}
                     onValueChange={(value) => handleSelectChange('firstOpponentId', value)}
-                    disabled={teamsLoading || createLoading}
+                    disabled={teamsLoading || createLoading || teams.length === 0}
                   >
                     <SelectTrigger id="firstOpponentId" className="w-full" aria-invalid={!!errors.firstOpponentId}>
-                      <SelectValue placeholder="Select first team" />
+                      <SelectValue placeholder={teams.length === 0 ? 'No teams available' : 'Select first team'} />
                     </SelectTrigger>
                     <SelectContent>
-                      {teams.map((team) => (
-                        <SelectItem key={team.id} value={team.id}>
-                          {team.name}
+                      {teams.length === 0 ? (
+                        <SelectItem value="" disabled>
+                          No teams available
                         </SelectItem>
-                      ))}
+                      ) : (
+                        teams.map((team) => (
+                          <SelectItem key={team.id} value={team.id}>
+                            {team.name}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   {errors.firstOpponentId && <FieldError>{errors.firstOpponentId}</FieldError>}
-                  <FieldDescription>Select the first team</FieldDescription>
+                  {teams.length === 0 && !errors.firstOpponentId && (
+                    <FieldDescription className="text-destructive">
+                      No teams available. Please create teams before creating a match.
+                    </FieldDescription>
+                  )}
+                  {teams.length > 0 && <FieldDescription>Select the first team</FieldDescription>}
                 </FieldContent>
               </Field>
 
@@ -184,21 +192,32 @@ const AdminMatchCreateViewUi = ({
                   <Select
                     value={formData.secondOpponentId}
                     onValueChange={(value) => handleSelectChange('secondOpponentId', value)}
-                    disabled={teamsLoading || createLoading}
+                    disabled={teamsLoading || createLoading || teams.length === 0}
                   >
                     <SelectTrigger id="secondOpponentId" className="w-full" aria-invalid={!!errors.secondOpponentId}>
-                      <SelectValue placeholder="Select second team" />
+                      <SelectValue placeholder={teams.length === 0 ? 'No teams available' : 'Select second team'} />
                     </SelectTrigger>
                     <SelectContent>
-                      {teams.map((team) => (
-                        <SelectItem key={team.id} value={team.id}>
-                          {team.name}
+                      {teams.length === 0 ? (
+                        <SelectItem value="" disabled>
+                          No teams available
                         </SelectItem>
-                      ))}
+                      ) : (
+                        teams.map((team) => (
+                          <SelectItem key={team.id} value={team.id}>
+                            {team.name}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   {errors.secondOpponentId && <FieldError>{errors.secondOpponentId}</FieldError>}
-                  <FieldDescription>Select the second team</FieldDescription>
+                  {teams.length === 0 && !errors.secondOpponentId && (
+                    <FieldDescription className="text-destructive">
+                      No teams available. Please create teams before creating a match.
+                    </FieldDescription>
+                  )}
+                  {teams.length > 0 && <FieldDescription>Select the second team</FieldDescription>}
                 </FieldContent>
               </Field>
 
@@ -251,7 +270,11 @@ const AdminMatchCreateViewUi = ({
             <Button type="button" variant="outline" onClick={handleCancel} className="w-full sm:w-auto cursor-pointer">
               Cancel
             </Button>
-            <Button type="submit" disabled={createLoading || teamsLoading} className="w-full sm:w-auto cursor-pointer">
+            <Button
+              type="submit"
+              disabled={createLoading || teamsLoading || teams.length === 0}
+              className="w-full sm:w-auto cursor-pointer"
+            >
               {createLoading ? 'Creating...' : 'Create Match'}
             </Button>
           </CardFooter>

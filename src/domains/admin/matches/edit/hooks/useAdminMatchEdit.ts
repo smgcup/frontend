@@ -16,7 +16,7 @@ import {
 } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
 import { mapMatchById } from '@/domains/matches/mappers/mapMatchById';
-import { getTranslationCode } from '../../create/hooks/useAdminMatchCreate';
+import { getTranslationCode } from '../../utils/getTranslationCode';
 
 export type AdminMatchEditFormData = {
   firstOpponentId: string;

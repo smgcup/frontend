@@ -1,17 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useMutation, useQuery } from '@apollo/client/react';
+import { useState } from 'react';
+import { useMutation } from '@apollo/client/react';
 import { useRouter } from 'next/navigation';
-import {
-  CreateMatchDocument,
-  type CreateMatchMutation,
-  type CreateMatchMutationVariables,
-  MatchStatus,
-  TeamsDocument,
-  type TeamsQuery,
-} from '@/graphql';
-import { mapTeam } from '@/domains/team/mappers/mapTeam';
+import { CreateMatchDocument, CreateMatchMutation, CreateMatchMutationVariables, MatchStatus } from '@/graphql';
+import { Team } from '@/domains/team/contracts';
+import { getTranslationCode } from '../../utils/getTranslationCode';
 
 export type AdminMatchCreateFormData = {
   firstOpponentId: string;
@@ -20,25 +14,19 @@ export type AdminMatchCreateFormData = {
   status: MatchStatus;
 };
 
-export const getTranslationCode = (e: unknown) => {
-  if (!e || typeof e !== 'object') return null;
-  const graphQLErrors = (e as { graphQLErrors?: unknown }).graphQLErrors;
-  if (!Array.isArray(graphQLErrors) || graphQLErrors.length === 0) return null;
-  const first = graphQLErrors[0] as { extensions?: unknown };
-  const code = (first.extensions as { translationCode?: unknown } | undefined)?.translationCode;
-  if (typeof code === 'string') return code;
-  return null;
+type UseAdminMatchCreateArgs = {
+  teams: Team[];
+  teamsError?: string | null;
 };
 
-export const useAdminMatchCreate = () => {
+export const useAdminMatchCreate = ({ teams, teamsError }: UseAdminMatchCreateArgs) => {
   const router = useRouter();
 
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [externalErrors, setExternalErrors] = useState<Record<string, string>>({});
 
-  const { data: teamsData, loading: teamsLoading, error: teamsError } = useQuery<TeamsQuery>(TeamsDocument);
-
-  const teams = useMemo(() => (teamsData?.teams ?? []).map(mapTeam), [teamsData]);
+  // Teams come from SSR, so they're already loaded when this component renders
+  const teamsLoading = false;
 
   const [createMatchMutation, { loading: createLoading }] = useMutation<
     CreateMatchMutation,
