@@ -3,7 +3,7 @@ import MatchCard from '@/domains/matches/components/MatchCard';
 import { Button } from '@/components/ui';
 import { ArrowRight, Trophy } from 'lucide-react';
 import type { Team } from '@/domains/team/contracts';
-import type { MatchListItem } from '@/domains/matches/ssr/getMatchesPageData';
+import type { MatchListItem } from '@/domains/matches/contracts';
 
 type UpcomingMatchesSectionProps = {
   teams: Team[];

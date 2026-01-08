@@ -15,6 +15,7 @@ import {
   type UpdateMatchMutationVariables,
 } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
+import { mapMatchById } from '@/domains/matches/mappers/mapMatchById';
 
 export type AdminMatchEditFormData = {
   firstOpponentId: string;
@@ -57,14 +58,8 @@ export const useAdminMatchEdit = (matchId: string) => {
   const match = useMemo(() => {
     const row = matchData?.matchById;
     if (!row) return null;
-    return {
-      id: row.id,
-      firstOpponent: { id: row.firstOpponent.id, name: row.firstOpponent.name },
-      secondOpponent: { id: row.secondOpponent.id, name: row.secondOpponent.name },
-      date: String(row.date),
-      status: row.status,
-    };
-  }, [matchData]);
+    return mapMatchById(row);
+  }, [matchData?.matchById]);
 
   const teams = useMemo(() => (teamsData?.teams ?? []).map(mapTeam), [teamsData]);
 

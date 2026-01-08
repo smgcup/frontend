@@ -25,7 +25,7 @@ export const useAdminPlayersList = () => {
     TeamsWithPlayersDocument,
   );
 
-  const teams = useMemo(() => (data?.teams ?? []).map((t) => mapTeamWithPlayers(t as any)), [data?.teams]);
+  const teams = useMemo(() => (data?.teams ?? []).map(mapTeamWithPlayers), [data?.teams]);
   const players = useMemo(() => teams.flatMap((t) => t.players), [teams]);
 
   const [actionError, setActionError] = useState<string | null>(null);

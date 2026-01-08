@@ -5,34 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Clock, Goal, AlertTriangle, Ban, Shield, Target, X, Calendar, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-export enum MatchEventType {
-  GOAL = 'GOAL',
-  YELLOW_CARD = 'YELLOW_CARD',
-  RED_CARD = 'RED_CARD',
-  GOALKEEPER_SAVE = 'GOALKEEPER_SAVE',
-  PENALTY_SCORED = 'PENALTY_SCORED',
-  PENALTY_MISSED = 'PENALTY_MISSED',
-  HALF_TIME = 'HALF_TIME',
-  FULL_TIME = 'FULL_TIME',
-}
-
-type MatchEvent = {
-  id: string;
-  type: MatchEventType;
-  minute: number;
-  payload?: unknown;
-  createdAt?: string;
-  player?: {
-    id: string;
-    firstName: string;
-    lastName: string;
-  };
-  team: {
-    id: string;
-    name: string;
-  };
-};
+import type { MatchEvent } from '@/domains/matches/contracts';
+import { MatchEventType } from '@/domains/matches/contracts';
 
 type EventTimelineProps = {
   events: MatchEvent[];

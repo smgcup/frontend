@@ -10,11 +10,15 @@ import {
   type MatchesQuery,
   type MatchesQueryVariables,
 } from '@/graphql';
+import { mapMatchListItem } from '@/domains/matches/mappers/mapMatchListItem';
 
 export const useAdminMatchesList = () => {
-  const { data, loading: matchesLoading, error: matchesError, refetch } = useQuery<MatchesQuery, MatchesQueryVariables>(
-    MatchesDocument,
-  );
+  const {
+    data,
+    loading: matchesLoading,
+    error: matchesError,
+    refetch,
+  } = useQuery<MatchesQuery, MatchesQueryVariables>(MatchesDocument);
 
   const [deleteMatchMutation, { loading: deleteLoading }] = useMutation<
     DeleteMatchMutation,
@@ -22,18 +26,8 @@ export const useAdminMatchesList = () => {
   >(DeleteMatchDocument);
 
   const matches = useMemo(() => {
-    return (
-      data?.matches.map((m) => ({
-        id: m.id,
-        firstOpponent: { id: m.firstOpponent.id, name: m.firstOpponent.name },
-        secondOpponent: { id: m.secondOpponent.id, name: m.secondOpponent.name },
-        date: String(m.date),
-        status: m.status,
-        ...(m.score1 == null ? {} : { score1: m.score1 }),
-        ...(m.score2 == null ? {} : { score2: m.score2 }),
-      })) ?? []
-    );
-  }, [data]);
+    return data?.matches.map(mapMatchListItem) ?? [];
+  }, [data?.matches]);
 
   const onDeleteMatch = async (id: string) => {
     await deleteMatchMutation({ variables: { id } });
@@ -48,5 +42,3 @@ export const useAdminMatchesList = () => {
     onDeleteMatch,
   };
 };
-
-

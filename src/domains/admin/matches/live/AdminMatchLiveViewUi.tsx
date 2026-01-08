@@ -7,40 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Goal, AlertTriangle, Ban, Shield, Target, X, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
-import EventTimeline, { MatchEventType } from './components/EventTimeline';
+import EventTimeline from './components/EventTimeline';
 import AddEventDialog from './components/AddEventDialog';
-import type { PlayerPosition } from '@/generated/types';
-
-type Player = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  position?: PlayerPosition;
-};
-
-type Team = {
-  id: string;
-  name: string;
-  players: Player[];
-};
-
-type MatchEvent = {
-  id: string;
-  type: MatchEventType;
-  minute: number;
-  player?: Player;
-  team: Team;
-};
-
-type Match = {
-  id: string;
-  firstOpponent: Team;
-  secondOpponent: Team;
-  date: string;
-  status: 'LIVE';
-  score1: number;
-  score2: number;
-};
+import { MatchEventType, type Match, type MatchEvent } from '@/domains/matches/contracts';
 
 type AdminMatchLiveViewUiProps = {
   match: Match | null;

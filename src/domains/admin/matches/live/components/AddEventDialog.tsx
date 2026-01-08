@@ -16,14 +16,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { MatchEventType } from './EventTimeline';
-import type { PlayerPosition } from '@/generated/types';
+import { MatchEventType } from '@/domains/matches/contracts';
 
 type Player = {
   id: string;
   firstName: string;
   lastName: string;
-  position?: PlayerPosition;
+  position?: string;
 };
 
 type Team = {
@@ -73,7 +72,7 @@ const requiresPlayer = (type: MatchEventType): boolean => {
   ].includes(type);
 };
 
-const positionShortLabel = (position?: PlayerPosition) => {
+const positionShortLabel = (position?: string) => {
   switch (position) {
     case 'GOALKEEPER':
       return 'GK';

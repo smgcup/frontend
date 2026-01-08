@@ -2,7 +2,7 @@
 
 import AdminMatchLiveViewUi from './AdminMatchLiveViewUi';
 import { useAdminMatchLive } from './hooks/useAdminMatchLive';
-import { MatchEventType } from './components/EventTimeline';
+import { MatchEventType } from '@/domains/matches/contracts';
 
 export { MatchEventType };
 

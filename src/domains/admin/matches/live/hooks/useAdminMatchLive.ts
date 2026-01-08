@@ -17,8 +17,9 @@ import {
   type MatchEventsQueryVariables,
   MatchEventType as GqlMatchEventType,
 } from '@/graphql';
-import { MatchEventType } from '../components/EventTimeline';
-import type { PlayerPosition } from '@/generated/types';
+import type { MatchEvent, MatchEventType } from '@/domains/matches/contracts';
+import { mapMatchById } from '@/domains/matches/mappers/mapMatchById';
+import { mapMatchEvent } from '@/domains/matches/mappers/mapMatchEvent';
 
 export const useAdminMatchLive = (matchId: string) => {
   const { data: matchData, loading: matchLoading } = useQuery<MatchByIdQuery, MatchByIdQueryVariables>(
@@ -43,37 +44,6 @@ export const useAdminMatchLive = (matchId: string) => {
 
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
 
-  type Player = {
-    id: string;
-    firstName: string;
-    lastName: string;
-    position?: PlayerPosition;
-  };
-
-  type Team = {
-    id: string;
-    name: string;
-    players: Player[];
-  };
-
-  type Match = {
-    id: string;
-    firstOpponent: Team;
-    secondOpponent: Team;
-    date: string;
-    status: 'LIVE';
-    score1: number;
-    score2: number;
-  };
-
-  type MatchEvent = {
-    id: string;
-    type: MatchEventType;
-    minute: number;
-    player?: Player;
-    team: Team;
-  };
-
   type AddEventInput = {
     type: MatchEventType;
     minute: number;
@@ -82,37 +52,16 @@ export const useAdminMatchLive = (matchId: string) => {
     payload?: unknown;
   };
 
-  const match: Match | null = matchData?.matchById
-    ? {
-        id: matchData.matchById.id,
-        firstOpponent: {
-          id: matchData.matchById.firstOpponent.id,
-          name: matchData.matchById.firstOpponent.name,
-          players:
-            matchData.matchById.firstOpponent.players?.map((p) => ({
-              id: p.id,
-              firstName: p.firstName,
-              lastName: p.lastName,
-              position: p.position,
-            })) ?? [],
-        },
-        secondOpponent: {
-          id: matchData.matchById.secondOpponent.id,
-          name: matchData.matchById.secondOpponent.name,
-          players:
-            matchData.matchById.secondOpponent.players?.map((p) => ({
-              id: p.id,
-              firstName: p.firstName,
-              lastName: p.lastName,
-              position: p.position,
-            })) ?? [],
-        },
-        date: String(matchData.matchById.date),
-        status: 'LIVE',
-        score1: matchData.matchById.score1 ?? 0,
-        score2: matchData.matchById.score2 ?? 0,
-      }
-    : null;
+  const match = useMemo(() => {
+    const row = matchData?.matchById;
+    if (!row) return null;
+    // Live view expects scores to always be numbers.
+    return {
+      ...mapMatchById(row),
+      score1: row.score1 ?? 0,
+      score2: row.score2 ?? 0,
+    };
+  }, [matchData?.matchById]);
 
   const events: MatchEvent[] = useMemo(() => {
     const rows = eventsData?.matchEvents ?? [];
@@ -121,13 +70,7 @@ export const useAdminMatchLive = (matchId: string) => {
       if (a.minute !== b.minute) return a.minute - b.minute;
       return String(a.createdAt).localeCompare(String(b.createdAt));
     });
-    return sorted.map((e) => ({
-      id: e.id,
-      type: e.type as unknown as MatchEventType,
-      minute: e.minute,
-      player: e.player ? { id: e.player.id, firstName: e.player.firstName, lastName: e.player.lastName } : undefined,
-      team: { id: e.team.id, name: e.team.name, players: [] },
-    }));
+    return sorted.map(mapMatchEvent);
   }, [eventsData]);
 
   const currentMinute = useMemo(() => {
