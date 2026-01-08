@@ -31,7 +31,12 @@ const LiveMatchBanner = ({ match }: { match: MatchListItem }) => {
             </div>
           </div>
 
-          <Button asChild size="sm" className="shrink-0 gap-2">
+          <Button
+            asChild
+            size="sm"
+            variant="secondary"
+            className="shrink-0 gap-2 border-transparent bg-red-700 text-white hover:bg-red-800 dark:bg-red-600 dark:hover:bg-red-700"
+          >
             <Link href={`/matches/${match.id}`}>
               Watch <ArrowRight className="h-4 w-4" />
             </Link>
