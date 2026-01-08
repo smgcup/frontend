@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Goal, AlertTriangle, Ban, Shield, Target, X, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
-import EventTimeline from './components/EventTimeline';
+import EventTimeline from '@/domains/matches/components/EventTimeline';
 import AddEventDialog from './components/AddEventDialog';
 import { MatchEventType, type Match, type MatchEvent } from '@/domains/matches/contracts';
 

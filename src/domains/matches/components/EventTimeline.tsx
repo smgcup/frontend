@@ -158,3 +158,5 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
 };
 
 export default EventTimeline;
+
+
