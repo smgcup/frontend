@@ -13,8 +13,6 @@ import { Team } from '@/domains/team/contracts';
 
 type AdminMatchCreateViewUiProps = {
   teams: Team[];
-  teamsLoading?: boolean;
-  teamsError?: unknown;
   externalErrors?: Record<string, string>;
   submitError?: string | null;
   onCreateMatch: (data: {
@@ -28,8 +26,6 @@ type AdminMatchCreateViewUiProps = {
 
 const AdminMatchCreateViewUi = ({
   teams,
-  teamsLoading,
-  teamsError,
   externalErrors,
   submitError,
   onCreateMatch,
@@ -135,17 +131,10 @@ const AdminMatchCreateViewUi = ({
 
         <form onSubmit={handleSubmit} className="space-y-10">
           <CardContent>
-            {(Boolean(submitError) || Boolean(teamsError)) && (
+            {Boolean(submitError) && (
               <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive mb-6">
                 <p className="font-medium">Operation failed</p>
                 {submitError && <p className="mt-1 text-sm">{submitError}</p>}
-                {Boolean(teamsError) && (
-                  <p className="mt-1 text-sm">
-                    {typeof teamsError === 'object' && teamsError && 'message' in teamsError
-                      ? String((teamsError as { message?: unknown }).message ?? 'Failed to load teams.')
-                      : 'Failed to load teams.'}
-                  </p>
-                )}
               </div>
             )}
             <FieldGroup>
@@ -156,7 +145,7 @@ const AdminMatchCreateViewUi = ({
                   <Select
                     value={formData.firstOpponentId}
                     onValueChange={(value) => handleSelectChange('firstOpponentId', value)}
-                    disabled={teamsLoading || createLoading || teams.length === 0}
+                    disabled={createLoading || teams.length === 0}
                   >
                     <SelectTrigger id="firstOpponentId" className="w-full" aria-invalid={!!errors.firstOpponentId}>
                       <SelectValue placeholder={teams.length === 0 ? 'No teams available' : 'Select first team'} />
@@ -192,7 +181,7 @@ const AdminMatchCreateViewUi = ({
                   <Select
                     value={formData.secondOpponentId}
                     onValueChange={(value) => handleSelectChange('secondOpponentId', value)}
-                    disabled={teamsLoading || createLoading || teams.length === 0}
+                    disabled={createLoading || teams.length === 0}
                   >
                     <SelectTrigger id="secondOpponentId" className="w-full" aria-invalid={!!errors.secondOpponentId}>
                       <SelectValue placeholder={teams.length === 0 ? 'No teams available' : 'Select second team'} />
@@ -272,7 +261,7 @@ const AdminMatchCreateViewUi = ({
             </Button>
             <Button
               type="submit"
-              disabled={createLoading || teamsLoading || teams.length === 0}
+              disabled={createLoading || teams.length === 0}
               className="w-full sm:w-auto cursor-pointer"
             >
               {createLoading ? 'Creating...' : 'Create Match'}

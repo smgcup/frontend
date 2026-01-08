@@ -3,7 +3,10 @@ import { getAdminMatchCreatePageData } from '@/domains/admin/matches/create/ssr/
 
 const AdminMatchCreatePage = async () => {
   const { teams, errorMessage } = await getAdminMatchCreatePageData();
-  return <AdminMatchCreateView teams={teams} teamsError={errorMessage} />;
+  if (errorMessage) {
+    return <div>Error loading teams: {errorMessage}</div>;
+  }
+  return <AdminMatchCreateView teams={teams} />;
 };
 
 export default AdminMatchCreatePage;

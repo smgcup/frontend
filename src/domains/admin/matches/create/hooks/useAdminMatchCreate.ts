@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { useRouter } from 'next/navigation';
 import { CreateMatchDocument, CreateMatchMutation, CreateMatchMutationVariables, MatchStatus } from '@/graphql';
-import { Team } from '@/domains/team/contracts';
 import { getTranslationCode } from '../../utils/getTranslationCode';
 
 export type AdminMatchCreateFormData = {
@@ -14,19 +13,11 @@ export type AdminMatchCreateFormData = {
   status: MatchStatus;
 };
 
-type UseAdminMatchCreateArgs = {
-  teams: Team[];
-  teamsError?: string | null;
-};
-
-export const useAdminMatchCreate = ({ teams, teamsError }: UseAdminMatchCreateArgs) => {
+export const useAdminMatchCreate = () => {
   const router = useRouter();
 
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [externalErrors, setExternalErrors] = useState<Record<string, string>>({});
-
-  // Teams come from SSR, so they're already loaded when this component renders
-  const teamsLoading = false;
 
   const [createMatchMutation, { loading: createLoading }] = useMutation<
     CreateMatchMutation,
@@ -75,9 +66,6 @@ export const useAdminMatchCreate = ({ teams, teamsError }: UseAdminMatchCreateAr
   };
 
   return {
-    teams,
-    teamsLoading,
-    teamsError,
     externalErrors,
     submitError,
     createLoading,
