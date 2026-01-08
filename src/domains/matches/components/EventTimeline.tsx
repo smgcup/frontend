@@ -89,7 +89,9 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Clock className="h-12 w-12 text-muted-foreground/50 mb-4" />
           <p className="text-muted-foreground text-center">No events yet</p>
-          <p className="text-sm text-muted-foreground/70 mt-1">Add events as they happen during the match</p>
+          <p className="text-sm text-muted-foreground/70 mt-1">
+            Events will be added automatically as the match progresses
+          </p>
         </CardContent>
       </Card>
     );
@@ -158,5 +160,3 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
 };
 
 export default EventTimeline;
-
-
