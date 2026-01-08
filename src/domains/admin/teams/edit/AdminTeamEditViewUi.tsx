@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ErrorLike } from '@apollo/client';
 import type { Team, TeamUpdate } from '@/domains/team/contracts';
@@ -35,9 +34,19 @@ type AdminTeamEditViewUiProps = {
   onDeleteTeam: () => Promise<unknown>;
 };
 
-const AdminTeamEditViewUi = ({
+type AdminTeamEditFormProps = {
+  team: Team;
+  teamError: ErrorLike | null | undefined;
+  updateLoading: boolean;
+  updateError: ErrorLike | null | undefined;
+  deleteLoading: boolean;
+  deleteError: ErrorLike | null | undefined;
+  onUpdateTeam: (dto: TeamUpdate) => Promise<unknown>;
+  onDeleteTeam: () => Promise<unknown>;
+};
+
+const AdminTeamEditForm = ({
   team,
-  teamLoading,
   teamError,
   updateLoading,
   updateError,
@@ -45,16 +54,11 @@ const AdminTeamEditViewUi = ({
   deleteError,
   onUpdateTeam,
   onDeleteTeam,
-}: AdminTeamEditViewUiProps) => {
+}: AdminTeamEditFormProps) => {
   const router = useRouter();
-  const [name, setName] = useState('');
+  const [name, setName] = useState(team.name ?? '');
   const [nameError, setNameError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!team) return;
-    setName(team.name ?? '');
-  }, [team]);
 
   const getErrorMessage = (e: unknown) => {
     if (!e) return 'Unknown error';
@@ -69,7 +73,9 @@ const AdminTeamEditViewUi = ({
     return (
       actionError ||
       (teamError && 'message' in teamError && typeof teamError.message === 'string' ? teamError.message : null) ||
-      (updateError && 'message' in updateError && typeof updateError.message === 'string' ? updateError.message : null) ||
+      (updateError && 'message' in updateError && typeof updateError.message === 'string'
+        ? updateError.message
+        : null) ||
       (deleteError && 'message' in deleteError && typeof deleteError.message === 'string' ? deleteError.message : null)
     );
   }, [actionError, teamError, updateError, deleteError]);
@@ -108,6 +114,97 @@ const AdminTeamEditViewUi = ({
   };
 
   return (
+    <form onSubmit={handleSubmit} className="space-y-10">
+      <CardContent>
+        {combinedError && (
+          <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
+            <p className="font-medium">Operation failed</p>
+            <p className="mt-1 text-sm">{combinedError}</p>
+          </div>
+        )}
+
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="name">Team Name *</FieldLabel>
+            <FieldContent>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Enter team name"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (nameError) setNameError(null);
+                }}
+                aria-invalid={!!nameError}
+              />
+              {nameError && <FieldError>{nameError}</FieldError>}
+            </FieldContent>
+          </Field>
+        </FieldGroup>
+      </CardContent>
+
+      <CardFooter className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => window.history.back()}
+            disabled={updateLoading || deleteLoading}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={updateLoading || deleteLoading}>
+            {updateLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Save
+          </Button>
+        </div>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              variant="destructive"
+              className="w-full sm:w-auto"
+              disabled={updateLoading || deleteLoading}
+            >
+              {deleteLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              Delete Team
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Team</AlertDialogTitle>
+              <AlertDialogDescription>
+                Deleting a team can fail if it is still referenced (players/matches). This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction variant="destructive" onClick={handleDelete}>
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </CardFooter>
+    </form>
+  );
+};
+
+const AdminTeamEditViewUi = ({
+  team,
+  teamLoading,
+  teamError,
+  updateLoading,
+  updateError,
+  deleteLoading,
+  deleteError,
+  onUpdateTeam,
+  onDeleteTeam,
+}: AdminTeamEditViewUiProps) => {
+  return (
     <div className="space-y-6 max-w-3xl mx-auto">
       <AdminPageHeader title="Edit team" description="Update team details" backHref="/admin/teams" />
 
@@ -117,89 +214,33 @@ const AdminTeamEditViewUi = ({
           <CardDescription>Edit the team name and save changes</CardDescription>
         </CardHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-10">
+        {teamLoading ? (
           <CardContent>
-            {combinedError && (
-              <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
-                <p className="font-medium">Operation failed</p>
-                <p className="mt-1 text-sm">{combinedError}</p>
-              </div>
-            )}
-
-            {teamLoading ? (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Loading team...
-              </div>
-            ) : (
-              <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="name">Team Name *</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      id="name"
-                      name="name"
-                      type="text"
-                      placeholder="Enter team name"
-                      value={name}
-                      onChange={(e) => {
-                        setName(e.target.value);
-                        if (nameError) setNameError(null);
-                      }}
-                      aria-invalid={!!nameError}
-                    />
-                    {nameError && <FieldError>{nameError}</FieldError>}
-                  </FieldContent>
-                </Field>
-              </FieldGroup>
-            )}
-          </CardContent>
-
-          <CardFooter className="flex flex-col gap-3 sm:flex-row sm:justify-between">
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-              <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={updateLoading || deleteLoading}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={teamLoading || updateLoading || deleteLoading}>
-                {updateLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                Save
-              </Button>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading team...
             </div>
-
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  className="w-full sm:w-auto"
-                  disabled={teamLoading || updateLoading || deleteLoading}
-                >
-                  {deleteLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                  Delete Team
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Team</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Deleting a team can fail if it is still referenced (players/matches). This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction variant="destructive" onClick={handleDelete}>
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </CardFooter>
-        </form>
+          </CardContent>
+        ) : !team ? (
+          <CardContent>
+            <div className="text-sm text-muted-foreground">Team not found.</div>
+          </CardContent>
+        ) : (
+          <AdminTeamEditForm
+            key={team.id}
+            team={team}
+            teamError={teamError}
+            updateLoading={updateLoading}
+            updateError={updateError}
+            deleteLoading={deleteLoading}
+            deleteError={deleteError}
+            onUpdateTeam={onUpdateTeam}
+            onDeleteTeam={onDeleteTeam}
+          />
+        )}
       </Card>
     </div>
   );
 };
 
 export default AdminTeamEditViewUi;
-
-
