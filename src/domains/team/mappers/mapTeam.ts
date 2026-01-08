@@ -1,13 +1,9 @@
-import type { Team } from '../contracts';
+import { Team } from '../contracts';
+import { TeamsQuery } from '@/graphql';
 
-type TeamLike = {
-  id: string;
-  name?: string | null;
-};
-
-export const mapTeam = (team: TeamLike): Team => {
+export const mapTeam = (team: TeamsQuery['teams'][0]): Team => {
   return {
     id: team.id,
-    name: team.name ?? '',
+    name: team.name,
   };
 };
