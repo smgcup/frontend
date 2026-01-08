@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -19,7 +19,12 @@ type AdminMatchCreateViewUiProps = {
   teamsError?: unknown;
   externalErrors?: Record<string, string>;
   submitError?: string | null;
-  onCreateMatch: (data: { firstOpponentId: string; secondOpponentId: string; date: string; status: string }) => Promise<void>;
+  onCreateMatch: (data: {
+    firstOpponentId: string;
+    secondOpponentId: string;
+    date: string;
+    status: string;
+  }) => Promise<void>;
   createLoading: boolean;
 };
 
@@ -46,26 +51,43 @@ const AdminMatchCreateViewUi = ({
     status: 'SCHEDULED',
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
+  const [clearedExternalErrorMessages, setClearedExternalErrorMessages] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    if (externalErrors && Object.keys(externalErrors).length > 0) {
-      setErrors((prev) => ({ ...prev, ...externalErrors }));
+  const errors = useMemo(() => {
+    const merged: Record<string, string> = { ...clientErrors };
+
+    if (externalErrors) {
+      for (const [field, message] of Object.entries(externalErrors)) {
+        if (!message) continue;
+        if (clearedExternalErrorMessages[field] === message) continue;
+        merged[field] = message;
+      }
     }
-  }, [externalErrors]);
+
+    return merged;
+  }, [clientErrors, externalErrors, clearedExternalErrorMessages]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+      setClientErrors((prev) => ({ ...prev, [name]: '' }));
+      const msg = externalErrors?.[name];
+      if (msg) {
+        setClearedExternalErrorMessages((prev) => ({ ...prev, [name]: msg }));
+      }
     }
   };
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+      setClientErrors((prev) => ({ ...prev, [name]: '' }));
+      const msg = externalErrors?.[name];
+      if (msg) {
+        setClearedExternalErrorMessages((prev) => ({ ...prev, [name]: msg }));
+      }
     }
   };
 
@@ -80,7 +102,11 @@ const AdminMatchCreateViewUi = ({
       newErrors.secondOpponentId = 'Second opponent is required';
     }
 
-    if (formData.firstOpponentId && formData.secondOpponentId && formData.firstOpponentId === formData.secondOpponentId) {
+    if (
+      formData.firstOpponentId &&
+      formData.secondOpponentId &&
+      formData.firstOpponentId === formData.secondOpponentId
+    ) {
       newErrors.secondOpponentId = 'Teams must be different';
     }
 
@@ -92,7 +118,7 @@ const AdminMatchCreateViewUi = ({
       newErrors.status = 'Status is required';
     }
 
-    setErrors(newErrors);
+    setClientErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -235,11 +261,7 @@ const AdminMatchCreateViewUi = ({
             <Button type="button" variant="outline" onClick={handleCancel} className="w-full sm:w-auto cursor-pointer">
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={createLoading || teamsLoading}
-              className="w-full sm:w-auto cursor-pointer"
-            >
+            <Button type="submit" disabled={createLoading || teamsLoading} className="w-full sm:w-auto cursor-pointer">
               {createLoading ? 'Creating...' : 'Create Match'}
             </Button>
           </CardFooter>
@@ -250,4 +272,3 @@ const AdminMatchCreateViewUi = ({
 };
 
 export default AdminMatchCreateViewUi;
-
