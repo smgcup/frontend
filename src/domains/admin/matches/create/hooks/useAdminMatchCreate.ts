@@ -17,10 +17,10 @@ export type AdminMatchCreateFormData = {
   firstOpponentId: string;
   secondOpponentId: string;
   date: string;
-  status: MatchStatus | string;
+  status: MatchStatus;
 };
 
-const getTranslationCode = (e: unknown) => {
+export const getTranslationCode = (e: unknown) => {
   if (!e || typeof e !== 'object') return null;
   const graphQLErrors = (e as { graphQLErrors?: unknown }).graphQLErrors;
   if (!Array.isArray(graphQLErrors) || graphQLErrors.length === 0) return null;
@@ -62,7 +62,7 @@ export const useAdminMatchCreate = () => {
             firstOpponentId: data.firstOpponentId,
             secondOpponentId: data.secondOpponentId,
             date: d.toISOString(),
-            status: data.status as MatchStatus,
+            status: data.status,
           },
         },
       });

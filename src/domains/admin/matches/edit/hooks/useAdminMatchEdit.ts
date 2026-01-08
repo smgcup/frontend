@@ -16,22 +16,13 @@ import {
 } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
 import { mapMatchById } from '@/domains/matches/mappers/mapMatchById';
+import { getTranslationCode } from '../../create/hooks/useAdminMatchCreate';
 
 export type AdminMatchEditFormData = {
   firstOpponentId: string;
   secondOpponentId: string;
   date: string;
-  status: MatchStatus | string;
-};
-
-const getTranslationCode = (e: unknown) => {
-  if (!e || typeof e !== 'object') return null;
-  const graphQLErrors = (e as { graphQLErrors?: unknown }).graphQLErrors;
-  if (!Array.isArray(graphQLErrors) || graphQLErrors.length === 0) return null;
-  const first = graphQLErrors[0] as { extensions?: unknown };
-  const code = (first.extensions as { translationCode?: unknown } | undefined)?.translationCode;
-  if (typeof code === 'string') return code;
-  return null;
+  status: MatchStatus;
 };
 
 export const useAdminMatchEdit = (matchId: string) => {
@@ -73,8 +64,6 @@ export const useAdminMatchEdit = (matchId: string) => {
       return;
     }
 
-    const status = data.status as MatchStatus;
-
     try {
       await updateMatchMutation({
         variables: {
@@ -83,7 +72,7 @@ export const useAdminMatchEdit = (matchId: string) => {
             firstOpponentId: data.firstOpponentId,
             secondOpponentId: data.secondOpponentId,
             date: d.toISOString(),
-            status,
+            status: data.status,
             ...(status === MatchStatus.Live || status === MatchStatus.Finished ? {} : { score1: null, score2: null }),
           },
         },
@@ -129,5 +118,3 @@ export const useAdminMatchEdit = (matchId: string) => {
     onUpdateMatch,
   };
 };
-
-

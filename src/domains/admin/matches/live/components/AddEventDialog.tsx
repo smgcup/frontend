@@ -17,12 +17,14 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { MatchEventType } from '@/domains/matches/contracts';
+// import { PlayerPosition } from '@/domains/player/contracts';
+import { PlayerPosition } from '@/graphql';
 
 type Player = {
   id: string;
   firstName: string;
   lastName: string;
-  position?: string;
+  position: PlayerPosition;
 };
 
 type Team = {
@@ -87,7 +89,14 @@ const positionShortLabel = (position?: string) => {
   }
 };
 
-const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger, mode = 'full', presetType }: AddEventDialogProps) => {
+const AddEventDialog = ({
+  teams,
+  currentMinute,
+  onAddEvent,
+  trigger,
+  mode = 'full',
+  presetType,
+}: AddEventDialogProps) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     type: presetType ?? MatchEventType.GOAL,
@@ -212,8 +221,7 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger, mode = 'ful
 
     setLoading(true);
     try {
-      const payload =
-        formData.payload.trim().length > 0 ? (JSON.parse(formData.payload) as unknown) : undefined;
+      const payload = formData.payload.trim().length > 0 ? (JSON.parse(formData.payload) as unknown) : undefined;
       const fallbackTeamId = teams[0]?.id ?? '';
       await onAddEvent({
         type: selectedEventType,
@@ -340,7 +348,9 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger, mode = 'ful
                             <span className="truncate">
                               {player.firstName} {player.lastName}
                             </span>
-                            <span className="shrink-0 text-muted-foreground">{positionShortLabel(player.position) ?? ''}</span>
+                            <span className="shrink-0 text-muted-foreground">
+                              {positionShortLabel(player.position) ?? ''}
+                            </span>
                           </span>
                         </SelectItem>
                       ))}
@@ -404,4 +414,3 @@ const AddEventDialog = ({ teams, currentMinute, onAddEvent, trigger, mode = 'ful
 };
 
 export default AddEventDialog;
-

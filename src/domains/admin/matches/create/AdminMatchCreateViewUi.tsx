@@ -7,11 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
-
-type Team = {
-  id: string;
-  name: string;
-};
+import { MatchStatus } from '@/graphql';
+import { Team } from '@/domains/team/contracts';
 
 type AdminMatchCreateViewUiProps = {
   teams: Team[];
@@ -23,17 +20,10 @@ type AdminMatchCreateViewUiProps = {
     firstOpponentId: string;
     secondOpponentId: string;
     date: string;
-    status: string;
+    status: MatchStatus;
   }) => Promise<void>;
   createLoading: boolean;
 };
-
-const MATCH_STATUSES = [
-  { value: 'SCHEDULED', label: 'Scheduled' },
-  { value: 'LIVE', label: 'Live' },
-  { value: 'FINISHED', label: 'Finished' },
-  { value: 'CANCELLED', label: 'Cancelled' },
-];
 
 const AdminMatchCreateViewUi = ({
   teams,
@@ -48,7 +38,7 @@ const AdminMatchCreateViewUi = ({
     firstOpponentId: '',
     secondOpponentId: '',
     date: '',
-    status: 'SCHEDULED',
+    status: MatchStatus.Scheduled,
   });
 
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
@@ -243,9 +233,9 @@ const AdminMatchCreateViewUi = ({
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      {MATCH_STATUSES.map((status) => (
-                        <SelectItem key={status.value} value={status.value}>
-                          {status.label}
+                      {Object.values(MatchStatus).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status}
                         </SelectItem>
                       ))}
                     </SelectContent>
