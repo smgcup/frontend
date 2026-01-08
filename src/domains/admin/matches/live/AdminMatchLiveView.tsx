@@ -119,7 +119,7 @@ const AdminMatchLiveView = ({ matchId }: AdminMatchLiveViewProps) => {
     });
   };
 
-  const onDeleteEvent: NonNullable<Parameters<typeof AdminMatchLiveViewUi>[0]['onDeleteEvent']> = async (id) => {
+  const onDeleteEvent = async (id: string) => {
     setDeletingEventId(id);
     try {
       await deleteMatchEventMutation({ variables: { id } });
@@ -144,4 +144,3 @@ const AdminMatchLiveView = ({ matchId }: AdminMatchLiveViewProps) => {
 };
 
 export default AdminMatchLiveView;
-

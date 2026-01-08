@@ -22,7 +22,7 @@ import type { DeletePlayerMutation, DeletePlayerMutationVariables, TeamsWithPlay
 import { DeletePlayerDocument } from '@/graphql';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
-type Player = NonNullable<TeamsWithPlayersQuery['teams'][0]['players']>[0];
+type Player = TeamsWithPlayersQuery['teams'][0]['players'][0];
 
 type AdminPlayersListViewUiProps = {
   teams: TeamsWithPlayersQuery['teams'];
@@ -132,7 +132,10 @@ const AdminPlayersListViewUi = ({ teams, players, currentYear, error }: AdminPla
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {players.map((player) => (
-            <Card key={player.id} className="group overflow-hidden transition-all hover:shadow-lg hover:border-primary/20">
+            <Card
+              key={player.id}
+              className="group overflow-hidden transition-all hover:shadow-lg hover:border-primary/20"
+            >
               <CardHeader>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -203,5 +206,3 @@ const AdminPlayersListViewUi = ({ teams, players, currentYear, error }: AdminPla
 };
 
 export default AdminPlayersListViewUi;
-
-
