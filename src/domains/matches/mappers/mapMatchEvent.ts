@@ -1,4 +1,5 @@
-import type { MatchEvent, MatchEventType } from '../contracts';
+import type { MatchEvent } from '../contracts';
+import type { MatchEventType } from '@/generated/types';
 
 type PlayerLike = {
   id: string;

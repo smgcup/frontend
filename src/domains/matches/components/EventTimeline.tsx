@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Clock, Shield, X, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { MatchEvent } from '@/domains/matches/contracts';
-import { MatchEventType } from '@/domains/matches/contracts';
+import { MatchEventType } from '@/generated/types';
 
 type EventTimelineProps = {
   events: MatchEvent[];
@@ -30,20 +30,20 @@ const formatMatchTime = (t: number) => {
 
 const getMarker = (type: MatchEventType) => {
   switch (type) {
-    case MatchEventType.YELLOW_CARD:
+    case MatchEventType.YellowCard:
       return <span className="block h-6 w-4 rounded-sm bg-yellow-400" aria-hidden="true" />;
-    case MatchEventType.RED_CARD:
+    case MatchEventType.RedCard:
       return <span className="block h-6 w-4 rounded-sm bg-red-500" aria-hidden="true" />;
-    case MatchEventType.GOAL:
-    case MatchEventType.PENALTY_SCORED:
+    case MatchEventType.Goal:
+    case MatchEventType.PenaltyScored:
       return (
         <span className="text-xl leading-none" aria-hidden="true">
           ⚽
         </span>
       );
-    case MatchEventType.GOALKEEPER_SAVE:
+    case MatchEventType.GoalkeeperSave:
       return <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />;
-    case MatchEventType.PENALTY_MISSED:
+    case MatchEventType.PenaltyMissed:
       return <X className="h-5 w-5 text-muted-foreground" aria-hidden="true" />;
     default:
       return <span className="block h-2 w-2 rounded-full bg-muted-foreground/40" aria-hidden="true" />;
@@ -56,7 +56,9 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
       <div className="flex flex-col items-center justify-center py-12">
         <Clock className="h-12 w-12 text-muted-foreground/50 mb-4" />
         <p className="text-muted-foreground text-center">No events yet</p>
-        <p className="text-sm text-muted-foreground/70 mt-1">Events will be added automatically as the match progresses</p>
+        <p className="text-sm text-muted-foreground/70 mt-1">
+          Events will be added automatically as the match progresses
+        </p>
       </div>
     );
   }
@@ -76,8 +78,8 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
       )}
     >
       {sorted.map((event) => {
-        if (event.type === MatchEventType.FULL_TIME || event.type === MatchEventType.HALF_TIME) {
-          const label = event.type === MatchEventType.FULL_TIME ? 'Full time' : 'Half-time';
+        if (event.type === MatchEventType.FullTime || event.type === MatchEventType.HalfTime) {
+          const label = event.type === MatchEventType.FullTime ? 'Full time' : 'Half-time';
           return (
             <div key={event.id} className="relative py-2">
               <div className="relative z-10 w-full rounded-xl bg-muted/40 py-3 text-center text-base font-medium text-muted-foreground">
@@ -107,8 +109,15 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
               {getMarker(event.type)}
             </div>
 
-            <div className={cn('min-w-0 flex items-center gap-2', isFirstTeam ? 'text-left text-muted-foreground font-mono' : 'text-left')}>
-              <span className={cn('inline-block truncate', isFirstTeam ? 'text-sm' : 'font-semibold')}>{rightText}</span>
+            <div
+              className={cn(
+                'min-w-0 flex items-center gap-2',
+                isFirstTeam ? 'text-left text-muted-foreground font-mono' : 'text-left',
+              )}
+            >
+              <span className={cn('inline-block truncate', isFirstTeam ? 'text-sm' : 'font-semibold')}>
+                {rightText}
+              </span>
               {onDeleteEvent && (
                 <Button
                   type="button"

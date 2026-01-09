@@ -1,4 +1,5 @@
 import { MatchStatus } from '@/graphql';
+import type { MatchEventType } from '@/generated/types';
 
 export type MatchOpponent = {
   id: string;
@@ -37,17 +38,6 @@ export type Match = {
   score1?: number;
   score2?: number;
 };
-
-export enum MatchEventType {
-  GOAL = 'GOAL',
-  YELLOW_CARD = 'YELLOW_CARD',
-  RED_CARD = 'RED_CARD',
-  GOALKEEPER_SAVE = 'GOALKEEPER_SAVE',
-  PENALTY_SCORED = 'PENALTY_SCORED',
-  PENALTY_MISSED = 'PENALTY_MISSED',
-  HALF_TIME = 'HALF_TIME',
-  FULL_TIME = 'FULL_TIME',
-}
 
 export type MatchEvent = {
   id: string;

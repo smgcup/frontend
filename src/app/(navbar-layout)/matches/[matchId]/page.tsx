@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import EventTimeline from '@/domains/matches/components/EventTimeline';
 import { getMatchDetailPageData } from '@/domains/matches/ssr/getMatchDetailPageData';
 import RefreshButton from './RefreshButton';
-import { MatchEventType } from '@/domains/matches/contracts';
+import { MatchEventType } from '@/generated/types';
 
 type MatchDetailPageProps = {
   params: Promise<{ matchId: string }>;
@@ -17,7 +17,7 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
   if (!match) notFound();
 
   const isLive = match.status === 'LIVE';
-  const scoringTypes = new Set<MatchEventType>([MatchEventType.GOAL, MatchEventType.PENALTY_SCORED]);
+  const scoringTypes = new Set<MatchEventType>([MatchEventType.Goal, MatchEventType.PenaltyScored]);
   const firstId = match.firstOpponent.id;
   const secondId = match.secondOpponent.id;
   let s1 = 0;
