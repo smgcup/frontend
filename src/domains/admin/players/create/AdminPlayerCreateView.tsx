@@ -1,14 +1,20 @@
 'use client';
 import AdminPlayerCreateViewUi from './AdminPlayerCreateViewUi';
 import { useAdminPlayerCreate } from './hooks/useAdminPlayerCreate';
-const AdminPlayerCreateView = () => {
-  const { teams, teamsLoading, teamsError, onAdminPlayerCreate, adminPlayerCreateLoading, adminPlayerCreateError } =
-    useAdminPlayerCreate();
+import type { PlayerTeam } from '@/domains/player/contracts';
+
+type AdminPlayerCreateViewProps = {
+  initialTeams: PlayerTeam[];
+};
+
+const AdminPlayerCreateView = ({ initialTeams }: AdminPlayerCreateViewProps) => {
+  const { onAdminPlayerCreate, adminPlayerCreateLoading, adminPlayerCreateError } = useAdminPlayerCreate();
+
   return (
     <AdminPlayerCreateViewUi
-      teams={teams}
-      teamsLoading={teamsLoading}
-      teamsError={teamsError}
+      teams={initialTeams}
+      teamsLoading={false}
+      teamsError={null}
       onAdminPlayerCreate={onAdminPlayerCreate}
       adminPlayerCreateLoading={adminPlayerCreateLoading}
       adminPlayerCreateError={adminPlayerCreateError}

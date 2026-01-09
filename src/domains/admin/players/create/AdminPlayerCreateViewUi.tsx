@@ -19,6 +19,7 @@ type AdminPlayerCreateViewUiProps = {
   adminPlayerCreateLoading: boolean;
   adminPlayerCreateError: ErrorLike | null;
 };
+
 const AdminPlayerCreateViewUi = ({
   teams,
   teamsLoading,
@@ -56,6 +57,7 @@ const AdminPlayerCreateViewUi = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error for this field when user starts typing
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
@@ -76,6 +78,7 @@ const AdminPlayerCreateViewUi = ({
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
     if (!formData.teamId) newErrors.teamId = 'Team is required';
@@ -85,6 +88,7 @@ const AdminPlayerCreateViewUi = ({
     } else if (isNaN(parseFloat(formData.height))) {
       newErrors.height = 'Height must be a number';
     }
+
     if (!formData.weight.trim()) {
       newErrors.weight = 'Weight is required';
     } else if (isNaN(parseFloat(formData.weight))) {
@@ -96,6 +100,7 @@ const AdminPlayerCreateViewUi = ({
     } else if (isNaN(parseFloat(formData.yearOfBirth))) {
       newErrors.yearOfBirth = 'Year of birth must be a number';
     }
+
     if (!formData.position) {
       newErrors.position = 'Position is required';
     }
@@ -152,6 +157,7 @@ const AdminPlayerCreateViewUi = ({
                 {teamsError && <div>{teamsError.message || 'Failed to load teams.'}</div>}
               </div>
             )}
+
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="firstName">First Name *</FieldLabel>
@@ -328,4 +334,5 @@ const AdminPlayerCreateViewUi = ({
     </div>
   );
 };
+
 export default AdminPlayerCreateViewUi;
