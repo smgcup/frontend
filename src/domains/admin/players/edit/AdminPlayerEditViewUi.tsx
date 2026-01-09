@@ -26,15 +26,11 @@ import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminPlayerEditViewUiProps = {
   teams: PlayerTeam[];
-  teamsLoading: boolean;
-  teamsError: ErrorLike | null;
   player: PlayerEdit | undefined;
-  playerLoading: boolean;
-  playerError: ErrorLike | null | undefined;
   updateLoading: boolean;
-  updateError: ErrorLike | null | undefined;
+  updateError: ErrorLike | null;
   deleteLoading: boolean;
-  deleteError: ErrorLike | null | undefined;
+  deleteError: ErrorLike | null;
   onUpdatePlayer: (dto: PlayerUpdate) => Promise<unknown>;
   onDeletePlayer: () => Promise<unknown>;
 };
@@ -55,11 +51,7 @@ type FieldName = keyof FormState;
 
 const AdminPlayerEditViewUi = ({
   teams,
-  teamsLoading,
-  teamsError,
   player,
-  playerLoading,
-  playerError,
   updateLoading,
   updateError,
   deleteLoading,
@@ -69,6 +61,8 @@ const AdminPlayerEditViewUi = ({
 }: AdminPlayerEditViewUiProps) => {
   const router = useRouter();
 
+  // Form inputs are controlled, so we keep everything as strings here and only coerce
+  // to numbers/enums at submit time (avoids `undefined` / NaN edge-cases in <input />).
   const [formData, setFormData] = useState<FormState>({
     firstName: '',
     lastName: '',
@@ -81,8 +75,12 @@ const AdminPlayerEditViewUi = ({
     preferredFoot: '',
   });
 
+  // `errors` is field-level validation; `actionError` is for async failures (update/delete).
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [actionError, setActionError] = useState<string | null>(null);
+
+  // Snapshot of the server-loaded player data mapped into `FormState`.
+  // Used for computing "dirty" fields and enabling the Save button.
   const [initialData, setInitialData] = useState<FormState | null>(null);
   const [dirtyFields, setDirtyFields] = useState<Record<FieldName, boolean>>({
     firstName: false,
@@ -96,8 +94,15 @@ const AdminPlayerEditViewUi = ({
     preferredFoot: false,
   });
 
+  // When the `player` arrives/changes (SSR/CSR hydration, navigation between IDs, refetch),
+  // sync it into local controlled form state.
+  //
+  // We also capture the initial snapshot (`initialData`) so we can:
+  // - compute "dirty" fields by comparing to this baseline
+  // - reset dirty state back to "clean" whenever the loaded player changes
   useEffect(() => {
     if (!player) return;
+    // Normalize nullable API fields into safe controlled-input values.
     const next: FormState = {
       firstName: player.firstName ?? '',
       lastName: player.lastName ?? '',
@@ -134,6 +139,7 @@ const AdminPlayerEditViewUi = ({
     };
   }, [player]);
 
+  // Apollo errors / thrown values can vary in shape; this keeps user-facing messaging robust.
   const getErrorMessage = (e: unknown) => {
     if (!e) return 'Unknown error';
     if (typeof e === 'string') return e;
@@ -144,22 +150,19 @@ const AdminPlayerEditViewUi = ({
   };
 
   const combinedError = useMemo(() => {
+    // Prefer local action errors (caught exceptions) over request errors, so the most
+    // relevant message is shown after a user-triggered action.
     return (
       actionError ||
-      (playerError && 'message' in playerError && typeof playerError.message === 'string'
-        ? playerError.message
-        : null) ||
       (updateError && 'message' in updateError && typeof updateError.message === 'string'
         ? updateError.message
         : null) ||
-      (deleteError && 'message' in deleteError && typeof deleteError.message === 'string'
-        ? deleteError.message
-        : null) ||
-      (teamsError?.message ?? null)
+      (deleteError && 'message' in deleteError && typeof deleteError.message === 'string' ? deleteError.message : null)
     );
-  }, [actionError, playerError, updateError, deleteError, teamsError]);
+  }, [actionError, updateError, deleteError]);
 
   const markDirty = (field: FieldName, nextValue: FormState[FieldName]) => {
+    // Only track dirtiness once we have an initial snapshot to compare against.
     if (!initialData) return;
     const isDirty = initialData[field] !== nextValue;
     setDirtyFields((prev) => ({ ...prev, [field]: isDirty }));
@@ -177,6 +180,7 @@ const AdminPlayerEditViewUi = ({
   };
 
   const validateForm = () => {
+    // Minimal client-side validation; server-side validation still applies.
     const newErrors: Record<string, string> = {};
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
@@ -238,6 +242,7 @@ const AdminPlayerEditViewUi = ({
     try {
       await onDeletePlayer();
       router.push('/admin/players');
+      // Ensure the list page revalidates after navigation (avoids stale cached data).
       router.refresh();
     } catch (err) {
       setActionError(getErrorMessage(err));
@@ -248,6 +253,8 @@ const AdminPlayerEditViewUi = ({
   const dirtyClass = (field: FieldName) => (dirtyFields[field] ? 'ring-1 ring-primary bg-primary/5' : '');
 
   const selectedTeamName = useMemo(() => {
+    // If the player is linked to a team that isn't in the `teams` list (e.g. filtered
+    // list, pagination, or stale cache), still show the currently selected team label.
     if (teams.length && formData.teamId) {
       return teams.find((t) => t.id === formData.teamId)?.name ?? null;
     }
@@ -268,15 +275,15 @@ const AdminPlayerEditViewUi = ({
           <CardContent>
             {combinedError && <div className="text-destructive mb-4">{combinedError}</div>}
 
-            {playerLoading || !initialData ? (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Loading player...
-              </div>
-            ) : !player ? (
+            {!player ? (
               <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
                 <p className="font-medium">Player not found</p>
                 <p className="mt-1 text-sm">This player may have been deleted or is not assigned to any team.</p>
+              </div>
+            ) : !initialData ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading player...
               </div>
             ) : (
               <FieldGroup>
@@ -318,7 +325,6 @@ const AdminPlayerEditViewUi = ({
                   <FieldLabel>Team *</FieldLabel>
                   <FieldContent>
                     <Select
-                      disabled={teamsLoading}
                       onValueChange={(value) => {
                         setFormData((prev) => ({ ...prev, teamId: value }));
                         if (errors.teamId) setErrors((prev) => ({ ...prev, teamId: '' }));
@@ -330,7 +336,7 @@ const AdminPlayerEditViewUi = ({
                         aria-invalid={!!errors.teamId}
                         className={`w-full ${dirtyFields.teamId ? 'ring-1 ring-primary bg-primary/5' : ''}`}
                       >
-                        <SelectValue placeholder={teamsLoading ? 'Loading teams...' : 'Select a team'} />
+                        <SelectValue placeholder="Select a team" />
                       </SelectTrigger>
                       <SelectContent>
                         {formData.teamId && !teams.some((t) => t.id === formData.teamId) && selectedTeamName && (
@@ -483,7 +489,7 @@ const AdminPlayerEditViewUi = ({
               <Button type="button" variant="outline" onClick={handleCancel} disabled={updateLoading || deleteLoading}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={playerLoading || updateLoading || deleteLoading || !isDirty}>
+              <Button type="submit" disabled={updateLoading || deleteLoading || !isDirty}>
                 {updateLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                 Save
               </Button>
@@ -495,7 +501,7 @@ const AdminPlayerEditViewUi = ({
                   type="button"
                   variant="destructive"
                   className="w-full sm:w-auto"
-                  disabled={playerLoading || updateLoading || deleteLoading}
+                  disabled={updateLoading || deleteLoading}
                 >
                   {deleteLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

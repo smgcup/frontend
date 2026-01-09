@@ -2,35 +2,22 @@
 
 import AdminPlayerEditViewUi from './AdminPlayerEditViewUi';
 import { useAdminPlayerEdit } from './hooks/useAdminPlayerEdit';
+import type { PlayerEdit, PlayerTeam } from '@/domains/player/contracts';
 
 type AdminPlayerEditViewProps = {
   playerId: string;
+  initialTeams: PlayerTeam[];
+  initialPlayer?: PlayerEdit;
 };
 
-const AdminPlayerEditView = ({ playerId }: AdminPlayerEditViewProps) => {
-  const {
-    teams,
-    teamsLoading,
-    teamsError,
-    player,
-    playerLoading,
-    playerError,
-    updateLoading,
-    updateError,
-    deleteLoading,
-    deleteError,
-    onUpdatePlayer,
-    onDeletePlayer,
-  } = useAdminPlayerEdit(playerId);
+const AdminPlayerEditView = ({ playerId, initialTeams, initialPlayer }: AdminPlayerEditViewProps) => {
+  const { updateLoading, updateError, deleteLoading, deleteError, onUpdatePlayer, onDeletePlayer } =
+    useAdminPlayerEdit(playerId);
 
   return (
     <AdminPlayerEditViewUi
-      teams={teams}
-      teamsLoading={teamsLoading}
-      teamsError={teamsError}
-      player={player}
-      playerLoading={playerLoading}
-      playerError={playerError}
+      teams={initialTeams}
+      player={initialPlayer}
       updateLoading={updateLoading}
       updateError={updateError}
       deleteLoading={deleteLoading}
@@ -42,5 +29,3 @@ const AdminPlayerEditView = ({ playerId }: AdminPlayerEditViewProps) => {
 };
 
 export default AdminPlayerEditView;
-
-
