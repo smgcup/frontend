@@ -24,31 +24,27 @@ import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
 
 type AdminTeamEditViewUiProps = {
-  team: Team | undefined;
-  teamLoading: boolean;
-  teamError: ErrorLike | null | undefined;
+  team: Team;
   updateLoading: boolean;
-  updateError: ErrorLike | null | undefined;
+  updateError: ErrorLike | null;
   deleteLoading: boolean;
-  deleteError: ErrorLike | null | undefined;
+  deleteError: ErrorLike | null;
   onUpdateTeam: (dto: TeamUpdate) => Promise<unknown>;
   onDeleteTeam: () => Promise<unknown>;
 };
 
 type AdminTeamEditFormProps = {
   team: Team;
-  teamError: ErrorLike | null | undefined;
   updateLoading: boolean;
-  updateError: ErrorLike | null | undefined;
+  updateError: ErrorLike | null;
   deleteLoading: boolean;
-  deleteError: ErrorLike | null | undefined;
+  deleteError: ErrorLike | null;
   onUpdateTeam: (dto: TeamUpdate) => Promise<unknown>;
   onDeleteTeam: () => Promise<unknown>;
 };
 
 const AdminTeamEditForm = ({
   team,
-  teamError,
   updateLoading,
   updateError,
   deleteLoading,
@@ -64,13 +60,12 @@ const AdminTeamEditForm = ({
   const combinedError = useMemo(() => {
     return (
       actionError ||
-      (teamError && 'message' in teamError && typeof teamError.message === 'string' ? teamError.message : null) ||
       (updateError && 'message' in updateError && typeof updateError.message === 'string'
         ? updateError.message
         : null) ||
       (deleteError && 'message' in deleteError && typeof deleteError.message === 'string' ? deleteError.message : null)
     );
-  }, [actionError, teamError, updateError, deleteError]);
+  }, [actionError, updateError, deleteError]);
 
   const validate = () => {
     if (!name.trim()) {
@@ -187,8 +182,6 @@ const AdminTeamEditForm = ({
 
 const AdminTeamEditViewUi = ({
   team,
-  teamLoading,
-  teamError,
   updateLoading,
   updateError,
   deleteLoading,
@@ -206,30 +199,16 @@ const AdminTeamEditViewUi = ({
           <CardDescription>Edit the team name and save changes</CardDescription>
         </CardHeader>
 
-        {teamLoading ? (
-          <CardContent>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Loading team...
-            </div>
-          </CardContent>
-        ) : !team ? (
-          <CardContent>
-            <div className="text-sm text-muted-foreground">Team not found.</div>
-          </CardContent>
-        ) : (
-          <AdminTeamEditForm
-            key={team.id}
-            team={team}
-            teamError={teamError}
-            updateLoading={updateLoading}
-            updateError={updateError}
-            deleteLoading={deleteLoading}
-            deleteError={deleteError}
-            onUpdateTeam={onUpdateTeam}
-            onDeleteTeam={onDeleteTeam}
-          />
-        )}
+        <AdminTeamEditForm
+          key={team.id}
+          team={team}
+          updateLoading={updateLoading}
+          updateError={updateError}
+          deleteLoading={deleteLoading}
+          deleteError={deleteError}
+          onUpdateTeam={onUpdateTeam}
+          onDeleteTeam={onDeleteTeam}
+        />
       </Card>
     </div>
   );
