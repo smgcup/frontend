@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Loader2, Save, Trash2 } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
+import { getErrorMessage } from '@/domains/admin/players/utils/getErrorMessage';
 
 type AdminPlayerEditViewUiProps = {
   teams: PlayerTeam[];
@@ -138,16 +139,6 @@ const AdminPlayerEditViewUi = ({
       cancelled = true;
     };
   }, [player]);
-
-  // Apollo errors / thrown values can vary in shape; this keeps user-facing messaging robust.
-  const getErrorMessage = (e: unknown) => {
-    if (!e) return 'Unknown error';
-    if (typeof e === 'string') return e;
-    if (typeof e === 'object' && e && 'message' in e && typeof (e as { message: unknown }).message === 'string') {
-      return (e as { message: string }).message;
-    }
-    return String(e);
-  };
 
   const combinedError = useMemo(() => {
     // Prefer local action errors (caught exceptions) over request errors, so the most

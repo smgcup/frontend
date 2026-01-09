@@ -1,33 +1,25 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useMutation, useQuery } from '@apollo/client/react';
-import type {
-  DeletePlayerMutation,
-  DeletePlayerMutationVariables,
-  TeamsWithPlayersQuery,
-  TeamsWithPlayersQueryVariables,
-} from '@/graphql';
-import { DeletePlayerDocument, TeamsWithPlayersDocument } from '@/graphql';
-import { mapTeamWithPlayers } from '@/domains/team/mappers/mapTeamWithPlayers';
+import { useEffect, useMemo, useState } from 'react';
+import { useMutation } from '@apollo/client/react';
+import type { DeletePlayerMutation, DeletePlayerMutationVariables } from '@/graphql';
+import { DeletePlayerDocument } from '@/graphql';
+import type { TeamWithPlayers } from '@/domains/team/contracts';
+import { getErrorMessage } from '@/domains/admin/players/utils/getErrorMessage';
 
-const getErrorMessage = (e: unknown) => {
-  if (!e) return 'Unknown error';
-  if (typeof e === 'string') return e;
-  if (typeof e === 'object' && e && 'message' in e && typeof (e as { message: unknown }).message === 'string') {
-    return (e as { message: string }).message;
-  }
-  return String(e);
-};
+export const useAdminPlayersList = (initialTeams: TeamWithPlayers[]) => {
+  // SSR: hydrate the list with server-fetched data
+  const [teams, setTeams] = useState<TeamWithPlayers[]>(initialTeams);
 
-export const useAdminPlayersList = () => {
-  const { data, loading, error, refetch } = useQuery<TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables>(
-    TeamsWithPlayersDocument,
-  );
+  // Keep state in sync if the server-provided teams ever change (navigation / re-render).
+  useEffect(() => {
+    setTeams(initialTeams);
+  }, [initialTeams]);
 
-  const teams = useMemo(() => (data?.teams ?? []).map(mapTeamWithPlayers), [data?.teams]);
+  // Convenience: many list UIs want a flat list, but the SSR payload is grouped by team.
   const players = useMemo(() => teams.flatMap((t) => t.players), [teams]);
 
+  // Local UI state for one-off actions (delete) that shouldn't wipe out the SSR-hydrated list.
   const [actionError, setActionError] = useState<string | null>(null);
   const [deletingPlayerId, setDeletingPlayerId] = useState<string | null>(null);
 
@@ -38,7 +30,14 @@ export const useAdminPlayersList = () => {
     setDeletingPlayerId(id);
     try {
       await deletePlayerMutation({ variables: { id } });
-      await refetch();
+      // We don't refetch the whole list here: the page is SSR-hydrated and we want the UI to
+      // reflect the change immediately without a second network roundtrip.
+      setTeams((prev) =>
+        prev.map((team) => ({
+          ...team,
+          players: team.players.filter((p) => p.id !== id),
+        })),
+      );
     } catch (e) {
       setActionError(getErrorMessage(e));
     } finally {
@@ -49,8 +48,6 @@ export const useAdminPlayersList = () => {
   return {
     teams,
     players,
-    loading,
-    error,
     actionError,
     deletingPlayerId,
     onDeletePlayer,

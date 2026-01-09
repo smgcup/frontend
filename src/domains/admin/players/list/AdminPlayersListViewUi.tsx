@@ -24,8 +24,6 @@ type AdminPlayersListViewUiProps = {
   teams: TeamWithPlayers[];
   players: PlayerListItem[];
   currentYear: number;
-  loading: boolean;
-  error?: unknown;
   actionError: string | null;
   deletingPlayerId: string | null;
   onDeletePlayer: (id: string) => Promise<void>;
@@ -35,8 +33,6 @@ const AdminPlayersListViewUi = ({
   teams,
   players,
   currentYear,
-  loading,
-  error,
   actionError,
   deletingPlayerId,
   onDeletePlayer,
@@ -50,29 +46,6 @@ const AdminPlayersListViewUi = ({
     }
     return map;
   }, [teams]);
-
-  if (loading) {
-    return (
-      <div className="py-4 lg:p-10">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading players...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-4">
-        <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
-          <p>Error loading players. Please try again later.</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8 py-4 lg:p-10">
