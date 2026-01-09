@@ -18,40 +18,15 @@ import {
 import { Loader2, Pencil, Plus, Trash2, User, Users } from 'lucide-react';
 import type { TeamWithPlayers } from '@/domains/team/contracts';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
-import { useAdminTeams } from './hooks/useAdminTeams';
 
 type AdminTeamsViewUiProps = {
   teams: TeamWithPlayers[];
-  loading?: boolean;
-  error?: unknown;
+  actionError: string | null;
+  deletingTeamId: string | null;
+  onDeleteTeam: (id: string) => Promise<void>;
 };
 
-const AdminTeamsViewUi = ({ teams, loading, error }: AdminTeamsViewUiProps) => {
-  const { actionError, deletingTeamId, onDeleteTeam } = useAdminTeams();
-
-  if (loading) {
-    return (
-      <div className="py-4 lg:p-10">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading teams...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-4">
-        <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
-          <p>Error loading teams. Please try again later.</p>
-        </div>
-      </div>
-    );
-  }
-
+const AdminTeamsViewUi = ({ teams, actionError, deletingTeamId, onDeleteTeam }: AdminTeamsViewUiProps) => {
   return (
     <div className="space-y-8 py-4 lg:p-10">
       <AdminPageHeader

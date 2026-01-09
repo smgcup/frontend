@@ -5,7 +5,7 @@ import { useMutation } from '@apollo/client/react';
 import type { DeletePlayerMutation, DeletePlayerMutationVariables } from '@/graphql';
 import { DeletePlayerDocument } from '@/graphql';
 import type { TeamWithPlayers } from '@/domains/team/contracts';
-import { getErrorMessage } from '@/domains/admin/players/utils/getErrorMessage';
+import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
 
 export const useAdminPlayersList = (initialTeams: TeamWithPlayers[]) => {
   // SSR: hydrate the list with server-fetched data

@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Loader2, Save, Trash2 } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
-import { getErrorMessage } from '@/domains/admin/players/utils/getErrorMessage';
+import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
 
 type AdminPlayerEditViewUiProps = {
   teams: PlayerTeam[];

@@ -2,11 +2,23 @@
 
 import AdminTeamsViewUi from './AdminTeamsViewUi';
 import { useAdminTeamsList } from './hooks/useAdminTeamsList';
+import type { TeamWithPlayers } from '@/domains/team/contracts';
 
-const AdminTeamsView = () => {
-  const { teams, teamsLoading, teamsError } = useAdminTeamsList();
+type AdminTeamsViewProps = {
+  initialTeams: TeamWithPlayers[];
+};
 
-  return <AdminTeamsViewUi teams={teams} loading={teamsLoading} error={teamsError} />;
+const AdminTeamsView = ({ initialTeams }: AdminTeamsViewProps) => {
+  const { teams, actionError, deletingTeamId, onDeleteTeam } = useAdminTeamsList(initialTeams);
+
+  return (
+    <AdminTeamsViewUi
+      teams={teams}
+      actionError={actionError}
+      deletingTeamId={deletingTeamId}
+      onDeleteTeam={onDeleteTeam}
+    />
+  );
 };
 
 export default AdminTeamsView;

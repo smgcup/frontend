@@ -1,23 +1,46 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useQuery } from '@apollo/client/react';
-import { TeamsWithPlayersDocument, type TeamsWithPlayersQuery, type TeamsWithPlayersQueryVariables } from '@/graphql';
-import { mapTeamWithPlayers } from '@/domains/team/mappers/mapTeamWithPlayers';
+import { useEffect, useState } from 'react';
+import { useMutation } from '@apollo/client/react';
+import { useRouter } from 'next/navigation';
+import { DeleteTeamDocument, type DeleteTeamMutation, type DeleteTeamMutationVariables } from '@/graphql';
+import type { TeamWithPlayers } from '@/domains/team/contracts';
+import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
 
-export const useAdminTeamsList = () => {
-  const { data, loading, error, refetch } = useQuery<TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables>(
-    TeamsWithPlayersDocument,
-  );
+export const useAdminTeamsList = (initialTeams: TeamWithPlayers[]) => {
+  const router = useRouter();
 
-  const teams = useMemo(() => (data?.teams ?? []).map(mapTeamWithPlayers), [data?.teams]);
+  // SSR: hydrate the list with server-fetched data
+  const [teams, setTeams] = useState<TeamWithPlayers[]>(initialTeams);
+
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [deletingTeamId, setDeletingTeamId] = useState<string | null>(null);
+
+  const [deleteTeamMutation] = useMutation<DeleteTeamMutation, DeleteTeamMutationVariables>(DeleteTeamDocument);
+
+  // Keep state in sync if the server-provided teams ever change (navigation / refresh).
+  useEffect(() => {
+    setTeams(initialTeams);
+  }, [initialTeams]);
+
+  const onDeleteTeam = async (id: string) => {
+    setActionError(null);
+    setDeletingTeamId(id);
+    try {
+      await deleteTeamMutation({ variables: { id } });
+      setTeams((prev) => prev.filter((t) => t.id !== id));
+      router.refresh();
+    } catch (e) {
+      setActionError(getErrorMessage(e));
+    } finally {
+      setDeletingTeamId(null);
+    }
+  };
 
   return {
     teams,
-    teamsLoading: loading,
-    teamsError: error,
-    refetchTeams: refetch,
+    actionError,
+    deletingTeamId,
+    onDeleteTeam,
   };
 };
-
-
