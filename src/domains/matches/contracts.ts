@@ -1,4 +1,4 @@
-export type MatchStatus = 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'CANCELLED';
+import { MatchStatus } from '@/graphql';
 
 export type MatchOpponent = {
   id: string;

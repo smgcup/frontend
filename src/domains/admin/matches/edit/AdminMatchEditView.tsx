@@ -2,37 +2,27 @@
 
 import AdminMatchEditViewUi from './AdminMatchEditViewUi';
 import { useAdminMatchEdit } from './hooks/useAdminMatchEdit';
+import { Team } from '@/domains/team/contracts';
 
 type AdminMatchEditViewProps = {
   matchId: string;
+  teams: Team[];
 };
 
-const AdminMatchEditView = ({ matchId }: AdminMatchEditViewProps) => {
-  const {
-    match,
-    teams,
-    matchLoading,
-    updateLoading,
-    matchError,
-    teamsLoading,
-    teamsError,
-    externalErrors,
-    submitError,
-    onUpdateMatch,
-  } = useAdminMatchEdit(matchId);
+const AdminMatchEditView = ({ matchId, teams }: AdminMatchEditViewProps) => {
+  const { match, matchLoading, matchError, externalErrors, submitError, onUpdateMatch, updateLoading } =
+    useAdminMatchEdit(matchId);
 
   return (
     <AdminMatchEditViewUi
       match={match}
-      teams={teams}
       matchLoading={matchLoading}
-      updateLoading={updateLoading}
       matchError={matchError}
-      teamsLoading={teamsLoading}
-      teamsError={teamsError}
+      teams={teams}
       externalErrors={externalErrors}
       submitError={submitError}
       onUpdateMatch={onUpdateMatch}
+      updateLoading={updateLoading}
     />
   );
 };

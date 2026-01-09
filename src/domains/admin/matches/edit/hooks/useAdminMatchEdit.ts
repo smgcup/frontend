@@ -8,16 +8,17 @@ import {
   type MatchByIdQuery,
   type MatchByIdQueryVariables,
   MatchStatus,
-  TeamsDocument,
-  type TeamsQuery,
   UpdateMatchDocument,
   type UpdateMatchMutation,
   type UpdateMatchMutationVariables,
 } from '@/graphql';
-import { mapTeam } from '@/domains/team/mappers/mapTeam';
 import { mapMatchById } from '@/domains/matches/mappers/mapMatchById';
 import { getTranslationCode } from '../../utils/getTranslationCode';
 
+/**
+ * Form data structure for editing a match in the admin panel.
+ * All fields are required for submission.
+ */
 export type AdminMatchEditFormData = {
   firstOpponentId: string;
   secondOpponentId: string;
@@ -25,12 +26,27 @@ export type AdminMatchEditFormData = {
   status: MatchStatus;
 };
 
+/**
+ * Custom React hook for managing the match edit functionality in the admin panel.
+ *
+ * This hook handles:
+ * - Fetching the match data by ID
+ * - Managing form submission and validation
+ * - Handling server-side errors and mapping them to appropriate form fields
+ * - Navigation after successful update
+ *
+ * @param matchId - The ID of the match to edit
+ * @returns Object containing match data, loading states, errors, and update handler
+ */
 export const useAdminMatchEdit = (matchId: string) => {
   const router = useRouter();
 
+  // General error message for the entire form (e.g., "match not found")
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Field-specific errors from server validation (e.g., "Teams must be different")
   const [externalErrors, setExternalErrors] = useState<Record<string, string>>({});
 
+  // Fetch the match data by ID using GraphQL query
   const {
     data: matchData,
     loading: matchLoading,
@@ -39,25 +55,34 @@ export const useAdminMatchEdit = (matchId: string) => {
     variables: { id: matchId },
   });
 
-  const { data: teamsData, loading: teamsLoading, error: teamsError } = useQuery<TeamsQuery>(TeamsDocument);
-
+  // Mutation hook for updating the match
   const [updateMatchMutation, { loading: updateLoading }] = useMutation<
     UpdateMatchMutation,
     UpdateMatchMutationVariables
   >(UpdateMatchDocument);
+  console.log('matchData', matchData);
 
+  // Transform the raw GraphQL match data into the domain model format
   const match = useMemo(() => {
     const row = matchData?.matchById;
     if (!row) return null;
     return mapMatchById(row);
   }, [matchData?.matchById]);
 
-  const teams = useMemo(() => (teamsData?.teams ?? []).map(mapTeam), [teamsData]);
-
+  /**
+   * Handles the submission of the match edit form.
+   *
+   * Validates the date, sends the update mutation, and handles various error cases
+   * by mapping server error codes to appropriate form field errors or general errors.
+   *
+   * @param data - The form data containing match details to update
+   */
   const onUpdateMatch = async (data: AdminMatchEditFormData) => {
+    // Clear any previous errors
     setSubmitError(null);
     setExternalErrors({});
 
+    // Validate date format before sending to server
     const d = new Date(data.date);
     if (Number.isNaN(d.getTime())) {
       setExternalErrors({ date: 'Invalid date' });
@@ -71,16 +96,19 @@ export const useAdminMatchEdit = (matchId: string) => {
           dto: {
             firstOpponentId: data.firstOpponentId,
             secondOpponentId: data.secondOpponentId,
-            date: d.toISOString(),
+            date: d.toISOString(), // Convert to ISO string for GraphQL Date scalar
             status: data.status,
-            ...(status === MatchStatus.Live || status === MatchStatus.Finished ? {} : { score1: null, score2: null }),
           },
         },
       });
+      // Navigate back to matches list after successful update
       router.push('/admin/matches');
       router.refresh();
     } catch (e) {
+      // Extract error code from the GraphQL error
       const code = getTranslationCode(e);
+
+      // Map server error codes to appropriate error states
       if (code === 'matchNotFound') {
         setSubmitError('matchNotFound');
         return;
@@ -97,24 +125,18 @@ export const useAdminMatchEdit = (matchId: string) => {
         setExternalErrors({ firstOpponentId: 'Team not found', secondOpponentId: 'Team not found' });
         return;
       }
-      if (code === 'scoreNotAllowedForStatus') {
-        setSubmitError('scoreNotAllowedForStatus');
-        return;
-      }
+      // Fallback for any other errors
       setSubmitError(code ?? (e instanceof Error ? e.message : 'Failed to update match'));
     }
   };
 
   return {
-    match,
-    teams,
-    matchLoading,
-    matchError,
-    teamsLoading,
-    teamsError,
-    updateLoading,
-    externalErrors,
-    submitError,
-    onUpdateMatch,
+    match, // The mapped match data (null if not loaded yet)
+    matchLoading, // Whether the match query is currently loading
+    matchError, // Any error from fetching the match
+    externalErrors, // Field-specific validation errors from server
+    submitError, // General form submission error
+    updateLoading, // Whether the update mutation is currently in progress
+    onUpdateMatch, // Handler function to submit the form
   };
 };
