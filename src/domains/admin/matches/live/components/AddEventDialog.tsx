@@ -12,65 +12,45 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { MatchEventType } from '@/domains/matches/contracts';
-// import { PlayerPosition } from '@/domains/player/contracts';
-import { PlayerPosition } from '@/graphql';
-
-type Player = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  position: PlayerPosition;
-};
-
-type Team = {
-  id: string;
-  name: string;
-  players: Player[];
-};
+import { MatchEventType } from '@/generated/types';
+import { type MatchTeam } from '@/domains/matches/contracts';
+import { type AddEventInput } from '../contracts';
 
 type AddEventDialogProps = {
-  teams: Team[];
+  teams: MatchTeam[];
   currentMinute: number;
-  onAddEvent: (data: {
-    type: MatchEventType;
-    minute: number;
-    playerId?: string;
-    teamId: string;
-    payload?: unknown;
-  }) => Promise<void>;
+  onAddEvent: (data: AddEventInput) => Promise<void>;
   trigger: React.ReactNode;
   mode?: 'full' | 'quick';
   presetType?: MatchEventType;
 };
 
 const EVENT_TYPES = [
-  { value: MatchEventType.GOAL, label: 'Goal' },
-  { value: MatchEventType.YELLOW_CARD, label: 'Yellow Card' },
-  { value: MatchEventType.RED_CARD, label: 'Red Card' },
-  { value: MatchEventType.GOALKEEPER_SAVE, label: 'Goalkeeper Save' },
-  { value: MatchEventType.PENALTY_SCORED, label: 'Penalty Scored' },
-  { value: MatchEventType.PENALTY_MISSED, label: 'Penalty Missed' },
-  { value: MatchEventType.HALF_TIME, label: 'Half Time' },
-  { value: MatchEventType.FULL_TIME, label: 'Full Time' },
+  { value: MatchEventType.Goal, label: 'Goal' },
+  { value: MatchEventType.YellowCard, label: 'Yellow Card' },
+  { value: MatchEventType.RedCard, label: 'Red Card' },
+  { value: MatchEventType.GoalkeeperSave, label: 'Goalkeeper Save' },
+  { value: MatchEventType.PenaltyScored, label: 'Penalty Scored' },
+  { value: MatchEventType.PenaltyMissed, label: 'Penalty Missed' },
+  { value: MatchEventType.HalfTime, label: 'Half Time' },
+  { value: MatchEventType.FullTime, label: 'Full Time' },
 ];
 
 const requiresTeam = (type: MatchEventType): boolean => {
-  return ![MatchEventType.HALF_TIME, MatchEventType.FULL_TIME].includes(type);
+  return ![MatchEventType.HalfTime, MatchEventType.FullTime].includes(type);
 };
 
 const requiresPlayer = (type: MatchEventType): boolean => {
   return [
-    MatchEventType.GOAL,
-    MatchEventType.YELLOW_CARD,
-    MatchEventType.RED_CARD,
-    MatchEventType.GOALKEEPER_SAVE,
-    MatchEventType.PENALTY_SCORED,
-    MatchEventType.PENALTY_MISSED,
+    MatchEventType.Goal,
+    MatchEventType.YellowCard,
+    MatchEventType.RedCard,
+    MatchEventType.GoalkeeperSave,
+    MatchEventType.PenaltyScored,
+    MatchEventType.PenaltyMissed,
   ].includes(type);
 };
 
@@ -99,7 +79,7 @@ const AddEventDialog = ({
 }: AddEventDialogProps) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    type: presetType ?? MatchEventType.GOAL,
+    type: presetType ?? MatchEventType.Goal,
     minute: currentMinute.toString(),
     teamId: '',
     playerId: '',
@@ -233,7 +213,7 @@ const AddEventDialog = ({
       setOpen(false);
       // Reset form
       setFormData({
-        type: presetType ?? MatchEventType.GOAL,
+        type: presetType ?? MatchEventType.Goal,
         minute: currentMinute.toString(),
         teamId: '',
         playerId: '',
@@ -241,7 +221,7 @@ const AddEventDialog = ({
       });
       setErrors({});
     } catch (error) {
-      // Error handling
+      console.error(error);
     } finally {
       setLoading(false);
     }
