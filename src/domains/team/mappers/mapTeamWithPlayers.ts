@@ -1,5 +1,5 @@
 import type { TeamWithPlayers } from '../contracts';
-import { mapPlayerListItem } from '@/domains/player/mappers/mapPlayerListItem';
+import { mapPlayerListItem } from './mapPlayerListItem';
 import type { PlayerLike } from '@/domains/player/mappers/types';
 
 type TeamLike = {

@@ -1,6 +1,6 @@
-import type { PlayerEdit, PlayerTeam } from '../contracts';
-import { PlayerPosition, PreferredFoot } from '../contracts';
-import type { PlayerLike } from './types';
+import type { PlayerEdit, PlayerTeam } from '@/domains/player/contracts';
+import { PlayerPosition, PreferredFoot } from '@/domains/player/contracts';
+import type { PlayerLike } from '@/domains/player/mappers/types';
 
 type PlayerEditLike = PlayerLike & {
   imageUrl?: string | null;
@@ -37,5 +37,3 @@ export const mapPlayerEdit = (player: PlayerEditLike, team?: PlayerTeam | null):
     team: team ?? null,
   };
 };
-
-

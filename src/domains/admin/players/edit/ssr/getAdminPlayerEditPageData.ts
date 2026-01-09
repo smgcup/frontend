@@ -1,7 +1,7 @@
 import { getClient } from '@/lib/initializeApollo';
 import { TeamsWithPlayersDocument, type TeamsWithPlayersQuery } from '@/graphql';
 import { mapPlayerTeam } from '@/domains/player/mappers/mapPlayerTeam';
-import { mapPlayerEdit } from '@/domains/player/mappers/mapPlayerEdit';
+import { mapPlayerEdit } from './mappers/mapPlayerEdit';
 import type { PlayerEdit, PlayerTeam } from '@/domains/player/contracts';
 
 export const getAdminPlayerEditPageData = async (playerId: string) => {

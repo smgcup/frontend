@@ -1,5 +1,5 @@
-import type { PlayerListItem } from '../contracts';
-import type { PlayerLike } from './types';
+import type { PlayerListItem } from '@/domains/player/contracts';
+import type { PlayerLike } from '@/domains/player/mappers/types';
 
 const toNumber = (v: number | string | null | undefined, fallback = 0) => {
   if (typeof v === 'number') return v;
@@ -22,5 +22,4 @@ export const mapPlayerListItem = (player: PlayerLike): PlayerListItem => {
     preferredFoot: player.preferredFoot ?? player.prefferedFoot ?? '',
   };
 };
-
 
