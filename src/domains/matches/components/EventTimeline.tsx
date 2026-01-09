@@ -1,9 +1,7 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, Goal, AlertTriangle, Ban, Shield, Target, X, Calendar, Trash2 } from 'lucide-react';
+import { Clock, Shield, X, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { MatchEvent } from '@/domains/matches/contracts';
 import { MatchEventType } from '@/domains/matches/contracts';
@@ -16,139 +14,115 @@ type EventTimelineProps = {
   deletingEventId?: string | null;
 };
 
-const getEventIcon = (type: MatchEventType) => {
-  switch (type) {
-    case MatchEventType.GOAL:
-      return <Goal className="h-4 w-4" />;
-    case MatchEventType.YELLOW_CARD:
-      return <AlertTriangle className="h-4 w-4" />;
-    case MatchEventType.RED_CARD:
-      return <Ban className="h-4 w-4" />;
-    case MatchEventType.GOALKEEPER_SAVE:
-      return <Shield className="h-4 w-4" />;
-    case MatchEventType.PENALTY_SCORED:
-      return <Target className="h-4 w-4" />;
-    case MatchEventType.PENALTY_MISSED:
-      return <X className="h-4 w-4" />;
-    case MatchEventType.HALF_TIME:
-    case MatchEventType.FULL_TIME:
-      return <Clock className="h-4 w-4" />;
-    default:
-      return <Calendar className="h-4 w-4" />;
-  }
+const formatMatchTime = (t: number) => {
+  const minutes = Math.floor(t);
+  const fraction = t - minutes;
+  if (fraction <= 0) return `${minutes}'`;
+
+  // Backend often sends mm.ss (e.g. 34.14 => 34'14'')
+  const asHundred = Math.round(fraction * 100);
+  const asSixty = Math.round(fraction * 60);
+  const seconds =
+    asHundred >= 0 && asHundred < 60 ? asHundred : asSixty >= 0 && asSixty < 60 ? asSixty : asHundred % 60;
+
+  return `${minutes}'${String(seconds).padStart(2, '0')}''`;
 };
 
-const getEventLabel = (type: MatchEventType) => {
+const getMarker = (type: MatchEventType) => {
   switch (type) {
-    case MatchEventType.GOAL:
-      return 'Goal';
     case MatchEventType.YELLOW_CARD:
-      return 'Yellow Card';
+      return <span className="block h-6 w-4 rounded-sm bg-yellow-400" aria-hidden="true" />;
     case MatchEventType.RED_CARD:
-      return 'Red Card';
-    case MatchEventType.GOALKEEPER_SAVE:
-      return 'Goalkeeper Save';
-    case MatchEventType.PENALTY_SCORED:
-      return 'Penalty Scored';
-    case MatchEventType.PENALTY_MISSED:
-      return 'Penalty Missed';
-    case MatchEventType.HALF_TIME:
-      return 'Half Time';
-    case MatchEventType.FULL_TIME:
-      return 'Full Time';
-    default:
-      return 'Event';
-  }
-};
-
-const getEventColor = (type: MatchEventType) => {
-  switch (type) {
+      return <span className="block h-6 w-4 rounded-sm bg-red-500" aria-hidden="true" />;
     case MatchEventType.GOAL:
     case MatchEventType.PENALTY_SCORED:
-      return 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20';
-    case MatchEventType.YELLOW_CARD:
-      return 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20';
-    case MatchEventType.RED_CARD:
-      return 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20';
+      return (
+        <span className="text-xl leading-none" aria-hidden="true">
+          ⚽
+        </span>
+      );
     case MatchEventType.GOALKEEPER_SAVE:
-      return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
+      return <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />;
     case MatchEventType.PENALTY_MISSED:
-      return 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20';
-    case MatchEventType.HALF_TIME:
-    case MatchEventType.FULL_TIME:
-      return 'bg-purple-500/10 text-purple-500 border-purple-500/20';
+      return <X className="h-5 w-5 text-muted-foreground" aria-hidden="true" />;
     default:
-      return 'bg-primary/10 text-primary border-primary/20';
+      return <span className="block h-2 w-2 rounded-full bg-muted-foreground/40" aria-hidden="true" />;
   }
 };
 
 const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEventId }: EventTimelineProps) => {
   if (events.length === 0) {
     return (
-      <Card className="border-dashed">
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <Clock className="h-12 w-12 text-muted-foreground/50 mb-4" />
-          <p className="text-muted-foreground text-center">No events yet</p>
-          <p className="text-sm text-muted-foreground/70 mt-1">Add events as they happen during the match</p>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center py-12">
+        <Clock className="h-12 w-12 text-muted-foreground/50 mb-4" />
+        <p className="text-muted-foreground text-center">No events yet</p>
+        <p className="text-sm text-muted-foreground/70 mt-1">Events will be added automatically as the match progresses</p>
+      </div>
     );
   }
 
+  const sorted = [...events].sort((a, b) => {
+    const aTime = typeof a.minute === 'number' ? a.minute : 0;
+    const bTime = typeof b.minute === 'number' ? b.minute : 0;
+    return bTime - aTime;
+  });
+
   return (
-    <div className="space-y-3">
-      {events.map((event) => {
-        const isFirstTeam = event.team.name === firstOpponentName;
-        return (
-          <div
-            key={event.id}
-            className={cn(
-              'flex items-start gap-4 p-4 rounded-lg border bg-card transition-all',
-              isFirstTeam ? 'border-l-4 border-l-primary' : 'border-r-4 border-r-primary',
-            )}
-          >
-            <div className="shrink-0">
-              <Badge variant="outline" className={cn('font-semibold', getEventColor(event.type))}>
-                <span className="flex items-center gap-1.5">
-                  {getEventIcon(event.type)}
-                  {getEventLabel(event.type)}
-                </span>
-              </Badge>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex-1">
-                  {event.player ? (
-                    <p className="font-medium">
-                      {event.player.firstName} {event.player.lastName}
-                    </p>
-                  ) : (
-                    <p className="font-medium">{event.team.name}</p>
-                  )}
-                  <p className="text-sm text-muted-foreground">{event.team.name}</p>
-                </div>
-                <div className="shrink-0">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="font-mono">
-                      {event.minute}
-                    </Badge>
-                    {onDeleteEvent && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => onDeleteEvent(event.id)}
-                        disabled={Boolean(deletingEventId)}
-                        className="h-8 w-8"
-                        aria-label="Delete event"
-                        title="Delete event"
-                      >
-                        <Trash2 className={cn('h-4 w-4', deletingEventId === event.id && 'opacity-50')} />
-                      </Button>
-                    )}
-                  </div>
-                </div>
+    <div
+      className={cn(
+        'relative space-y-3',
+        // Center dotted line
+        'before:pointer-events-none before:absolute before:inset-y-0 before:left-1/2 before:-translate-x-1/2 before:border-l before:border-dashed before:border-muted-foreground/30',
+      )}
+    >
+      {sorted.map((event) => {
+        if (event.type === MatchEventType.FULL_TIME || event.type === MatchEventType.HALF_TIME) {
+          const label = event.type === MatchEventType.FULL_TIME ? 'Full time' : 'Half-time';
+          return (
+            <div key={event.id} className="relative py-2">
+              <div className="relative z-10 w-full rounded-xl bg-muted/40 py-3 text-center text-base font-medium text-muted-foreground">
+                {label}
               </div>
+            </div>
+          );
+        }
+
+        const isFirstTeam = event.team.name === firstOpponentName;
+        const time = formatMatchTime(event.minute);
+        const playerName = event.player ? `${event.player.firstName} ${event.player.lastName}` : event.team.name;
+        const leftText = isFirstTeam ? playerName : time;
+        const rightText = isFirstTeam ? time : playerName;
+
+        return (
+          <div key={event.id} className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-4 py-1">
+            <div className={cn('min-w-0', isFirstTeam ? 'text-right' : 'text-right text-muted-foreground font-mono')}>
+              <span className={cn('inline-block truncate', isFirstTeam ? 'font-semibold' : 'text-sm')}>{leftText}</span>
+            </div>
+
+            <div
+              className="relative z-10 flex h-9 w-9 items-center justify-center"
+              aria-label={event.type}
+              title={event.type}
+            >
+              {getMarker(event.type)}
+            </div>
+
+            <div className={cn('min-w-0 flex items-center gap-2', isFirstTeam ? 'text-left text-muted-foreground font-mono' : 'text-left')}>
+              <span className={cn('inline-block truncate', isFirstTeam ? 'text-sm' : 'font-semibold')}>{rightText}</span>
+              {onDeleteEvent && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onDeleteEvent(event.id)}
+                  disabled={Boolean(deletingEventId)}
+                  className="h-7 w-7 shrink-0"
+                  aria-label="Delete event"
+                  title="Delete event"
+                >
+                  <Trash2 className={cn('h-4 w-4', deletingEventId === event.id && 'opacity-50')} />
+                </Button>
+              )}
             </div>
           </div>
         );
@@ -158,5 +132,3 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
 };
 
 export default EventTimeline;
-
-
