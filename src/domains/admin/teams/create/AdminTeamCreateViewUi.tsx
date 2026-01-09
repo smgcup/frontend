@@ -10,8 +10,13 @@ import type { TeamCreate } from '@/domains/team/contracts';
 type AdminTeamCreateViewUiProps = {
   onAdminCreateTeam: (createTeam: TeamCreate) => void | Promise<unknown>;
   adminCreateTeamLoading: boolean;
+  adminCreateTeamError?: string | null;
 };
-const AdminTeamCreateViewUi = ({ onAdminCreateTeam, adminCreateTeamLoading }: AdminTeamCreateViewUiProps) => {
+const AdminTeamCreateViewUi = ({
+  onAdminCreateTeam,
+  adminCreateTeamLoading,
+  adminCreateTeamError,
+}: AdminTeamCreateViewUiProps) => {
   const [formData, setFormData] = useState({
     name: '',
   });
@@ -68,6 +73,12 @@ const AdminTeamCreateViewUi = ({ onAdminCreateTeam, adminCreateTeamLoading }: Ad
 
         <form onSubmit={handleSubmit} className="space-y-10">
           <CardContent>
+            {adminCreateTeamError && (
+              <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive mb-6">
+                <p className="font-medium">Operation failed</p>
+                {adminCreateTeamError && <p className="mt-1 text-sm">{adminCreateTeamError}</p>}
+              </div>
+            )}
             <FieldGroup>
               {/* Team Name */}
               <Field>
