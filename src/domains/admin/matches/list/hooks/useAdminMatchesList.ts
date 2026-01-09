@@ -1,43 +1,26 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useMutation, useQuery } from '@apollo/client/react';
-import {
-  DeleteMatchDocument,
-  type DeleteMatchMutation,
-  type DeleteMatchMutationVariables,
-  MatchesDocument,
-  type MatchesQuery,
-  type MatchesQueryVariables,
-} from '@/graphql';
-import { mapMatchListItem } from '@/domains/matches/mappers/mapMatchListItem';
+import { useRouter } from 'next/navigation';
+import { useMutation } from '@apollo/client/react';
+import { DeleteMatchDocument, type DeleteMatchMutation, type DeleteMatchMutationVariables } from '@/graphql';
 
 export const useAdminMatchesList = () => {
-  const {
-    data,
-    loading: matchesLoading,
-    error: matchesError,
-    refetch,
-  } = useQuery<MatchesQuery, MatchesQueryVariables>(MatchesDocument);
+  const router = useRouter();
 
+  // Mutation hook to delete a match
+  // Returns the mutation function and loading state
   const [deleteMatchMutation, { loading: deleteLoading }] = useMutation<
     DeleteMatchMutation,
     DeleteMatchMutationVariables
   >(DeleteMatchDocument);
 
-  const matches = useMemo(() => {
-    return data?.matches.map(mapMatchListItem) ?? [];
-  }, [data?.matches]);
-
   const onDeleteMatch = async (id: string) => {
     await deleteMatchMutation({ variables: { id } });
-    await refetch();
+    // Trigger SSR refetch by refreshing the router
+    router.refresh();
   };
 
   return {
-    matches,
-    matchesLoading,
-    matchesError,
     deleteLoading,
     onDeleteMatch,
   };

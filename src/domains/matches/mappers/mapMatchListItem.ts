@@ -1,4 +1,5 @@
-import type { MatchListItem, MatchStatus } from '../contracts';
+import type { MatchListItem } from '../contracts';
+import { MatchStatus } from '@/graphql';
 
 type MatchOpponentLike = {
   id: string;

@@ -2,19 +2,16 @@
 
 import AdminMatchesListViewUi from './AdminMatchesListViewUi';
 import { useAdminMatchesList } from './hooks/useAdminMatchesList';
+import type { Match } from '@/domains/matches/contracts';
 
-const AdminMatchesListView = () => {
-  const { matches, matchesLoading, matchesError, deleteLoading, onDeleteMatch } = useAdminMatchesList();
+type AdminMatchesListViewProps = {
+  matches: Match[];
+};
 
-  return (
-    <AdminMatchesListViewUi
-      matches={matches}
-      matchesLoading={matchesLoading}
-      matchesError={matchesError}
-      deleteLoading={deleteLoading}
-      onDeleteMatch={onDeleteMatch}
-    />
-  );
+const AdminMatchesListView = ({ matches }: AdminMatchesListViewProps) => {
+  const { deleteLoading, onDeleteMatch } = useAdminMatchesList();
+
+  return <AdminMatchesListViewUi matches={matches} deleteLoading={deleteLoading} onDeleteMatch={onDeleteMatch} />;
 };
 
 export default AdminMatchesListView;
