@@ -12,6 +12,7 @@ export type PlayerListItem = {
   height: number;
   weight: number;
   preferredFoot: string;
+  imageUrl?: string | null;
 };
 
 // Domain enums mirror API values but stay decoupled from GraphQL-generated types.

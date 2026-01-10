@@ -14,7 +14,7 @@ export const mapAddEventInputToDto = (input: AddEventInput, matchId: string): Cr
     matchId,
     teamId: input.teamId,
     playerId: input.playerId ?? null,
-    type: input.type as unknown as GqlMatchEventType,
+    type: input.type as GqlMatchEventType,
     minute: input.minute,
     payload: input.payload ?? null,
   };

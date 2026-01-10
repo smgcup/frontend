@@ -20,6 +20,7 @@ export const mapPlayerListItem = (player: PlayerLike): PlayerListItem => {
     height: toNumber(player.height),
     weight: toNumber(player.weight),
     preferredFoot: player.preferredFoot ?? player.prefferedFoot ?? '',
+    imageUrl: player.imageUrl,
   };
 };
 
