@@ -132,17 +132,20 @@ const AdminPlayersListViewUi = ({ teams, players, currentYear, error }: AdminPla
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {players.map((player) => (
-            <Card key={player.id} className="group overflow-hidden transition-all hover:shadow-lg hover:border-primary/20">
+            <Card
+              key={player.id}
+              className="group overflow-hidden transition-all hover:shadow-lg hover:border-primary/20"
+            >
               <CardHeader>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <CardTitle className="text-base truncate">
                       {player.firstName} {player.lastName}
                     </CardTitle>
-                    <p className="text-sm text-muted-foreground">{player.position}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-md text-muted-foreground">
                       Team: <span className="text-foreground">{playerTeamNameByPlayerId.get(player.id) ?? '—'}</span>
                     </p>
+                    <p className="text-xs text-muted-foreground">{player.position}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
                     <Button variant="ghost" size="icon" asChild className="h-9 w-9">
@@ -203,5 +206,3 @@ const AdminPlayersListViewUi = ({ teams, players, currentYear, error }: AdminPla
 };
 
 export default AdminPlayersListViewUi;
-
-
