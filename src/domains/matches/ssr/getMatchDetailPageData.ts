@@ -7,7 +7,7 @@ import {
   type MatchEventsQuery,
   type MatchEventsQueryVariables,
 } from '@/graphql';
-import type { Match, MatchEvent } from '@/domains/matches/contracts';
+import type { MatchEvent } from '@/domains/matches/contracts';
 import { mapMatchById } from '@/domains/matches/mappers/mapMatchById';
 import { mapMatchEvent } from '@/domains/matches/mappers/mapMatchEvent';
 
@@ -20,10 +20,10 @@ export const getMatchDetailPageData = async (matchId: string) => {
   });
 
   const matchRow = matchData?.matchById ?? null;
-  const match: Match | null = matchRow ? mapMatchById(matchRow) : null;
+  const match = matchRow ? mapMatchById(matchRow) : null;
 
   if (!match) {
-    return { match: null as Match | null, events: [] as MatchEvent[], error: matchError };
+    return { match: null, events: [], error: matchError };
   }
 
   const { data: eventsData, error: eventsError } = await client.query<MatchEventsQuery, MatchEventsQueryVariables>({
@@ -35,5 +35,3 @@ export const getMatchDetailPageData = async (matchId: string) => {
 
   return { match, events, error: matchError ?? eventsError };
 };
-
-
