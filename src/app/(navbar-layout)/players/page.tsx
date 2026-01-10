@@ -1,12 +1,10 @@
-import { ComingSoon } from '@/components/ComingSoon';
+import { getPlayersPageData } from './ssr/getPlayersPageData';
+import PlayersView from './PlayersView';
 
-const page = () => {
-  return (
-    <ComingSoon
-      title="Players"
-      description="Player profiles, statistics, and rankings coming soon. Discover the stars of the SMG Cup Championship!"
-    />
-  );
-};
+export const dynamic = 'force-dynamic';
 
-export default page;
+export default async function Page() {
+  const data = await getPlayersPageData();
+
+  return <PlayersView data={data} />;
+}
