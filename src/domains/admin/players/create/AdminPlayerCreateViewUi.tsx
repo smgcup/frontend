@@ -117,6 +117,11 @@ const AdminPlayerCreateViewUi = ({
     e.preventDefault();
     if (!validateForm()) return;
 
+    // TypeScript narrows these to PlayerPosition/PreferredFoot after the empty string checks
+    if (formData.position === '' || formData.preferredFoot === '') {
+      return; // This should never happen after validation, but satisfies TypeScript
+    }
+
     await onAdminPlayerCreate({
       firstName: formData.firstName.trim(),
       lastName: formData.lastName.trim(),
@@ -125,8 +130,8 @@ const AdminPlayerCreateViewUi = ({
       weight: parseFloat(formData.weight),
       yearOfBirth: parseFloat(formData.yearOfBirth),
       imageUrl: formData.imageUrl.trim() || '',
-      position: formData.position as PlayerPosition,
-      preferredFoot: formData.preferredFoot as PreferredFoot,
+      position: formData.position,
+      preferredFoot: formData.preferredFoot,
     });
 
     window.history.back();

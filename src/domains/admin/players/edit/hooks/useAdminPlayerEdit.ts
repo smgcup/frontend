@@ -9,8 +9,6 @@ import {
   UpdatePlayerMutation,
   UpdatePlayerMutationVariables,
   type UpdatePlayerDto,
-  type PreferredFoot as GqlPreferredFoot,
-  type PlayerPosition as GqlPlayerPosition,
 } from '@/graphql';
 import type { PlayerUpdate } from '@/domains/player/contracts';
 
@@ -34,8 +32,8 @@ export const useAdminPlayerEdit = (playerId: string) => {
     if (dto.weight !== undefined) gqlDto.weight = dto.weight;
     if (dto.yearOfBirth !== undefined) gqlDto.yearOfBirth = dto.yearOfBirth;
     if (dto.imageUrl !== undefined) gqlDto.imageUrl = dto.imageUrl;
-    if (dto.position !== undefined) gqlDto.position = dto.position as unknown as GqlPlayerPosition;
-    if (dto.preferredFoot !== undefined) gqlDto.preferredFoot = dto.preferredFoot as unknown as GqlPreferredFoot;
+    if (dto.position !== undefined) gqlDto.position = dto.position;
+    if (dto.preferredFoot !== undefined) gqlDto.preferredFoot = dto.preferredFoot;
 
     return await updatePlayerMutation({
       variables: { id: playerId, dto: gqlDto },

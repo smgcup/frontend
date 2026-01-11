@@ -1,5 +1,4 @@
 import type { CreateMatchEventDto } from '@/graphql';
-import type { MatchEventType as GqlMatchEventType } from '@/graphql';
 import type { AddEventInput } from '../contracts';
 
 /**
@@ -14,7 +13,7 @@ export const mapAddEventInputToDto = (input: AddEventInput, matchId: string): Cr
     matchId,
     teamId: input.teamId,
     playerId: input.playerId ?? null,
-    type: input.type as GqlMatchEventType,
+    type: input.type,
     minute: input.minute,
     payload: input.payload ?? null,
   };

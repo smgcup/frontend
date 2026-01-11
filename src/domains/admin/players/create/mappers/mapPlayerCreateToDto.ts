@@ -10,7 +10,7 @@ export const mapPlayerCreateToDto = (input: PlayerCreate): CreatePlayerDto => {
     weight: input.weight,
     yearOfBirth: input.yearOfBirth,
     imageUrl: input.imageUrl ?? undefined,
-    position: input.position as CreatePlayerDto['position'],
-    preferredFoot: input.preferredFoot as CreatePlayerDto['preferredFoot'],
+    position: input.position,
+    preferredFoot: input.preferredFoot,
   };
 };
