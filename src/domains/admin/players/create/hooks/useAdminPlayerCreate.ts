@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client/react';
 import { AdminCreatePlayerDocument, AdminCreatePlayerMutation, AdminCreatePlayerMutationVariables } from '@/graphql';
-import type { Player } from '@/domains/player/contracts';
+import type { PlayerCreate } from '@/domains/player/contracts';
 import { mapPlayerCreateToDto } from '../mappers/mapPlayerCreateToDto';
 
 export const useAdminPlayerCreate = () => {
@@ -9,7 +9,7 @@ export const useAdminPlayerCreate = () => {
     AdminCreatePlayerMutationVariables
   >(AdminCreatePlayerDocument);
 
-  const handleAdminPlayerCreate = async (createPlayer: Player) => {
+  const handleAdminPlayerCreate = async (createPlayer: PlayerCreate) => {
     await adminCreatePlayerMutation({
       variables: { createPlayerDto: mapPlayerCreateToDto(createPlayer) },
     });

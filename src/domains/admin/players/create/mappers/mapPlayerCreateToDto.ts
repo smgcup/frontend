@@ -1,11 +1,11 @@
-import type { Player } from '@/domains/player/contracts';
+import type { PlayerCreate } from '@/domains/player/contracts';
 import type { CreatePlayerDto } from '@/graphql';
 
-export const mapPlayerCreateToDto = (input: Player): CreatePlayerDto => {
+export const mapPlayerCreateToDto = (input: PlayerCreate): CreatePlayerDto => {
   return {
     firstName: input.firstName,
     lastName: input.lastName,
-    teamId: input.teamId!,
+    teamId: input.teamId,
     height: input.height,
     weight: input.weight,
     yearOfBirth: input.yearOfBirth,

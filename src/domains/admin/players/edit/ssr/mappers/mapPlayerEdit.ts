@@ -20,7 +20,7 @@ const isEnumValue = <T extends Record<string, string>>(enumObj: T, v: unknown): 
   return typeof v === 'string' && (Object.values(enumObj) as string[]).includes(v);
 };
 
-export const mapPlayerEdit = (player: PlayerEditLike, team?: Team | null): Player => {
+export const mapPlayerEdit = (player: PlayerEditLike, team?: Team): Player => {
   const position = isEnumValue(PlayerPosition, player.position) ? player.position : PlayerPosition.Goalkeeper;
   const preferredFoot = isEnumValue(PreferredFoot, player.preferredFoot) ? player.preferredFoot : PreferredFoot.Right;
 
@@ -34,6 +34,6 @@ export const mapPlayerEdit = (player: PlayerEditLike, team?: Team | null): Playe
     imageUrl: player.imageUrl ?? null,
     position,
     preferredFoot,
-    team: team ?? null,
+    ...(team !== undefined ? { team } : {}),
   };
 };
