@@ -16,13 +16,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Pencil, Plus, Trash2, User } from 'lucide-react';
-import type { PlayerListItem } from '@/domains/player/contracts';
+import type { Player } from '@/domains/player/contracts';
 import type { TeamWithPlayers } from '@/domains/team/contracts';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminPlayersListViewUiProps = {
   teams: TeamWithPlayers[];
-  players: PlayerListItem[];
+  players: Player[];
   currentYear: number;
   actionError: string | null;
   deletingPlayerId: string | null;
@@ -41,7 +41,9 @@ const AdminPlayersListViewUi = ({
     const map = new Map<string, string>();
     for (const team of teams) {
       for (const player of team.players) {
-        map.set(player.id, team.name);
+        if (player.id) {
+          map.set(player.id, team.name);
+        }
       }
     }
     return map;
@@ -96,74 +98,76 @@ const AdminPlayersListViewUi = ({
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {players.map((player) => (
-            <Card
-              key={player.id}
-              className="group overflow-hidden transition-all hover:shadow-lg hover:border-primary/20"
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <CardTitle className="text-base truncate">
-                      {player.firstName} {player.lastName}
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">{player.position}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Team: <span className="text-foreground">{playerTeamNameByPlayerId.get(player.id) ?? '—'}</span>
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <Button variant="ghost" size="icon" asChild className="h-9 w-9">
-                      <Link href={`/admin/players/${player.id}/edit`}>
-                        <Pencil className="h-4 w-4" />
-                        <span className="sr-only">Edit player</span>
-                      </Link>
-                    </Button>
+          {players
+            .filter((player): player is Player & { id: string } => !!player.id)
+            .map((player) => (
+              <Card
+                key={player.id}
+                className="group overflow-hidden transition-all hover:shadow-lg hover:border-primary/20"
+              >
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <CardTitle className="text-base truncate">
+                        {player.firstName} {player.lastName}
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">{player.position}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Team: <span className="text-foreground">{playerTeamNameByPlayerId.get(player.id) ?? '—'}</span>
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Button variant="ghost" size="icon" asChild className="h-9 w-9">
+                        <Link href={`/admin/players/${player.id}/edit`}>
+                          <Pencil className="h-4 w-4" />
+                          <span className="sr-only">Edit player</span>
+                        </Link>
+                      </Button>
 
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        >
-                          {deletingPlayerId === player.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                          <span className="sr-only">Delete player</span>
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Player</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete {player.firstName} {player.lastName}? This action cannot be
-                            undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction variant="destructive" onClick={() => onDeletePlayer(player.id)}>
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            {deletingPlayerId === player.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                            <span className="sr-only">Delete player</span>
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Player</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete {player.firstName} {player.lastName}? This action cannot
+                              be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction variant="destructive" onClick={() => onDeletePlayer(player.id)}>
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-1 text-sm">
-                  <p className="text-muted-foreground">Age: {currentYear - Math.round(player.yearOfBirth)}</p>
-                  <p className="text-muted-foreground">Height: {player.height} cm</p>
-                  <p className="text-muted-foreground">Weight: {player.weight} kg</p>
-                  <p className="text-muted-foreground">Foot: {player.preferredFoot}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-1 text-sm">
+                    <p className="text-muted-foreground">Age: {currentYear - Math.round(player.yearOfBirth)}</p>
+                    <p className="text-muted-foreground">Height: {player.height} cm</p>
+                    <p className="text-muted-foreground">Weight: {player.weight} kg</p>
+                    <p className="text-muted-foreground">Foot: {player.preferredFoot}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
         </div>
       )}
     </div>

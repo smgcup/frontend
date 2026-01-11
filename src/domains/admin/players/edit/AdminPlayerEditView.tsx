@@ -2,13 +2,13 @@
 
 import AdminPlayerEditViewUi from './AdminPlayerEditViewUi';
 import { useAdminPlayerEdit } from './hooks/useAdminPlayerEdit';
-import type { PlayerEdit } from '@/domains/player/contracts';
+import type { Player } from '@/domains/player/contracts';
 import type { Team } from '@/domains/team/contracts';
 
 type AdminPlayerEditViewProps = {
   playerId: string;
   initialTeams: Team[];
-  initialPlayer?: PlayerEdit;
+  initialPlayer?: Player;
 };
 
 const AdminPlayerEditView = ({ playerId, initialTeams, initialPlayer }: AdminPlayerEditViewProps) => {

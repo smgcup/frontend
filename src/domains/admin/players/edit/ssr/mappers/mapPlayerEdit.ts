@@ -1,4 +1,4 @@
-import type { PlayerEdit } from '@/domains/player/contracts';
+import type { Player } from '@/domains/player/contracts';
 import type { Team } from '@/domains/team/contracts';
 import { PlayerPosition, PreferredFoot } from '@/graphql';
 import type { PlayerLike } from '@/domains/player/mappers/types';
@@ -20,7 +20,7 @@ const isEnumValue = <T extends Record<string, string>>(enumObj: T, v: unknown): 
   return typeof v === 'string' && (Object.values(enumObj) as string[]).includes(v);
 };
 
-export const mapPlayerEdit = (player: PlayerEditLike, team?: Team | null): PlayerEdit => {
+export const mapPlayerEdit = (player: PlayerEditLike, team?: Team | null): Player => {
   const position = isEnumValue(PlayerPosition, player.position) ? player.position : PlayerPosition.Goalkeeper;
   const preferredFoot = isEnumValue(PreferredFoot, player.preferredFoot) ? player.preferredFoot : PreferredFoot.Right;
 

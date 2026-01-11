@@ -6,7 +6,7 @@ export type Team = {
 export type TeamWithPlayers = {
   id: string;
   name: string;
-  players: import('../player/contracts').PlayerListItem[];
+  players: import('../player/contracts').Player[];
 };
 
 export type TeamCreate = {

@@ -1,4 +1,4 @@
-import type { PlayerListItem } from '@/domains/player/contracts';
+import type { Player } from '@/domains/player/contracts';
 import type { PlayerLike } from '@/domains/player/mappers/types';
 import { PlayerPosition, PreferredFoot } from '@/graphql';
 
@@ -19,7 +19,7 @@ const isPreferredFoot = (v: unknown): v is PreferredFoot => {
   return typeof v === 'string' && Object.values(PreferredFoot).includes(v as PreferredFoot);
 };
 
-export const mapPlayerListItem = (player: PlayerLike): PlayerListItem => {
+export const mapPlayerListItem = (player: PlayerLike): Player => {
   return {
     id: player.id,
     firstName: player.firstName ?? '',
@@ -29,6 +29,5 @@ export const mapPlayerListItem = (player: PlayerLike): PlayerListItem => {
     height: toNumber(player.height),
     weight: toNumber(player.weight),
     preferredFoot: isPreferredFoot(player.preferredFoot) ? player.preferredFoot : PreferredFoot.Right,
-    imageUrl: player.imageUrl,
   };
 };

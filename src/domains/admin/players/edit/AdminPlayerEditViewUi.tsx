@@ -1,6 +1,6 @@
 'use client';
 
-import type { PlayerEdit, PlayerUpdate } from '@/domains/player/contracts';
+import type { Player, PlayerUpdate } from '@/domains/player/contracts';
 import type { Team } from '@/domains/team/contracts';
 import { PlayerPosition, PreferredFoot } from '@/graphql';
 import { useEffect, useMemo, useState } from 'react';
@@ -28,7 +28,7 @@ import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
 
 type AdminPlayerEditViewUiProps = {
   teams: Team[];
-  player: PlayerEdit | undefined;
+  player: Player | undefined;
   updateLoading: boolean;
   updateError: ErrorLike | null;
   deleteLoading: boolean;
