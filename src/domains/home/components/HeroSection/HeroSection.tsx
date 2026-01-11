@@ -20,7 +20,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-linear-to-b from-background/80 via-background/60 to-background/80" />
       </div>
 
-      <div className="relative z-10 container mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
+      <div className="relative z-10 container mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
         <div className="mx-auto max-w-3xl text-center">
           {/* Main Heading */}
           <h1 className="text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">

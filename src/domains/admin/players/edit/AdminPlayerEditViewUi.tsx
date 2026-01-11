@@ -1,11 +1,11 @@
 'use client';
 
+import type { Player, PlayerUpdate } from '@/domains/player/contracts';
+import type { Team } from '@/domains/team/contracts';
+import { PlayerPosition, PreferredFoot } from '@/graphql';
 import { useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@apollo/client/react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ErrorLike } from '@apollo/client';
-import { PreferredFoot, PlayerPosition, TeamsDocument, TeamsQuery, UpdatePlayerDto } from '@/graphql';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,29 +24,16 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Loader2, Save, Trash2 } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
+import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
 
 type AdminPlayerEditViewUiProps = {
-  player:
-    | {
-        id: string;
-        firstName: string;
-        lastName: string;
-        yearOfBirth: number;
-        height: number;
-        weight: number;
-        imageUrl?: string | null;
-        prefferedFoot: PreferredFoot;
-        position: PlayerPosition;
-        team?: { id: string; name: string } | null;
-      }
-    | undefined;
-  playerLoading: boolean;
-  playerError: ErrorLike | null | undefined;
+  teams: Team[];
+  player: Player | undefined;
   updateLoading: boolean;
-  updateError: ErrorLike | null | undefined;
+  updateError: ErrorLike | null;
   deleteLoading: boolean;
-  deleteError: ErrorLike | null | undefined;
-  onUpdatePlayer: (dto: UpdatePlayerDto) => Promise<unknown>;
+  deleteError: ErrorLike | null;
+  onUpdatePlayer: (dto: PlayerUpdate) => Promise<unknown>;
   onDeletePlayer: () => Promise<unknown>;
 };
 
@@ -59,15 +46,14 @@ type FormState = {
   yearOfBirth: string;
   imageUrl: string;
   position: PlayerPosition | '';
-  prefferedFoot: PreferredFoot | '';
+  preferredFoot: PreferredFoot | '';
 };
 
 type FieldName = keyof FormState;
 
 const AdminPlayerEditViewUi = ({
+  teams,
   player,
-  playerLoading,
-  playerError,
   updateLoading,
   updateError,
   deleteLoading,
@@ -76,8 +62,9 @@ const AdminPlayerEditViewUi = ({
   onDeletePlayer,
 }: AdminPlayerEditViewUiProps) => {
   const router = useRouter();
-  const { data: teamsData, loading: teamsLoading, error: teamsError } = useQuery<TeamsQuery>(TeamsDocument);
 
+  // Form inputs are controlled, so we keep everything as strings here and only coerce
+  // to numbers/enums at submit time (avoids `undefined` / NaN edge-cases in <input />).
   const [formData, setFormData] = useState<FormState>({
     firstName: '',
     lastName: '',
@@ -87,11 +74,15 @@ const AdminPlayerEditViewUi = ({
     yearOfBirth: '',
     imageUrl: '',
     position: '',
-    prefferedFoot: '',
+    preferredFoot: '',
   });
 
+  // `errors` is field-level validation; `actionError` is for async failures (update/delete).
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [actionError, setActionError] = useState<string | null>(null);
+
+  // Snapshot of the server-loaded player data mapped into `FormState`.
+  // Used for computing "dirty" fields and enabling the Save button.
   const [initialData, setInitialData] = useState<FormState | null>(null);
   const [dirtyFields, setDirtyFields] = useState<Record<FieldName, boolean>>({
     firstName: false,
@@ -102,11 +93,18 @@ const AdminPlayerEditViewUi = ({
     yearOfBirth: false,
     imageUrl: false,
     position: false,
-    prefferedFoot: false,
+    preferredFoot: false,
   });
 
+  // When the `player` arrives/changes (SSR/CSR hydration, navigation between IDs, refetch),
+  // sync it into local controlled form state.
+  //
+  // We also capture the initial snapshot (`initialData`) so we can:
+  // - compute "dirty" fields by comparing to this baseline
+  // - reset dirty state back to "clean" whenever the loaded player changes
   useEffect(() => {
     if (!player) return;
+    // Normalize nullable API fields into safe controlled-input values.
     const next: FormState = {
       firstName: player.firstName ?? '',
       lastName: player.lastName ?? '',
@@ -116,7 +114,7 @@ const AdminPlayerEditViewUi = ({
       yearOfBirth: String(player.yearOfBirth ?? ''),
       imageUrl: player.imageUrl ?? '',
       position: player.position ?? '',
-      prefferedFoot: player.prefferedFoot ?? '',
+      preferredFoot: player.preferredFoot ?? '',
     };
     // Avoid synchronous setState inside an effect body (can cause cascading renders)
     // Defer the state sync to a microtask and cancel if the effect is cleaned up.
@@ -134,7 +132,7 @@ const AdminPlayerEditViewUi = ({
         yearOfBirth: false,
         imageUrl: false,
         position: false,
-        prefferedFoot: false,
+        preferredFoot: false,
       });
     });
 
@@ -143,32 +141,20 @@ const AdminPlayerEditViewUi = ({
     };
   }, [player]);
 
-  const getErrorMessage = (e: unknown) => {
-    if (!e) return 'Unknown error';
-    if (typeof e === 'string') return e;
-    if (typeof e === 'object' && e && 'message' in e && typeof (e as { message: unknown }).message === 'string') {
-      return (e as { message: string }).message;
-    }
-    return String(e);
-  };
-
   const combinedError = useMemo(() => {
+    // Prefer local action errors (caught exceptions) over request errors, so the most
+    // relevant message is shown after a user-triggered action.
     return (
       actionError ||
-      (playerError && 'message' in playerError && typeof playerError.message === 'string'
-        ? playerError.message
-        : null) ||
       (updateError && 'message' in updateError && typeof updateError.message === 'string'
         ? updateError.message
         : null) ||
-      (deleteError && 'message' in deleteError && typeof deleteError.message === 'string'
-        ? deleteError.message
-        : null) ||
-      (teamsError?.message ?? null)
+      (deleteError && 'message' in deleteError && typeof deleteError.message === 'string' ? deleteError.message : null)
     );
-  }, [actionError, playerError, updateError, deleteError, teamsError]);
+  }, [actionError, updateError, deleteError]);
 
   const markDirty = (field: FieldName, nextValue: FormState[FieldName]) => {
+    // Only track dirtiness once we have an initial snapshot to compare against.
     if (!initialData) return;
     const isDirty = initialData[field] !== nextValue;
     setDirtyFields((prev) => ({ ...prev, [field]: isDirty }));
@@ -186,6 +172,7 @@ const AdminPlayerEditViewUi = ({
   };
 
   const validateForm = () => {
+    // Minimal client-side validation; server-side validation still applies.
     const newErrors: Record<string, string> = {};
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
@@ -201,7 +188,7 @@ const AdminPlayerEditViewUi = ({
     else if (isNaN(parseFloat(formData.yearOfBirth))) newErrors.yearOfBirth = 'Year of birth must be a number';
 
     if (!formData.position) newErrors.position = 'Position is required';
-    if (!formData.prefferedFoot) newErrors.prefferedFoot = 'Preferred foot is required';
+    if (!formData.preferredFoot) newErrors.preferredFoot = 'Preferred foot is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -213,8 +200,8 @@ const AdminPlayerEditViewUi = ({
     if (!validateForm()) return;
 
     try {
-      // Only send changed fields (UpdatePlayerDto fields are optional)
-      const dto: UpdatePlayerDto = {};
+      // Only send changed fields (all fields are optional on PlayerUpdate)
+      const dto: PlayerUpdate = {};
       if (dirtyFields.firstName) dto.firstName = formData.firstName.trim();
       if (dirtyFields.lastName) dto.lastName = formData.lastName.trim();
       if (dirtyFields.teamId) dto.teamId = formData.teamId;
@@ -223,7 +210,7 @@ const AdminPlayerEditViewUi = ({
       if (dirtyFields.yearOfBirth) dto.yearOfBirth = parseFloat(formData.yearOfBirth);
       if (dirtyFields.imageUrl) dto.imageUrl = formData.imageUrl.trim() || '';
       if (dirtyFields.position) dto.position = formData.position as PlayerPosition;
-      if (dirtyFields.prefferedFoot) dto.prefferedFoot = formData.prefferedFoot as PreferredFoot;
+      if (dirtyFields.preferredFoot) dto.preferredFoot = formData.preferredFoot as PreferredFoot;
 
       // If nothing changed, just go back (no-op update)
       if (Object.keys(dto).length === 0) {
@@ -247,6 +234,7 @@ const AdminPlayerEditViewUi = ({
     try {
       await onDeletePlayer();
       router.push('/admin/players');
+      // Ensure the list page revalidates after navigation (avoids stale cached data).
       router.refresh();
     } catch (err) {
       setActionError(getErrorMessage(err));
@@ -257,11 +245,13 @@ const AdminPlayerEditViewUi = ({
   const dirtyClass = (field: FieldName) => (dirtyFields[field] ? 'ring-1 ring-primary bg-primary/5' : '');
 
   const selectedTeamName = useMemo(() => {
-    if (teamsData?.teams?.length && formData.teamId) {
-      return teamsData.teams.find((t) => t.id === formData.teamId)?.name ?? null;
+    // If the player is linked to a team that isn't in the `teams` list (e.g. filtered
+    // list, pagination, or stale cache), still show the currently selected team label.
+    if (teams.length && formData.teamId) {
+      return teams.find((t) => t.id === formData.teamId)?.name ?? null;
     }
     return player?.team?.name ?? null;
-  }, [teamsData, formData.teamId, player?.team?.name]);
+  }, [teams, formData.teamId, player?.team?.name]);
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -277,15 +267,15 @@ const AdminPlayerEditViewUi = ({
           <CardContent>
             {combinedError && <div className="text-destructive mb-4">{combinedError}</div>}
 
-            {playerLoading || !initialData ? (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Loading player...
-              </div>
-            ) : !player ? (
+            {!player ? (
               <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
                 <p className="font-medium">Player not found</p>
                 <p className="mt-1 text-sm">This player may have been deleted or is not assigned to any team.</p>
+              </div>
+            ) : !initialData ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading player...
               </div>
             ) : (
               <FieldGroup>
@@ -327,7 +317,6 @@ const AdminPlayerEditViewUi = ({
                   <FieldLabel>Team *</FieldLabel>
                   <FieldContent>
                     <Select
-                      disabled={teamsLoading}
                       onValueChange={(value) => {
                         setFormData((prev) => ({ ...prev, teamId: value }));
                         if (errors.teamId) setErrors((prev) => ({ ...prev, teamId: '' }));
@@ -339,13 +328,13 @@ const AdminPlayerEditViewUi = ({
                         aria-invalid={!!errors.teamId}
                         className={`w-full ${dirtyFields.teamId ? 'ring-1 ring-primary bg-primary/5' : ''}`}
                       >
-                        <SelectValue placeholder={teamsLoading ? 'Loading teams...' : 'Select a team'} />
+                        <SelectValue placeholder="Select a team" />
                       </SelectTrigger>
                       <SelectContent>
-                        {formData.teamId &&
-                          !teamsData?.teams?.some((t) => t.id === formData.teamId) &&
-                          selectedTeamName && <SelectItem value={formData.teamId}>{selectedTeamName}</SelectItem>}
-                        {teamsData?.teams?.map((team) => (
+                        {formData.teamId && !teams.some((t) => t.id === formData.teamId) && selectedTeamName && (
+                          <SelectItem value={formData.teamId}>{selectedTeamName}</SelectItem>
+                        )}
+                        {teams.map((team) => (
                           <SelectItem key={team.id} value={team.id}>
                             {team.name}
                           </SelectItem>
@@ -459,15 +448,15 @@ const AdminPlayerEditViewUi = ({
                   <FieldContent>
                     <Select
                       onValueChange={(value) => {
-                        setFormData((prev) => ({ ...prev, prefferedFoot: value as PreferredFoot }));
-                        if (errors.prefferedFoot) setErrors((prev) => ({ ...prev, prefferedFoot: '' }));
-                        markDirty('prefferedFoot', value as PreferredFoot);
+                        setFormData((prev) => ({ ...prev, preferredFoot: value as PreferredFoot }));
+                        if (errors.preferredFoot) setErrors((prev) => ({ ...prev, preferredFoot: '' }));
+                        markDirty('preferredFoot', value as PreferredFoot);
                       }}
-                      value={formData.prefferedFoot}
+                      value={formData.preferredFoot}
                     >
                       <SelectTrigger
-                        aria-invalid={!!errors.prefferedFoot}
-                        className={`w-full ${dirtyFields.prefferedFoot ? 'ring-1 ring-primary bg-primary/5' : ''}`}
+                        aria-invalid={!!errors.preferredFoot}
+                        className={`w-full ${dirtyFields.preferredFoot ? 'ring-1 ring-primary bg-primary/5' : ''}`}
                       >
                         <SelectValue placeholder="Select preferred foot" />
                       </SelectTrigger>
@@ -479,7 +468,7 @@ const AdminPlayerEditViewUi = ({
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.prefferedFoot && <FieldError>{errors.prefferedFoot}</FieldError>}
+                    {errors.preferredFoot && <FieldError>{errors.preferredFoot}</FieldError>}
                     <FieldDescription />
                   </FieldContent>
                 </Field>
@@ -492,7 +481,7 @@ const AdminPlayerEditViewUi = ({
               <Button type="button" variant="outline" onClick={handleCancel} disabled={updateLoading || deleteLoading}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={playerLoading || updateLoading || deleteLoading || !isDirty}>
+              <Button type="submit" disabled={updateLoading || deleteLoading || !isDirty}>
                 {updateLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                 Save
               </Button>
@@ -504,7 +493,7 @@ const AdminPlayerEditViewUi = ({
                   type="button"
                   variant="destructive"
                   className="w-full sm:w-auto"
-                  disabled={playerLoading || updateLoading || deleteLoading}
+                  disabled={updateLoading || deleteLoading}
                 >
                   {deleteLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

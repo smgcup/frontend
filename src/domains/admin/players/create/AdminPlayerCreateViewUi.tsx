@@ -1,6 +1,8 @@
 'use client';
 
-import { CreatePlayerDto, PlayerPosition, PreferredFoot, TeamsDocument, TeamsQuery } from '@/graphql';
+import type { PlayerCreate } from '@/domains/player/contracts';
+import type { Team } from '@/domains/team/contracts';
+import { PlayerPosition, PreferredFoot } from '@/graphql';
 import { ErrorLike } from '@apollo/client';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -8,15 +10,21 @@ import { Input } from '@/components/ui/input';
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useQuery } from '@apollo/client/react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminPlayerCreateViewUiProps = {
-  onAdminPlayerCreate: (createPlayerDto: CreatePlayerDto) => void;
+  teams: Team[];
+  teamsLoading: boolean;
+  teamsError: ErrorLike | null;
+  onAdminPlayerCreate: (createPlayer: PlayerCreate) => void | Promise<unknown>;
   adminPlayerCreateLoading: boolean;
   adminPlayerCreateError: ErrorLike | null;
 };
+
 const AdminPlayerCreateViewUi = ({
+  teams,
+  teamsLoading,
+  teamsError,
   onAdminPlayerCreate,
   adminPlayerCreateLoading,
   adminPlayerCreateError,
@@ -30,7 +38,7 @@ const AdminPlayerCreateViewUi = ({
     yearOfBirth: string;
     imageUrl: string;
     position: PlayerPosition | '';
-    prefferedFoot: PreferredFoot | '';
+    preferredFoot: PreferredFoot | '';
   };
 
   const [formData, setFormData] = useState<FormState>({
@@ -42,16 +50,15 @@ const AdminPlayerCreateViewUi = ({
     yearOfBirth: '',
     imageUrl: '',
     position: '',
-    prefferedFoot: '',
+    preferredFoot: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { data: teamsData, loading: teamsLoading, error: teamsError } = useQuery<TeamsQuery>(TeamsDocument);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error for this field when user starts typing
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
@@ -66,12 +73,13 @@ const AdminPlayerCreateViewUi = ({
   };
 
   const handlePreferredFootChange = (value: PreferredFoot) => {
-    setFormData((prev) => ({ ...prev, prefferedFoot: value }));
-    if (errors.prefferedFoot) setErrors((prev) => ({ ...prev, prefferedFoot: '' }));
+    setFormData((prev) => ({ ...prev, preferredFoot: value }));
+    if (errors.preferredFoot) setErrors((prev) => ({ ...prev, preferredFoot: '' }));
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
     if (!formData.teamId) newErrors.teamId = 'Team is required';
@@ -81,6 +89,7 @@ const AdminPlayerCreateViewUi = ({
     } else if (isNaN(parseFloat(formData.height))) {
       newErrors.height = 'Height must be a number';
     }
+
     if (!formData.weight.trim()) {
       newErrors.weight = 'Weight is required';
     } else if (isNaN(parseFloat(formData.weight))) {
@@ -92,11 +101,12 @@ const AdminPlayerCreateViewUi = ({
     } else if (isNaN(parseFloat(formData.yearOfBirth))) {
       newErrors.yearOfBirth = 'Year of birth must be a number';
     }
+
     if (!formData.position) {
       newErrors.position = 'Position is required';
     }
-    if (!formData.prefferedFoot) {
-      newErrors.prefferedFoot = 'Preferred foot is required';
+    if (!formData.preferredFoot) {
+      newErrors.preferredFoot = 'Preferred foot is required';
     }
 
     setErrors(newErrors);
@@ -107,6 +117,11 @@ const AdminPlayerCreateViewUi = ({
     e.preventDefault();
     if (!validateForm()) return;
 
+    // TypeScript narrows these to PlayerPosition/PreferredFoot after the empty string checks
+    if (formData.position === '' || formData.preferredFoot === '') {
+      return; // This should never happen after validation, but satisfies TypeScript
+    }
+
     await onAdminPlayerCreate({
       firstName: formData.firstName.trim(),
       lastName: formData.lastName.trim(),
@@ -115,8 +130,8 @@ const AdminPlayerCreateViewUi = ({
       weight: parseFloat(formData.weight),
       yearOfBirth: parseFloat(formData.yearOfBirth),
       imageUrl: formData.imageUrl.trim() || '',
-      position: formData.position as PlayerPosition,
-      prefferedFoot: formData.prefferedFoot as PreferredFoot,
+      position: formData.position,
+      preferredFoot: formData.preferredFoot,
     });
 
     window.history.back();
@@ -143,11 +158,12 @@ const AdminPlayerCreateViewUi = ({
                 {adminPlayerCreateError && 'message' in adminPlayerCreateError
                   ? adminPlayerCreateError.message
                   : adminPlayerCreateError
-                    ? String(adminPlayerCreateError)
-                    : null}
+                  ? String(adminPlayerCreateError)
+                  : null}
                 {teamsError && <div>{teamsError.message || 'Failed to load teams.'}</div>}
               </div>
             )}
+
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="firstName">First Name *</FieldLabel>
@@ -189,7 +205,7 @@ const AdminPlayerCreateViewUi = ({
                       <SelectValue placeholder={teamsLoading ? 'Loading teams...' : 'Select a team'} />
                     </SelectTrigger>
                     <SelectContent>
-                      {teamsData?.teams?.map((team) => (
+                      {teams.map((team) => (
                         <SelectItem key={team.id} value={team.id}>
                           {team.name}
                         </SelectItem>
@@ -271,13 +287,13 @@ const AdminPlayerCreateViewUi = ({
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="prefferedFoot">Preferred Foot *</FieldLabel>
+                <FieldLabel htmlFor="preferredFoot">Preferred Foot *</FieldLabel>
                 <FieldContent>
                   <Select
                     onValueChange={(v) => handlePreferredFootChange(v as PreferredFoot)}
-                    value={formData.prefferedFoot || undefined}
+                    value={formData.preferredFoot || undefined}
                   >
-                    <SelectTrigger aria-invalid={!!errors.prefferedFoot} className="w-full">
+                    <SelectTrigger aria-invalid={!!errors.preferredFoot} className="w-full">
                       <SelectValue placeholder="Select preferred foot" />
                     </SelectTrigger>
                     <SelectContent>
@@ -286,7 +302,7 @@ const AdminPlayerCreateViewUi = ({
                       <SelectItem value={PreferredFoot.Both}>Both</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.prefferedFoot && <FieldError>{errors.prefferedFoot}</FieldError>}
+                  {errors.preferredFoot && <FieldError>{errors.preferredFoot}</FieldError>}
                 </FieldContent>
               </Field>
 
@@ -324,4 +340,5 @@ const AdminPlayerCreateViewUi = ({
     </div>
   );
 };
+
 export default AdminPlayerCreateViewUi;

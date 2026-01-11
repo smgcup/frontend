@@ -6,6 +6,7 @@ import {
   DeleteNewsMutation,
   DeleteNewsMutationVariables,
 } from '@/graphql';
+import { mapNews } from '@/domains/news/mappers/mapNews';
 
 export const useAdminNewsList = () => {
   const { data, loading: newsLoading, error: newsError, refetch } = useQuery<GetNewsQuery>(GetNewsDocument);
@@ -22,7 +23,7 @@ export const useAdminNewsList = () => {
   };
 
   return {
-    news: data?.news ?? [],
+    news: (data?.news ?? []).map(mapNews),
     newsLoading,
     newsError,
     deleteLoading,

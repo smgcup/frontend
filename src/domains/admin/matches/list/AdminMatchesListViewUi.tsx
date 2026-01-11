@@ -24,32 +24,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { type Match } from '@/domains/matches/contracts';
 
-type Match = {
-  id: string;
-  firstOpponent: { id: string; name: string };
-  secondOpponent: { id: string; name: string };
-  date: string;
-  status: 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'CANCELLED';
-  score1?: number;
-  score2?: number;
-};
-
+/**
+ * Props for the AdminMatchesListViewUi component
+ */
 type AdminMatchesListViewUiProps = {
-  matches: Match[];
-  matchesLoading: boolean;
-  matchesError?: unknown;
-  deleteLoading: boolean;
-  onDeleteMatch: (id: string) => Promise<void>;
+  matches: Match[]; // Array of matches to display
+  deleteLoading: boolean; // Whether a delete operation is in progress
+  onDeleteMatch: (id: string) => Promise<void>; // Callback function to delete a match
 };
 
-const AdminMatchesListViewUi = ({
-  matches,
-  matchesLoading,
-  matchesError,
-  deleteLoading,
-  onDeleteMatch,
-}: AdminMatchesListViewUiProps) => {
+const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: AdminMatchesListViewUiProps) => {
+  // Track which match is currently being deleted (for showing loading state on specific match)
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const formatDate = (dateString: string) => {
@@ -97,29 +84,6 @@ const AdminMatchesListViewUi = ({
     setDeletingId(null);
   };
 
-  if (matchesLoading) {
-    return (
-      <div className="py-4 lg:p-10">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading matches...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (matchesError) {
-    return (
-      <div className="py-4 lg:p-10">
-        <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
-          <p>Error loading matches. Please try again later.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8 py-4 lg:p-10">
       <AdminPageHeader
@@ -155,22 +119,25 @@ const AdminMatchesListViewUi = ({
       ) : (
         <div className="grid gap-4">
           {matches.map((match) => {
+            // Get styling configuration for the match status badge
             const statusConfig = getStatusConfig(match.status);
+            // Only show scores for LIVE or FINISHED matches
             const showScore = match.status === 'FINISHED' || match.status === 'LIVE';
 
             return (
+              /* Individual match card */
               <div
                 key={match.id}
                 className="group relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm"
               >
                 <div className="relative p-6 flex flex-col space-y-6">
-                  {/* Header with Round and Status */}
+                  {/* Header section: Match ID and status badge */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                       <Trophy className="h-3.5 w-3.5" />
                       <span>Match #{match.id}</span>
                     </div>
-                    {/* Status Badge */}
+                    {/* Status Badge: Shows match status with appropriate color coding */}
                     <span
                       className={cn(
                         'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold',
@@ -181,19 +148,22 @@ const AdminMatchesListViewUi = ({
                     </span>
                   </div>
 
-                  {/* Teams and Score */}
+                  {/* Teams and Score section: Displays both opponents and their scores */}
                   <div className="flex items-center justify-between gap-4">
+                    {/* First opponent */}
                     <div className="flex-1">
                       <div className="text-center group/team">
                         <div className="text-2xl font-bold tracking-tight group-hover/team:text-primary transition-colors">
                           {match.firstOpponent.name}
                         </div>
+                        {/* Show score if match is LIVE or FINISHED and score exists */}
                         {showScore && match.score1 !== undefined && (
                           <div className="text-3xl font-black mt-2 text-primary">{match.score1}</div>
                         )}
                       </div>
                     </div>
 
+                    {/* VS separator: Shows "VS" for upcoming matches, "—" for finished matches */}
                     <div className="shrink-0 flex flex-col items-center">
                       {match.status === 'FINISHED' ? (
                         <span className="text-2xl font-bold text-muted-foreground/30">—</span>
@@ -207,11 +177,13 @@ const AdminMatchesListViewUi = ({
                       )}
                     </div>
 
+                    {/* Second opponent */}
                     <div className="flex-1">
                       <div className="text-center group/team">
                         <div className="text-2xl font-bold tracking-tight group-hover/team:text-primary transition-colors">
                           {match.secondOpponent.name}
                         </div>
+                        {/* Show score if match is LIVE or FINISHED and score exists */}
                         {showScore && match.score2 !== undefined && (
                           <div className="text-3xl font-black mt-2 text-primary">{match.score2}</div>
                         )}
@@ -219,7 +191,7 @@ const AdminMatchesListViewUi = ({
                     </div>
                   </div>
 
-                  {/* Date, Time, and Venue */}
+                  {/* Match details section: Date, time, and venue information */}
                   <div className="pt-4 border-t space-y-2.5">
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4 text-primary/70" />
@@ -235,8 +207,9 @@ const AdminMatchesListViewUi = ({
                     </div>
                   </div>
 
-                  {/* Admin Actions */}
+                  {/* Admin Actions section: Buttons for managing the match */}
                   <div className="pt-4 border-t flex items-center justify-end gap-2">
+                    {/* Show "Manage Live" button only for LIVE matches */}
                     {match.status === 'LIVE' && (
                       <Button variant="outline" size="sm" asChild className="gap-2">
                         <Link href={`/admin/matches/${match.id}/live`}>
@@ -245,6 +218,7 @@ const AdminMatchesListViewUi = ({
                         </Link>
                       </Button>
                     )}
+                    {/* Dropdown menu with additional actions (Edit, Delete) */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-9 w-9">
@@ -253,18 +227,21 @@ const AdminMatchesListViewUi = ({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        {/* Edit match option */}
                         <DropdownMenuItem asChild>
                           <Link href={`/admin/matches/${match.id}/edit`} className="cursor-pointer">
                             <Pencil className="h-4 w-4 mr-2" />
                             Edit
                           </Link>
                         </DropdownMenuItem>
+                        {/* Delete match option with confirmation dialog */}
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <DropdownMenuItem
                               onSelect={(e) => e.preventDefault()}
                               className="text-destructive focus:text-destructive cursor-pointer"
                             >
+                              {/* Show loading state if this match is being deleted */}
                               {deletingId === match.id ? (
                                 <div className="flex items-center gap-2">
                                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -278,6 +255,7 @@ const AdminMatchesListViewUi = ({
                               )}
                             </DropdownMenuItem>
                           </AlertDialogTrigger>
+                          {/* Confirmation dialog for deletion */}
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>Delete Match</AlertDialogTitle>

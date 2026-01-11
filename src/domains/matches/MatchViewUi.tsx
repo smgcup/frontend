@@ -1,5 +1,5 @@
 import React from 'react';
-import type { MatchListItem } from './ssr/getMatchesPageData';
+import type { MatchListItem } from './contracts';
 import MatchCard from './components/MatchCard';
 
 type MatchViewUiProps = {

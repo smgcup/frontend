@@ -7,8 +7,10 @@ import {
   UpdateNewsDocument,
   UpdateNewsMutation,
   UpdateNewsMutationVariables,
-  UpdateNewsDto,
 } from '@/graphql';
+import type { NewsUpdate } from '@/domains/news/contracts';
+import { mapNewsById } from '@/domains/news/mappers/mapNews';
+import { mapNewsUpdateToDto } from '@/domains/news/mappers/mapNewsDto';
 
 export const useAdminNewsEdit = (newsId: string) => {
   const router = useRouter();
@@ -27,11 +29,11 @@ export const useAdminNewsEdit = (newsId: string) => {
     UpdateNewsMutationVariables
   >(UpdateNewsDocument);
 
-  const handleUpdateNews = async (updateNewsDto: UpdateNewsDto) => {
+  const handleUpdateNews = async (updateNews: NewsUpdate) => {
     const { data } = await updateNewsMutation({
       variables: {
         id: newsId,
-        updateNewsDto,
+        updateNewsDto: mapNewsUpdateToDto(updateNews),
       },
     });
 
@@ -43,7 +45,7 @@ export const useAdminNewsEdit = (newsId: string) => {
   };
 
   return {
-    news: data?.newsById ?? null,
+    news: data?.newsById ? mapNewsById(data.newsById) : null,
     newsLoading,
     newsError,
     updateLoading,

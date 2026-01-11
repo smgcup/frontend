@@ -1,7 +1,9 @@
 import type React from 'react';
+import Link from 'next/link';
 import { Calendar, Clock, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { MatchListItem } from '../ssr/getMatchesPageData';
+import type { MatchListItem } from '../contracts';
+import { Button } from '@/components/ui/button';
 
 type MatchCardProps = {
   match: MatchListItem;
@@ -104,6 +106,12 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
             <Clock className="h-4 w-4 text-primary/70" />
             <span className="font-medium">{formatTime(match.date)}</span>
           </div>
+        </div>
+
+        <div className="pt-4 border-t">
+          <Button asChild variant="outline" className="w-full">
+            <Link href={`/matches/${match.id}`}>{match.status === 'LIVE' ? 'View live' : 'View details'}</Link>
+          </Button>
         </div>
       </div>
     </div>

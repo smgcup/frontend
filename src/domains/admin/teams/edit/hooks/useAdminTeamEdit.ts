@@ -1,25 +1,18 @@
 'use client';
 
-import { useMutation, useQuery } from '@apollo/client/react';
+import { useMutation } from '@apollo/client/react';
 import {
   DeleteTeamDocument,
   DeleteTeamMutation,
   DeleteTeamMutationVariables,
-  TeamByIdDocument,
-  TeamByIdQuery,
-  TeamByIdQueryVariables,
   UpdateTeamDocument,
-  UpdateTeamDto,
   UpdateTeamMutation,
   UpdateTeamMutationVariables,
 } from '@/graphql';
+import type { TeamUpdate } from '@/domains/team/contracts';
+import { mapTeamUpdateToDto } from '@/domains/team/mappers/mapTeamDto';
 
 export const useAdminTeamEdit = (teamId: string) => {
-  const { data, loading: teamLoading, error: teamError } = useQuery<TeamByIdQuery, TeamByIdQueryVariables>(
-    TeamByIdDocument,
-    { variables: { id: teamId } },
-  );
-
   const [updateTeamMutation, { loading: updateLoading, error: updateError }] = useMutation<
     UpdateTeamMutation,
     UpdateTeamMutationVariables
@@ -30,9 +23,9 @@ export const useAdminTeamEdit = (teamId: string) => {
     DeleteTeamMutationVariables
   >(DeleteTeamDocument);
 
-  const handleUpdateTeam = async (dto: UpdateTeamDto) => {
+  const handleUpdateTeam = async (dto: TeamUpdate) => {
     return await updateTeamMutation({
-      variables: { id: teamId, dto },
+      variables: { id: teamId, dto: mapTeamUpdateToDto(dto) },
     });
   };
 
@@ -43,16 +36,11 @@ export const useAdminTeamEdit = (teamId: string) => {
   };
 
   return {
-    team: data?.teamById,
-    teamLoading,
-    teamError,
     updateLoading,
-    updateError,
+    updateError: updateError ?? null,
     deleteLoading,
-    deleteError,
+    deleteError: deleteError ?? null,
     onUpdateTeam: handleUpdateTeam,
     onDeleteTeam: handleDeleteTeam,
   };
 };
-
-

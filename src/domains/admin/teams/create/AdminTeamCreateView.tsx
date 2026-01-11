@@ -7,7 +7,11 @@ import { useAdminTeamCreate } from './hooks/useAdminTeamCreate';
 const AdminTeamCreateView = () => {
   const { onAdminCreateTeam, adminCreateTeamLoading, adminCreateTeamError } = useAdminTeamCreate();
   return (
-    <AdminTeamCreateViewUi onAdminCreateTeam={onAdminCreateTeam} adminCreateTeamLoading={adminCreateTeamLoading} />
+    <AdminTeamCreateViewUi
+      onAdminCreateTeam={onAdminCreateTeam}
+      adminCreateTeamLoading={adminCreateTeamLoading}
+      adminCreateTeamError={adminCreateTeamError?.message ?? null}
+    />
   );
 };
 

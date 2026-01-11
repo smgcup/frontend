@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,10 +18,10 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Plus, Pencil, Trash2, Clock, FileText, ImageIcon, Loader2 } from 'lucide-react';
-import { GetNewsQuery } from '@/graphql';
+import type { News } from '@/domains/news/contracts';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
-type NewsItem = GetNewsQuery['news'][number];
+type NewsItem = News;
 
 type AdminNewsListViewUiProps = {
   news: NewsItem[];
@@ -31,7 +31,13 @@ type AdminNewsListViewUiProps = {
   onDeleteNews: (id: string) => Promise<void>;
 };
 
-const AdminNewsListViewUi = ({ news, newsLoading, newsError, deleteLoading, onDeleteNews }: AdminNewsListViewUiProps) => {
+const AdminNewsListViewUi = ({
+  news,
+  newsLoading,
+  newsError,
+  deleteLoading,
+  onDeleteNews,
+}: AdminNewsListViewUiProps) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const formatDate = (dateString: string) => {

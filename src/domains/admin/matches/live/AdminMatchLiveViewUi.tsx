@@ -7,105 +7,65 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Goal, AlertTriangle, Ban, Shield, Target, X, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
-import EventTimeline, { MatchEventType } from './components/EventTimeline';
+import EventTimeline from '@/domains/matches/components/EventTimeline';
 import AddEventDialog from './components/AddEventDialog';
-import type { PlayerPosition } from '@/generated/types';
-
-type Player = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  position?: PlayerPosition;
-};
-
-type Team = {
-  id: string;
-  name: string;
-  players: Player[];
-};
-
-type MatchEvent = {
-  id: string;
-  type: MatchEventType;
-  minute: number;
-  player?: Player;
-  team: Team;
-};
-
-type Match = {
-  id: string;
-  firstOpponent: Team;
-  secondOpponent: Team;
-  date: string;
-  status: 'LIVE';
-  score1: number;
-  score2: number;
-};
+import { type Match, type MatchEvent } from '@/domains/matches/contracts';
+import { type AddEventInput } from './contracts';
+import { MatchEventType } from '@/generated/types';
 
 type AdminMatchLiveViewUiProps = {
-  match: Match | null;
+  match: Match;
   events: MatchEvent[];
-  matchLoading: boolean;
   currentMinute: number;
-  onAddEvent: (data: {
-    type: MatchEventType;
-    minute: number;
-    playerId?: string;
-    teamId: string;
-    payload?: unknown;
-  }) => Promise<void>;
+  onAddEvent: (data: AddEventInput) => Promise<void>;
   onDeleteEvent?: (id: string) => Promise<void>;
   deletingEventId?: string | null;
   onEndMatch: () => Promise<void>;
 };
 
+// Predefined quick event types that can be added with a single click
+// Each event has a type, display label, icon component, and color styling
 const QUICK_EVENTS = [
-  { type: MatchEventType.GOAL, label: 'Goal', icon: Goal, color: 'bg-green-500 hover:bg-green-600' },
+  { type: MatchEventType.Goal, label: 'Goal', icon: Goal, color: 'bg-green-500 hover:bg-green-600' },
   {
-    type: MatchEventType.YELLOW_CARD,
+    type: MatchEventType.YellowCard,
     label: 'Yellow Card',
     icon: AlertTriangle,
     color: 'bg-yellow-500 hover:bg-yellow-600',
   },
-  { type: MatchEventType.RED_CARD, label: 'Red Card', icon: Ban, color: 'bg-red-500 hover:bg-red-600' },
-  { type: MatchEventType.GOALKEEPER_SAVE, label: 'Save', icon: Shield, color: 'bg-blue-500 hover:bg-blue-600' },
+  { type: MatchEventType.RedCard, label: 'Red Card', icon: Ban, color: 'bg-red-500 hover:bg-red-600' },
+  { type: MatchEventType.GoalkeeperSave, label: 'Save', icon: Shield, color: 'bg-blue-500 hover:bg-blue-600' },
   {
-    type: MatchEventType.PENALTY_SCORED,
+    type: MatchEventType.PenaltyScored,
     label: 'Penalty Goal',
     icon: Target,
     color: 'bg-green-500 hover:bg-green-600',
   },
-  { type: MatchEventType.PENALTY_MISSED, label: 'Penalty Miss', icon: X, color: 'bg-gray-500 hover:bg-gray-600' },
+  { type: MatchEventType.PenaltyMissed, label: 'Penalty Miss', icon: X, color: 'bg-gray-500 hover:bg-gray-600' },
 ];
 
 const AdminMatchLiveViewUi = ({
   match,
   events,
-  matchLoading,
   currentMinute,
   onAddEvent,
   onDeleteEvent,
   deletingEventId,
   onEndMatch,
 }: AdminMatchLiveViewUiProps) => {
+  // State to track if the match is currently being ended (prevents double-clicks)
   const [endingMatch, setEndingMatch] = useState(false);
 
-  const teams = useMemo(() => (match ? [match.firstOpponent, match.secondOpponent] : []), [match]);
-  const { score1, score2 } = useMemo(() => {
-    if (!match) return { score1: 0, score2: 0 };
-    const scoringTypes = new Set<MatchEventType>([MatchEventType.GOAL, MatchEventType.PENALTY_SCORED]);
-    const firstId = match.firstOpponent.id;
-    const secondId = match.secondOpponent.id;
-    let s1 = 0;
-    let s2 = 0;
-    for (const e of events) {
-      if (!scoringTypes.has(e.type)) continue;
-      if (e.team.id === firstId) s1 += 1;
-      if (e.team.id === secondId) s2 += 1;
-    }
-    return { score1: Math.max(match.score1 ?? 0, s1), score2: Math.max(match.score2 ?? 0, s2) };
-  }, [events, match]);
+  // Extract teams array from match data, memoized to avoid unnecessary recalculations
+  const teams = useMemo(() => [match.firstOpponent, match.secondOpponent], [match]);
 
+  // Get scores directly from the match data
+  const { score1, score2 } = useMemo(() => {
+    return { score1: match.score1 ?? 0, score2: match.score2 ?? 0 };
+  }, [match]);
+
+  // Handler for ending the match - wraps the onEndMatch callback with loading state
+  // Ensures the button shows loading state and prevents multiple simultaneous calls
   const handleEndMatch = async () => {
     setEndingMatch(true);
     try {
@@ -114,29 +74,6 @@ const AdminMatchLiveViewUi = ({
       setEndingMatch(false);
     }
   };
-
-  if (matchLoading) {
-    return (
-      <div className="py-4 lg:p-10">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading match...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!match) {
-    return (
-      <div className="py-4 lg:p-10">
-        <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
-          <p>Match not found or is not live. Please check the match status.</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 py-4 lg:p-10">

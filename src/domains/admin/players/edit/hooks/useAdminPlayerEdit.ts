@@ -1,44 +1,18 @@
 'use client';
 
-import { useMutation, useQuery } from '@apollo/client/react';
+import { useMutation } from '@apollo/client/react';
 import {
   DeletePlayerDocument,
   DeletePlayerMutation,
   DeletePlayerMutationVariables,
-  TeamsWithPlayersDocument,
-  TeamsWithPlayersQuery,
-  TeamsWithPlayersQueryVariables,
   UpdatePlayerDocument,
-  UpdatePlayerDto,
   UpdatePlayerMutation,
   UpdatePlayerMutationVariables,
+  type UpdatePlayerDto,
 } from '@/graphql';
+import type { PlayerUpdate } from '@/domains/player/contracts';
 
 export const useAdminPlayerEdit = (playerId: string) => {
-  // NOTE: We intentionally avoid `playerById { team { ... } }` because the backend can throw:
-  // "Cannot return null for non-nullable field Player.team."
-  // That bubbles and results in `playerById` being null => empty edit form.
-  // TeamsWithPlayers does not request `Player.team`, so we can still load player data and derive the team from nesting.
-  const {
-    data: teamsData,
-    loading: playerLoading,
-    error: playerError,
-  } = useQuery<TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables>(TeamsWithPlayersDocument);
-
-  const player = (() => {
-    const teams = teamsData?.teams ?? [];
-    for (const team of teams) {
-      const found = (team.players ?? []).find((p) => p.id === playerId);
-      if (found) {
-        return {
-          ...found,
-          team: { id: team.id, name: team.name },
-        };
-      }
-    }
-    return undefined;
-  })();
-
   const [updatePlayerMutation, { loading: updateLoading, error: updateError }] = useMutation<
     UpdatePlayerMutation,
     UpdatePlayerMutationVariables
@@ -49,9 +23,20 @@ export const useAdminPlayerEdit = (playerId: string) => {
     DeletePlayerMutationVariables
   >(DeletePlayerDocument);
 
-  const handleUpdatePlayer = async (dto: UpdatePlayerDto) => {
+  const handleUpdatePlayer = async (dto: PlayerUpdate) => {
+    const gqlDto: UpdatePlayerDto = {};
+    if (dto.firstName !== undefined) gqlDto.firstName = dto.firstName;
+    if (dto.lastName !== undefined) gqlDto.lastName = dto.lastName;
+    if (dto.teamId !== undefined) gqlDto.teamId = dto.teamId;
+    if (dto.height !== undefined) gqlDto.height = dto.height;
+    if (dto.weight !== undefined) gqlDto.weight = dto.weight;
+    if (dto.yearOfBirth !== undefined) gqlDto.yearOfBirth = dto.yearOfBirth;
+    if (dto.imageUrl !== undefined) gqlDto.imageUrl = dto.imageUrl;
+    if (dto.position !== undefined) gqlDto.position = dto.position;
+    if (dto.preferredFoot !== undefined) gqlDto.preferredFoot = dto.preferredFoot;
+
     return await updatePlayerMutation({
-      variables: { id: playerId, dto },
+      variables: { id: playerId, dto: gqlDto },
     });
   };
 
@@ -62,16 +47,11 @@ export const useAdminPlayerEdit = (playerId: string) => {
   };
 
   return {
-    player,
-    playerLoading,
-    playerError,
     updateLoading,
-    updateError,
+    updateError: updateError ?? null,
     deleteLoading,
-    deleteError,
+    deleteError: deleteError ?? null,
     onUpdatePlayer: handleUpdatePlayer,
     onDeletePlayer: handleDeletePlayer,
   };
 };
-
-
