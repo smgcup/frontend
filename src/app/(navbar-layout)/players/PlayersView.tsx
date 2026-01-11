@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import type { PlayersPageData, PlayerStanding, StandingsCategory } from './ssr/getPlayersPageData';
 import { cn } from '@/lib/utils';
 
@@ -29,11 +30,17 @@ const PlayersView = ({ data }: PlayersViewProps) => {
 
 const StandingsColumn = ({ category }: { category: StandingsCategory }) => {
   return (
-    <div className="min-w-[85vw] md:min-w-0 snap-center shrink-0 md:shrink">
-      <div className="flex items-center gap-1 mb-4">
-        <h2 className="text-xl font-bold">{category.title}</h2>
+    <div className="min-w-[80vw] md:min-w-0 snap-center shrink-0 md:shrink">
+      <button
+        type="button"
+        className="group flex items-center gap-1 mb-4 cursor-pointer text-left px-2 py-1 -mx-2 -my-1 rounded-md transition-colors md:hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        onClick={() => {
+          // TODO: Add navigation/handler logic
+        }}
+      >
+        <span className="text-xl font-bold">{category.title}</span>
         <span className="text-muted-foreground text-sm">&gt;</span>
-      </div>
+      </button>
 
       <div className="bg-card rounded-xl overflow-hidden border">
         {category.players.map((player, index) => (
@@ -58,7 +65,13 @@ const PlayerRow = ({ player, isLast }: { player: PlayerStanding; isLast: boolean
       <div className="w-10 h-10 mr-3 shrink-0">
         <div className="w-10 h-10 rounded-full overflow-hidden bg-muted">
           {player.imageUrl ? (
-            <img src={player.imageUrl} alt={player.lastName} className="w-full h-full object-cover" />
+            <Image
+              src={player.imageUrl}
+              alt={player.lastName}
+              width={40}
+              height={40}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-xs">?</div>
           )}

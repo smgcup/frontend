@@ -55,7 +55,6 @@ const AdminMatchLiveViewUi = ({
 }: AdminMatchLiveViewUiProps) => {
   // State to track if the match is currently being ended (prevents double-clicks)
   const [endingMatch, setEndingMatch] = useState(false);
-  console.log('match', match);
 
   // Extract teams array from match data, memoized to avoid unnecessary recalculations
   const teams = useMemo(() => [match.firstOpponent, match.secondOpponent], [match]);

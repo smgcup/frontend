@@ -10,8 +10,6 @@ const AdminMatchEditPage = async ({ params }: AdminMatchEditPageProps) => {
 
   const { teams, errorMessage } = await getAdminMatchEditPageData();
 
-  console.log('teams', teams);
-
   if (errorMessage) {
     return <div>Error loading teams: {errorMessage}</div>;
   }

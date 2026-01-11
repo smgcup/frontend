@@ -25,8 +25,6 @@ export const getAdminMatchLivePageData = async (matchId: string) => {
   });
 
   const matchRow = matchData?.matchById;
-  console.log('matchRow', matchRow);
-  console.log('matchData', matchData);
   const mappedMatch = matchRow ? mapMatchById(matchRow) : null;
   const match: Match | null =
     mappedMatch && matchRow

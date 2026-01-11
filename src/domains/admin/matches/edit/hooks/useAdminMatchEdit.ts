@@ -60,7 +60,6 @@ export const useAdminMatchEdit = (matchId: string) => {
     UpdateMatchMutation,
     UpdateMatchMutationVariables
   >(UpdateMatchDocument);
-  console.log('matchData', matchData);
 
   // Transform the raw GraphQL match data into the domain model format
   const match = useMemo(() => {
