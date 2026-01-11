@@ -8,7 +8,7 @@ query TeamsWithPlayers {
       firstName
       lastName
       position
-      prefferedFoot
+      preferredFoot
       height
       weight
       yearOfBirth

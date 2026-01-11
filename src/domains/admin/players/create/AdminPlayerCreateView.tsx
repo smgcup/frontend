@@ -1,10 +1,10 @@
 'use client';
 import AdminPlayerCreateViewUi from './AdminPlayerCreateViewUi';
 import { useAdminPlayerCreate } from './hooks/useAdminPlayerCreate';
-import type { PlayerTeam } from '@/domains/player/contracts';
+import type { Team } from '@/domains/team/contracts';
 
 type AdminPlayerCreateViewProps = {
-  initialTeams: PlayerTeam[];
+  initialTeams: Team[];
 };
 
 const AdminPlayerCreateView = ({ initialTeams }: AdminPlayerCreateViewProps) => {

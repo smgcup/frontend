@@ -1,7 +1,8 @@
 'use client';
 
-import type { PlayerCreate, PlayerTeam } from '@/domains/player/contracts';
-import { PlayerPosition, PreferredFoot } from '@/domains/player/contracts';
+import type { PlayerCreate } from '@/domains/player/contracts';
+import type { Team } from '@/domains/team/contracts';
+import { PlayerPosition, PreferredFoot } from '@/graphql';
 import { ErrorLike } from '@apollo/client';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminPlayerCreateViewUiProps = {
-  teams: PlayerTeam[];
+  teams: Team[];
   teamsLoading: boolean;
   teamsError: ErrorLike | null;
   onAdminPlayerCreate: (createPlayer: PlayerCreate) => void | Promise<unknown>;

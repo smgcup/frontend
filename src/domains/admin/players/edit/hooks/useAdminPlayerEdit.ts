@@ -35,7 +35,7 @@ export const useAdminPlayerEdit = (playerId: string) => {
     if (dto.yearOfBirth !== undefined) gqlDto.yearOfBirth = dto.yearOfBirth;
     if (dto.imageUrl !== undefined) gqlDto.imageUrl = dto.imageUrl;
     if (dto.position !== undefined) gqlDto.position = dto.position as unknown as GqlPlayerPosition;
-    if (dto.preferredFoot !== undefined) gqlDto.prefferedFoot = dto.preferredFoot as unknown as GqlPreferredFoot;
+    if (dto.preferredFoot !== undefined) gqlDto.preferredFoot = dto.preferredFoot as unknown as GqlPreferredFoot;
 
     return await updatePlayerMutation({
       variables: { id: playerId, dto: gqlDto },

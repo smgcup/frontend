@@ -1,5 +1,6 @@
-import type { PlayerEdit, PlayerTeam } from '@/domains/player/contracts';
-import { PlayerPosition, PreferredFoot } from '@/domains/player/contracts';
+import type { PlayerEdit } from '@/domains/player/contracts';
+import type { Team } from '@/domains/team/contracts';
+import { PlayerPosition, PreferredFoot } from '@/graphql';
 import type { PlayerLike } from '@/domains/player/mappers/types';
 
 type PlayerEditLike = PlayerLike & {
@@ -19,10 +20,9 @@ const isEnumValue = <T extends Record<string, string>>(enumObj: T, v: unknown): 
   return typeof v === 'string' && (Object.values(enumObj) as string[]).includes(v);
 };
 
-export const mapPlayerEdit = (player: PlayerEditLike, team?: PlayerTeam | null): PlayerEdit => {
+export const mapPlayerEdit = (player: PlayerEditLike, team?: Team | null): PlayerEdit => {
   const position = isEnumValue(PlayerPosition, player.position) ? player.position : PlayerPosition.Goalkeeper;
-  const preferredFootRaw = player.preferredFoot ?? player.prefferedFoot;
-  const preferredFoot = isEnumValue(PreferredFoot, preferredFootRaw) ? preferredFootRaw : PreferredFoot.Right;
+  const preferredFoot = isEnumValue(PreferredFoot, player.preferredFoot) ? player.preferredFoot : PreferredFoot.Right;
 
   return {
     id: player.id,

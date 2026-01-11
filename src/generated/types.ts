@@ -51,7 +51,7 @@ export type CreatePlayerDto = {
   imageUrl?: InputMaybe<Scalars['String']['input']>;
   lastName: Scalars['String']['input'];
   position: PlayerPosition;
-  prefferedFoot: PreferredFoot;
+  preferredFoot: PreferredFoot;
   teamId: Scalars['String']['input'];
   weight: Scalars['Float']['input'];
   yearOfBirth: Scalars['Float']['input'];
@@ -219,7 +219,7 @@ export type Player = {
   imageUrl?: Maybe<Scalars['String']['output']>;
   lastName: Scalars['String']['output'];
   position: PlayerPosition;
-  prefferedFoot: PreferredFoot;
+  preferredFoot: PreferredFoot;
   team: Team;
   weight: Scalars['Float']['output'];
   yearOfBirth: Scalars['Float']['output'];
@@ -306,7 +306,7 @@ export type UpdatePlayerDto = {
   imageUrl?: InputMaybe<Scalars['String']['input']>;
   lastName?: InputMaybe<Scalars['String']['input']>;
   position?: InputMaybe<PlayerPosition>;
-  prefferedFoot?: InputMaybe<PreferredFoot>;
+  preferredFoot?: InputMaybe<PreferredFoot>;
   teamId?: InputMaybe<Scalars['String']['input']>;
   weight?: InputMaybe<Scalars['Float']['input']>;
   yearOfBirth?: InputMaybe<Scalars['Float']['input']>;

@@ -7,5 +7,4 @@ export type PlayerLike = {
   height?: number | string | null;
   weight?: number | string | null;
   preferredFoot?: string | null;
-  prefferedFoot?: string | null;
 };

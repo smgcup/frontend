@@ -1,7 +1,8 @@
 'use client';
 
-import type { PlayerEdit, PlayerTeam, PlayerUpdate } from '@/domains/player/contracts';
-import { PreferredFoot, PlayerPosition } from '@/domains/player/contracts';
+import type { PlayerEdit, PlayerUpdate } from '@/domains/player/contracts';
+import type { Team } from '@/domains/team/contracts';
+import { PlayerPosition, PreferredFoot } from '@/graphql';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ErrorLike } from '@apollo/client';
@@ -26,7 +27,7 @@ import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
 
 type AdminPlayerEditViewUiProps = {
-  teams: PlayerTeam[];
+  teams: Team[];
   player: PlayerEdit | undefined;
   updateLoading: boolean;
   updateError: ErrorLike | null;
