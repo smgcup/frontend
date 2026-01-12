@@ -1,71 +1,75 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
-
-type Team = {
-  id: string;
-  name: string;
-};
+import { MatchStatus } from '@/graphql';
+import { Team } from '@/domains/team/contracts';
 
 type AdminMatchCreateViewUiProps = {
   teams: Team[];
-  teamsLoading?: boolean;
-  teamsError?: unknown;
   externalErrors?: Record<string, string>;
   submitError?: string | null;
-  onCreateMatch: (data: { firstOpponentId: string; secondOpponentId: string; date: string; status: string }) => Promise<void>;
+  onCreateMatch: (data: {
+    firstOpponentId: string;
+    secondOpponentId: string;
+    date: string;
+    status: MatchStatus;
+  }) => Promise<void>;
   createLoading: boolean;
 };
 
-const MATCH_STATUSES = [
-  { value: 'SCHEDULED', label: 'Scheduled' },
-  { value: 'LIVE', label: 'Live' },
-  { value: 'FINISHED', label: 'Finished' },
-  { value: 'CANCELLED', label: 'Cancelled' },
-];
-
 const AdminMatchCreateViewUi = ({
   teams,
-  teamsLoading,
-  teamsError,
   externalErrors,
   submitError,
   onCreateMatch,
   createLoading,
 }: AdminMatchCreateViewUiProps) => {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     firstOpponentId: '',
     secondOpponentId: '',
     date: '',
-    status: 'SCHEDULED',
+    status: MatchStatus.Scheduled,
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  // Local (client-side) validation errors. External errors come from the server via props.
+  // We intentionally *do not* sync external errors into local state to avoid setState-in-effect warnings.
+  const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    if (externalErrors && Object.keys(externalErrors).length > 0) {
-      setErrors((prev) => ({ ...prev, ...externalErrors }));
-    }
-  }, [externalErrors]);
+  // Merge local and external errors - local errors take precedence
+  const getError = (field: string): string => {
+    return Object.prototype.hasOwnProperty.call(localErrors, field)
+      ? localErrors[field]
+      : externalErrors?.[field] ?? '';
+  };
+
+  const errors = {
+    firstOpponentId: getError('firstOpponentId'),
+    secondOpponentId: getError('secondOpponentId'),
+    date: getError('date'),
+    status: getError('status'),
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+    if (errors[name as keyof typeof errors]) {
+      setLocalErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+    if (errors[name as keyof typeof errors]) {
+      setLocalErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -80,7 +84,11 @@ const AdminMatchCreateViewUi = ({
       newErrors.secondOpponentId = 'Second opponent is required';
     }
 
-    if (formData.firstOpponentId && formData.secondOpponentId && formData.firstOpponentId === formData.secondOpponentId) {
+    if (
+      formData.firstOpponentId &&
+      formData.secondOpponentId &&
+      formData.firstOpponentId === formData.secondOpponentId
+    ) {
       newErrors.secondOpponentId = 'Teams must be different';
     }
 
@@ -88,11 +96,12 @@ const AdminMatchCreateViewUi = ({
       newErrors.date = 'Date is required';
     }
 
-    if (!formData.status) {
+    // Status has a default value, but validate it's a valid enum value
+    if (!formData.status || !Object.values(MatchStatus).includes(formData.status as MatchStatus)) {
       newErrors.status = 'Status is required';
     }
 
-    setErrors(newErrors);
+    setLocalErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -107,7 +116,7 @@ const AdminMatchCreateViewUi = ({
   };
 
   const handleCancel = () => {
-    window.history.back();
+    router.push('/admin/matches');
   };
 
   return (
@@ -122,17 +131,10 @@ const AdminMatchCreateViewUi = ({
 
         <form onSubmit={handleSubmit} className="space-y-10">
           <CardContent>
-            {(Boolean(submitError) || Boolean(teamsError)) && (
+            {Boolean(submitError) && (
               <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive mb-6">
                 <p className="font-medium">Operation failed</p>
                 {submitError && <p className="mt-1 text-sm">{submitError}</p>}
-                {Boolean(teamsError) && (
-                  <p className="mt-1 text-sm">
-                    {typeof teamsError === 'object' && teamsError && 'message' in teamsError
-                      ? String((teamsError as { message?: unknown }).message ?? 'Failed to load teams.')
-                      : 'Failed to load teams.'}
-                  </p>
-                )}
               </div>
             )}
             <FieldGroup>
@@ -143,21 +145,32 @@ const AdminMatchCreateViewUi = ({
                   <Select
                     value={formData.firstOpponentId}
                     onValueChange={(value) => handleSelectChange('firstOpponentId', value)}
-                    disabled={teamsLoading || createLoading}
+                    disabled={createLoading || teams.length === 0}
                   >
                     <SelectTrigger id="firstOpponentId" className="w-full" aria-invalid={!!errors.firstOpponentId}>
-                      <SelectValue placeholder="Select first team" />
+                      <SelectValue placeholder={teams.length === 0 ? 'No teams available' : 'Select first team'} />
                     </SelectTrigger>
                     <SelectContent>
-                      {teams.map((team) => (
-                        <SelectItem key={team.id} value={team.id}>
-                          {team.name}
+                      {teams.length === 0 ? (
+                        <SelectItem value="" disabled>
+                          No teams available
                         </SelectItem>
-                      ))}
+                      ) : (
+                        teams.map((team) => (
+                          <SelectItem key={team.id} value={team.id}>
+                            {team.name}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   {errors.firstOpponentId && <FieldError>{errors.firstOpponentId}</FieldError>}
-                  <FieldDescription>Select the first team</FieldDescription>
+                  {teams.length === 0 && !errors.firstOpponentId && (
+                    <FieldDescription className="text-destructive">
+                      No teams available. Please create teams before creating a match.
+                    </FieldDescription>
+                  )}
+                  {teams.length > 0 && <FieldDescription>Select the first team</FieldDescription>}
                 </FieldContent>
               </Field>
 
@@ -168,21 +181,32 @@ const AdminMatchCreateViewUi = ({
                   <Select
                     value={formData.secondOpponentId}
                     onValueChange={(value) => handleSelectChange('secondOpponentId', value)}
-                    disabled={teamsLoading || createLoading}
+                    disabled={createLoading || teams.length === 0}
                   >
                     <SelectTrigger id="secondOpponentId" className="w-full" aria-invalid={!!errors.secondOpponentId}>
-                      <SelectValue placeholder="Select second team" />
+                      <SelectValue placeholder={teams.length === 0 ? 'No teams available' : 'Select second team'} />
                     </SelectTrigger>
                     <SelectContent>
-                      {teams.map((team) => (
-                        <SelectItem key={team.id} value={team.id}>
-                          {team.name}
+                      {teams.length === 0 ? (
+                        <SelectItem value="" disabled>
+                          No teams available
                         </SelectItem>
-                      ))}
+                      ) : (
+                        teams.map((team) => (
+                          <SelectItem key={team.id} value={team.id}>
+                            {team.name}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   {errors.secondOpponentId && <FieldError>{errors.secondOpponentId}</FieldError>}
-                  <FieldDescription>Select the second team</FieldDescription>
+                  {teams.length === 0 && !errors.secondOpponentId && (
+                    <FieldDescription className="text-destructive">
+                      No teams available. Please create teams before creating a match.
+                    </FieldDescription>
+                  )}
+                  {teams.length > 0 && <FieldDescription>Select the second team</FieldDescription>}
                 </FieldContent>
               </Field>
 
@@ -217,9 +241,9 @@ const AdminMatchCreateViewUi = ({
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      {MATCH_STATUSES.map((status) => (
-                        <SelectItem key={status.value} value={status.value}>
-                          {status.label}
+                      {Object.values(MatchStatus).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -237,7 +261,7 @@ const AdminMatchCreateViewUi = ({
             </Button>
             <Button
               type="submit"
-              disabled={createLoading || teamsLoading}
+              disabled={createLoading || teams.length === 0}
               className="w-full sm:w-auto cursor-pointer"
             >
               {createLoading ? 'Creating...' : 'Create Match'}
@@ -250,4 +274,3 @@ const AdminMatchCreateViewUi = ({
 };
 
 export default AdminMatchCreateViewUi;
-

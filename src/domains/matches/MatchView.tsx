@@ -1,7 +1,7 @@
 import React from 'react';
 import MatchViewUi from './MatchViewUi';
 
-import type { MatchListItem } from './ssr/getMatchesPageData';
+import type { MatchListItem } from './contracts';
 
 type MatchViewProps = {
   matches: MatchListItem[];

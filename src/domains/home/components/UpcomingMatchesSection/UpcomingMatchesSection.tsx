@@ -2,47 +2,24 @@ import Link from 'next/link';
 import MatchCard from '@/domains/matches/components/MatchCard';
 import { Button } from '@/components/ui';
 import { ArrowRight, Trophy } from 'lucide-react';
-import type { Team } from '@/domains/team/contracts';
-import type { MatchListItem } from '@/domains/matches/ssr/getMatchesPageData';
+import type { MatchListItem } from '@/domains/matches/contracts';
 
 type UpcomingMatchesSectionProps = {
-  teams: Team[];
+  matches: MatchListItem[];
 };
-const UpcomingMatchesSection = ({}: UpcomingMatchesSectionProps) => {
-  const matches: MatchListItem[] = [
-    {
-      id: '1',
-      date: '2024-01-15T14:00:00',
-      status: 'SCHEDULED',
-      firstOpponent: { id: '10a', name: '10A' },
-      secondOpponent: { id: '10b', name: '10B' },
-    },
-    {
-      id: '2',
-      date: '2024-01-16T15:30:00',
-      status: 'SCHEDULED',
-      firstOpponent: { id: '11a', name: '11A' },
-      secondOpponent: { id: '11b', name: '11B' },
-    },
-    {
-      id: '3',
-      date: '2024-01-17T16:00:00',
-      status: 'SCHEDULED',
-      firstOpponent: { id: '12a', name: '12A' },
-      secondOpponent: { id: '12b', name: '12B' },
-    },
-    {
-      id: '4',
-      date: '2024-01-18T14:30:00',
-      status: 'SCHEDULED',
-      firstOpponent: { id: '9a', name: '9A' },
-      secondOpponent: { id: '9b', name: '9B' },
-    },
-  ];
+const UpcomingMatchesSection = ({ matches }: UpcomingMatchesSectionProps) => {
+  const featuredMatches = matches
+    .filter((m) => m.status === 'LIVE' || m.status === 'SCHEDULED')
+    .sort((a, b) => {
+      // Live first
+      if (a.status === 'LIVE' && b.status !== 'LIVE') return -1;
+      if (b.status === 'LIVE' && a.status !== 'LIVE') return 1;
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    });
 
   // Show only first 3 matches
-  const displayedMatches = matches.slice(0, 3);
-  const hasMoreMatches = matches.length > 3;
+  const displayedMatches = featuredMatches.slice(0, 3);
+  const hasMoreMatches = featuredMatches.length > 3;
 
   return (
     <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
@@ -56,7 +33,7 @@ const UpcomingMatchesSection = ({}: UpcomingMatchesSectionProps) => {
               <span>Live Schedule</span>
             </div>
             <h2 className="text-4xl font-black tracking-tight sm:text-5xl bg-linear-to-b from-foreground to-foreground/70 bg-clip-text text-transparent pb-1.5">
-              Upcoming Matches
+              Live &amp; Upcoming Matches
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl leading-relaxed">
               Don&apos;t miss the exciting matches between the teams in the league

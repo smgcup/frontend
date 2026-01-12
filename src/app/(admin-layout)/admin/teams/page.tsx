@@ -1,7 +1,12 @@
-import AdminTeamsView from '@/domains/admin/teams/AdminTeamsView';
+import AdminTeamsView from '@/domains/admin/teams/list/AdminTeamsView';
+import { getAdminTeamsListPageData } from '@/domains/admin/teams/list/ssr/getAdminTeamsListPageData';
 
-const AdminTeamsPage = () => {
-  return <AdminTeamsView />;
-};
+export default async function AdminTeamsPage() {
+  const { teams, teamsErrorMessage } = await getAdminTeamsListPageData();
 
-export default AdminTeamsPage;
+  if (teamsErrorMessage) {
+    return <div>Error loading teams: {teamsErrorMessage}</div>;
+  }
+
+  return <AdminTeamsView initialTeams={teams} />;
+}
