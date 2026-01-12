@@ -1,5 +1,5 @@
-import { getPlayersPageData } from './ssr/getPlayersPageData';
-import PlayersView from './PlayersView';
+import PlayersView from '@/domains/players/PlayersView';
+import { getPlayersPageData } from '@/domains/players/ssr/getPlayersPageData';
 
 export const dynamic = 'force-dynamic';
 

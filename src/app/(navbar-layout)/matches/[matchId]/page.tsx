@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import EventTimeline from '@/domains/matches/components/EventTimeline';
 import { getMatchDetailPageData } from '@/domains/matches/ssr/getMatchDetailPageData';
-import RefreshButton from './RefreshButton';
+import RefreshButton from '../../../../domains/matches/components/RefreshButton';
 import { MatchEventType } from '@/generated/types';
 
 type MatchDetailPageProps = {
