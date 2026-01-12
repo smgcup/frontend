@@ -1,19 +1,28 @@
-import { getClient } from '@/lib/apollo-rsc';
-import { TeamsWithPlayersDocument, TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables } from '@/graphql';
-import AdminPlayersListViewUi from './AdminPlayersListViewUi';
+'use client';
 
-const AdminPlayersListView = async () => {
-  const client = await getClient();
+import AdminPlayersListViewUi from './AdminPlayersListViewUi';
+import { useAdminPlayersList } from './hooks/useAdminPlayersList';
+import type { TeamWithPlayers } from '@/domains/team/contracts';
+
+type AdminPlayersListViewProps = {
+  initialTeams: TeamWithPlayers[];
+};
+
+const AdminPlayersListView = ({ initialTeams }: AdminPlayersListViewProps) => {
   const currentYear = new Date().getFullYear();
 
-  const { data, error } = await client.query<TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables>({
-    query: TeamsWithPlayersDocument,
-  });
+  const { teams, players, actionError, deletingPlayerId, onDeletePlayer } = useAdminPlayersList(initialTeams);
 
-  const teams = data?.teams ?? [];
-  const players = teams.flatMap((t) => t.players ?? []);
-
-  return <AdminPlayersListViewUi teams={teams} players={players} currentYear={currentYear} error={error} />;
+  return (
+    <AdminPlayersListViewUi
+      teams={teams}
+      players={players}
+      currentYear={currentYear}
+      actionError={actionError}
+      deletingPlayerId={deletingPlayerId}
+      onDeletePlayer={onDeletePlayer}
+    />
+  );
 };
 
 export default AdminPlayersListView;

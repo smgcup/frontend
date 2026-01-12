@@ -1,0 +1,31 @@
+query MatchById($id: String!) {
+  matchById(id: $id) {
+    id
+    date
+    status
+    score1
+    score2
+    firstOpponent {
+      id
+      name
+      players {
+        id
+        firstName
+        lastName
+        position
+      }
+    }
+    secondOpponent {
+      id
+      name
+      players {
+        id
+        firstName
+        lastName
+        position
+      }
+    }
+  }
+}
+
+

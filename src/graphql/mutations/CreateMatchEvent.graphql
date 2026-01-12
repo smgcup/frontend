@@ -1,0 +1,20 @@
+mutation CreateMatchEvent($dto: CreateMatchEventDto!) {
+  createMatchEvent(createMatchEventDto: $dto) {
+    id
+    type
+    minute
+    payload
+    createdAt
+    team {
+      id
+      name
+    }
+    player {
+      id
+      firstName
+      lastName
+    }
+  }
+}
+
+

@@ -2,29 +2,20 @@
 
 import AdminTeamEditViewUi from './AdminTeamEditViewUi';
 import { useAdminTeamEdit } from './hooks/useAdminTeamEdit';
+import type { Team } from '@/domains/team/contracts';
 
 type AdminTeamEditViewProps = {
   teamId: string;
+  initialTeam: Team;
 };
 
-const AdminTeamEditView = ({ teamId }: AdminTeamEditViewProps) => {
-  const {
-    team,
-    teamLoading,
-    teamError,
-    updateLoading,
-    updateError,
-    deleteLoading,
-    deleteError,
-    onUpdateTeam,
-    onDeleteTeam,
-  } = useAdminTeamEdit(teamId);
+const AdminTeamEditView = ({ teamId, initialTeam }: AdminTeamEditViewProps) => {
+  const { updateLoading, updateError, deleteLoading, deleteError, onUpdateTeam, onDeleteTeam } =
+    useAdminTeamEdit(teamId);
 
   return (
     <AdminTeamEditViewUi
-      team={team}
-      teamLoading={teamLoading}
-      teamError={teamError}
+      team={initialTeam}
       updateLoading={updateLoading}
       updateError={updateError}
       deleteLoading={deleteLoading}
@@ -36,5 +27,3 @@ const AdminTeamEditView = ({ teamId }: AdminTeamEditViewProps) => {
 };
 
 export default AdminTeamEditView;
-
-

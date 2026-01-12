@@ -1,0 +1,20 @@
+query MatchEvents($matchId: String!) {
+  matchEvents(matchId: $matchId) {
+    id
+    type
+    minute
+    payload
+    createdAt
+    team {
+      id
+      name
+    }
+    player {
+      id
+      firstName
+      lastName
+    }
+  }
+}
+
+

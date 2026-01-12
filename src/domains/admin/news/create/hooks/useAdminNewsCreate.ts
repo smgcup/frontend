@@ -1,6 +1,8 @@
 import { useMutation } from '@apollo/client/react';
 import { useRouter } from 'next/navigation';
-import { CreateNewsDocument, CreateNewsMutation, CreateNewsMutationVariables, CreateNewsDto } from '@/graphql';
+import { CreateNewsDocument, CreateNewsMutation, CreateNewsMutationVariables } from '@/graphql';
+import type { NewsCreate } from '@/domains/news/contracts';
+import { mapNewsCreateToDto } from '@/domains/news/mappers/mapNewsDto';
 
 export const useAdminNewsCreate = () => {
   const router = useRouter();
@@ -10,9 +12,9 @@ export const useAdminNewsCreate = () => {
     CreateNewsMutationVariables
   >(CreateNewsDocument);
 
-  const handleCreateNews = async (createNewsDto: CreateNewsDto) => {
+  const handleCreateNews = async (createNews: NewsCreate) => {
     const { data } = await createNewsMutation({
-      variables: { createNewsDto },
+      variables: { createNewsDto: mapNewsCreateToDto(createNews) },
     });
 
     if (data?.createNews.id) {

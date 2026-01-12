@@ -10,11 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ImageIcon, Loader2, Eye } from 'lucide-react';
-import { CreateNewsDto } from '@/graphql';
+import type { NewsCreate } from '@/domains/news/contracts';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminNewsCreateViewUiProps = {
-  onCreateNews: (createNewsDto: CreateNewsDto) => Promise<unknown>;
+  onCreateNews: (createNews: NewsCreate) => Promise<unknown>;
   createLoading: boolean;
 };
 

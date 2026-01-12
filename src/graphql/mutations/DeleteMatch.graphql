@@ -1,0 +1,7 @@
+mutation DeleteMatch($id: String!) {
+  deleteMatch(id: $id) {
+    id
+  }
+}
+
+
