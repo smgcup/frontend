@@ -15,18 +15,6 @@ export type Player = {
   teamId?: string;
 };
 
-export type PlayerCreate = {
-  firstName: string;
-  lastName: string;
-  teamId: string;
-  position: PlayerPosition;
-  yearOfBirth: number;
-  height: number;
-  weight: number;
-  preferredFoot: PreferredFoot;
-  imageUrl?: string;
-};
-
 export type PlayerUpdate = Partial<{
   firstName: string;
   lastName: string;
