@@ -7,7 +7,7 @@ import { goalIcon, matchIcon, teamIcon } from '@/public/icons';
 
 const HeroSection = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-primary/5">
+    <section className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
       {/* Background Image - Optional */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -17,10 +17,10 @@ const HeroSection = () => {
           className="object-cover opacity-40"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-background/80" />
+        <div className="absolute inset-0 bg-linear-to-b from-background/80 via-background/60 to-background/80" />
       </div>
 
-      <div className="relative z-10 container mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
+      <div className="relative z-10 container mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
         <div className="mx-auto max-w-3xl text-center">
           {/* Main Heading */}
           <h1 className="text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
@@ -48,10 +48,16 @@ const HeroSection = () => {
           </div>
 
           {/* Quick Stats */}
-          <div className="mt-16 flex justify-center sm:grid grid-cols-1 gap-8 sm:grid-cols-3">
-            <HeroStatistic icon={teamIcon} value={12} label="Teams Competing" />
-            <HeroStatistic icon={matchIcon} value={48} label="Matches Played" />
-            <HeroStatistic icon={goalIcon} value={156} label="Goals Scored" />
+          <div className="mt-16 grid grid-cols-1 justify-items-center gap-8 sm:grid-cols-3">
+            <div className="w-full max-w-[16rem] sm:max-w-none">
+              <HeroStatistic icon={teamIcon} value={12} label="Teams Competing" />
+            </div>
+            <div className="w-full max-w-[16rem] sm:max-w-none">
+              <HeroStatistic icon={matchIcon} value={48} label="Matches Played" />
+            </div>
+            <div className="w-full max-w-[16rem] sm:max-w-none">
+              <HeroStatistic icon={goalIcon} value={156} label="Goals Scored" />
+            </div>
           </div>
         </div>
       </div>

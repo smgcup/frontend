@@ -203,26 +203,8 @@ const TournamentStatistics = ({ teams }: TournamentStatisticsProps) => {
           <p className="mt-4 text-lg text-muted-foreground">Overview of the league performance and key metrics</p>
         </div>
 
-        {/* Overall Stats Grid */}
-        <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {overallStats.map((stat) => (
-            <div
-              key={stat.id}
-              className="group relative overflow-hidden rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                  <p className="mt-2 text-3xl font-bold">{stat.value}</p>
-                </div>
-                <div className={cn('opacity-80', stat.color)}>{stat.icon}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
         {/* Standings Table */}
-        <div className="rounded-lg border bg-card p-6 shadow-sm">
+        <div className="mb-12 rounded-lg border bg-card p-6 shadow-sm">
           <div className="mb-6 flex items-center gap-2">
             <Trophy className="h-6 w-6 text-yellow-500" />
             <h3 className="text-2xl font-bold">Standings</h3>
@@ -300,6 +282,24 @@ const TournamentStatistics = ({ teams }: TournamentStatisticsProps) => {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Overall Stats Grid */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {overallStats.map((stat) => (
+            <div
+              key={stat.id}
+              className="group relative overflow-hidden rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                  <p className="mt-2 text-3xl font-bold">{stat.value}</p>
+                </div>
+                <div className={cn('opacity-80', stat.color)}>{stat.icon}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

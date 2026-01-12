@@ -14,11 +14,28 @@ export type Scalars = {
   Float: { input: number; output: number; }
   Date: { input: any; output: any; }
   DateSimple: { input: any; output: any; }
+  JSON: { input: any; output: any; }
 };
 
 export type AdminLoginResult = {
   __typename?: 'AdminLoginResult';
   ok: Scalars['Boolean']['output'];
+};
+
+export type CreateMatchDto = {
+  date: Scalars['Date']['input'];
+  firstOpponentId: Scalars['String']['input'];
+  secondOpponentId: Scalars['String']['input'];
+  status: MatchStatus;
+};
+
+export type CreateMatchEventDto = {
+  matchId: Scalars['String']['input'];
+  minute: Scalars['Int']['input'];
+  payload?: InputMaybe<Scalars['JSON']['input']>;
+  playerId?: InputMaybe<Scalars['String']['input']>;
+  teamId: Scalars['String']['input'];
+  type: MatchEventType;
 };
 
 export type CreateNewsDto = {
@@ -34,7 +51,7 @@ export type CreatePlayerDto = {
   imageUrl?: InputMaybe<Scalars['String']['input']>;
   lastName: Scalars['String']['input'];
   position: PlayerPosition;
-  prefferedFoot: PreferredFoot;
+  preferredFoot: PreferredFoot;
   teamId: Scalars['String']['input'];
   weight: Scalars['Float']['input'];
   yearOfBirth: Scalars['Float']['input'];
@@ -49,9 +66,34 @@ export type Match = {
   date: Scalars['Date']['output'];
   firstOpponent: Team;
   id: Scalars['ID']['output'];
+  score1?: Maybe<Scalars['Int']['output']>;
+  score2?: Maybe<Scalars['Int']['output']>;
   secondOpponent: Team;
   status: MatchStatus;
 };
+
+export type MatchEvent = {
+  __typename?: 'MatchEvent';
+  createdAt: Scalars['Date']['output'];
+  id: Scalars['ID']['output'];
+  match: Match;
+  minute: Scalars['Float']['output'];
+  payload?: Maybe<Scalars['JSON']['output']>;
+  player?: Maybe<Player>;
+  team: Team;
+  type: MatchEventType;
+};
+
+export enum MatchEventType {
+  FullTime = 'FULL_TIME',
+  Goal = 'GOAL',
+  GoalkeeperSave = 'GOALKEEPER_SAVE',
+  HalfTime = 'HALF_TIME',
+  PenaltyMissed = 'PENALTY_MISSED',
+  PenaltyScored = 'PENALTY_SCORED',
+  RedCard = 'RED_CARD',
+  YellowCard = 'YELLOW_CARD'
+}
 
 export enum MatchStatus {
   Cancelled = 'CANCELLED',
@@ -64,12 +106,17 @@ export type Mutation = {
   __typename?: 'Mutation';
   adminLogin: AdminLoginResult;
   adminLogout: AdminLoginResult;
+  createMatch: Match;
+  createMatchEvent: MatchEvent;
   createNews: News;
   createPlayer: Player;
   createTeam: Team;
+  deleteMatch: Match;
+  deleteMatchEvent: MatchEvent;
   deleteNews: News;
   deletePlayer: Player;
   deleteTeam: Team;
+  updateMatch: Match;
   updateNews: News;
   updatePlayer: Player;
   updateTeam: Team;
@@ -78,6 +125,16 @@ export type Mutation = {
 
 export type MutationAdminLoginArgs = {
   passkey: Scalars['String']['input'];
+};
+
+
+export type MutationCreateMatchArgs = {
+  createMatchDto: CreateMatchDto;
+};
+
+
+export type MutationCreateMatchEventArgs = {
+  createMatchEventDto: CreateMatchEventDto;
 };
 
 
@@ -96,6 +153,16 @@ export type MutationCreateTeamArgs = {
 };
 
 
+export type MutationDeleteMatchArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteMatchEventArgs = {
+  id: Scalars['String']['input'];
+};
+
+
 export type MutationDeleteNewsArgs = {
   id: Scalars['String']['input'];
 };
@@ -108,6 +175,12 @@ export type MutationDeletePlayerArgs = {
 
 export type MutationDeleteTeamArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateMatchArgs = {
+  id: Scalars['String']['input'];
+  updateMatchDto: UpdateMatchDto;
 };
 
 
@@ -146,7 +219,7 @@ export type Player = {
   imageUrl?: Maybe<Scalars['String']['output']>;
   lastName: Scalars['String']['output'];
   position: PlayerPosition;
-  prefferedFoot: PreferredFoot;
+  preferredFoot: PreferredFoot;
   team: Team;
   weight: Scalars['Float']['output'];
   yearOfBirth: Scalars['Float']['output'];
@@ -168,11 +241,24 @@ export enum PreferredFoot {
 export type Query = {
   __typename?: 'Query';
   health: Scalars['String']['output'];
+  matchById?: Maybe<Match>;
+  matchEvents: Array<MatchEvent>;
+  matches: Array<Match>;
   news: Array<News>;
   newsById: News;
   playerById: Player;
   teamById: Team;
   teams: Array<Team>;
+};
+
+
+export type QueryMatchByIdArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryMatchEventsArgs = {
+  matchId: Scalars['String']['input'];
 };
 
 
@@ -195,7 +281,16 @@ export type Team = {
   createdAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  players?: Maybe<Array<Player>>;
+  players: Array<Player>;
+};
+
+export type UpdateMatchDto = {
+  date?: InputMaybe<Scalars['Date']['input']>;
+  firstOpponentId?: InputMaybe<Scalars['String']['input']>;
+  score1?: InputMaybe<Scalars['Int']['input']>;
+  score2?: InputMaybe<Scalars['Int']['input']>;
+  secondOpponentId?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<MatchStatus>;
 };
 
 export type UpdateNewsDto = {
@@ -211,7 +306,7 @@ export type UpdatePlayerDto = {
   imageUrl?: InputMaybe<Scalars['String']['input']>;
   lastName?: InputMaybe<Scalars['String']['input']>;
   position?: InputMaybe<PlayerPosition>;
-  prefferedFoot?: InputMaybe<PreferredFoot>;
+  preferredFoot?: InputMaybe<PreferredFoot>;
   teamId?: InputMaybe<Scalars['String']['input']>;
   weight?: InputMaybe<Scalars['Float']['input']>;
   yearOfBirth?: InputMaybe<Scalars['Float']['input']>;

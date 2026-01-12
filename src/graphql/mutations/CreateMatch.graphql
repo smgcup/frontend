@@ -1,0 +1,19 @@
+mutation CreateMatch($dto: CreateMatchDto!) {
+  createMatch(createMatchDto: $dto) {
+    id
+    date
+    status
+    score1
+    score2
+    firstOpponent {
+      id
+      name
+    }
+    secondOpponent {
+      id
+      name
+    }
+  }
+}
+
+

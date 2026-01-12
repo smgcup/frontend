@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui';
 import { FileText, Plus, UsersIcon, UserPlus, CalendarIcon, Users, User } from 'lucide-react';
@@ -94,7 +93,7 @@ const AdminHomeViewUi = () => {
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8 py-4 lg:p-10">
       <AdminPageHeader title="Overview" description="Quick navigation and snapshot of your tournament management" />
 
       {/* Navigation Cards */}

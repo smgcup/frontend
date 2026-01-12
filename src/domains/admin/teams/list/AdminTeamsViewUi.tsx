@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button } from '@/components/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,56 +16,17 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Loader2, Pencil, Plus, Trash2, User, Users } from 'lucide-react';
-import type { DeleteTeamMutation, DeleteTeamMutationVariables, TeamsQuery } from '@/graphql';
-import { DeleteTeamDocument } from '@/graphql';
-import { useMutation } from '@apollo/client/react';
-import { useRouter } from 'next/navigation';
+import type { TeamWithPlayers } from '@/domains/team/contracts';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminTeamsViewUiProps = {
-  teams: TeamsQuery['teams'];
-  error?: unknown;
+  teams: TeamWithPlayers[];
+  actionError: string | null;
+  deletingTeamId: string | null;
+  onDeleteTeam: (id: string) => Promise<void>;
 };
 
-const AdminTeamsViewUi = ({ teams, error }: AdminTeamsViewUiProps) => {
-  const router = useRouter();
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [deletingTeamId, setDeletingTeamId] = useState<string | null>(null);
-
-  const [deleteTeamMutation] = useMutation<DeleteTeamMutation, DeleteTeamMutationVariables>(DeleteTeamDocument);
-
-  const getErrorMessage = (e: unknown) => {
-    if (!e) return 'Unknown error';
-    if (typeof e === 'string') return e;
-    if (typeof e === 'object' && e && 'message' in e && typeof (e as { message: unknown }).message === 'string') {
-      return (e as { message: string }).message;
-    }
-    return String(e);
-  };
-
-  const handleDeleteTeam = async (id: string) => {
-    setActionError(null);
-    setDeletingTeamId(id);
-    try {
-      await deleteTeamMutation({ variables: { id } });
-      router.refresh();
-    } catch (e) {
-      setActionError(getErrorMessage(e));
-    } finally {
-      setDeletingTeamId(null);
-    }
-  };
-
-  if (error) {
-    return (
-      <div className="p-4">
-        <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
-          <p>Error loading teams. Please try again later.</p>
-        </div>
-      </div>
-    );
-  }
-
+const AdminTeamsViewUi = ({ teams, actionError, deletingTeamId, onDeleteTeam }: AdminTeamsViewUiProps) => {
   return (
     <div className="space-y-8 py-4 lg:p-10">
       <AdminPageHeader
@@ -109,9 +70,14 @@ const AdminTeamsViewUi = ({ teams, error }: AdminTeamsViewUiProps) => {
           <Accordion type="multiple" className="gap-2">
             {teams.map((team) => (
               <AccordionItem key={team.id} value={team.id} className="border-none">
-                <AccordionTrigger className="bg-card px-3 hover:no-underline ring-1 ring-foreground/10">
+                <AccordionTrigger className="bg-card px-3 hover:no-underline ring-1 ring-foreground/10 items-center **:data-[slot=accordion-trigger-icon]:size-5">
                   <div className="flex w-full items-center justify-between gap-3">
-                    <span className="font-medium">{team.name}</span>
+                    <div className="flex flex-col items-start">
+                      <span className="font-medium">{team.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {team.players.length} {team.players.length === 1 ? 'player' : 'players'}
+                      </span>
+                    </div>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-3 pb-3">
@@ -128,7 +94,7 @@ const AdminTeamsViewUi = ({ teams, error }: AdminTeamsViewUiProps) => {
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="destructive">
+                        <Button variant="destructive" className="cursor-pointer">
                           {deletingTeamId === team.id ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           ) : (
@@ -146,7 +112,7 @@ const AdminTeamsViewUi = ({ teams, error }: AdminTeamsViewUiProps) => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction variant="destructive" onClick={() => handleDeleteTeam(team.id)}>
+                          <AlertDialogAction variant="destructive" onClick={() => onDeleteTeam(team.id)}>
                             Delete
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -167,6 +133,9 @@ const AdminTeamsViewUi = ({ teams, error }: AdminTeamsViewUiProps) => {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <CardTitle className="truncate">{team.name}</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {team.players.length} {team.players.length === 1 ? 'player' : 'players'}
+                    </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
                     <Button variant="ghost" size="icon" asChild className="h-9 w-9">
@@ -181,7 +150,7 @@ const AdminTeamsViewUi = ({ teams, error }: AdminTeamsViewUiProps) => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          className="h-9 w-9 text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
                         >
                           {deletingTeamId === team.id ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -200,7 +169,7 @@ const AdminTeamsViewUi = ({ teams, error }: AdminTeamsViewUiProps) => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction variant="destructive" onClick={() => handleDeleteTeam(team.id)}>
+                          <AlertDialogAction variant="destructive" onClick={() => onDeleteTeam(team.id)}>
                             Delete
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -210,7 +179,11 @@ const AdminTeamsViewUi = ({ teams, error }: AdminTeamsViewUiProps) => {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">Use the edit action to update team details.</p>
+                <p className="text-sm text-muted-foreground">
+                  {team.players.length > 0
+                    ? `Team has ${team.players.length} ${team.players.length === 1 ? 'player' : 'players'}.`
+                    : 'No players assigned yet.'}
+                </p>
               </CardContent>
             </Card>
           ))}

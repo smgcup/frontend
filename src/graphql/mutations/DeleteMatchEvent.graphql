@@ -1,0 +1,7 @@
+mutation DeleteMatchEvent($id: String!) {
+  deleteMatchEvent(id: $id) {
+    id
+  }
+}
+
+

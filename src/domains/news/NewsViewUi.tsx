@@ -3,23 +3,32 @@ import { News } from './contracts';
 import NewsCard from './components/NewsCard';
 import Link from 'next/link';
 type NewsViewUiProps = {
-	news: News[];
+  news: News[];
 };
 const NewsViewUi = ({ news }: NewsViewUiProps) => {
-	return (
-		<div className="container mx-auto max-w-7xl py-16">
-			<h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-12">
-				News
-			</h1>
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-				{news.map(news => (
-					<Link key={news.id} href={`/news/${news.id}`}>
-						<NewsCard news={news} />
-					</Link>
-				))}
-			</div>
-		</div>
-	);
+  return (
+    <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-7xl">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-12">
+          News{' '}
+          <span className="text-muted-foreground font-normal text-2xl">
+            ({news.length} {news.length === 1 ? 'article' : 'articles'})
+          </span>
+        </h1>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {news.map((news) => (
+            <Link
+              key={news.id}
+              href={`/news/${news.id}`}
+              className="group relative overflow-hidden rounded-lg border bg-card shadow-sm transition-all hover:shadow-md"
+            >
+              <NewsCard news={news} />
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 };
 
 export default NewsViewUi;

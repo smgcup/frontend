@@ -1,63 +1,29 @@
 import Link from 'next/link';
-import MatchCard, { type Match } from '@/domains/matches/components/MatchCard';
+import MatchCard from '@/domains/matches/components/MatchCard';
 import { Button } from '@/components/ui';
 import { ArrowRight, Trophy } from 'lucide-react';
-import type { Team } from '@/domains/team/contracts';
+import type { MatchListItem } from '@/domains/matches/contracts';
 
 type UpcomingMatchesSectionProps = {
-  teams: Team[];
+  matches: MatchListItem[];
 };
-const UpcomingMatchesSection = ({ teams }: UpcomingMatchesSectionProps) => {
-  const matches: Match[] = [
-    {
-      id: '1',
-      team1: '10A',
-      team2: '10B',
-      date: '2024-01-15',
-      time: '14:00',
-      venue: 'Main Field',
-      status: 'upcoming',
-      round: 1,
-    },
-    {
-      id: '2',
-      team1: '11A',
-      team2: '11B',
-      date: '2024-01-16',
-      time: '15:30',
-      venue: 'Main Field',
-      status: 'upcoming',
-      round: 1,
-    },
-    {
-      id: '3',
-      team1: '12A',
-      team2: '12B',
-      date: '2024-01-17',
-      time: '16:00',
-      venue: 'Main Field',
-      status: 'upcoming',
-      round: 1,
-    },
-    {
-      id: '4',
-      team1: '9A',
-      team2: '9B',
-      date: '2024-01-18',
-      time: '14:30',
-      venue: 'Main Field',
-      status: 'upcoming',
-      round: 1,
-    },
-  ];
+const UpcomingMatchesSection = ({ matches }: UpcomingMatchesSectionProps) => {
+  const featuredMatches = matches
+    .filter((m) => m.status === 'LIVE' || m.status === 'SCHEDULED')
+    .sort((a, b) => {
+      // Live first
+      if (a.status === 'LIVE' && b.status !== 'LIVE') return -1;
+      if (b.status === 'LIVE' && a.status !== 'LIVE') return 1;
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    });
 
   // Show only first 3 matches
-  const displayedMatches = matches.slice(0, 3);
-  const hasMoreMatches = matches.length > 3;
+  const displayedMatches = featuredMatches.slice(0, 3);
+  const hasMoreMatches = featuredMatches.length > 3;
 
   return (
     <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
+      <div className="absolute inset-0 bg-linear-to-b from-background via-primary/5 to-background" />
 
       <div className="container relative mx-auto max-w-7xl">
         <div className="mb-14 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
@@ -66,8 +32,8 @@ const UpcomingMatchesSection = ({ teams }: UpcomingMatchesSectionProps) => {
               <Trophy className="h-4 w-4" />
               <span>Live Schedule</span>
             </div>
-            <h2 className="text-4xl font-black tracking-tight sm:text-5xl bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Upcoming Matches
+            <h2 className="text-4xl font-black tracking-tight sm:text-5xl bg-linear-to-b from-foreground to-foreground/70 bg-clip-text text-transparent pb-1.5">
+              Live &amp; Upcoming Matches
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl leading-relaxed">
               Don&apos;t miss the exciting matches between the teams in the league
