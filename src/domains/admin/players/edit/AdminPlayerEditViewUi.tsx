@@ -43,7 +43,7 @@ type FormState = {
   teamId: string | null;
   height: number | null;
   weight: number | null;
-  yearOfBirth: number | null;
+  dateOfBirth: string | null;
   imageUrl: string | null;
   position: PlayerPosition | null;
   preferredFoot: PreferredFoot | null;
@@ -71,7 +71,7 @@ const AdminPlayerEditViewUi = ({
     teamId: null,
     height: null,
     weight: null,
-    yearOfBirth: null,
+    dateOfBirth: null,
     imageUrl: null,
     position: null,
     preferredFoot: null,
@@ -92,7 +92,7 @@ const AdminPlayerEditViewUi = ({
       teamId: false,
       height: false,
       weight: false,
-      yearOfBirth: false,
+      dateOfBirth: false,
       imageUrl: false,
       position: false,
       preferredFoot: false,
@@ -117,7 +117,7 @@ const AdminPlayerEditViewUi = ({
       teamId: player.team?.id || null,
       height: player.height ?? null,
       weight: player.weight ?? null,
-      yearOfBirth: player.yearOfBirth ?? null,
+      dateOfBirth: player.dateOfBirth ?? null,
       imageUrl: player.imageUrl ?? null,
       position: player.position,
       preferredFoot: player.preferredFoot ?? null,
@@ -180,11 +180,10 @@ const AdminPlayerEditViewUi = ({
     if (!formData.weight) newErrors.weight = 'Weight is required';
     else if (isNaN(formData.weight)) newErrors.weight = 'Weight must be a number';
 
-    if (!formData.yearOfBirth) newErrors.yearOfBirth = 'Year of birth is required';
-    else if (isNaN(formData.yearOfBirth)) newErrors.yearOfBirth = 'Year of birth must be a number';
-
     if (!formData.position) newErrors.position = 'Position is required';
     if (!formData.preferredFoot) newErrors.preferredFoot = 'Preferred foot is required';
+
+    if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -205,8 +204,8 @@ const AdminPlayerEditViewUi = ({
       if (changedFields.teamId) dto.teamId = formData.teamId;
       if (changedFields.height && formData.height) dto.height = Number(formData.height);
       if (changedFields.weight && formData.weight) dto.weight = Number(formData.weight);
-      if (changedFields.yearOfBirth && formData.yearOfBirth) dto.yearOfBirth = Number(formData.yearOfBirth);
       if (changedFields.imageUrl) dto.imageUrl = formData.imageUrl?.trim();
+      if (changedFields.dateOfBirth) dto.dateOfBirth = formData.dateOfBirth;
       if (changedFields.position) dto.position = formData.position;
       if (changedFields.preferredFoot) dto.preferredFoot = formData.preferredFoot;
 
@@ -377,21 +376,20 @@ const AdminPlayerEditViewUi = ({
                     {errors.weight && <FieldError>{errors.weight}</FieldError>}
                   </FieldContent>
                 </Field>
-
                 <Field>
-                  <FieldLabel htmlFor="yearOfBirth">Year of Birth *</FieldLabel>
+                  <FieldLabel htmlFor="dateOfBirth">Date of Birth *</FieldLabel>
                   <FieldContent>
                     <Input
-                      id="yearOfBirth"
-                      name="yearOfBirth"
-                      type="number"
-                      placeholder="e.g. 2001"
-                      value={formData.yearOfBirth ?? ''}
+                      id="dateOfBirth"
+                      name="dateOfBirth"
+                      type="date"
+                      placeholder="e.g. 2008-01-01"
+                      value={formData.dateOfBirth ?? ''}
                       onChange={handleChange}
-                      aria-invalid={!!errors.yearOfBirth}
-                      className={dirtyClass('yearOfBirth')}
+                      aria-invalid={!!errors.dateOfBirth}
+                      className={dirtyClass('dateOfBirth')}
                     />
-                    {errors.yearOfBirth && <FieldError>{errors.yearOfBirth}</FieldError>}
+                    {errors.dateOfBirth && <FieldError>{errors.dateOfBirth}</FieldError>}
                   </FieldContent>
                 </Field>
 

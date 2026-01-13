@@ -4,11 +4,10 @@ query TeamById($id: String!) {
     name
     createdAt
     players {
+      age
       id
       firstName
       lastName
     }
   }
 }
-
-

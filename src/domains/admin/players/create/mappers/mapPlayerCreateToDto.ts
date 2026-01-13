@@ -7,7 +7,7 @@ export const mapPlayerCreateToDto = (input: CreatePlayerDto): CreatePlayerDto =>
     teamId: input.teamId,
     height: input.height,
     weight: input.weight,
-    yearOfBirth: input.yearOfBirth,
+    dateOfBirth: input.dateOfBirth,
     imageUrl: input.imageUrl ?? undefined,
     position: input.position,
     preferredFoot: input.preferredFoot,
