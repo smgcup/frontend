@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ErrorLike } from '@apollo/client';
-import type { Team, TeamUpdate } from '@/domains/team/contracts';
+import type { Team } from '@/domains/team/contracts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +22,7 @@ import {
 import { Loader2, Save, Trash2 } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
+import { UpdateTeamDto } from '@/graphql';
 
 type AdminTeamEditViewUiProps = {
   team: Team;
@@ -29,7 +30,7 @@ type AdminTeamEditViewUiProps = {
   updateError: ErrorLike | null;
   deleteLoading: boolean;
   deleteError: ErrorLike | null;
-  onUpdateTeam: (dto: TeamUpdate) => Promise<unknown>;
+  onUpdateTeam: (dto: UpdateTeamDto) => Promise<unknown>;
   onDeleteTeam: () => Promise<unknown>;
 };
 
@@ -39,7 +40,7 @@ type AdminTeamEditFormProps = {
   updateError: ErrorLike | null;
   deleteLoading: boolean;
   deleteError: ErrorLike | null;
-  onUpdateTeam: (dto: TeamUpdate) => Promise<unknown>;
+  onUpdateTeam: (dto: UpdateTeamDto) => Promise<unknown>;
   onDeleteTeam: () => Promise<unknown>;
 };
 

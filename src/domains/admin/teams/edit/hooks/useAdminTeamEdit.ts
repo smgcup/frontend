@@ -8,9 +8,8 @@ import {
   UpdateTeamDocument,
   UpdateTeamMutation,
   UpdateTeamMutationVariables,
+  UpdateTeamDto,
 } from '@/graphql';
-import type { TeamUpdate } from '@/domains/team/contracts';
-import { mapTeamUpdateToDto } from '@/domains/team/mappers/mapTeamDto';
 
 export const useAdminTeamEdit = (teamId: string) => {
   const [updateTeamMutation, { loading: updateLoading, error: updateError }] = useMutation<
@@ -23,9 +22,9 @@ export const useAdminTeamEdit = (teamId: string) => {
     DeleteTeamMutationVariables
   >(DeleteTeamDocument);
 
-  const handleUpdateTeam = async (dto: TeamUpdate) => {
+  const handleUpdateTeam = async (dto: UpdateTeamDto) => {
     return await updateTeamMutation({
-      variables: { id: teamId, dto: mapTeamUpdateToDto(dto) },
+      variables: { id: teamId, dto },
     });
   };
 
