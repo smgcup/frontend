@@ -12,5 +12,4 @@ export type Player = {
   weight?: number;
   preferredFoot?: PreferredFoot;
   imageUrl?: string | null;
-  teamId?: string;
 };

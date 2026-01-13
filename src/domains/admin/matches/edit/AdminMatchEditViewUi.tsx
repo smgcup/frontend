@@ -68,19 +68,17 @@ const AdminMatchEditViewUi = ({
   const availableTeams = useMemo(() => {
     const map = new Map<string, Team>();
     for (const t of teams) {
-      map.set(String(t.id), { id: String(t.id), name: t.name, players: [] });
+      map.set(String(t.id), { id: String(t.id), name: t.name });
     }
     // Ensure current opponents always exist as options even if teams query is missing/still loading.
     if (match) {
       map.set(String(match.firstOpponent.id), {
         id: String(match.firstOpponent.id),
         name: match.firstOpponent.name,
-        players: [],
       });
       map.set(String(match.secondOpponent.id), {
         id: String(match.secondOpponent.id),
         name: match.secondOpponent.name,
-        players: [],
       });
     }
     return Array.from(map.values());

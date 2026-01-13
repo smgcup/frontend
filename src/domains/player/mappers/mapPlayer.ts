@@ -12,7 +12,7 @@ export const mapPlayer = (
   const height = 'height' in player ? player.height : undefined;
   const weight = 'weight' in player ? player.weight : undefined;
   const preferredFoot = 'preferredFoot' in player ? player.preferredFoot : undefined;
-
+  const team = 'team' in player ? { id: player.team.id, name: player.team.name } : undefined;
   return {
     id: player.id,
     firstName: player.firstName,
@@ -22,5 +22,6 @@ export const mapPlayer = (
     height,
     weight,
     preferredFoot,
+    team,
   };
 };

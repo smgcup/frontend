@@ -95,12 +95,13 @@ const AddEventDialog = ({
   const needsTeam = requiresTeam(selectedEventType);
 
   const allPlayers = useMemo(() => {
-    const rows = teams.flatMap((team) =>
-      team.players.map((player) => ({
-        ...player,
-        teamId: team.id,
-        teamName: team.name,
-      })),
+    const rows = teams.flatMap(
+      (team) =>
+        team?.players?.map((player) => ({
+          ...player,
+          teamId: team.id,
+          teamName: team.name,
+        })) ?? [],
     );
     return rows.sort((a, b) => {
       const teamCmp = a.teamName.localeCompare(b.teamName);
@@ -322,7 +323,7 @@ const AddEventDialog = ({
                       <SelectValue placeholder="Select player" />
                     </SelectTrigger>
                     <SelectContent>
-                      {selectedTeam.players.map((player) => (
+                      {selectedTeam?.players?.map((player) => (
                         <SelectItem key={player.id} value={player.id}>
                           <span className="flex w-full items-center justify-between gap-3">
                             <span className="truncate">
