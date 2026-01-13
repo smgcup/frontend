@@ -3,7 +3,6 @@ query MatchEvents($matchId: String!) {
     id
     type
     minute
-    payload
     createdAt
     team {
       id

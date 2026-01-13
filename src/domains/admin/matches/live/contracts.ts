@@ -5,5 +5,4 @@ export type AddEventInput = {
   minute: number;
   playerId?: string;
   teamId: string;
-  payload?: unknown;
 };

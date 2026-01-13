@@ -22,7 +22,6 @@ export type MatchEvent = {
   id: string;
   type: MatchEventType;
   minute: number;
-  payload?: unknown;
   createdAt?: string;
   player?: MatchPlayer;
   team: {
