@@ -127,7 +127,7 @@ const AddEventDialog = ({
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => {
       const newData = { ...prev, [name]: value };
-      // §
+      // Reset player when team changes
       if (name === 'teamId') {
         newData.playerId = '';
       }
