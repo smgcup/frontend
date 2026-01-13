@@ -3,20 +3,21 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import type { StandingsCategory } from '../contracts';
 import PlayerRow from './PlayerRow';
+import { CATEGORIES, CategoryType } from '../constants';
 
 type StandingsColumnProps = {
   category: StandingsCategory;
 };
 
-const getCategoryEmoji = (title: string) => {
-  switch (title) {
-    case 'Goals':
+const getCategoryEmoji = (category: CategoryType) => {
+  switch (category) {
+    case CATEGORIES.Goals:
       return '⚽';
-    case 'Assists':
+    case CATEGORIES.Assists:
       return '🅰️';
-    case 'Total Passes':
+    case CATEGORIES.TotalPasses:
       return '📊';
-    case 'Clean Sheets':
+    case CATEGORIES.CleanSheets:
       return '🛡️';
     default:
       return null;
