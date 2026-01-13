@@ -126,7 +126,7 @@ const AdminPlayerCreateViewUi = ({
       teamId: formData.teamId,
       height: parseFloat(formData.height),
       weight: parseFloat(formData.weight),
-      dateOfBirth: new Date(formData.dateOfBirth.trim()),
+      dateOfBirth: formData.dateOfBirth.trim(),
       imageUrl: formData.imageUrl.trim() || '',
       position: formData.position,
       preferredFoot: formData.preferredFoot,
