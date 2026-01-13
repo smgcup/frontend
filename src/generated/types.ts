@@ -46,6 +46,7 @@ export type CreateNewsDto = {
 };
 
 export type CreatePlayerDto = {
+  dateOfBirth: Scalars['Date']['input'];
   firstName: Scalars['String']['input'];
   height: Scalars['Float']['input'];
   imageUrl?: InputMaybe<Scalars['String']['input']>;
@@ -54,7 +55,6 @@ export type CreatePlayerDto = {
   preferredFoot: PreferredFoot;
   teamId: Scalars['String']['input'];
   weight: Scalars['Float']['input'];
-  yearOfBirth: Scalars['Float']['input'];
 };
 
 export type CreateTeamDto = {
@@ -213,6 +213,7 @@ export type News = {
 
 export type Player = {
   __typename?: 'Player';
+  dateOfBirth: Scalars['Date']['output'];
   firstName: Scalars['String']['output'];
   height: Scalars['Float']['output'];
   id: Scalars['ID']['output'];
@@ -222,7 +223,6 @@ export type Player = {
   preferredFoot: PreferredFoot;
   team: Team;
   weight: Scalars['Float']['output'];
-  yearOfBirth: Scalars['Float']['output'];
 };
 
 export enum PlayerPosition {
@@ -301,6 +301,7 @@ export type UpdateNewsDto = {
 };
 
 export type UpdatePlayerDto = {
+  dateOfBirth?: InputMaybe<Scalars['Date']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   height?: InputMaybe<Scalars['Float']['input']>;
   imageUrl?: InputMaybe<Scalars['String']['input']>;
@@ -309,7 +310,6 @@ export type UpdatePlayerDto = {
   preferredFoot?: InputMaybe<PreferredFoot>;
   teamId?: InputMaybe<Scalars['String']['input']>;
   weight?: InputMaybe<Scalars['Float']['input']>;
-  yearOfBirth?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type UpdateTeamDto = {

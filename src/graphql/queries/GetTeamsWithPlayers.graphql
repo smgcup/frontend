@@ -11,8 +11,8 @@ query TeamsWithPlayers {
       preferredFoot
       height
       weight
-      yearOfBirth
       imageUrl
+      dateOfBirth
     }
   }
 }

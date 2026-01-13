@@ -35,7 +35,7 @@ const AdminPlayerCreateViewUi = ({
     teamId: string;
     height: string;
     weight: string;
-    yearOfBirth: string;
+    dateOfBirth: string;
     imageUrl: string;
     position: PlayerPosition | '';
     preferredFoot: PreferredFoot | '';
@@ -47,7 +47,7 @@ const AdminPlayerCreateViewUi = ({
     teamId: '',
     height: '',
     weight: '',
-    yearOfBirth: '',
+    dateOfBirth: '',
     imageUrl: '',
     position: '',
     preferredFoot: '',
@@ -96,17 +96,15 @@ const AdminPlayerCreateViewUi = ({
       newErrors.weight = 'Weight must be a number';
     }
 
-    if (!formData.yearOfBirth.trim()) {
-      newErrors.yearOfBirth = 'Year of birth is required';
-    } else if (isNaN(parseFloat(formData.yearOfBirth))) {
-      newErrors.yearOfBirth = 'Year of birth must be a number';
-    }
-
     if (!formData.position) {
       newErrors.position = 'Position is required';
     }
     if (!formData.preferredFoot) {
       newErrors.preferredFoot = 'Preferred foot is required';
+    }
+
+    if (!formData.dateOfBirth.trim()) {
+      newErrors.dateOfBirth = 'Date of birth is required';
     }
 
     setErrors(newErrors);
@@ -128,7 +126,7 @@ const AdminPlayerCreateViewUi = ({
       teamId: formData.teamId,
       height: parseFloat(formData.height),
       weight: parseFloat(formData.weight),
-      yearOfBirth: parseFloat(formData.yearOfBirth),
+      dateOfBirth: new Date(formData.dateOfBirth.trim()),
       imageUrl: formData.imageUrl.trim() || '',
       position: formData.position,
       preferredFoot: formData.preferredFoot,
@@ -250,18 +248,18 @@ const AdminPlayerCreateViewUi = ({
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="yearOfBirth">Year of Birth *</FieldLabel>
+                <FieldLabel htmlFor="dateOfBirth">Date of Birth *</FieldLabel>
                 <FieldContent>
                   <Input
-                    id="yearOfBirth"
-                    name="yearOfBirth"
-                    type="number"
-                    placeholder="e.g. 2008"
-                    value={formData.yearOfBirth}
+                    id="dateOfBirth"
+                    name="dateOfBirth"
+                    type="date"
+                    placeholder="e.g. 2008-01-01"
+                    value={formData.dateOfBirth}
                     onChange={handleChange}
-                    aria-invalid={!!errors.yearOfBirth}
+                    aria-invalid={!!errors.dateOfBirth}
                   />
-                  {errors.yearOfBirth && <FieldError>{errors.yearOfBirth}</FieldError>}
+                  {errors.dateOfBirth && <FieldError>{errors.dateOfBirth}</FieldError>}
                 </FieldContent>
               </Field>
 

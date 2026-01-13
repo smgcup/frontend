@@ -8,7 +8,6 @@ export const mapPlayer = (
 ): Player => {
   //   if (!player) return null;
 
-  const yearOfBirth = 'yearOfBirth' in player ? player.yearOfBirth : undefined;
   const height = 'height' in player ? player.height : undefined;
   const weight = 'weight' in player ? player.weight : undefined;
   const preferredFoot = 'preferredFoot' in player ? player.preferredFoot : undefined;
@@ -18,7 +17,6 @@ export const mapPlayer = (
     firstName: player.firstName,
     lastName: player.lastName,
     position: player.position,
-    yearOfBirth,
     height,
     weight,
     preferredFoot,

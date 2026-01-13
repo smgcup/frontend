@@ -3,7 +3,6 @@ query PlayerById($id: String!) {
     id
     firstName
     lastName
-    yearOfBirth
     height
     weight
     imageUrl
@@ -15,5 +14,3 @@ query PlayerById($id: String!) {
     }
   }
 }
-
-
