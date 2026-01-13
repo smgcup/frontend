@@ -1,20 +1,6 @@
 import { MatchStatus } from '@/graphql';
 import type { MatchEventType } from '@/generated/types';
-
-export type MatchOpponent = {
-  id: string;
-  name: string;
-};
-
-export type MatchListItem = {
-  id: string;
-  date: string;
-  status: MatchStatus;
-  score1?: number;
-  score2?: number;
-  firstOpponent: MatchOpponent;
-  secondOpponent: MatchOpponent;
-};
+import type { Team } from '@/domains/team/contracts';
 
 export type MatchPlayer = {
   id: string;
@@ -22,17 +8,10 @@ export type MatchPlayer = {
   lastName: string;
   position?: string;
 };
-
-export type MatchTeam = {
-  id: string;
-  name: string;
-  players: MatchPlayer[];
-};
-
 export type Match = {
   id: string;
-  firstOpponent: MatchTeam;
-  secondOpponent: MatchTeam;
+  firstOpponent: Team;
+  secondOpponent: Team;
   date: string;
   status: MatchStatus;
   score1?: number;
