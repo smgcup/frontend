@@ -1,8 +1,8 @@
 import { getClient } from '@/lib/initializeApollo';
 import {
-  TeamsDocument,
-  TeamsQuery,
-  TeamsQueryVariables,
+  GetTeamsDocument,
+  GetTeamsQuery,
+  GetTeamsQueryVariables,
   GetNewsDocument,
   GetNewsQuery,
   GetNewsQueryVariables,
@@ -17,8 +17,8 @@ import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 export const getHomePageData = async () => {
   const client = await getClient();
 
-  const { data: teamsData, error: teamsError } = await client.query<TeamsQuery, TeamsQueryVariables>({
-    query: TeamsDocument,
+  const { data: teamsData, error: teamsError } = await client.query<GetTeamsQuery, GetTeamsQueryVariables>({
+    query: GetTeamsDocument,
   });
 
   const { data: newsData, error: newsError } = await client.query<GetNewsQuery, GetNewsQueryVariables>({
