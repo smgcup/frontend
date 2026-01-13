@@ -1,12 +1,12 @@
 import { getClient } from '@/lib/initializeApollo';
-import { GetPlayersStandingsDocument, type GetPlayersStandingsQuery } from '@/graphql';
+import { TeamsWithPlayersDocument, type TeamsWithPlayersQuery } from '@/graphql';
 import { mapTeamWithPlayers } from '@/domains/team/mappers/mapTeamWithPlayers';
 import type { PlayersPageData, StandingsCategory } from '../contracts';
 
 export const getPlayersPageData = async (): Promise<PlayersPageData> => {
   const client = await getClient();
-  const { data } = await client.query<GetPlayersStandingsQuery>({
-    query: GetPlayersStandingsDocument,
+  const { data } = await client.query<TeamsWithPlayersQuery>({
+    query: TeamsWithPlayersDocument,
   });
 
   const teams = (data?.teams ?? []).map(mapTeamWithPlayers);
