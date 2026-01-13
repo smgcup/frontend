@@ -1,11 +1,6 @@
 import type { Player } from '@/domains/player/contracts';
 import type { Team } from '@/domains/team/contracts';
 import { PlayerPosition, PreferredFoot } from '@/graphql';
-import type { PlayerLike } from '@/domains/player/mappers/types';
-
-type PlayerEditLike = PlayerLike & {
-  imageUrl?: string | null;
-};
 
 const toNumber = (v: number | string | null | undefined, fallback = 0) => {
   if (typeof v === 'number') return v;
@@ -16,11 +11,18 @@ const toNumber = (v: number | string | null | undefined, fallback = 0) => {
   return fallback;
 };
 
+const toDateString = (v: unknown): string | undefined => {
+  if (!v) return undefined;
+  const date = new Date(v as string | number);
+  if (isNaN(date.getTime())) return undefined;
+  return date.toISOString().split('T')[0];
+};
+
 const isEnumValue = <T extends Record<string, string>>(enumObj: T, v: unknown): v is T[keyof T] => {
   return typeof v === 'string' && (Object.values(enumObj) as string[]).includes(v);
 };
 
-export const mapPlayerEdit = (player: PlayerEditLike, team?: Team): Player => {
+export const mapPlayerEdit = (player: Player, team?: Team): Player => {
   const position = isEnumValue(PlayerPosition, player.position) ? player.position : PlayerPosition.Goalkeeper;
   const preferredFoot = isEnumValue(PreferredFoot, player.preferredFoot) ? player.preferredFoot : PreferredFoot.Right;
 
@@ -28,7 +30,7 @@ export const mapPlayerEdit = (player: PlayerEditLike, team?: Team): Player => {
     id: player.id,
     firstName: player.firstName ?? '',
     lastName: player.lastName ?? '',
-    yearOfBirth: toNumber(player.yearOfBirth),
+    dateOfBirth: toDateString(player?.dateOfBirth),
     height: toNumber(player.height),
     weight: toNumber(player.weight),
     imageUrl: player.imageUrl ?? null,

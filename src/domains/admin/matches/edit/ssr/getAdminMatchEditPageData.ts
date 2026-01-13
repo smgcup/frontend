@@ -1,12 +1,12 @@
 import { getClient } from '@/lib/initializeApollo';
-import { TeamsDocument, TeamsQuery, TeamsQueryVariables } from '@/graphql';
+import { GetTeamsDocument, GetTeamsQuery, GetTeamsQueryVariables } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
 
 export const getAdminMatchEditPageData = async () => {
   const client = await getClient();
 
-  const { data: teamsData, error } = await client.query<TeamsQuery, TeamsQueryVariables>({
-    query: TeamsDocument,
+  const { data: teamsData, error } = await client.query<GetTeamsQuery, GetTeamsQueryVariables>({
+    query: GetTeamsDocument,
   });
 
   const teams = teamsData?.teams.map(mapTeam) ?? [];

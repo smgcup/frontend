@@ -189,7 +189,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-background transition-all duration-300 py-4">
+    <nav className="sticky top-0 z-50 bg-background transition-all duration-300 py-2 lg:py-4">
       <div className="w-screen px-6">
         {/* Desktop Menu */}
         <nav className="hidden items-center lg:flex">

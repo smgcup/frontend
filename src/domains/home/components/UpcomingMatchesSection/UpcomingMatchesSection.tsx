@@ -2,18 +2,19 @@ import Link from 'next/link';
 import MatchCard from '@/domains/matches/components/MatchCard';
 import { Button } from '@/components/ui';
 import { ArrowRight, Trophy } from 'lucide-react';
-import type { MatchListItem } from '@/domains/matches/contracts';
+import type { Match } from '@/domains/matches/contracts';
+import { MatchStatus } from '@/graphql';
 
 type UpcomingMatchesSectionProps = {
-  matches: MatchListItem[];
+  matches: Match[];
 };
 const UpcomingMatchesSection = ({ matches }: UpcomingMatchesSectionProps) => {
   const featuredMatches = matches
-    .filter((m) => m.status === 'LIVE' || m.status === 'SCHEDULED')
+    .filter((m) => m.status === MatchStatus.Live || m.status === MatchStatus.Scheduled)
     .sort((a, b) => {
       // Live first
-      if (a.status === 'LIVE' && b.status !== 'LIVE') return -1;
-      if (b.status === 'LIVE' && a.status !== 'LIVE') return 1;
+      if (a.status === MatchStatus.Live && b.status !== MatchStatus.Live) return -1;
+      if (b.status === MatchStatus.Live && a.status !== MatchStatus.Live) return 1;
       return new Date(a.date).getTime() - new Date(b.date).getTime();
     });
 

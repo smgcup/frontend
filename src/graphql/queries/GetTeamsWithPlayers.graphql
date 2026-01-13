@@ -8,11 +8,12 @@ query TeamsWithPlayers {
       firstName
       lastName
       position
+      age
       preferredFoot
       height
       weight
-      yearOfBirth
       imageUrl
+      dateOfBirth
     }
   }
 }

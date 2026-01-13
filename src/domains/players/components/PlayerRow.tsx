@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import type { PlayerStanding } from '../contracts';
+import PositionBadge from '@/components/PositionBadge';
 
 type PlayerRowProps = {
   player: PlayerStanding;
@@ -15,7 +16,9 @@ const PlayerRow = ({ player, isLast }: PlayerRowProps) => {
         !isLast && 'border-b border-border',
       )}
     >
-      <span className="w-6 text-center font-medium text-lg mr-2 shrink-0">{player.rank}</span>
+      <div className="mr-2 shrink-0">
+        <PositionBadge position={player.rank} className="mx-0" />
+      </div>
 
       <div className="w-10 h-10 mr-3 shrink-0">
         <div className="w-10 h-10 rounded-full overflow-hidden bg-muted">

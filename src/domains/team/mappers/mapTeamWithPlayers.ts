@@ -1,14 +1,7 @@
-import type { TeamWithPlayers } from '../contracts';
+import type { Team, TeamWithPlayers } from '../contracts';
 import { mapPlayerListItem } from './mapPlayerListItem';
-import type { PlayerLike } from '@/domains/player/mappers/types';
 
-type TeamLike = {
-  id: string;
-  name?: string | null;
-  players?: PlayerLike[] | null;
-};
-
-export const mapTeamWithPlayers = (team: TeamLike): TeamWithPlayers => {
+export const mapTeamWithPlayers = (team: Team): TeamWithPlayers => {
   const playersArray = team.players ?? [];
 
   return {

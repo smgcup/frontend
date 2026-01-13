@@ -2,7 +2,7 @@ import React from 'react';
 import { HeroSection, UpcomingMatchesSection, TournamentStatistics, NewsSection } from './components';
 import { Team } from '@/domains/team/contracts';
 import { News as NewsType } from '../news/contracts';
-import type { MatchListItem } from '@/domains/matches/contracts';
+import type { Match } from '@/domains/matches/contracts';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui';
@@ -10,14 +10,17 @@ import { Button } from '@/components/ui';
 type HomeViewUiProps = {
   teams: Team[];
   news: NewsType[];
-  matches: MatchListItem[];
+  matches: Match[];
 };
 
-const LiveMatchBanner = ({ match }: { match: MatchListItem }) => {
+const LiveMatchBanner = ({ match }: { match: Match }) => {
   const showScore = match.score1 != null && match.score2 != null;
 
   return (
-    <div className="border-b border-red-500/20 bg-red-500/10">
+    <Link
+      href={`/matches/${match.id}`}
+      className="block border-b border-red-500/20 bg-red-500/10 transition-colors hover:bg-red-500/15 cursor-pointer"
+    >
       <div className="container mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
@@ -35,18 +38,15 @@ const LiveMatchBanner = ({ match }: { match: MatchListItem }) => {
           </div>
 
           <Button
-            asChild
             size="sm"
             variant="secondary"
-            className="shrink-0 gap-2 border-transparent bg-red-700 text-white hover:bg-red-800 dark:bg-red-600 dark:hover:bg-red-700"
+            className="shrink-0 gap-2 border-transparent bg-red-700 text-white hover:bg-red-800 dark:bg-red-600 dark:hover:bg-red-700 pointer-events-none"
           >
-            <Link href={`/matches/${match.id}`}>
-              Watch <ArrowRight className="h-4 w-4" />
-            </Link>
+            Watch <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

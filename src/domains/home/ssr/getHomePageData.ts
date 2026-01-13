@@ -1,8 +1,8 @@
 import { getClient } from '@/lib/initializeApollo';
 import {
-  TeamsDocument,
-  TeamsQuery,
-  TeamsQueryVariables,
+  GetTeamsDocument,
+  GetTeamsQuery,
+  GetTeamsQueryVariables,
   GetNewsDocument,
   GetNewsQuery,
   GetNewsQueryVariables,
@@ -12,13 +12,13 @@ import {
 } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
 import { mapNews } from '@/domains/news/mappers/mapNews';
-import { mapMatchListItem } from '@/domains/matches/mappers/mapMatchListItem';
+import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 
 export const getHomePageData = async () => {
   const client = await getClient();
 
-  const { data: teamsData, error: teamsError } = await client.query<TeamsQuery, TeamsQueryVariables>({
-    query: TeamsDocument,
+  const { data: teamsData, error: teamsError } = await client.query<GetTeamsQuery, GetTeamsQueryVariables>({
+    query: GetTeamsDocument,
   });
 
   const { data: newsData, error: newsError } = await client.query<GetNewsQuery, GetNewsQueryVariables>({
@@ -30,7 +30,7 @@ export const getHomePageData = async () => {
   });
   const teams = teamsData?.teams.map(mapTeam) ?? [];
   const news = newsData?.news.map(mapNews) ?? [];
-  const matches = matchesData?.matches.map(mapMatchListItem) ?? [];
+  const matches = matchesData?.matches.map(mapMatch) ?? [];
 
   const error = teamsError || newsError || matchesError;
 
