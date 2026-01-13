@@ -1,7 +1,7 @@
 import { getClient } from '@/lib/initializeApollo';
 import { TeamsWithPlayersDocument, type TeamsWithPlayersQuery } from '@/graphql';
-import { mapTeamWithPlayers } from '@/domains/team/mappers/mapTeamWithPlayers';
-import type { TeamWithPlayers } from '@/domains/team/contracts';
+import type { Team } from '@/domains/team/contracts';
+import { mapTeam } from '@/domains/team/mappers/mapTeam';
 
 export const getAdminPlayersListPageData = async () => {
   const client = await getClient();
@@ -12,8 +12,7 @@ export const getAdminPlayersListPageData = async () => {
     query: TeamsWithPlayersDocument,
   });
 
-  const teamsRows = teamsData?.teams ?? [];
-  const teams: TeamWithPlayers[] = teamsRows.map(mapTeamWithPlayers);
+  const teams: Team[] = teamsData?.teams.map(mapTeam) ?? [];
 
   const teamsErrorMessage = teamsError
     ? typeof teamsError === 'object' && teamsError && 'message' in teamsError

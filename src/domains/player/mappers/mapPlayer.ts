@@ -1,10 +1,12 @@
 import { Player } from '../contracts';
-import { MatchByIdQuery, PlayerByIdQuery } from '@/graphql';
+import { MatchByIdQuery, PlayerByIdQuery, TeamsWithPlayersQuery } from '@/graphql';
+
 export const mapPlayer = (
   player:
     | PlayerByIdQuery['playerById']
     | MatchByIdQuery['matchById']['firstOpponent']['players'][number]
-    | MatchByIdQuery['matchById']['secondOpponent']['players'][number],
+    | MatchByIdQuery['matchById']['secondOpponent']['players'][number]
+    | TeamsWithPlayersQuery['teams'][number]['players'][number],
 ): Player => {
   //   if (!player) return null;
 
