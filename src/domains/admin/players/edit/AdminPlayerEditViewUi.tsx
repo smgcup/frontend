@@ -38,15 +38,15 @@ type AdminPlayerEditViewUiProps = {
 };
 
 type FormState = {
-  firstName: string;
-  lastName: string;
-  teamId: string;
-  height: string;
-  weight: string;
-  yearOfBirth: string;
-  imageUrl: string;
-  position: PlayerPosition | '';
-  preferredFoot: PreferredFoot | '';
+  firstName: string | null;
+  lastName: string | null;
+  teamId: string | null;
+  height: number | null;
+  weight: number | null;
+  yearOfBirth: number | null;
+  imageUrl: string | null;
+  position: PlayerPosition | null;
+  preferredFoot: PreferredFoot | null;
 };
 
 type FieldName = keyof FormState;
@@ -66,15 +66,15 @@ const AdminPlayerEditViewUi = ({
   // Form inputs are controlled, so we keep everything as strings here and only coerce
   // to numbers/enums at submit time (avoids `undefined` / NaN edge-cases in <input />).
   const [formData, setFormData] = useState<FormState>({
-    firstName: '',
-    lastName: '',
-    teamId: '',
-    height: '',
-    weight: '',
-    yearOfBirth: '',
-    imageUrl: '',
-    position: '',
-    preferredFoot: '',
+    firstName: null,
+    lastName: null,
+    teamId: null,
+    height: null,
+    weight: null,
+    yearOfBirth: null,
+    imageUrl: null,
+    position: null,
+    preferredFoot: null,
   });
 
   // `errors` is field-level validation; `actionError` is for async failures (update/delete).
@@ -84,17 +84,22 @@ const AdminPlayerEditViewUi = ({
   // Snapshot of the server-loaded player data mapped into `FormState`.
   // Used for computing "dirty" fields and enabling the Save button.
   const [initialData, setInitialData] = useState<FormState | null>(null);
-  const [dirtyFields, setDirtyFields] = useState<Record<FieldName, boolean>>({
-    firstName: false,
-    lastName: false,
-    teamId: false,
-    height: false,
-    weight: false,
-    yearOfBirth: false,
-    imageUrl: false,
-    position: false,
-    preferredFoot: false,
-  });
+
+  const resetChangedFields = useMemo(
+    () => ({
+      firstName: false,
+      lastName: false,
+      teamId: false,
+      height: false,
+      weight: false,
+      yearOfBirth: false,
+      imageUrl: false,
+      position: false,
+      preferredFoot: false,
+    }),
+    [],
+  );
+  const [changedFields, setChangedFields] = useState<Record<FieldName, boolean>>(resetChangedFields);
 
   // When the `player` arrives/changes (SSR/CSR hydration, navigation between IDs, refetch),
   // sync it into local controlled form state.
@@ -102,19 +107,20 @@ const AdminPlayerEditViewUi = ({
   // We also capture the initial snapshot (`initialData`) so we can:
   // - compute "dirty" fields by comparing to this baseline
   // - reset dirty state back to "clean" whenever the loaded player changes
+
   useEffect(() => {
     if (!player) return;
     // Normalize nullable API fields into safe controlled-input values.
     const next: FormState = {
-      firstName: player.firstName ?? '',
-      lastName: player.lastName ?? '',
-      teamId: player.team?.id ?? '',
-      height: String(player.height ?? ''),
-      weight: String(player.weight ?? ''),
-      yearOfBirth: String(player.yearOfBirth ?? ''),
-      imageUrl: player.imageUrl ?? '',
-      position: player.position ?? '',
-      preferredFoot: player.preferredFoot ?? '',
+      firstName: player.firstName,
+      lastName: player.lastName,
+      teamId: player.team?.id || null,
+      height: player.height,
+      weight: player.weight,
+      yearOfBirth: player.yearOfBirth,
+      imageUrl: player.imageUrl ?? null,
+      position: player.position,
+      preferredFoot: player.preferredFoot,
     };
     // Avoid synchronous setState inside an effect body (can cause cascading renders)
     // Defer the state sync to a microtask and cancel if the effect is cleaned up.
@@ -123,23 +129,13 @@ const AdminPlayerEditViewUi = ({
       if (cancelled) return;
       setInitialData(next);
       setFormData(next);
-      setDirtyFields({
-        firstName: false,
-        lastName: false,
-        teamId: false,
-        height: false,
-        weight: false,
-        yearOfBirth: false,
-        imageUrl: false,
-        position: false,
-        preferredFoot: false,
-      });
+      setChangedFields(resetChangedFields);
     });
 
     return () => {
       cancelled = true;
     };
-  }, [player]);
+  }, [player, resetChangedFields]);
 
   const combinedError = useMemo(() => {
     // Prefer local action errors (caught exceptions) over request errors, so the most
@@ -153,19 +149,19 @@ const AdminPlayerEditViewUi = ({
     );
   }, [actionError, updateError, deleteError]);
 
-  const markDirty = (field: FieldName, nextValue: FormState[FieldName]) => {
+  const markChanged = (field: FieldName, nextValue: FormState[FieldName]) => {
     // Only track dirtiness once we have an initial snapshot to compare against.
     if (!initialData) return;
     const isDirty = initialData[field] !== nextValue;
-    setDirtyFields((prev) => ({ ...prev, [field]: isDirty }));
+    setChangedFields((prev) => ({ ...prev, [field]: isDirty }));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const field = name as FieldName;
     setFormData((prev) => {
-      const next = { ...prev, [field]: value } as FormState;
-      markDirty(field, next[field]);
+      const next = { ...prev, [field]: value };
+      markChanged(field, next[field]);
       return next;
     });
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
@@ -174,18 +170,18 @@ const AdminPlayerEditViewUi = ({
   const validateForm = () => {
     // Minimal client-side validation; server-side validation still applies.
     const newErrors: Record<string, string> = {};
-    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+    if (!formData.firstName?.trim()) newErrors.firstName = 'First name is required';
+    if (!formData.lastName?.trim()) newErrors.lastName = 'Last name is required';
     if (!formData.teamId) newErrors.teamId = 'Team is required';
 
-    if (!formData.height.trim()) newErrors.height = 'Height is required';
-    else if (isNaN(parseFloat(formData.height))) newErrors.height = 'Height must be a number';
+    if (!formData.height) newErrors.height = 'Height is required';
+    else if (isNaN(formData.height)) newErrors.height = 'Height must be a number';
 
-    if (!formData.weight.trim()) newErrors.weight = 'Weight is required';
-    else if (isNaN(parseFloat(formData.weight))) newErrors.weight = 'Weight must be a number';
+    if (!formData.weight) newErrors.weight = 'Weight is required';
+    else if (isNaN(formData.weight)) newErrors.weight = 'Weight must be a number';
 
-    if (!formData.yearOfBirth.trim()) newErrors.yearOfBirth = 'Year of birth is required';
-    else if (isNaN(parseFloat(formData.yearOfBirth))) newErrors.yearOfBirth = 'Year of birth must be a number';
+    if (!formData.yearOfBirth) newErrors.yearOfBirth = 'Year of birth is required';
+    else if (isNaN(formData.yearOfBirth)) newErrors.yearOfBirth = 'Year of birth must be a number';
 
     if (!formData.position) newErrors.position = 'Position is required';
     if (!formData.preferredFoot) newErrors.preferredFoot = 'Preferred foot is required';
@@ -201,16 +197,18 @@ const AdminPlayerEditViewUi = ({
 
     try {
       // Only send changed fields (all fields are optional on PlayerUpdate)
+      // Coerce numeric fields from string to number (input values are always strings)
+
       const dto: UpdatePlayerDto = {};
-      if (dirtyFields.firstName) dto.firstName = formData.firstName.trim();
-      if (dirtyFields.lastName) dto.lastName = formData.lastName.trim();
-      if (dirtyFields.teamId) dto.teamId = formData.teamId;
-      if (dirtyFields.height) dto.height = parseFloat(formData.height);
-      if (dirtyFields.weight) dto.weight = parseFloat(formData.weight);
-      if (dirtyFields.yearOfBirth) dto.yearOfBirth = parseFloat(formData.yearOfBirth);
-      if (dirtyFields.imageUrl) dto.imageUrl = formData.imageUrl.trim() || '';
-      if (dirtyFields.position) dto.position = formData.position as PlayerPosition;
-      if (dirtyFields.preferredFoot) dto.preferredFoot = formData.preferredFoot as PreferredFoot;
+      if (changedFields.firstName) dto.firstName = formData.firstName?.trim();
+      if (changedFields.lastName) dto.lastName = formData.lastName?.trim();
+      if (changedFields.teamId) dto.teamId = formData.teamId;
+      if (changedFields.height && formData.height) dto.height = Number(formData.height);
+      if (changedFields.weight && formData.weight) dto.weight = Number(formData.weight);
+      if (changedFields.yearOfBirth && formData.yearOfBirth) dto.yearOfBirth = Number(formData.yearOfBirth);
+      if (changedFields.imageUrl) dto.imageUrl = formData.imageUrl?.trim();
+      if (changedFields.position) dto.position = formData.position;
+      if (changedFields.preferredFoot) dto.preferredFoot = formData.preferredFoot;
 
       // If nothing changed, just go back (no-op update)
       if (Object.keys(dto).length === 0) {
@@ -241,8 +239,8 @@ const AdminPlayerEditViewUi = ({
     }
   };
 
-  const isDirty = Object.values(dirtyFields).some(Boolean);
-  const dirtyClass = (field: FieldName) => (dirtyFields[field] ? 'ring-1 ring-primary bg-primary/5' : '');
+  const isDirty = Object.values(changedFields).some(Boolean);
+  const dirtyClass = (field: FieldName) => (changedFields[field] ? 'ring-1 ring-primary bg-primary/5' : '');
 
   const selectedTeamName = useMemo(() => {
     // If the player is linked to a team that isn't in the `teams` list (e.g. filtered
@@ -287,7 +285,7 @@ const AdminPlayerEditViewUi = ({
                       name="firstName"
                       type="text"
                       placeholder="Enter first name"
-                      value={formData.firstName}
+                      value={formData.firstName ?? ''}
                       onChange={handleChange}
                       aria-invalid={!!errors.firstName}
                       className={dirtyClass('firstName')}
@@ -304,7 +302,7 @@ const AdminPlayerEditViewUi = ({
                       name="lastName"
                       type="text"
                       placeholder="Enter last name"
-                      value={formData.lastName}
+                      value={formData.lastName ?? ''}
                       onChange={handleChange}
                       aria-invalid={!!errors.lastName}
                       className={dirtyClass('lastName')}
@@ -320,13 +318,13 @@ const AdminPlayerEditViewUi = ({
                       onValueChange={(value) => {
                         setFormData((prev) => ({ ...prev, teamId: value }));
                         if (errors.teamId) setErrors((prev) => ({ ...prev, teamId: '' }));
-                        markDirty('teamId', value);
+                        markChanged('teamId', value);
                       }}
-                      value={formData.teamId}
+                      value={formData.teamId ?? ''}
                     >
                       <SelectTrigger
                         aria-invalid={!!errors.teamId}
-                        className={`w-full ${dirtyFields.teamId ? 'ring-1 ring-primary bg-primary/5' : ''}`}
+                        className={`w-full ${changedFields.teamId ? 'ring-1 ring-primary bg-primary/5' : ''}`}
                       >
                         <SelectValue placeholder="Select a team" />
                       </SelectTrigger>
@@ -354,7 +352,7 @@ const AdminPlayerEditViewUi = ({
                       name="height"
                       type="number"
                       placeholder="e.g. 180"
-                      value={formData.height}
+                      value={formData.height ?? ''}
                       onChange={handleChange}
                       aria-invalid={!!errors.height}
                       className={dirtyClass('height')}
@@ -371,7 +369,7 @@ const AdminPlayerEditViewUi = ({
                       name="weight"
                       type="number"
                       placeholder="e.g. 75"
-                      value={formData.weight}
+                      value={formData.weight ?? ''}
                       onChange={handleChange}
                       aria-invalid={!!errors.weight}
                       className={dirtyClass('weight')}
@@ -388,7 +386,7 @@ const AdminPlayerEditViewUi = ({
                       name="yearOfBirth"
                       type="number"
                       placeholder="e.g. 2001"
-                      value={formData.yearOfBirth}
+                      value={formData.yearOfBirth ?? ''}
                       onChange={handleChange}
                       aria-invalid={!!errors.yearOfBirth}
                       className={dirtyClass('yearOfBirth')}
@@ -405,7 +403,7 @@ const AdminPlayerEditViewUi = ({
                       name="imageUrl"
                       type="url"
                       placeholder="https://..."
-                      value={formData.imageUrl}
+                      value={formData.imageUrl ?? ''}
                       onChange={handleChange}
                       className={dirtyClass('imageUrl')}
                     />
@@ -420,13 +418,13 @@ const AdminPlayerEditViewUi = ({
                       onValueChange={(value) => {
                         setFormData((prev) => ({ ...prev, position: value as PlayerPosition }));
                         if (errors.position) setErrors((prev) => ({ ...prev, position: '' }));
-                        markDirty('position', value as PlayerPosition);
+                        markChanged('position', value);
                       }}
-                      value={formData.position}
+                      value={formData.position ?? ''}
                     >
                       <SelectTrigger
                         aria-invalid={!!errors.position}
-                        className={`w-full ${dirtyFields.position ? 'ring-1 ring-primary bg-primary/5' : ''}`}
+                        className={`w-full ${changedFields.position ? 'ring-1 ring-primary bg-primary/5' : ''}`}
                       >
                         <SelectValue placeholder="Select a position" />
                       </SelectTrigger>
@@ -450,13 +448,13 @@ const AdminPlayerEditViewUi = ({
                       onValueChange={(value) => {
                         setFormData((prev) => ({ ...prev, preferredFoot: value as PreferredFoot }));
                         if (errors.preferredFoot) setErrors((prev) => ({ ...prev, preferredFoot: '' }));
-                        markDirty('preferredFoot', value as PreferredFoot);
+                        markChanged('preferredFoot', value);
                       }}
-                      value={formData.preferredFoot}
+                      value={formData.preferredFoot ?? ''}
                     >
                       <SelectTrigger
                         aria-invalid={!!errors.preferredFoot}
-                        className={`w-full ${dirtyFields.preferredFoot ? 'ring-1 ring-primary bg-primary/5' : ''}`}
+                        className={`w-full ${changedFields.preferredFoot ? 'ring-1 ring-primary bg-primary/5' : ''}`}
                       >
                         <SelectValue placeholder="Select preferred foot" />
                       </SelectTrigger>

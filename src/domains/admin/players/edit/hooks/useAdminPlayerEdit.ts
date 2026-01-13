@@ -23,19 +23,8 @@ export const useAdminPlayerEdit = (playerId: string) => {
   >(DeletePlayerDocument);
 
   const handleUpdatePlayer = async (dto: UpdatePlayerDto) => {
-    const gqlDto: UpdatePlayerDto = {};
-    if (dto.firstName !== undefined) gqlDto.firstName = dto.firstName;
-    if (dto.lastName !== undefined) gqlDto.lastName = dto.lastName;
-    if (dto.teamId !== undefined) gqlDto.teamId = dto.teamId;
-    if (dto.height !== undefined) gqlDto.height = dto.height;
-    if (dto.weight !== undefined) gqlDto.weight = dto.weight;
-    if (dto.yearOfBirth !== undefined) gqlDto.yearOfBirth = dto.yearOfBirth;
-    if (dto.imageUrl !== undefined) gqlDto.imageUrl = dto.imageUrl;
-    if (dto.position !== undefined) gqlDto.position = dto.position;
-    if (dto.preferredFoot !== undefined) gqlDto.preferredFoot = dto.preferredFoot;
-
     return await updatePlayerMutation({
-      variables: { id: playerId, dto: gqlDto },
+      variables: { id: playerId, dto },
     });
   };
 
