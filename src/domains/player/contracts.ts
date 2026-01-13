@@ -8,6 +8,7 @@ export type Player = {
   lastName: string;
   position: PlayerPosition;
   dateOfBirth?: string;
+  age?: number;
   height?: number;
   weight?: number;
   preferredFoot?: PreferredFoot;

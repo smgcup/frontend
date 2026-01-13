@@ -213,6 +213,7 @@ export type News = {
 
 export type Player = {
   __typename?: 'Player';
+  age: Scalars['Float']['output'];
   dateOfBirth: Scalars['Date']['output'];
   firstName: Scalars['String']['output'];
   height: Scalars['Float']['output'];

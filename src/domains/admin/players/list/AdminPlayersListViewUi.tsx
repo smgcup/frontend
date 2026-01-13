@@ -160,10 +160,10 @@ const AdminPlayersListViewUi = ({
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-1 text-sm">
-                    <p className="text-muted-foreground">Age: 12</p>
-                    <p className="text-muted-foreground">Height: {player.height} cm</p>
-                    <p className="text-muted-foreground">Weight: {player.weight} kg</p>
-                    <p className="text-muted-foreground">Foot: {player.preferredFoot}</p>
+                    <p className="text-muted-foreground">Age: {player.age} years</p>
+                    <p className="text-muted-foreground">Height: {player.height ?? '—'} cm</p>
+                    <p className="text-muted-foreground">Weight: {player.weight ?? '—'} kg</p>
+                    <p className="text-muted-foreground">Foot: {player.preferredFoot ?? '—'}</p>
                   </div>
                 </CardContent>
               </Card>

@@ -26,12 +26,14 @@ const isPreferredFoot = (v: unknown): v is PreferredFoot => {
 };
 
 export const mapPlayerListItem = (player: Player): Player => {
+  const dateOfBirth = toDateString(player?.dateOfBirth);
   return {
     id: player.id,
     firstName: player.firstName ?? '',
     lastName: player.lastName ?? '',
     position: isPlayerPosition(player.position) ? player.position : PlayerPosition.Goalkeeper,
-    dateOfBirth: toDateString(player?.dateOfBirth),
+    dateOfBirth,
+    age: player.age,
     height: toNumber(player.height),
     weight: toNumber(player.weight),
     preferredFoot: isPreferredFoot(player.preferredFoot) ? player.preferredFoot : PreferredFoot.Right,
