@@ -16,11 +16,11 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Loader2, Pencil, Plus, Trash2, User, Users } from 'lucide-react';
-import type { TeamWithPlayers } from '@/domains/team/contracts';
+import type { Team } from '@/domains/team/contracts';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminTeamsViewUiProps = {
-  teams: TeamWithPlayers[];
+  teams: Team[];
   actionError: string | null;
   deletingTeamId: string | null;
   onDeleteTeam: (id: string) => Promise<void>;
@@ -75,7 +75,7 @@ const AdminTeamsViewUi = ({ teams, actionError, deletingTeamId, onDeleteTeam }: 
                     <div className="flex flex-col items-start">
                       <span className="font-medium">{team.name}</span>
                       <span className="text-xs text-muted-foreground">
-                        {team.players.length} {team.players.length === 1 ? 'player' : 'players'}
+                        {team.players?.length} {team.players?.length === 1 ? 'player' : 'players'}
                       </span>
                     </div>
                   </div>
@@ -134,7 +134,7 @@ const AdminTeamsViewUi = ({ teams, actionError, deletingTeamId, onDeleteTeam }: 
                   <div className="min-w-0">
                     <CardTitle className="truncate">{team.name}</CardTitle>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {team.players.length} {team.players.length === 1 ? 'player' : 'players'}
+                      {team.players?.length} {team.players?.length === 1 ? 'player' : 'players'}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
@@ -180,8 +180,8 @@ const AdminTeamsViewUi = ({ teams, actionError, deletingTeamId, onDeleteTeam }: 
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  {team.players.length > 0
-                    ? `Team has ${team.players.length} ${team.players.length === 1 ? 'player' : 'players'}.`
+                  {team.players?.length && team.players?.length > 0
+                    ? `Team has ${team.players?.length} ${team.players?.length === 1 ? 'player' : 'players'}.`
                     : 'No players assigned yet.'}
                 </p>
               </CardContent>

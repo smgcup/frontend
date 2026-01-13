@@ -17,11 +17,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Pencil, Plus, Trash2, User } from 'lucide-react';
 import type { Player } from '@/domains/player/contracts';
-import type { TeamWithPlayers } from '@/domains/team/contracts';
+import type { Team } from '@/domains/team/contracts';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminPlayersListViewUiProps = {
-  teams: TeamWithPlayers[];
+  teams: Team[];
   players: Player[];
   currentYear: number;
   actionError: string | null;
@@ -40,7 +40,7 @@ const AdminPlayersListViewUi = ({
   const playerTeamNameByPlayerId = useMemo(() => {
     const map = new Map<string, string>();
     for (const team of teams) {
-      for (const player of team.players) {
+      for (const player of team?.players ?? []) {
         if (player.id) {
           map.set(player.id, team.name);
         }

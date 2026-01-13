@@ -1,9 +1,13 @@
 import { Team } from '../contracts';
-import { GetTeamsQuery } from '@/graphql';
+import { GetTeamsQuery, TeamsWithPlayersQuery } from '@/graphql';
+import { mapPlayer } from '@/domains/player/mappers/mapPlayer';
 
-export const mapTeam = (team: GetTeamsQuery['teams'][number]): Team => {
+export const mapTeam = (team: GetTeamsQuery['teams'][number] | TeamsWithPlayersQuery['teams'][number]): Team => {
+  const players = 'players' in team ? team.players.map(mapPlayer) : [];
+
   return {
     id: team.id,
     name: team.name,
+    players,
   };
 };

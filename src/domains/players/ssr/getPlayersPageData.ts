@@ -1,18 +1,19 @@
 import { getClient } from '@/lib/initializeApollo';
-import { TeamsWithPlayersDocument, type TeamsWithPlayersQuery } from '@/graphql';
-import { mapTeamWithPlayers } from '@/domains/team/mappers/mapTeamWithPlayers';
-import type { PlayersPageData, StandingsCategory } from '../contracts';
+import { TeamsWithPlayersDocument, TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables } from '@/graphql';
+// import { mapTeamWithPlayers } from '@/domains/team/mappers/mapTeamWithPlayers';
+import { mapTeam } from '@/domains/team/mappers/mapTeam';
+import type { PlayersPageData } from '../contracts';
 
 export const getPlayersPageData = async (): Promise<PlayersPageData> => {
   const client = await getClient();
-  const { data } = await client.query<TeamsWithPlayersQuery>({
+  const { data } = await client.query<TeamsWithPlayersQuery, TeamsWithPlayersQueryVariables>({
     query: TeamsWithPlayersDocument,
   });
 
-  const teams = (data?.teams ?? []).map(mapTeamWithPlayers);
+  const teams = (data?.teams ?? []).map(mapTeam);
 
   const allPlayers = teams.flatMap((team) =>
-    team.players.map((player) => ({
+    (team.players ?? []).map((player) => ({
       ...player,
       teamName: team.name,
     })),
@@ -25,7 +26,7 @@ export const getPlayersPageData = async (): Promise<PlayersPageData> => {
     { title: 'Clean Sheets', max: 15 },
   ];
 
-  const standings: StandingsCategory[] = categories.map((cat) => {
+  const standings = categories.map((cat) => {
     const shuffled = [...allPlayers].sort(() => 0.5 - Math.random());
     const selected = shuffled.slice(0, 10);
 
