@@ -12,6 +12,10 @@ const config: CodegenConfig = {
   config: {
     // Enable if your schema has deprecated fields
     inputValueDeprecation: true,
+    scalars: {
+      DateTime: 'string',
+      Date: 'string',
+    },
   },
   documents: ['src/graphql/**/*.graphql'],
   generates: {
