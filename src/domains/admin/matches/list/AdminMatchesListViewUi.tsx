@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { type Match } from '@/domains/matches/contracts';
+import { MatchStatus } from '@/graphql';
 
 /**
  * Props for the AdminMatchesListViewUi component
@@ -283,7 +284,7 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
                   {/* Admin Actions section: Buttons for managing the match */}
                   <div className="pt-4 border-t flex items-center justify-end gap-2">
                     {/* Show "Start Match" button for SCHEDULED matches */}
-                    {match.status === 'SCHEDULED' && (
+                    {match.status === MatchStatus.Scheduled && (
                       <Button variant="outline" size="sm" asChild className="gap-2">
                         <Link href={`/admin/matches/${match.id}/live`}>
                           <Play className="h-4 w-4" />
