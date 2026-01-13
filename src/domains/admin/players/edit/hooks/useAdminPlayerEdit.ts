@@ -10,7 +10,6 @@ import {
   UpdatePlayerMutationVariables,
   type UpdatePlayerDto,
 } from '@/graphql';
-import type { PlayerUpdate } from '@/domains/player/contracts';
 
 export const useAdminPlayerEdit = (playerId: string) => {
   const [updatePlayerMutation, { loading: updateLoading, error: updateError }] = useMutation<
@@ -23,20 +22,9 @@ export const useAdminPlayerEdit = (playerId: string) => {
     DeletePlayerMutationVariables
   >(DeletePlayerDocument);
 
-  const handleUpdatePlayer = async (dto: PlayerUpdate) => {
-    const gqlDto: UpdatePlayerDto = {};
-    if (dto.firstName !== undefined) gqlDto.firstName = dto.firstName;
-    if (dto.lastName !== undefined) gqlDto.lastName = dto.lastName;
-    if (dto.teamId !== undefined) gqlDto.teamId = dto.teamId;
-    if (dto.height !== undefined) gqlDto.height = dto.height;
-    if (dto.weight !== undefined) gqlDto.weight = dto.weight;
-    if (dto.yearOfBirth !== undefined) gqlDto.yearOfBirth = dto.yearOfBirth;
-    if (dto.imageUrl !== undefined) gqlDto.imageUrl = dto.imageUrl;
-    if (dto.position !== undefined) gqlDto.position = dto.position;
-    if (dto.preferredFoot !== undefined) gqlDto.preferredFoot = dto.preferredFoot;
-
+  const handleUpdatePlayer = async (dto: UpdatePlayerDto) => {
     return await updatePlayerMutation({
-      variables: { id: playerId, dto: gqlDto },
+      variables: { id: playerId, dto },
     });
   };
 

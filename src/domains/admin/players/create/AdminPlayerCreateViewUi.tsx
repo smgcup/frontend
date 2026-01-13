@@ -1,6 +1,6 @@
 'use client';
 
-import type { PlayerCreate } from '@/domains/player/contracts';
+import type { CreatePlayerDto } from '@/graphql';
 import type { Team } from '@/domains/team/contracts';
 import { PlayerPosition, PreferredFoot } from '@/graphql';
 import { ErrorLike } from '@apollo/client';
@@ -16,7 +16,7 @@ type AdminPlayerCreateViewUiProps = {
   teams: Team[];
   teamsLoading: boolean;
   teamsError: ErrorLike | null;
-  onAdminPlayerCreate: (createPlayer: PlayerCreate) => void | Promise<unknown>;
+  onAdminPlayerCreate: (createPlayer: CreatePlayerDto) => void | Promise<unknown>;
   adminPlayerCreateLoading: boolean;
   adminPlayerCreateError: ErrorLike | null;
 };

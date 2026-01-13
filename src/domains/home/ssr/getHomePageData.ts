@@ -12,7 +12,7 @@ import {
 } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
 import { mapNews } from '@/domains/news/mappers/mapNews';
-import { mapMatchListItem } from '@/domains/matches/mappers/mapMatchListItem';
+import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 
 export const getHomePageData = async () => {
   const client = await getClient();
@@ -30,7 +30,7 @@ export const getHomePageData = async () => {
   });
   const teams = teamsData?.teams.map(mapTeam) ?? [];
   const news = newsData?.news.map(mapNews) ?? [];
-  const matches = matchesData?.matches.map(mapMatchListItem) ?? [];
+  const matches = matchesData?.matches.map(mapMatch) ?? [];
 
   const error = teamsError || newsError || matchesError;
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { HeroSection, UpcomingMatchesSection, TournamentStatistics, NewsSection } from './components';
 import { Team } from '@/domains/team/contracts';
 import { News as NewsType } from '../news/contracts';
-import type { MatchListItem } from '@/domains/matches/contracts';
+import type { Match } from '@/domains/matches/contracts';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui';
@@ -10,10 +10,10 @@ import { Button } from '@/components/ui';
 type HomeViewUiProps = {
   teams: Team[];
   news: NewsType[];
-  matches: MatchListItem[];
+  matches: Match[];
 };
 
-const LiveMatchBanner = ({ match }: { match: MatchListItem }) => {
+const LiveMatchBanner = ({ match }: { match: Match }) => {
   const showScore = match.score1 != null && match.score2 != null;
 
   return (

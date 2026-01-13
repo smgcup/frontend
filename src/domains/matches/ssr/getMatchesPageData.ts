@@ -1,8 +1,6 @@
 import { getClient } from '@/lib/initializeApollo';
 import { MatchesDocument, type MatchesQuery, type MatchesQueryVariables } from '@/graphql';
-import type { MatchListItem } from '../contracts';
-import { mapMatchListItem } from '../mappers/mapMatchListItem';
-
+import { mapMatch } from '../mappers/mapMatch';
 export const getMatchesPageData = async () => {
   const client = await getClient();
 
@@ -10,7 +8,6 @@ export const getMatchesPageData = async () => {
     query: MatchesDocument,
   });
 
-  const matches: MatchListItem[] = data?.matches.map(mapMatchListItem) ?? [];
-
+  const matches = data?.matches.map(mapMatch) ?? [];
   return { matches, error: matchesError };
 };

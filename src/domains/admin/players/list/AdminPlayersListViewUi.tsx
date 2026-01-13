@@ -160,7 +160,7 @@ const AdminPlayersListViewUi = ({
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-1 text-sm">
-                    <p className="text-muted-foreground">Age: {currentYear - Math.round(player.yearOfBirth)}</p>
+                    <p className="text-muted-foreground">Age: {currentYear - Math.round(player.yearOfBirth ?? 0)}</p>
                     <p className="text-muted-foreground">Height: {player.height} cm</p>
                     <p className="text-muted-foreground">Weight: {player.weight} kg</p>
                     <p className="text-muted-foreground">Foot: {player.preferredFoot}</p>
