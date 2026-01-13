@@ -1,5 +1,4 @@
 import type { Player } from '@/domains/player/contracts';
-import type { PlayerLike } from '@/domains/player/mappers/types';
 import { PlayerPosition, PreferredFoot } from '@/graphql';
 
 const toNumber = (v: number | string | null | undefined, fallback = 0) => {
@@ -11,6 +10,13 @@ const toNumber = (v: number | string | null | undefined, fallback = 0) => {
   return fallback;
 };
 
+const toDateString = (v: unknown): string | undefined => {
+  if (!v) return undefined;
+  const date = new Date(v as string | number);
+  if (isNaN(date.getTime())) return undefined;
+  return date.toISOString().split('T')[0];
+};
+
 const isPlayerPosition = (v: unknown): v is PlayerPosition => {
   return typeof v === 'string' && Object.values(PlayerPosition).includes(v as PlayerPosition);
 };
@@ -19,13 +25,15 @@ const isPreferredFoot = (v: unknown): v is PreferredFoot => {
   return typeof v === 'string' && Object.values(PreferredFoot).includes(v as PreferredFoot);
 };
 
-export const mapPlayerListItem = (player: PlayerLike): Player => {
+export const mapPlayerListItem = (player: Player): Player => {
+  const dateOfBirth = toDateString(player?.dateOfBirth);
   return {
     id: player.id,
     firstName: player.firstName ?? '',
     lastName: player.lastName ?? '',
     position: isPlayerPosition(player.position) ? player.position : PlayerPosition.Goalkeeper,
-    yearOfBirth: toNumber(player.yearOfBirth),
+    dateOfBirth,
+    age: player.age,
     height: toNumber(player.height),
     weight: toNumber(player.weight),
     preferredFoot: isPreferredFoot(player.preferredFoot) ? player.preferredFoot : PreferredFoot.Right,
