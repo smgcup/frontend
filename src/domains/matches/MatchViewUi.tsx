@@ -1,13 +1,13 @@
 import React from 'react';
-import type { MatchListItem } from './contracts';
+import type { Match } from './contracts';
 import MatchCard from './components/MatchCard';
-
+import { MatchStatus } from '@/graphql';
 type MatchViewUiProps = {
-  matches: MatchListItem[];
+  matches: Match[];
   error?: unknown;
 };
 
-const compareMatches = (a: MatchListItem, b: MatchListItem) => {
+const compareMatches = (a: Match, b: Match) => {
   const aTime = new Date(a.date).getTime();
   const bTime = new Date(b.date).getTime();
 
@@ -15,8 +15,8 @@ const compareMatches = (a: MatchListItem, b: MatchListItem) => {
   if (aTime !== bTime) return aTime - bTime;
 
   // Secondary: push cancelled last
-  if (a.status === 'CANCELLED' && b.status !== 'CANCELLED') return 1;
-  if (b.status === 'CANCELLED' && a.status !== 'CANCELLED') return -1;
+  if (a.status === MatchStatus.Cancelled && b.status !== MatchStatus.Cancelled) return 1;
+  if (b.status === MatchStatus.Cancelled && a.status !== MatchStatus.Cancelled) return -1;
 
   return a.id.localeCompare(b.id);
 };

@@ -1,9 +1,7 @@
 import { type Match, type MatchTeam } from '@/domains/matches/contracts';
-import { type MatchListItem } from '@/domains/matches/contracts';
 import { type MatchesQuery } from '@/graphql';
-import { mapMatchListItem } from '@/domains/matches/mappers/mapMatchListItem';
 
-const mapAdminMatch = (m: MatchListItem): Match => {
+export const mapAdminMatch = (m: MatchesQuery['matches'][number]): Match => {
   const mapOpponentToTeam = (opponent: { id: string; name: string }): MatchTeam => {
     return {
       id: opponent.id,
@@ -23,19 +21,4 @@ const mapAdminMatch = (m: MatchListItem): Match => {
     firstOpponent: mapOpponentToTeam(m.firstOpponent),
     secondOpponent: mapOpponentToTeam(m.secondOpponent),
   };
-};
-
-/**
- * Maps the MatchesQuery result to an array of Match objects for the admin list view.
- * This function handles the full transformation chain:
- * GraphQL result → MatchListItem → Match
- *
- * @param queryData - The data from the Matches GraphQL query
- * @returns Array of Match objects, or empty array if no matches
- */
-export const mapAdminMatches = (queryData: MatchesQuery | undefined): Match[] => {
-  const matchesData = queryData?.matches;
-  if (!matchesData) return [];
-  // Chain the mappers: GraphQL result → MatchListItem → Match
-  return matchesData.map((match) => mapAdminMatch(mapMatchListItem(match)));
 };
