@@ -1,19 +1,6 @@
-import { MatchByIdQuery, PlayerPosition } from '@/graphql';
+import { MatchByIdQuery } from '@/graphql';
 import type { Match } from '../contracts';
-
-type PlayerLike = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  position: PlayerPosition;
-};
-
-const mapPlayer = (p: PlayerLike) => ({
-  id: p.id,
-  firstName: p.firstName,
-  lastName: p.lastName,
-  ...(p.position == null ? {} : { position: p.position }),
-});
+import { mapPlayer } from '@/domains/player/mappers/mapPlayer';
 
 export const mapMatchById = (row: MatchByIdQuery['matchById']): Match | null => {
   if (!row) return null;
@@ -22,12 +9,12 @@ export const mapMatchById = (row: MatchByIdQuery['matchById']): Match | null => 
     firstOpponent: {
       id: row.firstOpponent.id,
       name: row.firstOpponent.name,
-      players: (row.firstOpponent.players ?? []).map(mapPlayer),
+      players: row.firstOpponent.players?.map(mapPlayer),
     },
     secondOpponent: {
       id: row.secondOpponent.id,
       name: row.secondOpponent.name,
-      players: (row.secondOpponent.players ?? []).map(mapPlayer),
+      players: row.secondOpponent.players?.map(mapPlayer),
     },
     date: String(row.date),
     status: row.status,

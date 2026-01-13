@@ -1,9 +1,9 @@
 import { getClient } from '@/lib/initializeApollo';
 import { TeamsWithPlayersDocument, type TeamsWithPlayersQuery } from '@/graphql';
-import { mapTeamFromQuery } from '@/domains/player/mappers/mapTeamFromQuery';
 import { mapPlayerEdit } from './mappers/mapPlayerEdit';
 import type { Player } from '@/domains/player/contracts';
 import type { Team } from '@/domains/team/contracts';
+import { mapTeam } from '@/domains/team/mappers/mapTeam';
 
 export const getAdminPlayerEditPageData = async (playerId: string) => {
   const client = await getClient();
@@ -15,7 +15,7 @@ export const getAdminPlayerEditPageData = async (playerId: string) => {
   });
 
   const teamsRows = teamsData?.teams ?? [];
-  const teams: Team[] = teamsRows.map(mapTeamFromQuery);
+  const teams: Team[] = teamsRows.map(mapTeam);
 
   // Derive the player by scanning the nested teams -> players structure.
   // If not found, return undefined; the UI can render a "Player not found" state.
@@ -23,7 +23,7 @@ export const getAdminPlayerEditPageData = async (playerId: string) => {
   for (const team of teamsRows) {
     const found = (team.players ?? []).find((p) => p.id === playerId);
     if (found) {
-      player = mapPlayerEdit(found, { id: team.id, name: team.name });
+      player = mapPlayerEdit(found, mapTeam(team));
       break;
     }
   }

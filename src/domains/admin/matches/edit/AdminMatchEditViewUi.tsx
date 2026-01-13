@@ -64,17 +64,23 @@ const AdminMatchEditViewUi = ({
 }: AdminMatchEditViewUiProps) => {
   const router = useRouter();
 
+  //TODO: This is a temporary solution to get the available teams. We need to improve this.
   const availableTeams = useMemo(() => {
     const map = new Map<string, Team>();
     for (const t of teams) {
-      map.set(String(t.id), { id: String(t.id), name: t.name });
+      map.set(String(t.id), { id: String(t.id), name: t.name, players: [] });
     }
     // Ensure current opponents always exist as options even if teams query is missing/still loading.
     if (match) {
-      map.set(String(match.firstOpponent.id), { id: String(match.firstOpponent.id), name: match.firstOpponent.name });
+      map.set(String(match.firstOpponent.id), {
+        id: String(match.firstOpponent.id),
+        name: match.firstOpponent.name,
+        players: [],
+      });
       map.set(String(match.secondOpponent.id), {
         id: String(match.secondOpponent.id),
         name: match.secondOpponent.name,
+        players: [],
       });
     }
     return Array.from(map.values());

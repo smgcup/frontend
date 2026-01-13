@@ -115,12 +115,12 @@ const AdminPlayerEditViewUi = ({
       firstName: player.firstName,
       lastName: player.lastName,
       teamId: player.team?.id || null,
-      height: player.height,
-      weight: player.weight,
-      yearOfBirth: player.yearOfBirth,
+      height: player.height ?? null,
+      weight: player.weight ?? null,
+      yearOfBirth: player.yearOfBirth ?? null,
       imageUrl: player.imageUrl ?? null,
       position: player.position,
-      preferredFoot: player.preferredFoot,
+      preferredFoot: player.preferredFoot ?? null,
     };
     // Avoid synchronous setState inside an effect body (can cause cascading renders)
     // Defer the state sync to a microtask and cancel if the effect is cleaned up.
