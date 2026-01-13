@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,7 +15,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2, Calendar, Clock, Loader2, Radio, Trophy, MapPin, MoreVertical } from 'lucide-react';
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Calendar,
+  Clock,
+  Loader2,
+  Radio,
+  Trophy,
+  MapPin,
+  MoreVertical,
+  Play,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import {
@@ -38,6 +50,8 @@ type AdminMatchesListViewUiProps = {
 const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: AdminMatchesListViewUiProps) => {
   // Track which match is currently being deleted (for showing loading state on specific match)
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  // Track which match's ID popup is currently shown
+  const [showMatchId, setShowMatchId] = useState<string | null>(null);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -84,6 +98,48 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
     setDeletingId(null);
   };
 
+  // Handle clicks outside the popup to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showMatchId) {
+        const target = event.target as HTMLElement;
+
+        const popups = document.querySelectorAll('[data-match-popup]');
+        const matchTexts = document.querySelectorAll('[data-match-text]');
+
+        let isClickInside = false;
+
+        popups.forEach((popup) => {
+          if (popup.contains(target)) {
+            isClickInside = true;
+          }
+        });
+
+        matchTexts.forEach((text) => {
+          if (text === target || text.contains(target)) {
+            isClickInside = true;
+          }
+        });
+
+        if (!isClickInside) {
+          setShowMatchId(null);
+        }
+      }
+    };
+
+    if (showMatchId) {
+      // Use a slight delay to allow onClick handlers to fire first
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+      }, 0);
+
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showMatchId]);
+
   return (
     <div className="space-y-8 py-4 lg:p-10">
       <AdminPageHeader
@@ -117,7 +173,7 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {matches.map((match) => {
             // Get styling configuration for the match status badge
             const statusConfig = getStatusConfig(match.status);
@@ -128,14 +184,31 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
               /* Individual match card */
               <div
                 key={match.id}
-                className="group relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm"
+                className="group relative overflow-visible rounded-xl border bg-card/50 backdrop-blur-sm flex flex-col h-full"
               >
-                <div className="relative p-6 flex flex-col space-y-6">
+                <div className="relative p-6 flex flex-col h-full">
                   {/* Header section: Match ID and status badge */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="relative flex items-center gap-2 text-xs font-medium text-muted-foreground">
                       <Trophy className="h-3.5 w-3.5" />
-                      <span>Match #{match.id}</span>
+                      {/* Match ID Popup */}
+                      {showMatchId === match.id && (
+                        <div
+                          data-match-popup
+                          className="absolute -top-12 left-0 z-50 bg-popover text-popover-foreground px-3 py-1.5 rounded-lg shadow-lg border text-xs font-medium whitespace-nowrap"
+                        >
+                          Match #{match.id}
+                          <div className="absolute left-6 bottom-0 translate-y-full w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-border"></div>
+                          <div className="absolute left-6 bottom-0 translate-y-[calc(100%-1px)] w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-popover"></div>
+                        </div>
+                      )}
+                      <span
+                        data-match-text
+                        className="cursor-pointer hover:text-foreground transition-colors"
+                        onClick={() => setShowMatchId(showMatchId === match.id ? null : match.id)}
+                      >
+                        Match
+                      </span>
                     </div>
                     {/* Status Badge: Shows match status with appropriate color coding */}
                     <span
@@ -149,7 +222,7 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
                   </div>
 
                   {/* Teams and Score section: Displays both opponents and their scores */}
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center justify-between gap-4 mb-6">
                     {/* First opponent */}
                     <div className="flex-1">
                       <div className="text-center group/team">
@@ -192,7 +265,7 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
                   </div>
 
                   {/* Match details section: Date, time, and venue information */}
-                  <div className="pt-4 border-t space-y-2.5">
+                  <div className="pt-4 border-t space-y-2.5 mt-auto mb-4">
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4 text-primary/70" />
                       <span className="font-medium">{formatDate(match.date)}</span>
@@ -209,6 +282,15 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
 
                   {/* Admin Actions section: Buttons for managing the match */}
                   <div className="pt-4 border-t flex items-center justify-end gap-2">
+                    {/* Show "Start Match" button for SCHEDULED matches */}
+                    {match.status === 'SCHEDULED' && (
+                      <Button variant="outline" size="sm" asChild className="gap-2">
+                        <Link href={`/admin/matches/${match.id}/live`}>
+                          <Play className="h-4 w-4" />
+                          Start Match
+                        </Link>
+                      </Button>
+                    )}
                     {/* Show "Manage Live" button only for LIVE matches */}
                     {match.status === 'LIVE' && (
                       <Button variant="outline" size="sm" asChild className="gap-2">
@@ -243,15 +325,15 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
                             >
                               {/* Show loading state if this match is being deleted */}
                               {deletingId === match.id ? (
-                                <div className="flex items-center gap-2">
-                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                                   Deleting...
-                                </div>
+                                </>
                               ) : (
-                                <div className="flex items-center gap-2">
-                                  <Trash2 className="h-4 w-4" />
+                                <>
+                                  <Trash2 className="h-4 w-4 mr-2" />
                                   Delete
-                                </div>
+                                </>
                               )}
                             </DropdownMenuItem>
                           </AlertDialogTrigger>
