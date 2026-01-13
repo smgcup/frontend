@@ -4,5 +4,6 @@ export type AddEventInput = {
   type: MatchEventType;
   minute: number;
   playerId?: string;
+  assistPlayerId?: string;
   teamId: string;
 };

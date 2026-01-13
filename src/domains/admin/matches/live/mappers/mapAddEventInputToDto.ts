@@ -13,6 +13,7 @@ export const mapAddEventInputToDto = (input: AddEventInput, matchId: string): Cr
     matchId,
     teamId: input.teamId,
     playerId: input.playerId ?? null,
+    assistPlayerId: input.assistPlayerId ?? null,
     type: input.type,
     minute: input.minute,
   };

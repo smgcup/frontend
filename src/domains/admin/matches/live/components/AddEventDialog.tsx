@@ -53,7 +53,9 @@ const requiresPlayer = (type: MatchEventType): boolean => {
     MatchEventType.PenaltyMissed,
   ].includes(type);
 };
-
+const requiresAssistPlayer = (type: MatchEventType): boolean => {
+  return [MatchEventType.Goal].includes(type);
+};
 const positionShortLabel = (position: PlayerPosition) => {
   switch (position) {
     case PlayerPosition.Goalkeeper:
@@ -83,6 +85,7 @@ const AddEventDialog = ({
     minute: currentMinute.toString(),
     teamId: '',
     playerId: '',
+    assistPlayerId: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -91,6 +94,7 @@ const AddEventDialog = ({
   const selectedTeam = teams.find((t) => t.id === formData.teamId);
   const selectedEventType = (presetType ?? formData.type) as MatchEventType;
   const needsPlayer = requiresPlayer(selectedEventType);
+  const needsAssistPlayer = requiresAssistPlayer(selectedEventType);
   const needsTeam = requiresTeam(selectedEventType);
 
   const allPlayers = useMemo(() => {
@@ -123,7 +127,7 @@ const AddEventDialog = ({
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => {
       const newData = { ...prev, [name]: value };
-      // Reset player when team changes
+      // §
       if (name === 'teamId') {
         newData.playerId = '';
       }
@@ -196,6 +200,7 @@ const AddEventDialog = ({
         minute: parseInt(formData.minute),
         teamId: needsTeam ? formData.teamId : fallbackTeamId,
         playerId: needsPlayer ? formData.playerId : undefined,
+        assistPlayerId: needsAssistPlayer ? formData.assistPlayerId : undefined,
       });
       setOpen(false);
       // Reset form
@@ -204,6 +209,7 @@ const AddEventDialog = ({
         minute: currentMinute.toString(),
         teamId: '',
         playerId: '',
+        assistPlayerId: '',
       });
       setErrors({});
     } catch (error) {
@@ -323,6 +329,37 @@ const AddEventDialog = ({
                     </SelectContent>
                   </Select>
                   {errors.playerId && <FieldError>{errors.playerId}</FieldError>}
+                </FieldContent>
+              </Field>
+            )}
+
+            {needsAssistPlayer && (
+              <Field>
+                <FieldLabel htmlFor="assistPlayerId">Assist Player *</FieldLabel>
+                <FieldContent>
+                  <Select
+                    value={formData.assistPlayerId}
+                    onValueChange={(value) => handleSelectChange('assistPlayerId', value)}
+                  >
+                    <SelectTrigger id="assistPlayerId" className="w-full" aria-invalid={!!errors.assistPlayerId}>
+                      <SelectValue placeholder="Select assist player" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allPlayers.map((player) => (
+                        <SelectItem key={player.id} value={player.id}>
+                          <span className="flex w-full items-center justify-between gap-3">
+                            <span className="truncate">
+                              {player.firstName} {player.lastName}
+                            </span>
+                            <span className="shrink-0 text-muted-foreground">
+                              {positionShortLabel(player.position)}
+                            </span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.assistPlayerId && <FieldError>{errors.assistPlayerId}</FieldError>}
                 </FieldContent>
               </Field>
             )}

@@ -29,6 +29,7 @@ export type CreateMatchDto = {
 };
 
 export type CreateMatchEventDto = {
+  assistPlayerId?: InputMaybe<Scalars['String']['input']>;
   matchId: Scalars['String']['input'];
   minute: Scalars['Int']['input'];
   playerId?: InputMaybe<Scalars['String']['input']>;
@@ -72,6 +73,8 @@ export type Match = {
 
 export type MatchEvent = {
   __typename?: 'MatchEvent';
+  assistPlayer?: Maybe<Player>;
+  assistPlayerId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
   match: Match;
