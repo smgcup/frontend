@@ -241,7 +241,7 @@ export enum PreferredFoot {
 export type Query = {
   __typename?: 'Query';
   health: Scalars['String']['output'];
-  matchById?: Maybe<Match>;
+  matchById: Match;
   matchEvents: Array<MatchEvent>;
   matches: Array<Match>;
   news: Array<News>;
