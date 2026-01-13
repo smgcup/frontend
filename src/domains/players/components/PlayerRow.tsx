@@ -43,7 +43,7 @@ const PlayerRow = ({ player, isLast }: PlayerRowProps) => {
         <div className="text-xs text-muted-foreground truncate">{player.teamName}</div>
       </div>
 
-      <div className="font-bold text-xl shrink-0">{player.statValue}</div>
+      <div className="font-bold text-xl shrink-0">1</div>
     </div>
   );
 };

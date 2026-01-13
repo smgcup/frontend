@@ -17,7 +17,6 @@ type MatchEventLike = {
   id: string;
   type: MatchEventType | string;
   minute: number;
-  payload?: unknown;
   createdAt?: unknown;
   player?: PlayerLike | null;
   team: TeamLike;
@@ -28,7 +27,6 @@ export const mapMatchEvent = (e: MatchEventLike): MatchEvent => {
     id: e.id,
     type: e.type as MatchEventType,
     minute: e.minute,
-    ...(e.payload == null ? {} : { payload: e.payload }),
     ...(e.createdAt == null ? {} : { createdAt: String(e.createdAt) }),
     ...(e.player
       ? {
