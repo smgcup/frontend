@@ -15,5 +15,3 @@ query PlayerById($id: String!) {
     }
   }
 }
-
-
