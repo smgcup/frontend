@@ -1,7 +1,8 @@
-import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
+import { ApolloClient, HttpLink, InMemoryCache, from } from '@apollo/client';
 import { registerApolloClient } from '@apollo/client-integration-nextjs';
 import { headers } from 'next/headers';
 import { AUTH_COOKIE_NAME } from '@/lib/auth';
+import { createGraphQLLoggerLink } from './graphql-logger';
 
 function getCookieValue(cookieHeader: string, name: string): string | null {
   // Simple cookie parser (works for typical cookie strings)
@@ -35,15 +36,18 @@ export const { getClient } = registerApolloClient(async () => {
 
   return new ApolloClient({
     cache: new InMemoryCache(),
-    link: new HttpLink({
-      uri: endpoint,
-      fetch,
-      headers: {
-        // forward cookies for session-based auth if your API uses them
-        cookie: cookieHeader,
-        // add bearer auth like your browser client
-        ...(authHeader as Record<string, string>),
-      },
-    }),
+    link: from([
+      createGraphQLLoggerLink(),
+      new HttpLink({
+        uri: endpoint,
+        fetch,
+        headers: {
+          // forward cookies for session-based auth if your API uses them
+          cookie: cookieHeader,
+          // add bearer auth like your browser client
+          ...(authHeader as Record<string, string>),
+        },
+      }),
+    ]),
   });
 });

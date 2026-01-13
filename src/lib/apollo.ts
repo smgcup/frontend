@@ -1,10 +1,11 @@
-import { HttpLink, split } from '@apollo/client';
+import { HttpLink, split, from } from '@apollo/client';
 import { ApolloClient, InMemoryCache } from '@apollo/client-integration-nextjs';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { createAuthLink, AUTH_COOKIE_NAME } from './auth';
 import { getCookie } from './cookies';
+import { createGraphQLLoggerLink } from './graphql-logger';
 
 export const makeClient = (): ApolloClient => {
   // Get the GraphQL endpoint, using current hostname if it's localhost
@@ -117,8 +118,8 @@ export const makeClient = (): ApolloClient => {
       const definition = getMainDefinition(query);
       return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
     },
-    wsLink,
-    authLink.concat(httpLink),
+    from([createGraphQLLoggerLink(), wsLink]),
+    from([createGraphQLLoggerLink(), authLink.concat(httpLink)]),
   );
 
   return new ApolloClient({

@@ -40,7 +40,8 @@ const PlayerRow = ({ player, isLast }: PlayerRowProps) => {
         <div className="font-bold text-sm truncate leading-tight">
           {player.firstName} {player.lastName}
         </div>
-        <div className="text-xs text-muted-foreground truncate">{player.teamName}</div>
+        <div className="text-sm font-medium truncate">{player.teamName}</div>
+        <div className="text-xs text-muted-foreground truncate">{player.position}</div>
       </div>
 
       <div className="font-bold text-xl shrink-0">{player.statValue}</div>

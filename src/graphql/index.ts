@@ -23,6 +23,7 @@ export * from './mutations/UpdateTeam.generated';
 export * from './queries/GetNews.generated';
 export * from './queries/GetNewsById.generated';
 export * from './queries/GetPlayerById.generated';
+export * from './queries/GetPlayersStandings.generated';
 export * from './queries/GetTeamById.generated';
 export * from './queries/GetTeams.generated';
 export * from './queries/GetTeamsWithPlayers.generated';
