@@ -15,12 +15,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { MatchEventType } from '@/generated/types';
-import { type MatchTeam } from '@/domains/matches/contracts';
+import { MatchEventType, PlayerPosition } from '@/generated/types';
+import { type Team } from '@/domains/team/contracts';
 import { type AddEventInput } from '../contracts';
 
 type AddEventDialogProps = {
-  teams: MatchTeam[];
+  teams: Team[];
   currentMinute: number;
   onAddEvent: (data: AddEventInput) => Promise<void>;
   trigger: React.ReactNode;
@@ -54,18 +54,18 @@ const requiresPlayer = (type: MatchEventType): boolean => {
   ].includes(type);
 };
 
-const positionShortLabel = (position?: string) => {
+const positionShortLabel = (position: PlayerPosition) => {
   switch (position) {
-    case 'GOALKEEPER':
+    case PlayerPosition.Goalkeeper:
       return 'GK';
-    case 'DEFENDER':
+    case PlayerPosition.Defender:
       return 'DEF';
-    case 'MIDFIELDER':
+    case PlayerPosition.Midfielder:
       return 'MID';
-    case 'FORWARD':
+    case PlayerPosition.Forward:
       return 'FWD';
     default:
-      return undefined;
+      return 'Unknown';
   }
 };
 
@@ -329,7 +329,7 @@ const AddEventDialog = ({
                               {player.firstName} {player.lastName}
                             </span>
                             <span className="shrink-0 text-muted-foreground">
-                              {positionShortLabel(player.position) ?? ''}
+                              {positionShortLabel(player.position)}
                             </span>
                           </span>
                         </SelectItem>
