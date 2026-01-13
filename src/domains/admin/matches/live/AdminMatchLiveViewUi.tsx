@@ -10,14 +10,13 @@ import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import EventTimeline from '@/domains/matches/components/EventTimeline';
 import AddEventDialog from './components/AddEventDialog';
 import { type Match, type MatchEvent } from '@/domains/matches/contracts';
-import { type AddEventInput } from './contracts';
-import { MatchEventType } from '@/generated/types';
+import { MatchEventType, type CreateMatchEventDto } from '@/generated/types';
 
 type AdminMatchLiveViewUiProps = {
   match: Match;
   events: MatchEvent[];
   currentMinute: number;
-  onAddEvent: (data: AddEventInput) => Promise<void>;
+  onAddEvent: (dto: CreateMatchEventDto) => Promise<void>;
   onDeleteEvent?: (id: string) => Promise<void>;
   deletingEventId?: string | null;
   onEndMatch: () => Promise<void>;
@@ -124,6 +123,7 @@ const AdminMatchLiveViewUi = ({
               return (
                 <AddEventDialog
                   key={event.type}
+                  matchId={match.id}
                   teams={teams}
                   currentMinute={currentMinute}
                   onAddEvent={onAddEvent}
@@ -141,6 +141,7 @@ const AdminMatchLiveViewUi = ({
           </div>
           <div className="mt-4 flex gap-3">
             <AddEventDialog
+              matchId={match.id}
               teams={teams}
               currentMinute={currentMinute}
               onAddEvent={onAddEvent}

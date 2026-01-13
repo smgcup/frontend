@@ -11,13 +11,14 @@ import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLab
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ImageIcon, Loader2, Eye, Save } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
-import type { News, NewsUpdate } from '@/domains/news/contracts';
+import type { News } from '@/domains/news/contracts';
+import type { UpdateNewsDto } from '@/graphql';
 
 type AdminNewsEditViewUiProps = {
   news: News | null;
   newsLoading: boolean;
   updateLoading: boolean;
-  onUpdateNews: (updateNews: NewsUpdate) => Promise<unknown>;
+  onUpdateNews: (updateNewsDto: UpdateNewsDto) => Promise<unknown>;
 };
 
 const CATEGORIES = [
@@ -31,7 +32,7 @@ const CATEGORIES = [
 type AdminNewsEditFormProps = {
   news: News;
   updateLoading: boolean;
-  onUpdateNews: (updateNews: NewsUpdate) => Promise<unknown>;
+  onUpdateNews: (updateNewsDto: UpdateNewsDto) => Promise<unknown>;
 };
 
 const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditFormProps) => {

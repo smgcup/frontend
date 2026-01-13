@@ -17,12 +17,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { MatchEventType, PlayerPosition } from '@/generated/types';
 import { type Team } from '@/domains/team/contracts';
-import { type AddEventInput } from '../contracts';
+import { type CreateMatchEventDto } from '@/generated/types';
 
 type AddEventDialogProps = {
+  matchId: string;
   teams: Team[];
   currentMinute: number;
-  onAddEvent: (data: AddEventInput) => Promise<void>;
+  onAddEvent: (dto: CreateMatchEventDto) => Promise<void>;
   trigger: React.ReactNode;
   mode?: 'full' | 'quick';
   presetType?: MatchEventType;
@@ -72,6 +73,7 @@ const positionShortLabel = (position: PlayerPosition) => {
 };
 
 const AddEventDialog = ({
+  matchId,
   teams,
   currentMinute,
   onAddEvent,
@@ -196,6 +198,7 @@ const AddEventDialog = ({
     try {
       const fallbackTeamId = teams[0]?.id ?? '';
       await onAddEvent({
+        matchId,
         type: selectedEventType,
         minute: parseInt(formData.minute),
         teamId: needsTeam ? formData.teamId : fallbackTeamId,

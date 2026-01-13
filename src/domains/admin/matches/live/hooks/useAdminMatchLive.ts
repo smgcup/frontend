@@ -7,13 +7,12 @@ import {
   CreateMatchEventDocument,
   type CreateMatchEventMutation,
   type CreateMatchEventMutationVariables,
+  type CreateMatchEventDto,
   DeleteMatchEventDocument,
   type DeleteMatchEventMutation,
   type DeleteMatchEventMutationVariables,
 } from '@/graphql';
 import type { MatchEvent } from '@/domains/matches/contracts';
-import type { AddEventInput } from '../contracts';
-import { mapAddEventInputToDto } from '../mappers/mapAddEventInputToDto';
 
 export const useAdminMatchLive = (matchId: string, initialEvents: MatchEvent[]) => {
   const router = useRouter();
@@ -32,10 +31,10 @@ export const useAdminMatchLive = (matchId: string, initialEvents: MatchEvent[]) 
     return Math.max(0, maxMinute);
   }, [initialEvents]);
 
-  const onAddEvent = async (data: AddEventInput) => {
+  const onAddEvent = async (dto: CreateMatchEventDto) => {
     await createMatchEventMutation({
       variables: {
-        dto: mapAddEventInputToDto(data, matchId),
+        dto,
       },
     });
     // Trigger SSR refetch by refreshing the router
