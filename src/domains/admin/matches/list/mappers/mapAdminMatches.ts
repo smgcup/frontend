@@ -1,7 +1,7 @@
 import { type Match } from '@/domains/matches/contracts';
-import { type MatchesQuery } from '@/graphql';
+import { type GetMatchesQuery } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
-export const mapAdminMatch = (m: MatchesQuery['matches'][number]): Match => {
+export const mapAdminMatch = (m: GetMatchesQuery['matches'][number]): Match => {
   return {
     id: m.id,
     date: String(m.date),

@@ -6,9 +6,9 @@ import {
   GetNewsDocument,
   GetNewsQuery,
   GetNewsQueryVariables,
-  MatchesDocument,
-  MatchesQuery,
-  MatchesQueryVariables,
+  GetMatchesDocument,
+  GetMatchesQuery,
+  GetMatchesQueryVariables,
 } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
 import { mapNews } from '@/domains/news/mappers/mapNews';
@@ -25,8 +25,8 @@ export const getHomePageData = async () => {
     query: GetNewsDocument,
   });
 
-  const { data: matchesData, error: matchesError } = await client.query<MatchesQuery, MatchesQueryVariables>({
-    query: MatchesDocument,
+  const { data: matchesData, error: matchesError } = await client.query<GetMatchesQuery, GetMatchesQueryVariables>({
+    query: GetMatchesDocument,
   });
   const teams = teamsData?.teams.map(mapTeam) ?? [];
   const news = newsData?.news.map(mapNews) ?? [];
