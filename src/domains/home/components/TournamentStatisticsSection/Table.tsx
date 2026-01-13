@@ -1,6 +1,6 @@
 import { Trophy } from 'lucide-react';
-import React from 'react';
 import { cn } from '@/lib/utils';
+import PositionBadge from '@/components/PositionBadge';
 
 type Team = {
   id: string;
@@ -50,17 +50,7 @@ const Table = ({ teams }: { teams: Team[] }) => {
             {teams.map((team, index) => (
               <tr key={team.id} className="border-b transition-colors hover:bg-muted/50">
                 <td className="px-3 py-4 text-center">
-                  <div
-                    className={cn(
-                      'mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold',
-                      index === 0 && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-                      index === 1 && 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-                      index === 2 && 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-                      index >= 3 && 'bg-muted text-muted-foreground',
-                    )}
-                  >
-                    {index + 1}
-                  </div>
+                  <PositionBadge position={index + 1} />
                 </td>
                 <td className="px-4 py-4">
                   <p className="font-semibold">{team.name}</p>
