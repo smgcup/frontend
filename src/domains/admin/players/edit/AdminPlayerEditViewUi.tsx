@@ -1,8 +1,8 @@
 'use client';
 
-import type { Player, PlayerUpdate } from '@/domains/player/contracts';
+import type { Player } from '@/domains/player/contracts';
 import type { Team } from '@/domains/team/contracts';
-import { PlayerPosition, PreferredFoot } from '@/graphql';
+import { PlayerPosition, PreferredFoot, UpdatePlayerDto } from '@/graphql';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ErrorLike } from '@apollo/client';
@@ -33,7 +33,7 @@ type AdminPlayerEditViewUiProps = {
   updateError: ErrorLike | null;
   deleteLoading: boolean;
   deleteError: ErrorLike | null;
-  onUpdatePlayer: (dto: PlayerUpdate) => Promise<unknown>;
+  onUpdatePlayer: (dto: UpdatePlayerDto) => Promise<unknown>;
   onDeletePlayer: () => Promise<unknown>;
 };
 
@@ -201,7 +201,7 @@ const AdminPlayerEditViewUi = ({
 
     try {
       // Only send changed fields (all fields are optional on PlayerUpdate)
-      const dto: PlayerUpdate = {};
+      const dto: UpdatePlayerDto = {};
       if (dirtyFields.firstName) dto.firstName = formData.firstName.trim();
       if (dirtyFields.lastName) dto.lastName = formData.lastName.trim();
       if (dirtyFields.teamId) dto.teamId = formData.teamId;

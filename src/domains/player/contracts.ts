@@ -14,15 +14,3 @@ export type Player = {
   team?: Team;
   teamId?: string;
 };
-
-export type PlayerUpdate = Partial<{
-  firstName: string;
-  lastName: string;
-  teamId: string;
-  height: number;
-  weight: number;
-  yearOfBirth: number;
-  imageUrl: string;
-  position: PlayerPosition;
-  preferredFoot: PreferredFoot;
-}>;

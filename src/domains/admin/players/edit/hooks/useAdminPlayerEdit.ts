@@ -10,7 +10,6 @@ import {
   UpdatePlayerMutationVariables,
   type UpdatePlayerDto,
 } from '@/graphql';
-import type { PlayerUpdate } from '@/domains/player/contracts';
 
 export const useAdminPlayerEdit = (playerId: string) => {
   const [updatePlayerMutation, { loading: updateLoading, error: updateError }] = useMutation<
@@ -23,7 +22,7 @@ export const useAdminPlayerEdit = (playerId: string) => {
     DeletePlayerMutationVariables
   >(DeletePlayerDocument);
 
-  const handleUpdatePlayer = async (dto: PlayerUpdate) => {
+  const handleUpdatePlayer = async (dto: UpdatePlayerDto) => {
     const gqlDto: UpdatePlayerDto = {};
     if (dto.firstName !== undefined) gqlDto.firstName = dto.firstName;
     if (dto.lastName !== undefined) gqlDto.lastName = dto.lastName;
