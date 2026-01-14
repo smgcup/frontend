@@ -45,7 +45,7 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
                 variant="outline"
                 className={isLive ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' : ''}
               >
-                {isLive ? `LIVE - ${currentMinute}` : match.status}
+                {isLive ? `LIVE - ${currentMinute}'` : match.status}
               </Badge>
             </div>
           </CardHeader>

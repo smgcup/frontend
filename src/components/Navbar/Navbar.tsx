@@ -229,7 +229,7 @@ const Navbar = () => {
         </nav>
 
         {/* Mobile Menu */}
-        <div className="relative block lg:hidden">
+        <div className="block lg:hidden">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
@@ -268,11 +268,11 @@ const Navbar = () => {
           </div>
           {/* Expandable Menu */}
           <div
-            className={`absolute left-0 right-0 top-full z-50 overflow-hidden transition-all duration-300 ease-in-out border-t bg-background shadow-lg -mx-10 px-10 mt-3 ${
+            className={`absolute left-0 right-0 top-full z-50 overflow-hidden transition-all duration-300 ease-in-out border-t bg-background shadow-lg px-10 ${
               isMenuOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
             }`}
           >
-            <nav className="flex flex-col py-6">
+            <nav className="flex flex-col pt-4 pb-6">
               <Accordion
                 type="single"
                 collapsible

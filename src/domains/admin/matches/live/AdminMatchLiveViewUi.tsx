@@ -92,7 +92,7 @@ const AdminMatchLiveViewUi = ({
               className="bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20 animate-pulse"
             >
               <Clock className="h-3 w-3 mr-1" />
-              LIVE - {currentMinute}
+              LIVE - {currentMinute}&apos;
             </Badge>
           </div>
         </CardHeader>
