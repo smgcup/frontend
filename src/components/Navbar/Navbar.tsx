@@ -1,4 +1,5 @@
 'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -7,62 +8,98 @@ import {
   Button,
   NavigationMenu,
   NavigationMenuList,
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
   NavigationMenuItem,
   NavigationMenuTrigger,
   NavigationMenuContent,
   NavigationMenuLink,
 } from '../ui/';
-import { User } from 'lucide-react';
-import { Menu, X } from 'lucide-react';
+import { User, Menu, X, ChevronDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 type MenuItem = {
   title: string;
-  url: string;
-  description?: string;
-  icon?: React.ReactNode;
-  items?: MenuItem[];
+  url?: string;
+  icon?: React.ReactNode; // Optional icon component
+  items?: MenuItem[]; // Optional nested menu items for dropdowns
 };
 
+// Store logo URL in a constant for reuse
 const logoUrl = logoPng;
 
+// Main navigation menu configuration - defines all top-level menu items
 const menu: MenuItem[] = [
   { title: 'Home', url: '/' },
   { title: 'Matches', url: '/matches' },
-  { title: 'Player Standings', url: '/players-standings' },
+  {
+    title: 'Standings',
+    items: [
+      { title: 'Player Standings', url: '/players-standings' },
+      { title: 'Team Standings', url: '/team-standings' },
+    ],
+  },
   { title: 'News', url: '/news' },
   { title: 'Games', url: '/games' },
   { title: 'Rules', url: '/rules' },
 ];
 
+/**
+ * Normalizes a path string by removing trailing slashes
+ * Ensures consistent path comparison by handling edge cases
+ * @param path - The path string to normalize
+ * @returns Normalized path (empty string becomes '/', trailing slashes removed)
+ */
 function normalizePath(path: string) {
+  // Handle empty or null paths
   if (!path) return '/';
+  // Root path stays as root
   if (path === '/') return '/';
+  // Remove one or more trailing slashes using regex
   return path.replace(/\/+$/, '');
 }
 
+/**
+ * Determines if a menu item URL matches the current pathname
+ * Handles exact matches and nested route matching
+ * @param itemUrl - The menu item's URL to check
+ * @param pathname - The current route pathname
+ * @returns True if the item should be marked as active
+ */
 function isActivePath(itemUrl: string, pathname: string) {
+  // Normalize both paths for consistent comparison
   const url = normalizePath(itemUrl);
   const path = normalizePath(pathname);
 
-  // Root should only be active on root.
+  // Root path should only match exactly on root route
   if (url === '/') return path === '/';
 
-  // Exact match or nested subpage match.
+  // Match exact path or any nested subpage (e.g., /matches matches /matches/live)
   return path === url || path.startsWith(`${url}/`);
 }
 
+/**
+ * Recursively checks if a menu item or any of its children are active
+ * Used to highlight parent items when their sub-items are active
+ * @param item - The menu item to check
+ * @param pathname - The current route pathname
+ * @returns True if the item or any nested item is active
+ */
 function isMenuItemActive(item: MenuItem, pathname: string): boolean {
-  if (isActivePath(item.url, pathname)) return true;
+  // Check if the item itself is active (only if it has a URL)
+  if (item.url && isActivePath(item.url, pathname)) return true;
+  // If no nested items, return false
   if (!item.items?.length) return false;
+  // Recursively check all nested items
   return item.items.some((subItem) => isMenuItemActive(subItem, pathname));
 }
 
+/**
+ * SubMenuLink component - renders a link within a dropdown/submenu
+ * Displays icon, title, and optional description with active state styling
+ * @param item - The menu item to render
+ * @param isActive - Whether this item is currently active
+ * @param onNavigate - Optional callback when navigation occurs (used to close mobile menu)
+ */
 const SubMenuLink = ({
   item,
   isActive,
@@ -72,6 +109,10 @@ const SubMenuLink = ({
   isActive: boolean;
   onNavigate?: () => void;
 }) => {
+  // SubMenuLink is only used for sub-items, which always have URLs
+  if (!item.url) {
+    throw new Error(`SubMenuLink requires a URL for item: ${item.title}`);
+  }
   return (
     <Link
       className={cn(
@@ -85,36 +126,53 @@ const SubMenuLink = ({
       {item.icon && <div className="text-muted-foreground shrink-0">{item.icon}</div>}
       <div className="flex-1">
         <div className="text-sm font-medium text-foreground">{item.title}</div>
-        {item.description && <p className="text-muted-foreground text-xs leading-snug mt-0.5">{item.description}</p>}
       </div>
     </Link>
   );
 };
 
+/**
+ * Main Navbar component - responsive navigation bar with desktop and mobile views
+ * Features:
+ * - Sticky positioning at top of page
+ * - Desktop dropdown menus for items with sub-items
+ * - Mobile accordion menu with hamburger toggle
+ * - Active route highlighting
+ * - User authentication state (currently shows login button)
+ */
 const Navbar = () => {
+  // State to track if mobile menu is open/closed
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // Get current route pathname for active state detection
   const pathname = usePathname();
+  // State to control which accordion section is expanded in mobile view
   const [mobileAccordionValue, setMobileAccordionValue] = useState<string | undefined>(undefined);
 
+  // Find which menu item with sub-items should be expanded based on current route
+  // This ensures the correct section is open when mobile menu is toggled
   const activeMobileAccordionValue = menu.find((item) => item.items?.length && isMenuItemActive(item, pathname))?.title;
 
-  // Keep the expanded mobile section in sync with the current route.
-  // (So opening the menu shows the active section + active subpage immediately.)
+  // Synchronize mobile accordion state with active route
+  // When menu opens, the section containing the active page is automatically expanded
   useEffect(() => {
     setMobileAccordionValue(activeMobileAccordionValue);
   }, [activeMobileAccordionValue]);
 
+  /**
+   * Renders a menu item for desktop view
+   * Handles both simple links and dropdown menus with sub-items
+   * @param item - The menu item to render
+   * @returns NavigationMenuItem component (either link or dropdown)
+   */
   const renderMenuItem = (item: MenuItem) => {
+    // Check if this item or its children are active
     const isActive = isMenuItemActive(item, pathname);
 
+    // If item has nested items, render as dropdown menu
     if (item.items) {
       return (
         <NavigationMenuItem key={item.title}>
-          <NavigationMenuTrigger
-            className={cn(isActive && 'underline underline-offset-4 decoration-primary decoration-2')}
-          >
-            {item.title}
-          </NavigationMenuTrigger>
+          <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
           <NavigationMenuContent className="bg-popover text-popover-foreground">
             {item.items.map((subItem) => (
               <NavigationMenuLink asChild key={subItem.title} className="w-80">
@@ -126,6 +184,11 @@ const Navbar = () => {
       );
     }
 
+    // Render as simple navigation link for items without sub-items
+    // Items without sub-items should always have URLs
+    if (!item.url) {
+      throw new Error(`Menu item "${item.title}" without sub-items must have a URL`);
+    }
     return (
       <NavigationMenuItem key={item.title}>
         <NavigationMenuLink
@@ -142,22 +205,41 @@ const Navbar = () => {
     );
   };
 
+  /**
+   * Renders a menu item for mobile view
+   * Uses custom accordion for items with sub-items, simple links for others
+   * Automatically closes menu on navigation
+   * @param item - The menu item to render
+   * @returns Custom accordion item for nested items, or Link for simple items
+   */
   const renderMobileMenuItem = (item: MenuItem) => {
+    // Check if this item or its children are active
     const isActive = isMenuItemActive(item, pathname);
+    const isOpen = mobileAccordionValue === item.title;
 
+    // If item has nested items, render as custom accordion item
     if (item.items) {
       return (
-        <AccordionItem key={item.title} value={item.title} className="border-b-0">
-          <AccordionTrigger
-            className={cn(
-              'py-3 text-base font-medium hover:no-underline px-3',
-              isActive && 'underline underline-offset-4 decoration-primary decoration-2',
-            )}
+        <div key={item.title} className="border-b-0">
+          <button
+            onClick={() => setMobileAccordionValue(isOpen ? undefined : item.title)}
+            className="w-full flex items-center justify-between py-3 text-base font-medium px-3 rounded-md transition-colors hover:text-primary"
+            aria-expanded={isOpen}
           >
-            {item.title}
-          </AccordionTrigger>
-          <AccordionContent className="pb-2 pt-1">
-            <div className="flex flex-col gap-1 pl-4">
+            <span>{item.title}</span>
+            <ChevronDown className={cn('size-4 transition-transform duration-200 ease-out', isOpen && 'rotate-180')} />
+          </button>
+          <div
+            className={cn(
+              'overflow-hidden transition-all duration-300 ease-out',
+              isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0',
+            )}
+            style={{
+              transitionProperty: 'max-height, opacity',
+              transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+          >
+            <div className="flex flex-col gap-1 pl-4 pb-2 pt-1">
               {item.items.map((subItem) => (
                 <SubMenuLink
                   key={subItem.title}
@@ -167,11 +249,16 @@ const Navbar = () => {
                 />
               ))}
             </div>
-          </AccordionContent>
-        </AccordionItem>
+          </div>
+        </div>
       );
     }
 
+    // Render as simple link for items without sub-items
+    // Items without sub-items should always have URLs
+    if (!item.url) {
+      throw new Error(`Menu item "${item.title}" without sub-items must have a URL`);
+    }
     return (
       <Link
         key={item.title}
@@ -191,10 +278,9 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 bg-background transition-all duration-300 py-2 lg:py-4">
       <div className="w-screen px-6">
-        {/* Desktop Menu */}
+        {/* Desktop navigation */}
         <nav className="hidden items-center lg:flex">
           <div className="flex flex-1 items-center">
-            {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
               <Image
                 src={logoUrl}
@@ -228,10 +314,9 @@ const Navbar = () => {
           </div>
         </nav>
 
-        {/* Mobile Menu */}
+        {/* Mobile navigation */}
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
-            {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
               <Image src={logoUrl} alt="SMG Cup Championship Logo" width={50} height={50} />
             </Link>
@@ -266,23 +351,12 @@ const Navbar = () => {
               </Button>
             </div>
           </div>
-          {/* Expandable Menu */}
           <div
             className={`absolute left-0 right-0 top-full z-50 overflow-hidden transition-all duration-300 ease-in-out border-t bg-background shadow-lg px-10 ${
               isMenuOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
             }`}
           >
-            <nav className="flex flex-col pt-4 pb-6">
-              <Accordion
-                type="single"
-                collapsible
-                value={mobileAccordionValue}
-                onValueChange={(v) => setMobileAccordionValue(v || undefined)}
-                className="flex w-full flex-col gap-1"
-              >
-                {menu.map((item) => renderMobileMenuItem(item))}
-              </Accordion>
-            </nav>
+            <nav className="flex flex-col pt-4 pb-6 gap-1">{menu.map((item) => renderMobileMenuItem(item))}</nav>
           </div>
         </div>
       </div>
