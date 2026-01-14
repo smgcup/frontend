@@ -18,11 +18,13 @@ import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLab
 import { MatchEventType, PlayerPosition } from '@/generated/types';
 import { type Team } from '@/domains/team/contracts';
 import { type CreateMatchEventDto } from '@/generated/types';
+import { type MatchEvent } from '@/domains/matches/contracts';
 
 type AddEventDialogProps = {
   matchId: string;
   teams: Team[];
   currentMinute: number;
+  events: MatchEvent[];
   onAddEvent: (dto: CreateMatchEventDto) => Promise<void>;
   trigger: React.ReactNode;
   mode?: 'full' | 'quick';
@@ -47,9 +49,9 @@ const requiresTeam = (type: MatchEventType): boolean => {
 const requiresPlayer = (type: MatchEventType): boolean => {
   return [
     MatchEventType.Goal,
+    MatchEventType.GoalkeeperSave,
     MatchEventType.YellowCard,
     MatchEventType.RedCard,
-    MatchEventType.GoalkeeperSave,
     MatchEventType.PenaltyScored,
     MatchEventType.PenaltyMissed,
   ].includes(type);
@@ -57,6 +59,7 @@ const requiresPlayer = (type: MatchEventType): boolean => {
 const requiresAssistPlayer = (type: MatchEventType): boolean => {
   return [MatchEventType.Goal].includes(type);
 };
+
 const positionShortLabel = (position: PlayerPosition) => {
   switch (position) {
     case PlayerPosition.Goalkeeper:
@@ -76,6 +79,7 @@ const AddEventDialog = ({
   matchId,
   teams,
   currentMinute,
+  events,
   onAddEvent,
   trigger,
   mode = 'full',
@@ -83,7 +87,7 @@ const AddEventDialog = ({
 }: AddEventDialogProps) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    type: presetType ?? MatchEventType.Goal,
+    type: '',
     minute: currentMinute.toString(),
     teamId: '',
     playerId: '',
@@ -99,6 +103,15 @@ const AddEventDialog = ({
   const needsAssistPlayer = requiresAssistPlayer(selectedEventType);
   const needsTeam = requiresTeam(selectedEventType);
 
+  // Get set of player IDs who have received a red card
+  const playersWithRedCard = useMemo(() => {
+    return new Set(
+      events
+        .filter((event) => event.type === MatchEventType.RedCard && event.player?.id)
+        .map((event) => event.player!.id),
+    );
+  }, [events]);
+
   const allPlayers = useMemo(() => {
     const rows = teams.flatMap(
       (team) =>
@@ -108,14 +121,21 @@ const AddEventDialog = ({
           teamName: team.name,
         })) ?? [],
     );
-    return rows.sort((a, b) => {
-      const teamCmp = a.teamName.localeCompare(b.teamName);
-      if (teamCmp !== 0) return teamCmp;
-      const lnCmp = a.lastName.localeCompare(b.lastName);
-      if (lnCmp !== 0) return lnCmp;
-      return a.firstName.localeCompare(b.firstName);
-    });
-  }, [teams]);
+    return rows
+      .filter((player) => !playersWithRedCard.has(player.id))
+      .sort((a, b) => {
+        const teamCmp = a.teamName.localeCompare(b.teamName);
+        if (teamCmp !== 0) return teamCmp;
+        const fnCmp = a.firstName.localeCompare(b.firstName);
+        if (fnCmp !== 0) return fnCmp;
+        return a.lastName.localeCompare(b.lastName);
+      });
+  }, [teams, playersWithRedCard]);
+
+  const availableTeamPlayers = useMemo(() => {
+    if (!selectedTeam?.players) return [];
+    return selectedTeam.players.filter((player) => !playersWithRedCard.has(player.id));
+  }, [selectedTeam, playersWithRedCard]);
 
   useEffect(() => {
     if (!open) return;
@@ -208,7 +228,7 @@ const AddEventDialog = ({
       setOpen(false);
       // Reset form
       setFormData({
-        type: presetType ?? MatchEventType.Goal,
+        type: '',
         minute: currentMinute.toString(),
         teamId: '',
         playerId: '',
@@ -317,7 +337,7 @@ const AddEventDialog = ({
                       <SelectValue placeholder="Select player" />
                     </SelectTrigger>
                     <SelectContent>
-                      {selectedTeam?.players?.map((player) => (
+                      {availableTeamPlayers.map((player) => (
                         <SelectItem key={player.id} value={player.id}>
                           <span className="flex w-full items-center justify-between gap-3">
                             <span className="truncate">

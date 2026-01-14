@@ -26,6 +26,7 @@ type AdminMatchLiveViewUiProps = {
 // Each event has a type, display label, icon component, and color styling
 const QUICK_EVENTS = [
   { type: MatchEventType.Goal, label: 'Goal', icon: Goal, color: 'bg-green-500 hover:bg-green-600' },
+  { type: MatchEventType.GoalkeeperSave, label: 'Save', icon: Shield, color: 'bg-blue-500 hover:bg-blue-600' },
   {
     type: MatchEventType.YellowCard,
     label: 'Yellow Card',
@@ -33,7 +34,6 @@ const QUICK_EVENTS = [
     color: 'bg-yellow-500 hover:bg-yellow-600',
   },
   { type: MatchEventType.RedCard, label: 'Red Card', icon: Ban, color: 'bg-red-500 hover:bg-red-600' },
-  { type: MatchEventType.GoalkeeperSave, label: 'Save', icon: Shield, color: 'bg-blue-500 hover:bg-blue-600' },
   {
     type: MatchEventType.PenaltyScored,
     label: 'Penalty Goal',
@@ -142,6 +142,7 @@ const AdminMatchLiveViewUi = ({
                   matchId={match.id}
                   teams={teams}
                   currentMinute={currentMinute}
+                  events={events}
                   onAddEvent={onAddEvent}
                   mode="quick"
                   presetType={event.type}

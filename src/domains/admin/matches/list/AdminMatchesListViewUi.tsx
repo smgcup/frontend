@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -53,6 +53,22 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
   const [deletingId, setDeletingId] = useState<string | null>(null);
   // Track which match's ID popup is currently shown
   const [showMatchId, setShowMatchId] = useState<string | null>(null);
+
+  // Sort matches by status: LIVE -> SCHEDULED -> FINISHED -> CANCELLED
+  const sortedMatches = useMemo(() => {
+    const statusOrder = {
+      [MatchStatus.Live]: 0,
+      [MatchStatus.Scheduled]: 1,
+      [MatchStatus.Finished]: 2,
+      [MatchStatus.Cancelled]: 3,
+    };
+
+    return [...matches].sort((a, b) => {
+      const orderA = statusOrder[a.status] ?? 999;
+      const orderB = statusOrder[b.status] ?? 999;
+      return orderA - orderB;
+    });
+  }, [matches]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -145,7 +161,7 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
     <div className="space-y-8 py-4 lg:p-10">
       <AdminPageHeader
         title="Matches"
-        subtitle={`${matches.length} total`}
+        subtitle={`${sortedMatches.length} total`}
         description="Create, edit, and manage matches"
         actions={
           <Button asChild className="gap-2 w-full sm:w-auto">
@@ -157,7 +173,7 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
         }
       />
 
-      {matches.length === 0 ? (
+      {sortedMatches.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <div className="rounded-full bg-muted p-4 mb-4">
@@ -175,7 +191,7 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {matches.map((match) => {
+          {sortedMatches.map((match) => {
             // Get styling configuration for the match status badge
             const statusConfig = getStatusConfig(match.status);
             // Only show scores for LIVE or FINISHED matches
