@@ -20,14 +20,14 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
   const scoringTypes = new Set<MatchEventType>([MatchEventType.Goal, MatchEventType.PenaltyScored]);
   const firstId = match.firstOpponent.id;
   const secondId = match.secondOpponent.id;
-  let s1 = 0;
-  let s2 = 0;
+  const s1 = 0;
+  const s2 = 0;
   let currentMinute = 0;
   for (const e of events) {
     currentMinute = Math.max(currentMinute, e.minute);
     if (!scoringTypes.has(e.type)) continue;
-    if (e.team.id === firstId) s1 += 1;
-    if (e.team.id === secondId) s2 += 1;
+    // if (e && e?.team && e?.team.id === firstId) s1 += 1;
+    // if (e && e?.team && e?.team.id === secondId) s2 += 1;
   }
   const score1 = Math.max(match.score1 ?? 0, s1);
   const score2 = Math.max(match.score2 ?? 0, s2);

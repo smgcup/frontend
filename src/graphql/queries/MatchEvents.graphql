@@ -4,14 +4,23 @@ query MatchEvents($matchId: String!) {
     type
     minute
     createdAt
-    team {
-      id
-      name
-    }
     player {
       id
       firstName
       lastName
+      position
+      team {
+        name
+      }
+    }
+    assistPlayer {
+      id
+      firstName
+      lastName
+      position
+      team {
+        name
+      }
     }
   }
 }

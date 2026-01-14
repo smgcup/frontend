@@ -89,9 +89,9 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
           );
         }
 
-        const isFirstTeam = event.team.name === firstOpponentName;
+        const isFirstTeam = event.player && event.player.team?.name === firstOpponentName;
         const time = formatMatchTime(event.minute);
-        const playerName = event.player ? `${event.player.firstName} ${event.player.lastName}` : event.team.name;
+        const playerName = event.player ? `${event.player.firstName} ${event.player.lastName}` : undefined;
         const leftText = isFirstTeam ? playerName : time;
         const rightText = isFirstTeam ? time : playerName;
 

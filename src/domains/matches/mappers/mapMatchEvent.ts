@@ -1,43 +1,16 @@
 import type { MatchEvent } from '../contracts';
-import type { MatchEventType } from '@/generated/types';
+import { mapPlayer } from '@/domains/player/mappers/mapPlayer';
+import { MatchEventsQuery } from '@/graphql';
 
-type PlayerLike = {
-  id: string;
-  firstName?: string | null;
-  lastName?: string | null;
-  position?: string | null;
-};
+export const mapMatchEvent = (event: MatchEventsQuery['matchEvents'][number]): MatchEvent => {
+  const player = event.player ? mapPlayer(event.player) : undefined;
+  const assistPlayer = event.assistPlayer ? mapPlayer(event.assistPlayer) : undefined;
 
-type TeamLike = {
-  id: string;
-  name?: string | null;
-};
-
-type MatchEventLike = {
-  id: string;
-  type: MatchEventType | string;
-  minute: number;
-  createdAt?: unknown;
-  player?: PlayerLike | null;
-  team: TeamLike;
-};
-
-export const mapMatchEvent = (e: MatchEventLike): MatchEvent => {
   return {
-    id: e.id,
-    type: e.type as MatchEventType,
-    minute: e.minute,
-    ...(e.createdAt == null ? {} : { createdAt: String(e.createdAt) }),
-    ...(e.player
-      ? {
-          player: {
-            id: e.player.id,
-            firstName: e.player.firstName ?? '',
-            lastName: e.player.lastName ?? '',
-            ...(e.player.position == null ? {} : { position: e.player.position }),
-          },
-        }
-      : {}),
-    team: { id: e.team.id, name: e.team.name ?? '' },
+    id: event.id,
+    type: event.type,
+    minute: event.minute,
+    player,
+    assistPlayer,
   };
 };
