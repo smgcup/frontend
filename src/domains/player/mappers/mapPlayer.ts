@@ -1,5 +1,11 @@
 import { Player } from '../contracts';
-import { MatchByIdQuery, PlayerByIdQuery, TeamsWithPlayersQuery, MatchEventsQuery } from '@/graphql';
+import {
+  MatchByIdQuery,
+  PlayerByIdQuery,
+  TeamsWithPlayersQuery,
+  MatchEventsQuery,
+  GetPlayersStandingsQuery,
+} from '@/graphql';
 
 export const mapPlayer = (
   player:
@@ -7,6 +13,7 @@ export const mapPlayer = (
     | MatchByIdQuery['matchById']['firstOpponent']['players'][number]
     | MatchByIdQuery['matchById']['secondOpponent']['players'][number]
     | TeamsWithPlayersQuery['teams'][number]['players'][number]
+    | GetPlayersStandingsQuery['teams'][number]['players'][number]
     | NonNullable<MatchEventsQuery['matchEvents'][number]['player']>
     | NonNullable<MatchEventsQuery['matchEvents'][number]['assistPlayer']>,
 ): Player => {
@@ -17,6 +24,7 @@ export const mapPlayer = (
   const preferredFoot = 'preferredFoot' in player ? player.preferredFoot : undefined;
   const team = 'team' in player ? { id: player.team.id, name: player.team.name } : undefined;
   const age = 'age' in player ? player.age : undefined;
+  const imageUrl = 'imageUrl' in player ? player.imageUrl : undefined;
 
   return {
     id: player.id,
@@ -28,5 +36,6 @@ export const mapPlayer = (
     preferredFoot,
     team,
     age,
+    imageUrl,
   };
 };

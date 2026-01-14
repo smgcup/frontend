@@ -1,0 +1,13 @@
+query GetPlayersStandings {
+  teams {
+    id
+    name
+    players {
+      id
+      firstName
+      lastName
+      position
+      imageUrl
+    }
+  }
+}

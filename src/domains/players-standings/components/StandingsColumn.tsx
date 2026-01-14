@@ -14,11 +14,11 @@ const getCategoryEmoji = (category: CategoryType) => {
     case CATEGORIES.Goals:
       return '⚽';
     case CATEGORIES.Assists:
-      return '🅰️';
+      return '🤝';
     case CATEGORIES.TotalPasses:
-      return '📊';
+      return '👟';
     case CATEGORIES.CleanSheets:
-      return '🛡️';
+      return '🤝';
     default:
       return null;
   }
