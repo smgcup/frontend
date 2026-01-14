@@ -1,4 +1,4 @@
-query Matches {
+query GetMatches {
   matches {
     id
     date
@@ -15,5 +15,3 @@ query Matches {
     }
   }
 }
-
-

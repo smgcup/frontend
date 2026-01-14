@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
-import type { TeamCreate } from '@/domains/team/contracts';
+import { CreateTeamDto } from '@/graphql';
 type AdminTeamCreateViewUiProps = {
-  onAdminCreateTeam: (createTeam: TeamCreate) => void | Promise<unknown>;
+  onAdminCreateTeam: (createTeamDto: CreateTeamDto) => void | Promise<unknown>;
   adminCreateTeamLoading: boolean;
   adminCreateTeamError?: string | null;
 };

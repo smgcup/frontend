@@ -1,15 +1,15 @@
 import type { Match } from '../contracts';
-import { type MatchesQuery } from '@/graphql';
+import { type MatchByIdQuery, type GetMatchesQuery } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
 
-export const mapMatch = (m: MatchesQuery['matches'][number]): Match => {
+export const mapMatch = (match: GetMatchesQuery['matches'][number] | MatchByIdQuery['matchById']): Match => {
   return {
-    id: m.id,
-    date: String(m.date),
-    status: m.status,
-    ...(m.score1 == null ? {} : { score1: m.score1 }),
-    ...(m.score2 == null ? {} : { score2: m.score2 }),
-    firstOpponent: mapTeam(m.firstOpponent),
-    secondOpponent: mapTeam(m.secondOpponent),
+    id: match.id,
+    firstOpponent: mapTeam(match.firstOpponent),
+    secondOpponent: mapTeam(match.secondOpponent),
+    date: String(match.date),
+    status: match.status,
+    score1: match.score1 ?? undefined,
+    score2: match.score2 ?? undefined,
   };
 };

@@ -3,9 +3,8 @@ import {
   AdminCreateTeamDocument,
   AdminCreateTeamMutation,
   AdminCreateTeamMutationVariables,
+  CreateTeamDto,
 } from '@/graphql';
-import type { TeamCreate } from '@/domains/team/contracts';
-import { mapTeamCreateToDto } from '@/domains/team/mappers/mapTeamDto';
 export const useAdminTeamCreate = () => {
   // GraphQL Mutations
   const [adminCreateTeamMutation, { loading: adminCreateTeamLoading, error: adminCreateTeamError }] = useMutation<
@@ -13,10 +12,10 @@ export const useAdminTeamCreate = () => {
     AdminCreateTeamMutationVariables
   >(AdminCreateTeamDocument);
 
-  const handleAdminCreateTeam = async (createTeam: TeamCreate) => {
+  const handleAdminCreateTeam = async (createTeamDto: CreateTeamDto) => {
     const { data } = await adminCreateTeamMutation({
       variables: {
-        createTeamDto: mapTeamCreateToDto(createTeam),
+        createTeamDto,
       },
     });
     return data;

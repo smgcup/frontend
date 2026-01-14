@@ -2,10 +2,10 @@
 
 import AdminPlayersListViewUi from './AdminPlayersListViewUi';
 import { useAdminPlayersList } from './hooks/useAdminPlayersList';
-import type { TeamWithPlayers } from '@/domains/team/contracts';
+import type { Team } from '@/domains/team/contracts';
 
 type AdminPlayersListViewProps = {
-  initialTeams: TeamWithPlayers[];
+  initialTeams: Team[];
 };
 
 const AdminPlayersListView = ({ initialTeams }: AdminPlayersListViewProps) => {

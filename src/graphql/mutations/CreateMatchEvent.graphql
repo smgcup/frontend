@@ -3,18 +3,16 @@ mutation CreateMatchEvent($dto: CreateMatchEventDto!) {
     id
     type
     minute
-    payload
     createdAt
-    team {
-      id
-      name
-    }
     player {
+      id
+      firstName
+      lastName
+    }
+    assistPlayer {
       id
       firstName
       lastName
     }
   }
 }
-
-

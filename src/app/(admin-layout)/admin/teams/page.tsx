@@ -8,5 +8,5 @@ export default async function AdminTeamsPage() {
     return <div>Error loading teams: {teamsErrorMessage}</div>;
   }
 
-  return <AdminTeamsView initialTeams={teams} />;
+  return <AdminTeamsView teams={teams} />;
 }

@@ -6,17 +6,3 @@ export type News = {
   imageUrl: string;
   category: string;
 };
-
-export type NewsCreate = {
-  title: string;
-  content: string;
-  imageUrl: string;
-  category: string;
-};
-
-export type NewsUpdate = {
-  title: string;
-  content: string;
-  imageUrl: string;
-  category: string;
-};

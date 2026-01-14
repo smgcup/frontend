@@ -3,16 +3,26 @@ query MatchEvents($matchId: String!) {
     id
     type
     minute
-    payload
     createdAt
-    team {
-      id
-      name
-    }
     player {
       id
       firstName
       lastName
+      position
+      team {
+        id
+        name
+      }
+    }
+    assistPlayer {
+      id
+      firstName
+      lastName
+      position
+      team {
+        id
+        name
+      }
     }
   }
 }
