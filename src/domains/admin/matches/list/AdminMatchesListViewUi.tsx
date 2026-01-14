@@ -79,7 +79,7 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
       },
       LIVE: {
         label: '● Live',
-        className: 'bg-red-500/10 text-red-600 dark:text-red-400 animate-pulse',
+        className: 'bg-red-500/10 text-red-600 dark:text-red-400',
       },
       FINISHED: {
         label: 'Completed',

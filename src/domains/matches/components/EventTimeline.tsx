@@ -82,8 +82,25 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
           const label = event.type === MatchEventType.FullTime ? 'Full time' : 'Half-time';
           return (
             <div key={event.id} className="relative py-2">
-              <div className="relative z-10 w-full rounded-xl bg-muted/40 py-3 text-center text-base font-medium text-muted-foreground">
-                {label}
+              <div className="relative z-10 grid grid-cols-[1fr_auto_1fr] items-center w-full rounded-xl bg-muted/40 py-3 px-4 text-base font-medium text-muted-foreground">
+                <div></div>
+                <span className="text-center">{label}</span>
+                <div className="flex justify-end">
+                  {onDeleteEvent && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onDeleteEvent(event.id)}
+                      disabled={Boolean(deletingEventId)}
+                      className="h-7 w-7 shrink-0"
+                      aria-label="Delete event"
+                      title="Delete event"
+                    >
+                      <Trash2 className={cn('h-4 w-4 text-white', deletingEventId === event.id && 'opacity-50')} />
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           );
@@ -125,11 +142,11 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
                   size="icon"
                   onClick={() => onDeleteEvent(event.id)}
                   disabled={Boolean(deletingEventId)}
-                  className="h-7 w-7 shrink-0"
+                  className="h-7 w-7 shrink-0 ml-auto"
                   aria-label="Delete event"
                   title="Delete event"
                 >
-                  <Trash2 className={cn('h-4 w-4', deletingEventId === event.id && 'opacity-50')} />
+                  <Trash2 className={cn('h-4 w-4 text-white', deletingEventId === event.id && 'opacity-50')} />
                 </Button>
               )}
             </div>

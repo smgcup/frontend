@@ -28,7 +28,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
   const statusConfig = (() => {
     const statusMap: Record<MatchStatus, { label: string; className: string }> = {
       [MatchStatus.Scheduled]: { label: 'Upcoming', className: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
-      [MatchStatus.Live]: { label: '● Live', className: 'bg-red-500/10 text-red-600 dark:text-red-400 animate-pulse' },
+      [MatchStatus.Live]: { label: '● Live', className: 'bg-red-500/10 text-red-600 dark:text-red-400' },
       [MatchStatus.Finished]: { label: 'Completed', className: 'bg-green-500/10 text-green-600 dark:text-green-400' },
       [MatchStatus.Cancelled]: { label: 'Cancelled', className: 'bg-gray-500/10 text-gray-600 dark:text-gray-400' },
     };
