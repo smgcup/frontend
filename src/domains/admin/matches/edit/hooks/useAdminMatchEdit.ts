@@ -12,8 +12,8 @@ import {
   type UpdateMatchMutation,
   type UpdateMatchMutationVariables,
 } from '@/graphql';
-import { mapMatchById } from '@/domains/matches/mappers/mapMatchById';
 import { getTranslationCode } from '../../utils/getTranslationCode';
+import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 
 /**
  * Form data structure for editing a match in the admin panel.
@@ -65,7 +65,7 @@ export const useAdminMatchEdit = (matchId: string) => {
   const match = useMemo(() => {
     const row = matchData?.matchById;
     if (!row) return null;
-    return mapMatchById(row);
+    return mapMatch(row);
   }, [matchData?.matchById]);
 
   /**

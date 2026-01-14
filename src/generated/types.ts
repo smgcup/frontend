@@ -80,7 +80,6 @@ export type MatchEvent = {
   match: Match;
   minute: Scalars['Float']['output'];
   player?: Maybe<Player>;
-  team: Team;
   type: MatchEventType;
 };
 

@@ -7,7 +7,7 @@ import {
   type MatchEventsQuery,
   type MatchEventsQueryVariables,
 } from '@/graphql';
-import { mapMatchById } from '@/domains/matches/mappers/mapMatchById';
+import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 import { mapMatchEvent } from '@/domains/matches/mappers/mapMatchEvent';
 import type { Match, MatchEvent } from '@/domains/matches/contracts';
 
@@ -25,8 +25,8 @@ export const getAdminMatchLivePageData = async (matchId: string) => {
   });
 
   const matchRow = matchData?.matchById;
-  const mappedMatch = matchRow ? mapMatchById(matchRow) : null;
-  const match: Match | null =
+  const mappedMatch = matchData?.matchById ? mapMatch(matchData?.matchById) : null;
+  const match =
     mappedMatch && matchRow
       ? {
           id: mappedMatch.id,
