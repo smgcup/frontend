@@ -16,13 +16,13 @@ export const getPlayersPageData = async (): Promise<PlayersPageData> => {
   const allPlayers = teams.flatMap((team) =>
     (team.players ?? []).map((player) => ({
       ...player,
-      teamName: team.name,
+      team: team,
     })),
   );
 
-  const standings = Object.values(CATEGORIES).map((cat) => {
+  const standings = Object.values(CATEGORIES).map((category) => {
     return {
-      title: cat,
+      title: category,
       players: allPlayers.map((player, index) => ({
         ...player,
         rank: index + 1,

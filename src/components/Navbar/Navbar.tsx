@@ -34,7 +34,7 @@ const logoUrl = logoPng;
 const menu: MenuItem[] = [
   { title: 'Home', url: '/' },
   { title: 'Matches', url: '/matches' },
-  { title: 'Player Standings', url: '/players' },
+  { title: 'Player Standings', url: '/players-standings' },
   { title: 'News', url: '/news' },
   { title: 'Games', url: '/games' },
   { title: 'Rules', url: '/rules' },
