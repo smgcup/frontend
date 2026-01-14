@@ -12,9 +12,8 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  Date: { input: any; output: any; }
+  Date: { input: string; output: string; }
   DateSimple: { input: any; output: any; }
-  JSON: { input: any; output: any; }
 };
 
 export type AdminLoginResult = {
@@ -30,9 +29,9 @@ export type CreateMatchDto = {
 };
 
 export type CreateMatchEventDto = {
+  assistPlayerId?: InputMaybe<Scalars['String']['input']>;
   matchId: Scalars['String']['input'];
   minute: Scalars['Int']['input'];
-  payload?: InputMaybe<Scalars['JSON']['input']>;
   playerId?: InputMaybe<Scalars['String']['input']>;
   teamId: Scalars['String']['input'];
   type: MatchEventType;
@@ -74,13 +73,13 @@ export type Match = {
 
 export type MatchEvent = {
   __typename?: 'MatchEvent';
+  assistPlayer?: Maybe<Player>;
+  assistPlayerId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
   match: Match;
   minute: Scalars['Float']['output'];
-  payload?: Maybe<Scalars['JSON']['output']>;
   player?: Maybe<Player>;
-  team: Team;
   type: MatchEventType;
 };
 

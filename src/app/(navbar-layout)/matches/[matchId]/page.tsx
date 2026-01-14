@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import EventTimeline from '@/domains/matches/components/EventTimeline';
 import { getMatchDetailPageData } from '@/domains/matches/ssr/getMatchDetailPageData';
 import RefreshButton from '../../../../domains/matches/components/RefreshButton';
-import { MatchEventType } from '@/generated/types';
+import { MatchStatus } from '@/generated/types';
 
 type MatchDetailPageProps = {
   params: Promise<{ matchId: string }>;
@@ -16,21 +16,11 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
 
   if (!match) notFound();
 
-  const isLive = match.status === 'LIVE';
-  const scoringTypes = new Set<MatchEventType>([MatchEventType.Goal, MatchEventType.PenaltyScored]);
-  const firstId = match.firstOpponent.id;
-  const secondId = match.secondOpponent.id;
-  let s1 = 0;
-  let s2 = 0;
-  let currentMinute = 0;
-  for (const e of events) {
-    currentMinute = Math.max(currentMinute, e.minute);
-    if (!scoringTypes.has(e.type)) continue;
-    if (e.team.id === firstId) s1 += 1;
-    if (e.team.id === secondId) s2 += 1;
-  }
-  const score1 = Math.max(match.score1 ?? 0, s1);
-  const score2 = Math.max(match.score2 ?? 0, s2);
+  const isLive = match.status === MatchStatus.Live;
+  const currentMinute = Math.max(...events.map((e) => e.minute));
+
+  const score1 = match.score1 ?? 0;
+  const score2 = match.score2 ?? 0;
 
   return (
     <section className="py-10 px-4 sm:px-6 lg:px-8">

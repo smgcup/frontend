@@ -1,12 +1,14 @@
 import { Player } from '../contracts';
-import { MatchByIdQuery, PlayerByIdQuery, TeamsWithPlayersQuery } from '@/graphql';
+import { MatchByIdQuery, PlayerByIdQuery, TeamsWithPlayersQuery, MatchEventsQuery } from '@/graphql';
 
 export const mapPlayer = (
   player:
     | PlayerByIdQuery['playerById']
     | MatchByIdQuery['matchById']['firstOpponent']['players'][number]
     | MatchByIdQuery['matchById']['secondOpponent']['players'][number]
-    | TeamsWithPlayersQuery['teams'][number]['players'][number],
+    | TeamsWithPlayersQuery['teams'][number]['players'][number]
+    | NonNullable<MatchEventsQuery['matchEvents'][number]['player']>
+    | NonNullable<MatchEventsQuery['matchEvents'][number]['assistPlayer']>,
 ): Player => {
   //   if (!player) return null;
 
@@ -14,6 +16,8 @@ export const mapPlayer = (
   const weight = 'weight' in player ? player.weight : undefined;
   const preferredFoot = 'preferredFoot' in player ? player.preferredFoot : undefined;
   const team = 'team' in player ? { id: player.team.id, name: player.team.name } : undefined;
+  const age = 'age' in player ? player.age : undefined;
+
   return {
     id: player.id,
     firstName: player.firstName,
@@ -23,5 +27,6 @@ export const mapPlayer = (
     weight,
     preferredFoot,
     team,
+    age,
   };
 };

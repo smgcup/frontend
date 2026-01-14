@@ -1,6 +1,6 @@
 import { getClient } from '@/lib/initializeApollo';
 import { GetNewsByIdDocument, GetNewsByIdQuery, GetNewsByIdQueryVariables } from '@/graphql';
-import { mapNewsById } from '@/domains/news/mappers/mapNews';
+import { mapNews } from '@/domains/news/mappers/mapNews';
 
 export const getNewsDetail = async (newsId: string) => {
   const client = await getClient();
@@ -10,7 +10,7 @@ export const getNewsDetail = async (newsId: string) => {
     variables: { newsByIdId: newsId },
   });
 
-  const news = data?.newsById ? mapNewsById(data.newsById) : null;
+  const news = data?.newsById ? mapNews(data.newsById) : null;
 
   return { news, error };
 };

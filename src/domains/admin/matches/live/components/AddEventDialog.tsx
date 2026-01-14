@@ -17,12 +17,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { MatchEventType, PlayerPosition } from '@/generated/types';
 import { type Team } from '@/domains/team/contracts';
-import { type AddEventInput } from '../contracts';
+import { type CreateMatchEventDto } from '@/generated/types';
 
 type AddEventDialogProps = {
+  matchId: string;
   teams: Team[];
   currentMinute: number;
-  onAddEvent: (data: AddEventInput) => Promise<void>;
+  onAddEvent: (dto: CreateMatchEventDto) => Promise<void>;
   trigger: React.ReactNode;
   mode?: 'full' | 'quick';
   presetType?: MatchEventType;
@@ -53,7 +54,9 @@ const requiresPlayer = (type: MatchEventType): boolean => {
     MatchEventType.PenaltyMissed,
   ].includes(type);
 };
-
+const requiresAssistPlayer = (type: MatchEventType): boolean => {
+  return [MatchEventType.Goal].includes(type);
+};
 const positionShortLabel = (position: PlayerPosition) => {
   switch (position) {
     case PlayerPosition.Goalkeeper:
@@ -70,6 +73,7 @@ const positionShortLabel = (position: PlayerPosition) => {
 };
 
 const AddEventDialog = ({
+  matchId,
   teams,
   currentMinute,
   onAddEvent,
@@ -83,7 +87,7 @@ const AddEventDialog = ({
     minute: currentMinute.toString(),
     teamId: '',
     playerId: '',
-    payload: '',
+    assistPlayerId: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -92,6 +96,7 @@ const AddEventDialog = ({
   const selectedTeam = teams.find((t) => t.id === formData.teamId);
   const selectedEventType = (presetType ?? formData.type) as MatchEventType;
   const needsPlayer = requiresPlayer(selectedEventType);
+  const needsAssistPlayer = requiresAssistPlayer(selectedEventType);
   const needsTeam = requiresTeam(selectedEventType);
 
   const allPlayers = useMemo(() => {
@@ -180,17 +185,6 @@ const AddEventDialog = ({
       newErrors.minute = 'Minute must be between 0 and 120';
     }
 
-    if (formData.payload) {
-      try {
-        const parsed = JSON.parse(formData.payload);
-        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-          newErrors.payload = 'Payload must be a JSON object';
-        }
-      } catch {
-        newErrors.payload = 'Payload must be valid JSON';
-      }
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -202,14 +196,14 @@ const AddEventDialog = ({
 
     setLoading(true);
     try {
-      const payload = formData.payload.trim().length > 0 ? (JSON.parse(formData.payload) as unknown) : undefined;
       const fallbackTeamId = teams[0]?.id ?? '';
       await onAddEvent({
+        matchId,
         type: selectedEventType,
         minute: parseInt(formData.minute),
         teamId: needsTeam ? formData.teamId : fallbackTeamId,
         playerId: needsPlayer ? formData.playerId : undefined,
-        payload,
+        assistPlayerId: needsAssistPlayer ? formData.assistPlayerId : undefined,
       });
       setOpen(false);
       // Reset form
@@ -218,7 +212,7 @@ const AddEventDialog = ({
         minute: currentMinute.toString(),
         teamId: '',
         playerId: '',
-        payload: '',
+        assistPlayerId: '',
       });
       setErrors({});
     } catch (error) {
@@ -342,6 +336,37 @@ const AddEventDialog = ({
               </Field>
             )}
 
+            {needsAssistPlayer && (
+              <Field>
+                <FieldLabel htmlFor="assistPlayerId">Assist Player *</FieldLabel>
+                <FieldContent>
+                  <Select
+                    value={formData.assistPlayerId}
+                    onValueChange={(value) => handleSelectChange('assistPlayerId', value)}
+                  >
+                    <SelectTrigger id="assistPlayerId" className="w-full" aria-invalid={!!errors.assistPlayerId}>
+                      <SelectValue placeholder="Select assist player" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allPlayers.map((player) => (
+                        <SelectItem key={player.id} value={player.id}>
+                          <span className="flex w-full items-center justify-between gap-3">
+                            <span className="truncate">
+                              {player.firstName} {player.lastName}
+                            </span>
+                            <span className="shrink-0 text-muted-foreground">
+                              {positionShortLabel(player.position)}
+                            </span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.assistPlayerId && <FieldError>{errors.assistPlayerId}</FieldError>}
+                </FieldContent>
+              </Field>
+            )}
+
             {/* Minute */}
             <Field>
               <FieldLabel htmlFor="minute">Minute *</FieldLabel>
@@ -360,26 +385,6 @@ const AddEventDialog = ({
                 <FieldDescription>Enter the minute when the event occurred</FieldDescription>
               </FieldContent>
             </Field>
-
-            {/* Payload (optional) */}
-            {!isQuick && (
-              <Field>
-                <FieldLabel htmlFor="payload">Payload (JSON)</FieldLabel>
-                <FieldContent>
-                  <Input
-                    id="payload"
-                    name="payload"
-                    type="text"
-                    placeholder='{"key":"value"}'
-                    value={formData.payload}
-                    onChange={handleChange}
-                    aria-invalid={!!errors.payload}
-                  />
-                  {errors.payload && <FieldError>{errors.payload}</FieldError>}
-                  <FieldDescription>Optional JSON object (leave empty if not needed)</FieldDescription>
-                </FieldContent>
-              </Field>
-            )}
           </FieldGroup>
         </div>
 
