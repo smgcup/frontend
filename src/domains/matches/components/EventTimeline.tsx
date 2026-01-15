@@ -66,7 +66,12 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
   const sorted = [...events].sort((a, b) => {
     const aTime = typeof a.minute === 'number' ? a.minute : 0;
     const bTime = typeof b.minute === 'number' ? b.minute : 0;
-    return bTime - aTime;
+    // Sort by minute descending (newest first)
+    if (bTime !== aTime) {
+      return bTime - aTime;
+    }
+    // If same minute, sort by createdAt descending (later added events on top)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
   return (
@@ -109,13 +114,25 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
         const isFirstTeam = event.player && event.player.team?.name === firstOpponentName;
         const time = formatMatchTime(event.minute);
         const playerName = event.player ? `${event.player.firstName} ${event.player.lastName}` : undefined;
+        const assistPlayerName = event.assistPlayer
+          ? `${event.assistPlayer.firstName} ${event.assistPlayer.lastName}`
+          : undefined;
         const leftText = isFirstTeam ? playerName : time;
         const rightText = isFirstTeam ? time : playerName;
 
         return (
           <div key={event.id} className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-4 py-1">
             <div className={cn('min-w-0', isFirstTeam ? 'text-right' : 'text-right text-muted-foreground font-mono')}>
-              <span className={cn('inline-block truncate', isFirstTeam ? 'font-semibold' : 'text-sm')}>{leftText}</span>
+              {isFirstTeam ? (
+                <div className="flex flex-col items-end">
+                  <span className={cn('inline-block truncate font-semibold')}>{leftText}</span>
+                  {assistPlayerName && (
+                    <span className="text-xs text-muted-foreground/60 truncate">{assistPlayerName}</span>
+                  )}
+                </div>
+              ) : (
+                <span className={cn('inline-block truncate text-sm')}>{leftText}</span>
+              )}
             </div>
 
             <div
@@ -132,9 +149,16 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
                 isFirstTeam ? 'text-left text-muted-foreground font-mono' : 'text-left',
               )}
             >
-              <span className={cn('inline-block truncate', isFirstTeam ? 'text-sm' : 'font-semibold')}>
-                {rightText}
-              </span>
+              {isFirstTeam ? (
+                <span className={cn('inline-block truncate text-sm')}>{rightText}</span>
+              ) : (
+                <div className="flex flex-col min-w-0">
+                  <span className={cn('inline-block truncate font-semibold')}>{rightText}</span>
+                  {assistPlayerName && (
+                    <span className="text-xs text-muted-foreground/60 truncate">{assistPlayerName}</span>
+                  )}
+                </div>
+              )}
               {onDeleteEvent && (
                 <Button
                   type="button"

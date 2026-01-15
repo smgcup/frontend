@@ -17,7 +17,7 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
   if (!match) notFound();
 
   const isLive = match.status === MatchStatus.Live;
-  const currentMinute = Math.max(...events.map((e) => e.minute));
+  const currentMinute = Math.max(...events.map((e) => e.minute), 0);
 
   const score1 = match.score1 ?? 0;
   const score2 = match.score2 ?? 0;

@@ -223,7 +223,7 @@ const AddEventDialog = ({
         minute: parseInt(formData.minute),
         teamId: needsTeam ? formData.teamId : fallbackTeamId,
         playerId: needsPlayer ? formData.playerId : undefined,
-        assistPlayerId: needsAssistPlayer ? formData.assistPlayerId : undefined,
+        assistPlayerId: needsAssistPlayer && formData.assistPlayerId ? formData.assistPlayerId : undefined,
       });
       setOpen(false);
       // Reset form
@@ -358,14 +358,14 @@ const AddEventDialog = ({
 
             {needsAssistPlayer && (
               <Field>
-                <FieldLabel htmlFor="assistPlayerId">Assist Player *</FieldLabel>
+                <FieldLabel htmlFor="assistPlayerId">Assist Player</FieldLabel>
                 <FieldContent>
                   <Select
                     value={formData.assistPlayerId}
                     onValueChange={(value) => handleSelectChange('assistPlayerId', value)}
                   >
                     <SelectTrigger id="assistPlayerId" className="w-full" aria-invalid={!!errors.assistPlayerId}>
-                      <SelectValue placeholder="Select assist player" />
+                      <SelectValue placeholder="Select assist player (optional)" />
                     </SelectTrigger>
                     <SelectContent>
                       {allPlayers.map((player) => (
