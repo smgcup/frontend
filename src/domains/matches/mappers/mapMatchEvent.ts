@@ -10,6 +10,7 @@ export const mapMatchEvent = (event: MatchEventsQuery['matchEvents'][number]): M
     id: event.id,
     type: event.type,
     minute: event.minute,
+    createdAt: event.createdAt,
     player,
     assistPlayer,
   };

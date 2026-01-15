@@ -315,17 +315,3 @@ export type UpdatePlayerDto = {
 export type UpdateTeamDto = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
-
-
-export enum Queries {
-  __typename = '__typename',
-  health = 'health',
-  matchById = 'matchById',
-  matchEvents = 'matchEvents',
-  matches = 'matches',
-  news = 'news',
-  newsById = 'newsById',
-  playerById = 'playerById',
-  teamById = 'teamById',
-  teams = 'teams',
-}

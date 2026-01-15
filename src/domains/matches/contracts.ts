@@ -17,6 +17,7 @@ export type MatchEvent = {
   id: string;
   type: MatchEventType;
   minute: number;
+  createdAt: string;
   player?: Player;
   assistPlayer?: Player;
 };

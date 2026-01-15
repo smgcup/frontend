@@ -17,7 +17,7 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
   if (!match) notFound();
 
   const isLive = match.status === MatchStatus.Live;
-  const currentMinute = Math.max(...events.map((e) => e.minute));
+  const currentMinute = Math.max(...events.map((e) => e.minute), 0);
 
   const score1 = match.score1 ?? 0;
   const score2 = match.score2 ?? 0;
@@ -45,7 +45,7 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
                 variant="outline"
                 className={isLive ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' : ''}
               >
-                {isLive ? `LIVE - ${currentMinute}` : match.status}
+                {isLive ? `LIVE - ${currentMinute}'` : match.status}
               </Badge>
             </div>
           </CardHeader>
