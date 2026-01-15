@@ -5,7 +5,6 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { createAuthLink, AUTH_COOKIE_NAME } from './auth';
 import { getCookie } from './cookies';
-import { createGraphQLLoggerLink } from './graphqlLoggerLink';
 
 export const makeClient = (): ApolloClient => {
   // Get the GraphQL endpoint, using current hostname if it's localhost
@@ -39,7 +38,6 @@ export const makeClient = (): ApolloClient => {
   });
 
   const authLink = createAuthLink();
-  const loggerLink = createGraphQLLoggerLink();
 
   // WebSocket link for subscriptions
   const getWsUrl = () => {
@@ -113,17 +111,14 @@ export const makeClient = (): ApolloClient => {
         )
       : httpLink; // Fallback to httpLink on server-side
 
-  const wsLinkWithLogging = loggerLink.concat(wsLink);
-  const httpLinkWithLogging = loggerLink.concat(authLink).concat(httpLink);
-
   // Split link: use WebSocket for subscriptions, HTTP for queries and mutations
   const splitLink = split(
     ({ query }) => {
       const definition = getMainDefinition(query);
       return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
     },
-    wsLinkWithLogging,
-    httpLinkWithLogging,
+    wsLink,
+    authLink.concat(httpLink),
   );
 
   return new ApolloClient({

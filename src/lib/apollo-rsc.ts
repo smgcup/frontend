@@ -1,9 +1,8 @@
 import { registerApolloClient } from '@apollo/client-integration-nextjs';
-import { ApolloLink, HttpLink } from '@apollo/client';
+import { HttpLink } from '@apollo/client';
 import { ApolloClient, InMemoryCache } from '@apollo/client-integration-nextjs';
 import { cookies } from 'next/headers';
 import { headers } from 'next/headers';
-import { createGraphQLLoggerLink } from './graphqlLoggerLink';
 
 export const { getClient } = registerApolloClient(async () => {
   const h = await headers();
@@ -24,21 +23,18 @@ export const { getClient } = registerApolloClient(async () => {
 
   return new ApolloClient({
     cache: new InMemoryCache(),
-    link: ApolloLink.from([
-      createGraphQLLoggerLink(),
-      new HttpLink({
-        uri: endpoint,
-        fetchOptions: { cache: 'no-store' },
-        headers: {
-          ...(process.env.GRAPHQL_SERVER_TOKEN && {
-            Authorization: `Bearer ${process.env.GRAPHQL_SERVER_TOKEN}`,
-          }),
-          ...(authToken && {
-            authorization: `Bearer ${authToken}`,
-          }),
-        },
-      }),
-    ]),
+    link: new HttpLink({
+      uri: endpoint,
+      fetchOptions: { cache: 'no-store' },
+      headers: {
+        ...(process.env.GRAPHQL_SERVER_TOKEN && {
+          Authorization: `Bearer ${process.env.GRAPHQL_SERVER_TOKEN}`,
+        }),
+        ...(authToken && {
+          authorization: `Bearer ${authToken}`,
+        }),
+      },
+    }),
     defaultOptions: {
       watchQuery: {
         fetchPolicy: 'cache-and-network',

@@ -201,8 +201,8 @@ const AddEventDialog = ({
     }
 
     const minute = parseInt(formData.minute);
-    if (!formData.minute || isNaN(minute) || minute < 0 || minute > 120) {
-      newErrors.minute = 'Minute must be between 0 and 120';
+    if (!formData.minute || isNaN(minute) || minute < 0) {
+      newErrors.minute = 'Minute must be greater than 0';
     }
 
     setErrors(newErrors);

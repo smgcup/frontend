@@ -60,6 +60,31 @@ const AdminMatchLiveViewUi = ({
     return { score1: match.score1 ?? 0, score2: match.score2 ?? 0 };
   }, [match]);
 
+  // Count how many half time events have already been triggered
+  const halfTimeCount = useMemo(() => {
+    return events.filter((event) => event.type === MatchEventType.HalfTime).length;
+  }, [events]);
+
+  // Calculate the minute for half time event
+  // Defaults: 45', 90', 105', 120' for subsequent half times
+  // If there's an event past the default minute, use the minute of the last event
+  const halfTimeMinute = useMemo(() => {
+    // Determine the default minute based on how many half times have been triggered
+    // 0: 45' (first half), 1: 90' (second half), 2: 105' (first extra time), 3: 120' (second extra time)
+    const defaultMinute = halfTimeCount === 0 ? 45 : halfTimeCount === 1 ? 90 : halfTimeCount === 2 ? 105 : 120;
+
+    // Find the last event minute (excluding half time events to get the actual last match event)
+    const matchEvents = events.filter((event) => event.type !== MatchEventType.HalfTime);
+    const lastEventMinute = matchEvents.length > 0 ? Math.max(...matchEvents.map((event) => event.minute)) : 0;
+
+    // If there's an event past the default minute, use that minute, otherwise use the default
+    return lastEventMinute > defaultMinute ? lastEventMinute : defaultMinute;
+  }, [events, halfTimeCount]);
+
+  // Disable half time button after 120' half time has been added (halfTimeCount >= 4)
+  // halfTimeCount: 0=45', 1=90', 2=105', 3=120', 4+=disabled
+  const isHalfTimeDisabled = halfTimeCount >= 4;
+
   // Handler for half time - adds a half time event
   const [addingHalfTime, setAddingHalfTime] = useState(false);
   const handleHalfTime = async () => {
@@ -68,7 +93,7 @@ const AdminMatchLiveViewUi = ({
       await onAddEvent({
         matchId: match.id,
         type: MatchEventType.HalfTime,
-        minute: Math.floor(currentMinute),
+        minute: halfTimeMinute,
         teamId: match.firstOpponent.id, // teamId is required by the type, using first team as placeholder
       });
     } finally {
@@ -157,7 +182,12 @@ const AdminMatchLiveViewUi = ({
             })}
           </div>
           <div className="mt-4 flex gap-3">
-            <Button variant="outline" onClick={handleHalfTime} disabled={addingHalfTime} className="flex-1">
+            <Button
+              variant="outline"
+              onClick={handleHalfTime}
+              disabled={addingHalfTime || isHalfTimeDisabled}
+              className="flex-1"
+            >
               {addingHalfTime ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -166,7 +196,7 @@ const AdminMatchLiveViewUi = ({
               ) : (
                 <>
                   <Clock className="h-4 w-4 mr-2" />
-                  Half Time
+                  Half Time ({halfTimeMinute}&apos;)
                 </>
               )}
             </Button>
