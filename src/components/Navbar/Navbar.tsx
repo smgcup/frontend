@@ -116,17 +116,17 @@ const SubMenuLink = ({
   return (
     <Link
       className={cn(
-        'hover:bg-muted hover:text-accent-foreground flex select-none flex-row gap-3 rounded-md px-3 py-2 leading-none no-underline outline-none transition-colors',
-        isActive && 'underline underline-offset-4 decoration-primary decoration-2',
+        'flex select-none flex-row gap-3 rounded-md px-3 py-2 leading-none no-underline outline-none transition-colors',
+        'text-sm font-medium text-foreground',
+        'hover:bg-muted hover:text-accent-foreground',
+        isActive && 'bg-muted/50 text-accent-foreground',
       )}
       href={item.url}
       onClick={onNavigate}
       aria-current={isActive ? 'page' : undefined}
     >
       {item.icon && <div className="text-muted-foreground shrink-0">{item.icon}</div>}
-      <div className="flex-1">
-        <div className="text-sm font-medium text-foreground">{item.title}</div>
-      </div>
+      <div className="flex-1">{item.title}</div>
     </Link>
   );
 };
@@ -172,13 +172,19 @@ const Navbar = () => {
     if (item.items) {
       return (
         <NavigationMenuItem key={item.title}>
-          <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
-          <NavigationMenuContent className="bg-popover text-popover-foreground">
-            {item.items.map((subItem) => (
-              <NavigationMenuLink asChild key={subItem.title} className="w-80">
-                <SubMenuLink item={subItem} isActive={isMenuItemActive(subItem, pathname)} />
-              </NavigationMenuLink>
-            ))}
+          <NavigationMenuTrigger
+            className={cn(isActive && 'lg:underline lg:underline-offset-4 lg:decoration-primary lg:decoration-2')}
+          >
+            {item.title}
+          </NavigationMenuTrigger>
+          <NavigationMenuContent className="bg-popover text-popover-foreground min-w-[200px] w-auto z-50">
+            <div className="flex flex-col gap-1 p-1">
+              {item.items.map((subItem) => (
+                <NavigationMenuLink asChild key={subItem.title}>
+                  <SubMenuLink item={subItem} isActive={isMenuItemActive(subItem, pathname)} />
+                </NavigationMenuLink>
+              ))}
+            </div>
           </NavigationMenuContent>
         </NavigationMenuItem>
       );
@@ -295,7 +301,7 @@ const Navbar = () => {
             </Link>
           </div>
           <div className="flex flex-1 items-center justify-center">
-            <NavigationMenu>
+            <NavigationMenu viewport={false} delayDuration={0}>
               <NavigationMenuList>{menu.map((item) => renderMenuItem(item))}</NavigationMenuList>
             </NavigationMenu>
           </div>
