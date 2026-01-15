@@ -20,14 +20,12 @@ import { cn } from '@/lib/utils';
 type MenuItem = {
   title: string;
   url?: string;
-  icon?: React.ReactNode; // Optional icon component
-  items?: MenuItem[]; // Optional nested menu items for dropdowns
+  icon?: React.ReactNode;
+  items?: MenuItem[];
 };
 
-// Store logo URL in a constant for reuse
 const logoUrl = logoPng;
 
-// Main navigation menu configuration - defines all top-level menu items
 const menu: MenuItem[] = [
   { title: 'Home', url: '/' },
   { title: 'Matches', url: '/matches' },
@@ -43,12 +41,6 @@ const menu: MenuItem[] = [
   { title: 'Rules', url: '/rules' },
 ];
 
-/**
- * Normalizes a path string by removing trailing slashes
- * Ensures consistent path comparison by handling edge cases
- * @param path - The path string to normalize
- * @returns Normalized path (empty string becomes '/', trailing slashes removed)
- */
 function normalizePath(path: string) {
   // Handle empty or null paths
   if (!path) return '/';
@@ -58,48 +50,21 @@ function normalizePath(path: string) {
   return path.replace(/\/+$/, '');
 }
 
-/**
- * Determines if a menu item URL matches the current pathname
- * Handles exact matches and nested route matching
- * @param itemUrl - The menu item's URL to check
- * @param pathname - The current route pathname
- * @returns True if the item should be marked as active
- */
 function isActivePath(itemUrl: string, pathname: string) {
-  // Normalize both paths for consistent comparison
   const url = normalizePath(itemUrl);
   const path = normalizePath(pathname);
 
-  // Root path should only match exactly on root route
   if (url === '/') return path === '/';
 
-  // Match exact path or any nested subpage (e.g., /matches matches /matches/live)
   return path === url || path.startsWith(`${url}/`);
 }
 
-/**
- * Recursively checks if a menu item or any of its children are active
- * Used to highlight parent items when their sub-items are active
- * @param item - The menu item to check
- * @param pathname - The current route pathname
- * @returns True if the item or any nested item is active
- */
 function isMenuItemActive(item: MenuItem, pathname: string): boolean {
-  // Check if the item itself is active (only if it has a URL)
   if (item.url && isActivePath(item.url, pathname)) return true;
-  // If no nested items, return false
   if (!item.items?.length) return false;
-  // Recursively check all nested items
   return item.items.some((subItem) => isMenuItemActive(subItem, pathname));
 }
 
-/**
- * SubMenuLink component - renders a link within a dropdown/submenu
- * Displays icon, title, and optional description with active state styling
- * @param item - The menu item to render
- * @param isActive - Whether this item is currently active
- * @param onNavigate - Optional callback when navigation occurs (used to close mobile menu)
- */
 const SubMenuLink = ({
   item,
   isActive,
@@ -131,41 +96,18 @@ const SubMenuLink = ({
   );
 };
 
-/**
- * Main Navbar component - responsive navigation bar with desktop and mobile views
- * Features:
- * - Sticky positioning at top of page
- * - Desktop dropdown menus for items with sub-items
- * - Mobile accordion menu with hamburger toggle
- * - Active route highlighting
- * - User authentication state (currently shows login button)
- */
 const Navbar = () => {
-  // State to track if mobile menu is open/closed
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // Get current route pathname for active state detection
   const pathname = usePathname();
-  // State to control which accordion section is expanded in mobile view
   const [mobileAccordionValue, setMobileAccordionValue] = useState<string | undefined>(undefined);
 
-  // Find which menu item with sub-items should be expanded based on current route
-  // This ensures the correct section is open when mobile menu is toggled
   const activeMobileAccordionValue = menu.find((item) => item.items?.length && isMenuItemActive(item, pathname))?.title;
 
-  // Synchronize mobile accordion state with active route
-  // When menu opens, the section containing the active page is automatically expanded
   useEffect(() => {
     setMobileAccordionValue(activeMobileAccordionValue);
   }, [activeMobileAccordionValue]);
 
-  /**
-   * Renders a menu item for desktop view
-   * Handles both simple links and dropdown menus with sub-items
-   * @param item - The menu item to render
-   * @returns NavigationMenuItem component (either link or dropdown)
-   */
   const renderMenuItem = (item: MenuItem) => {
-    // Check if this item or its children are active
     const isActive = isMenuItemActive(item, pathname);
 
     // If item has nested items, render as dropdown menu
@@ -211,15 +153,7 @@ const Navbar = () => {
     );
   };
 
-  /**
-   * Renders a menu item for mobile view
-   * Uses custom accordion for items with sub-items, simple links for others
-   * Automatically closes menu on navigation
-   * @param item - The menu item to render
-   * @returns Custom accordion item for nested items, or Link for simple items
-   */
   const renderMobileMenuItem = (item: MenuItem) => {
-    // Check if this item or its children are active
     const isActive = isMenuItemActive(item, pathname);
     const isOpen = mobileAccordionValue === item.title;
 
