@@ -26,7 +26,7 @@ const LiveMatchBanner = ({ match }: { match: Match }) => {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-1 text-xs font-semibold text-red-700 dark:border-red-500/30 dark:text-red-300">
-                <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-red-600 dark:bg-red-400" />
+                <span aria-hidden="true" className="h-2 w-2 rounded-full bg-red-600 dark:bg-red-400" />
                 Live now
               </span>
               <div className="min-w-0 truncate text-sm font-semibold text-foreground lg:text-base">

@@ -1,7 +1,7 @@
 import type { Player } from '@/domains/player/contracts';
 import type { CategoryType } from './constants';
+
 export type PlayerStanding = Player & {
-  teamName: string;
   rank: number;
 };
 

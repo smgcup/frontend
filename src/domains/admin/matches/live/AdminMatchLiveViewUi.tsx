@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Goal, AlertTriangle, Ban, Shield, Target, X, Clock, Loader2 } from 'lucide-react';
+import { Goal, AlertTriangle, Ban, Shield, Target, X, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import EventTimeline from '@/domains/matches/components/EventTimeline';
@@ -26,6 +26,7 @@ type AdminMatchLiveViewUiProps = {
 // Each event has a type, display label, icon component, and color styling
 const QUICK_EVENTS = [
   { type: MatchEventType.Goal, label: 'Goal', icon: Goal, color: 'bg-green-500 hover:bg-green-600' },
+  { type: MatchEventType.GoalkeeperSave, label: 'Save', icon: Shield, color: 'bg-blue-500 hover:bg-blue-600' },
   {
     type: MatchEventType.YellowCard,
     label: 'Yellow Card',
@@ -33,7 +34,6 @@ const QUICK_EVENTS = [
     color: 'bg-yellow-500 hover:bg-yellow-600',
   },
   { type: MatchEventType.RedCard, label: 'Red Card', icon: Ban, color: 'bg-red-500 hover:bg-red-600' },
-  { type: MatchEventType.GoalkeeperSave, label: 'Save', icon: Shield, color: 'bg-blue-500 hover:bg-blue-600' },
   {
     type: MatchEventType.PenaltyScored,
     label: 'Penalty Goal',
@@ -52,9 +52,6 @@ const AdminMatchLiveViewUi = ({
   deletingEventId,
   onEndMatch,
 }: AdminMatchLiveViewUiProps) => {
-  // State to track if the match is currently being ended (prevents double-clicks)
-  const [endingMatch, setEndingMatch] = useState(false);
-
   // Extract teams array from match data, memoized to avoid unnecessary recalculations
   const teams = useMemo(() => [match.firstOpponent, match.secondOpponent], [match]);
 
@@ -63,14 +60,61 @@ const AdminMatchLiveViewUi = ({
     return { score1: match.score1 ?? 0, score2: match.score2 ?? 0 };
   }, [match]);
 
-  // Handler for ending the match - wraps the onEndMatch callback with loading state
-  // Ensures the button shows loading state and prevents multiple simultaneous calls
-  const handleEndMatch = async () => {
-    setEndingMatch(true);
+  // Count how many half time events have already been triggered
+  const halfTimeCount = useMemo(() => {
+    return events.filter((event) => event.type === MatchEventType.HalfTime).length;
+  }, [events]);
+
+  // Calculate the minute for half time event
+  // Defaults: 45', 90', 105', 120' for subsequent half times
+  // If there's an event past the default minute, use the minute of the last event
+  const halfTimeMinute = useMemo(() => {
+    // Determine the default minute based on how many half times have been triggered
+    // 0: 45' (first half), 1: 90' (second half), 2: 105' (first extra time), 3: 120' (second extra time)
+    const defaultMinute = halfTimeCount === 0 ? 45 : halfTimeCount === 1 ? 90 : halfTimeCount === 2 ? 105 : 120;
+
+    // Find the last event minute (excluding half time events to get the actual last match event)
+    const matchEvents = events.filter((event) => event.type !== MatchEventType.HalfTime);
+    const lastEventMinute = matchEvents.length > 0 ? Math.max(...matchEvents.map((event) => event.minute)) : 0;
+
+    // If there's an event past the default minute, use that minute, otherwise use the default
+    return lastEventMinute > defaultMinute ? lastEventMinute : defaultMinute;
+  }, [events, halfTimeCount]);
+
+  // Disable half time button after 120' half time has been added (halfTimeCount >= 4)
+  // halfTimeCount: 0=45', 1=90', 2=105', 3=120', 4+=disabled
+  const isHalfTimeDisabled = halfTimeCount >= 4;
+
+  // Handler for half time - adds a half time event
+  const [addingHalfTime, setAddingHalfTime] = useState(false);
+  const handleHalfTime = async () => {
+    setAddingHalfTime(true);
     try {
+      await onAddEvent({
+        matchId: match.id,
+        type: MatchEventType.HalfTime,
+        minute: halfTimeMinute,
+        teamId: match.firstOpponent.id, // teamId is required by the type, using first team as placeholder
+      });
+    } finally {
+      setAddingHalfTime(false);
+    }
+  };
+
+  // Handler for full time - adds a full time event and ends the match
+  const [addingFullTime, setAddingFullTime] = useState(false);
+  const handleFullTime = async () => {
+    setAddingFullTime(true);
+    try {
+      await onAddEvent({
+        matchId: match.id,
+        type: MatchEventType.FullTime,
+        minute: Math.floor(currentMinute),
+        teamId: match.firstOpponent.id, // teamId is required by the type, using first team as placeholder
+      });
       await onEndMatch();
     } finally {
-      setEndingMatch(false);
+      setAddingFullTime(false);
     }
   };
 
@@ -87,12 +131,9 @@ const AdminMatchLiveViewUi = ({
         <CardHeader>
           <div className="flex items-center justify-around">
             <CardTitle className="text-2xl">Match Score</CardTitle>
-            <Badge
-              variant="outline"
-              className="bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20 animate-pulse"
-            >
+            <Badge variant="outline" className="bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20">
               <Clock className="h-3 w-3 mr-1" />
-              LIVE - {currentMinute}
+              LIVE - {currentMinute}&apos;
             </Badge>
           </div>
         </CardHeader>
@@ -126,6 +167,7 @@ const AdminMatchLiveViewUi = ({
                   matchId={match.id}
                   teams={teams}
                   currentMinute={currentMinute}
+                  events={events}
                   onAddEvent={onAddEvent}
                   mode="quick"
                   presetType={event.type}
@@ -140,20 +182,31 @@ const AdminMatchLiveViewUi = ({
             })}
           </div>
           <div className="mt-4 flex gap-3">
-            <AddEventDialog
-              matchId={match.id}
-              teams={teams}
-              currentMinute={currentMinute}
-              onAddEvent={onAddEvent}
-              trigger={
-                <Button variant="outline" className="flex-1">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Other Event
-                </Button>
-              }
-            />
-            <Button variant="destructive" onClick={handleEndMatch} disabled={endingMatch} className="flex-1">
-              {endingMatch ? (
+            <Button
+              variant="outline"
+              onClick={handleHalfTime}
+              disabled={addingHalfTime || isHalfTimeDisabled}
+              className="flex-1"
+            >
+              {addingHalfTime ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <Clock className="h-4 w-4 mr-2" />
+                  Half Time ({halfTimeMinute}&apos;)
+                </>
+              )}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleFullTime}
+              disabled={addingFullTime}
+              className="flex-1 bg-red-500 hover:bg-red-600"
+            >
+              {addingFullTime ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Ending...
@@ -161,7 +214,7 @@ const AdminMatchLiveViewUi = ({
               ) : (
                 <>
                   <Clock className="h-4 w-4 mr-2" />
-                  End Match
+                  Full Time
                 </>
               )}
             </Button>
