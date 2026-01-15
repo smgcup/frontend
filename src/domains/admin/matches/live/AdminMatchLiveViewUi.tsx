@@ -87,7 +87,7 @@ const AdminMatchLiveViewUi = ({
 
   // Disable full time button if there are no half times or if there are 2 or 3 half time events
   // Full time can only be added when there is exactly 1 half time event
-  const isFullTimeDisabled = halfTimeCount !== 1 && halfTimeCount !== 3;
+  const isFullTimeDisabled = halfTimeCount !== 1 && halfTimeCount !== 3 && halfTimeCount !== 4;
 
   // Handler for half time - adds a half time event
   const [addingHalfTime, setAddingHalfTime] = useState(false);
