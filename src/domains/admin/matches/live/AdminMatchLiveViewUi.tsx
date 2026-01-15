@@ -85,6 +85,10 @@ const AdminMatchLiveViewUi = ({
   // halfTimeCount: 0=45', 1=90', 2=105', 3=120', 4+=disabled
   const isHalfTimeDisabled = halfTimeCount >= 4;
 
+  // Disable full time button if there are no half times or if there are 2 or 3 half time events
+  // Full time can only be added when there is exactly 1 half time event
+  const isFullTimeDisabled = halfTimeCount !== 1 && halfTimeCount !== 3;
+
   // Handler for half time - adds a half time event
   const [addingHalfTime, setAddingHalfTime] = useState(false);
   const handleHalfTime = async () => {
@@ -203,7 +207,7 @@ const AdminMatchLiveViewUi = ({
             <Button
               variant="destructive"
               onClick={handleFullTime}
-              disabled={addingFullTime}
+              disabled={addingFullTime || isFullTimeDisabled}
               className="flex-1 bg-red-500 hover:bg-red-600"
             >
               {addingFullTime ? (
