@@ -166,6 +166,14 @@ const AddEventDialog = ({
         const selected = allPlayers.find((p) => p.id === value);
         newData.teamId = selected?.teamId ?? '';
       }
+      // Clear assist player if it's the same as the goal scorer
+      if (name === 'playerId' && needsAssistPlayer && newData.assistPlayerId === value) {
+        newData.assistPlayerId = '';
+      }
+      // Clear goal scorer if it's the same as the assist player
+      if (name === 'assistPlayerId' && newData.playerId === value) {
+        newData.playerId = '';
+      }
       return newData;
     });
     if (errors[name]) {
@@ -198,6 +206,16 @@ const AddEventDialog = ({
 
     if (isQuick && needsPlayer && formData.playerId && !formData.teamId) {
       newErrors.playerId = 'Selected player must belong to a team';
+    }
+
+    // Prevent same player from being selected for both goal and assist
+    if (
+      needsAssistPlayer &&
+      formData.playerId &&
+      formData.assistPlayerId &&
+      formData.playerId === formData.assistPlayerId
+    ) {
+      newErrors.assistPlayerId = 'Assist player cannot be the same as the goal scorer';
     }
 
     const minute = parseInt(formData.minute);
@@ -307,21 +325,23 @@ const AddEventDialog = ({
                       <SelectValue placeholder="Select player" />
                     </SelectTrigger>
                     <SelectContent>
-                      {allPlayers.map((player) => {
-                        const pos = positionShortLabel(player.position);
-                        return (
-                          <SelectItem key={player.id} value={player.id}>
-                            <span className="flex w-full items-center justify-between gap-3">
-                              <span className="truncate">
-                                {player.firstName} {player.lastName}
+                      {allPlayers
+                        .filter((player) => !needsAssistPlayer || player.id !== formData.assistPlayerId)
+                        .map((player) => {
+                          const pos = positionShortLabel(player.position);
+                          return (
+                            <SelectItem key={player.id} value={player.id}>
+                              <span className="flex w-full items-center justify-between gap-3">
+                                <span className="truncate">
+                                  {player.firstName} {player.lastName}
+                                </span>
+                                <span className="shrink-0 text-muted-foreground">
+                                  {pos ? `${pos} · ${player.teamName}` : player.teamName}
+                                </span>
                               </span>
-                              <span className="shrink-0 text-muted-foreground">
-                                {pos ? `${pos} · ${player.teamName}` : player.teamName}
-                              </span>
-                            </span>
-                          </SelectItem>
-                        );
-                      })}
+                            </SelectItem>
+                          );
+                        })}
                     </SelectContent>
                   </Select>
                   {errors.playerId && <FieldError>{errors.playerId}</FieldError>}
@@ -337,18 +357,20 @@ const AddEventDialog = ({
                       <SelectValue placeholder="Select player" />
                     </SelectTrigger>
                     <SelectContent>
-                      {availableTeamPlayers.map((player) => (
-                        <SelectItem key={player.id} value={player.id}>
-                          <span className="flex w-full items-center justify-between gap-3">
-                            <span className="truncate">
-                              {player.firstName} {player.lastName}
+                      {availableTeamPlayers
+                        .filter((player) => !needsAssistPlayer || player.id !== formData.assistPlayerId)
+                        .map((player) => (
+                          <SelectItem key={player.id} value={player.id}>
+                            <span className="flex w-full items-center justify-between gap-3">
+                              <span className="truncate">
+                                {player.firstName} {player.lastName}
+                              </span>
+                              <span className="shrink-0 text-muted-foreground">
+                                {positionShortLabel(player.position)}
+                              </span>
                             </span>
-                            <span className="shrink-0 text-muted-foreground">
-                              {positionShortLabel(player.position)}
-                            </span>
-                          </span>
-                        </SelectItem>
-                      ))}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   {errors.playerId && <FieldError>{errors.playerId}</FieldError>}
@@ -368,18 +390,20 @@ const AddEventDialog = ({
                       <SelectValue placeholder="Select assist player (optional)" />
                     </SelectTrigger>
                     <SelectContent>
-                      {allPlayers.map((player) => (
-                        <SelectItem key={player.id} value={player.id}>
-                          <span className="flex w-full items-center justify-between gap-3">
-                            <span className="truncate">
-                              {player.firstName} {player.lastName}
+                      {allPlayers
+                        .filter((player) => player.id !== formData.playerId)
+                        .map((player) => (
+                          <SelectItem key={player.id} value={player.id}>
+                            <span className="flex w-full items-center justify-between gap-3">
+                              <span className="truncate">
+                                {player.firstName} {player.lastName}
+                              </span>
+                              <span className="shrink-0 text-muted-foreground">
+                                {positionShortLabel(player.position)}
+                              </span>
                             </span>
-                            <span className="shrink-0 text-muted-foreground">
-                              {positionShortLabel(player.position)}
-                            </span>
-                          </span>
-                        </SelectItem>
-                      ))}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   {errors.assistPlayerId && <FieldError>{errors.assistPlayerId}</FieldError>}
