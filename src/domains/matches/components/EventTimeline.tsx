@@ -175,9 +175,15 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
       {sorted.map((event) => {
         if (event.type === MatchEventType.FullTime || event.type === MatchEventType.HalfTime) {
           const label = event.type === MatchEventType.FullTime ? getFullTimeLabel(event) : getHalfTimeLabel(event);
+          const isFullTime = event.type === MatchEventType.FullTime;
           return (
             <div key={event.id} className="relative py-2">
-              <div className="relative z-10 grid grid-cols-[1fr_auto_1fr] items-center w-full rounded-xl bg-muted/40 py-3 px-4 text-base font-medium text-muted-foreground">
+              <div
+                className={cn(
+                  'relative z-10 grid grid-cols-[1fr_auto_1fr] items-center w-full rounded-xl py-3 px-4 text-base font-medium text-muted-foreground',
+                  isFullTime ? 'bg-red-50/50 dark:bg-red-950/20' : 'bg-muted/40',
+                )}
+              >
                 <div></div>
                 <span className="text-center">{label}</span>
                 <div className="flex justify-end">

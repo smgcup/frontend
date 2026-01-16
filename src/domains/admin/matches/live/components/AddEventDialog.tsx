@@ -149,10 +149,15 @@ const AddEventDialog = ({
     return events.filter((event) => event.type === MatchEventType.HalfTime).length;
   }, [events]);
 
-  // Check if FullTime can be added (only if there is exactly 1 half time event)
+  // Count full time events
+  const fullTimeCount = useMemo(() => {
+    return events.filter((event) => event.type === MatchEventType.FullTime).length;
+  }, [events]);
+
+  // Check if FullTime can be added (only if there is exactly 1 half time event and no full time event exists)
   const canAddFullTime = useMemo(() => {
-    return halfTimeCount === 1;
-  }, [halfTimeCount]);
+    return (halfTimeCount === 1 || halfTimeCount === 3 || halfTimeCount === 4) && fullTimeCount === 0;
+  }, [halfTimeCount, fullTimeCount]);
 
   useEffect(() => {
     if (!open) return;
@@ -266,9 +271,11 @@ const AddEventDialog = ({
       newErrors.minute = 'Minute must be greater than 0';
     }
 
-    // Prevent FullTime if there are no half times or if there are 2 or 3 half time events
+    // Prevent FullTime if there are no half times, if there are 2 or 3 half time events, or if a full time event already exists
     if (selectedEventType === MatchEventType.FullTime && !canAddFullTime) {
-      if (halfTimeCount === 0) {
+      if (fullTimeCount > 0) {
+        newErrors.type = 'Only one Full Time event can be added';
+      } else if (halfTimeCount === 0) {
         newErrors.type = 'Full Time cannot be added without a Half Time event';
       } else if (halfTimeCount === 2) {
         newErrors.type = 'Full Time cannot be added when there are 2 Half Time events';

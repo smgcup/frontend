@@ -20,8 +20,6 @@ import { mapMatch } from '@/domains/matches/mappers/mapMatch';
  * All fields are required for submission.
  */
 export type AdminMatchEditFormData = {
-  firstOpponentId: string;
-  secondOpponentId: string;
   date: string;
   status: MatchStatus;
 };
@@ -93,8 +91,6 @@ export const useAdminMatchEdit = (matchId: string) => {
         variables: {
           id: matchId,
           dto: {
-            firstOpponentId: data.firstOpponentId,
-            secondOpponentId: data.secondOpponentId,
             date: d.toISOString(), // Convert to ISO string for GraphQL Date scalar
             status: data.status,
           },
@@ -112,16 +108,8 @@ export const useAdminMatchEdit = (matchId: string) => {
         setSubmitError('matchNotFound');
         return;
       }
-      if (code === 'opponentTeamsMustBeDifferent') {
-        setExternalErrors({ secondOpponentId: 'Teams must be different' });
-        return;
-      }
       if (code === 'invalidMatchDate') {
         setExternalErrors({ date: 'Invalid date' });
-        return;
-      }
-      if (code === 'opponentTeamNotFound') {
-        setExternalErrors({ firstOpponentId: 'Team not found', secondOpponentId: 'Team not found' });
         return;
       }
       // Fallback for any other errors
