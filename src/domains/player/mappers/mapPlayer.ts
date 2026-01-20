@@ -4,7 +4,8 @@ import {
   PlayerByIdQuery,
   TeamsWithPlayersQuery,
   MatchEventsQuery,
-  GetPlayersStandingsQuery,
+  GetPlayerStandingsQuery,
+  TeamByIdQuery,
 } from '@/graphql';
 
 export const mapPlayer = (
@@ -13,11 +14,12 @@ export const mapPlayer = (
     | MatchByIdQuery['matchById']['firstOpponent']['players'][number]
     | MatchByIdQuery['matchById']['secondOpponent']['players'][number]
     | TeamsWithPlayersQuery['teams'][number]['players'][number]
-    | GetPlayersStandingsQuery['teams'][number]['players'][number]
+    | GetPlayerStandingsQuery['teams'][number]['players'][number]
+    | NonNullable<TeamByIdQuery['teamById']['captain']>
     | NonNullable<MatchEventsQuery['matchEvents'][number]['player']>
     | NonNullable<MatchEventsQuery['matchEvents'][number]['assistPlayer']>,
 ): Player => {
-  //   if (!player) return null;
+  // if (!player) return null;
 
   const height = 'height' in player ? player.height : undefined;
   const weight = 'weight' in player ? player.weight : undefined;
@@ -25,6 +27,8 @@ export const mapPlayer = (
   const team = 'team' in player ? { id: player.team.id, name: player.team.name } : undefined;
   const age = 'age' in player ? player.age : undefined;
   const imageUrl = 'imageUrl' in player ? player.imageUrl : undefined;
+  const playerClass = 'class' in player ? player.class : undefined;
+
 
   return {
     id: player.id,
@@ -37,5 +41,6 @@ export const mapPlayer = (
     team,
     age,
     imageUrl,
+    class: playerClass,
   };
 };

@@ -1,7 +1,6 @@
 import { getClient } from '@/lib/initializeApollo';
 import { TeamByIdDocument, type TeamByIdQuery, type TeamByIdQueryVariables } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
-import type { Team } from '@/domains/team/contracts';
 
 export const getAdminTeamEditPageData = async (teamId: string) => {
   const client = await getClient();
@@ -11,8 +10,7 @@ export const getAdminTeamEditPageData = async (teamId: string) => {
     variables: { id: teamId },
   });
 
-  const teamRow = teamData?.teamById ?? null;
-  const team: Team | undefined = teamRow ? mapTeam(teamRow) : undefined;
+  const team = teamData?.teamById ? mapTeam(teamData.teamById) : undefined;
 
   const teamErrorMessage = teamError
     ? typeof teamError === 'object' && teamError && 'message' in teamError

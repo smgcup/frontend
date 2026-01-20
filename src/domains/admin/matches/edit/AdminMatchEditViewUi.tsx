@@ -11,7 +11,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, Radio } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import { MatchStatus } from '@/graphql';
-import { Team } from '@/domains/team/contracts';
 import { type AdminMatchEditFormData } from './hooks/useAdminMatchEdit';
 import { Match } from '@/domains/matches/contracts';
 
@@ -25,7 +24,6 @@ type AdminMatchEditViewUiProps = {
   match: Match | null; // The match data to edit (null while loading or if not found)
   matchLoading: boolean; // Whether the match is currently being fetched
   matchError?: unknown; // Any error that occurred while fetching the match
-  teams: Team[]; // List of available teams to select as opponents
   externalErrors?: Record<string, string>; // Server-side validation errors keyed by field name
   submitError?: string | null; // General error message for the entire form submission
   onUpdateMatch: (data: AdminMatchEditFormData) => Promise<void>; // Handler to submit the form
@@ -45,7 +43,6 @@ function formatMatchDateForDatetimeLocalInput(dateString: string) {
  * UI component for editing a match in the admin panel.
  *
  * This component provides a form interface for updating match details including:
- * - First and second opponent teams
  * - Match date and time
  * - Match status
  *
@@ -56,33 +53,12 @@ const AdminMatchEditViewUi = ({
   match,
   matchLoading,
   matchError,
-  teams,
   externalErrors,
   submitError,
   onUpdateMatch,
   updateLoading,
 }: AdminMatchEditViewUiProps) => {
   const router = useRouter();
-
-  //TODO: This is a temporary solution to get the available teams. We need to improve this.
-  const availableTeams = useMemo(() => {
-    const map = new Map<string, Team>();
-    for (const t of teams) {
-      map.set(String(t.id), { id: String(t.id), name: t.name });
-    }
-    // Ensure current opponents always exist as options even if teams query is missing/still loading.
-    if (match) {
-      map.set(String(match.firstOpponent.id), {
-        id: String(match.firstOpponent.id),
-        name: match.firstOpponent.name,
-      });
-      map.set(String(match.secondOpponent.id), {
-        id: String(match.secondOpponent.id),
-        name: match.secondOpponent.name,
-      });
-    }
-    return Array.from(map.values());
-  }, [teams, match]);
 
   /**
    * Initializes form data from the match object.
@@ -93,17 +69,13 @@ const AdminMatchEditViewUi = ({
   const initialFormData = useMemo<AdminMatchEditFormData>(() => {
     if (!match) {
       return {
-        firstOpponentId: '',
-        secondOpponentId: '',
         date: '',
         status: MatchStatus.Scheduled,
       };
     }
     return {
-      firstOpponentId: String(match.firstOpponent.id),
-      secondOpponentId: String(match.secondOpponent.id),
       date: formatMatchDateForDatetimeLocalInput(match.date),
-      status: match.status as MatchStatus,
+      status: match.status,
     };
   }, [match]);
 
@@ -111,11 +83,8 @@ const AdminMatchEditViewUi = ({
 
   // Syncs form data when match loads or changes.
   useEffect(() => {
-    if (match) {
-      setFormData(initialFormData);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [match?.id]);
+    setFormData(initialFormData);
+  }, [initialFormData]);
 
   // Local (client-side) validation errors.
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
@@ -128,8 +97,6 @@ const AdminMatchEditViewUi = ({
   };
 
   const errors = {
-    firstOpponentId: getError('firstOpponentId'),
-    secondOpponentId: getError('secondOpponentId'),
     date: getError('date'),
     status: getError('status'),
   };
@@ -145,7 +112,7 @@ const AdminMatchEditViewUi = ({
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'status' ? (value as MatchStatus) : value,
+      [name]: value,
     }));
     if (errors[name as keyof typeof errors]) {
       setLocalErrors((prev) => ({ ...prev, [name]: '' }));
@@ -155,27 +122,11 @@ const AdminMatchEditViewUi = ({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.firstOpponentId) {
-      newErrors.firstOpponentId = 'First opponent is required';
-    }
-
-    if (!formData.secondOpponentId) {
-      newErrors.secondOpponentId = 'Second opponent is required';
-    }
-
-    if (
-      formData.firstOpponentId &&
-      formData.secondOpponentId &&
-      formData.firstOpponentId === formData.secondOpponentId
-    ) {
-      newErrors.secondOpponentId = 'Teams must be different';
-    }
-
     if (!formData.date) {
       newErrors.date = 'Date is required';
     }
 
-    if (!formData.status || !Object.values(MatchStatus).includes(formData.status as MatchStatus)) {
+    if (!formData.status || !Object.values(MatchStatus).includes(formData.status)) {
       newErrors.status = 'Status is required';
     }
 
@@ -265,80 +216,6 @@ const AdminMatchEditViewUi = ({
             )}
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="firstOpponentId">First Opponent *</FieldLabel>
-                <FieldContent>
-                  <Select
-                    value={formData.firstOpponentId}
-                    onValueChange={(value) => handleSelectChange('firstOpponentId', value)}
-                    disabled={updateLoading || availableTeams.length === 0}
-                  >
-                    <SelectTrigger id="firstOpponentId" className="w-full" aria-invalid={!!errors.firstOpponentId}>
-                      <SelectValue
-                        placeholder={availableTeams.length === 0 ? 'No teams available' : 'Select first team'}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableTeams.length === 0 ? (
-                        <SelectItem value="" disabled>
-                          No teams available
-                        </SelectItem>
-                      ) : (
-                        availableTeams.map((team) => (
-                          <SelectItem key={team.id} value={team.id}>
-                            {team.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                  {errors.firstOpponentId && <FieldError>{errors.firstOpponentId}</FieldError>}
-                  {availableTeams.length === 0 && !errors.firstOpponentId && (
-                    <FieldDescription className="text-destructive">
-                      No teams available. Please create teams before editing a match.
-                    </FieldDescription>
-                  )}
-                  {availableTeams.length > 0 && <FieldDescription>Select the first team</FieldDescription>}
-                </FieldContent>
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor="secondOpponentId">Second Opponent *</FieldLabel>
-                <FieldContent>
-                  <Select
-                    value={formData.secondOpponentId}
-                    onValueChange={(value) => handleSelectChange('secondOpponentId', value)}
-                    disabled={updateLoading || availableTeams.length === 0}
-                  >
-                    <SelectTrigger id="secondOpponentId" className="w-full" aria-invalid={!!errors.secondOpponentId}>
-                      <SelectValue
-                        placeholder={availableTeams.length === 0 ? 'No teams available' : 'Select second team'}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableTeams.length === 0 ? (
-                        <SelectItem value="" disabled>
-                          No teams available
-                        </SelectItem>
-                      ) : (
-                        availableTeams.map((team) => (
-                          <SelectItem key={team.id} value={team.id}>
-                            {team.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                  {errors.secondOpponentId && <FieldError>{errors.secondOpponentId}</FieldError>}
-                  {availableTeams.length === 0 && !errors.secondOpponentId && (
-                    <FieldDescription className="text-destructive">
-                      No teams available. Please create teams before editing a match.
-                    </FieldDescription>
-                  )}
-                  {availableTeams.length > 0 && <FieldDescription>Select the second team</FieldDescription>}
-                </FieldContent>
-              </Field>
-
-              <Field>
                 <FieldLabel htmlFor="date">Date & Time *</FieldLabel>
                 <FieldContent>
                   <Input
@@ -385,11 +262,7 @@ const AdminMatchEditViewUi = ({
             <Button type="button" variant="outline" onClick={handleCancel} className="w-full sm:w-auto cursor-pointer">
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={updateLoading || availableTeams.length === 0}
-              className="w-full sm:w-auto cursor-pointer"
-            >
+            <Button type="submit" disabled={updateLoading} className="w-full sm:w-auto cursor-pointer">
               {updateLoading ? 'Updating...' : 'Update Match'}
             </Button>
           </CardFooter>

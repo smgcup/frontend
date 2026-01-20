@@ -32,7 +32,7 @@ const menu: MenuItem[] = [
   {
     title: 'Standings',
     items: [
-      { title: 'Player Standings', url: '/players-standings' },
+      { title: 'Player Standings', url: '/player-standings' },
       { title: 'Team Standings', url: '/team-standings' },
     ],
   },

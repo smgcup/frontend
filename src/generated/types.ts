@@ -45,6 +45,7 @@ export type CreateNewsDto = {
 };
 
 export type CreatePlayerDto = {
+  class?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth: Scalars['Date']['input'];
   firstName: Scalars['String']['input'];
   height: Scalars['Float']['input'];
@@ -213,6 +214,7 @@ export type News = {
 export type Player = {
   __typename?: 'Player';
   age: Scalars['Float']['output'];
+  class?: Maybe<Scalars['String']['output']>;
   dateOfBirth: Scalars['Date']['output'];
   firstName: Scalars['String']['output'];
   height: Scalars['Float']['output'];
@@ -278,6 +280,7 @@ export type QueryTeamByIdArgs = {
 
 export type Team = {
   __typename?: 'Team';
+  captain?: Maybe<Player>;
   createdAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -301,6 +304,7 @@ export type UpdateNewsDto = {
 };
 
 export type UpdatePlayerDto = {
+  class?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['Date']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   height?: InputMaybe<Scalars['Float']['input']>;
@@ -313,5 +317,20 @@ export type UpdatePlayerDto = {
 };
 
 export type UpdateTeamDto = {
+  captainId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
 };
+
+
+export enum Queries {
+  __typename = '__typename',
+  health = 'health',
+  matchById = 'matchById',
+  matchEvents = 'matchEvents',
+  matches = 'matches',
+  news = 'news',
+  newsById = 'newsById',
+  playerById = 'playerById',
+  teamById = 'teamById',
+  teams = 'teams',
+}

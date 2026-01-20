@@ -25,6 +25,7 @@ const isEnumValue = <T extends Record<string, string>>(enumObj: T, v: unknown): 
 export const mapPlayerEdit = (player: Player, team?: Team): Player => {
   const position = isEnumValue(PlayerPosition, player.position) ? player.position : PlayerPosition.Goalkeeper;
   const preferredFoot = isEnumValue(PreferredFoot, player.preferredFoot) ? player.preferredFoot : PreferredFoot.Right;
+  const playerClass = 'class' in player ? player.class : undefined;
 
   return {
     id: player.id,
@@ -36,6 +37,7 @@ export const mapPlayerEdit = (player: Player, team?: Team): Player => {
     imageUrl: player.imageUrl ?? null,
     position,
     preferredFoot,
+    class: playerClass,
     ...(team !== undefined ? { team } : {}),
   };
 };

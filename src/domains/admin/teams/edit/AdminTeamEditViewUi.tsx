@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Save, Trash2 } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
@@ -56,7 +57,14 @@ const AdminTeamEditForm = ({
   const router = useRouter();
   const [name, setName] = useState(team.name ?? '');
   const [nameError, setNameError] = useState<string | null>(null);
+  const NO_CAPTAIN_VALUE = '__none__';
+  const [captainId, setCaptainId] = useState<string>(team.captain?.id ?? NO_CAPTAIN_VALUE);
   const [actionError, setActionError] = useState<string | null>(null);
+
+  const players = team.players ?? [];
+  const getPlayerDisplayName = (player: { firstName: string; lastName: string }) => {
+    return `${player.firstName} ${player.lastName}`;
+  };
 
   const combinedError = useMemo(() => {
     return (
@@ -83,7 +91,10 @@ const AdminTeamEditForm = ({
     if (!validate()) return;
 
     try {
-      await onUpdateTeam({ name: name.trim() });
+      await onUpdateTeam({
+        name: name.trim(),
+        captainId: captainId === NO_CAPTAIN_VALUE ? undefined : captainId,
+      });
       router.push('/admin/teams');
     } catch (err) {
       setActionError(getErrorMessage(err));
@@ -128,6 +139,31 @@ const AdminTeamEditForm = ({
                 aria-invalid={!!nameError}
               />
               {nameError && <FieldError>{nameError}</FieldError>}
+            </FieldContent>
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="captain">Team Captain</FieldLabel>
+            <FieldContent>
+              <Select
+                value={captainId}
+                onValueChange={(value) => setCaptainId(value)}
+                disabled={updateLoading || deleteLoading || players.length === 0}
+              >
+                <SelectTrigger id="captain" className="w-full" aria-invalid={false}>
+                  <SelectValue
+                    placeholder={players.length === 0 ? 'No players available' : 'Select a captain (optional)'}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_CAPTAIN_VALUE}>No captain</SelectItem>
+                  {players.map((player) => (
+                    <SelectItem key={player.id} value={player.id}>
+                      {getPlayerDisplayName(player)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FieldContent>
           </Field>
         </FieldGroup>
@@ -201,7 +237,7 @@ const AdminTeamEditViewUi = ({
         </CardHeader>
 
         <AdminTeamEditForm
-          key={team.id}
+          key={`${team.id}-${team.captain?.id ?? 'no-captain'}`}
           team={team}
           updateLoading={updateLoading}
           updateError={updateError}
