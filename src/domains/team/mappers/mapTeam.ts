@@ -6,7 +6,7 @@ export const mapTeam = (
   team:
     | GetTeamsQuery['teams'][number]
     | TeamsWithPlayersQuery['teams'][number]
-    | GetPlayerStandingsQuery['teams'][number],
+    | GetPlayerStandingsQuery['teams'][number]
     | TeamByIdQuery['teamById'],
 ): Team => {
   const players = 'players' in team ? team.players.map(mapPlayer) : [];
