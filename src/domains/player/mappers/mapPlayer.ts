@@ -27,6 +27,8 @@ export const mapPlayer = (
   const team = 'team' in player ? { id: player.team.id, name: player.team.name } : undefined;
   const age = 'age' in player ? player.age : undefined;
   const imageUrl = 'imageUrl' in player ? player.imageUrl : undefined;
+  const playerClass = 'class' in player ? player.class : undefined;
+
 
   return {
     id: player.id,
@@ -39,5 +41,6 @@ export const mapPlayer = (
     team,
     age,
     imageUrl,
+    class: playerClass,
   };
 };

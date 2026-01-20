@@ -13,4 +13,5 @@ export type Player = {
   weight?: number;
   preferredFoot?: PreferredFoot;
   imageUrl?: string | null;
+  class?: string | null;
 };
