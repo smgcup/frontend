@@ -5,6 +5,7 @@ import {
   TeamsWithPlayersQuery,
   MatchEventsQuery,
   GetPlayerStandingsQuery,
+  TeamByIdQuery,
 } from '@/graphql';
 
 export const mapPlayer = (
@@ -14,10 +15,11 @@ export const mapPlayer = (
     | MatchByIdQuery['matchById']['secondOpponent']['players'][number]
     | TeamsWithPlayersQuery['teams'][number]['players'][number]
     | GetPlayerStandingsQuery['teams'][number]['players'][number]
+    | NonNullable<TeamByIdQuery['teamById']['captain']>
     | NonNullable<MatchEventsQuery['matchEvents'][number]['player']>
     | NonNullable<MatchEventsQuery['matchEvents'][number]['assistPlayer']>,
 ): Player => {
-  //   if (!player) return null;
+  // if (!player) return null;
 
   const height = 'height' in player ? player.height : undefined;
   const weight = 'weight' in player ? player.weight : undefined;

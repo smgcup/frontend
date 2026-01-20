@@ -3,6 +3,12 @@ mutation UpdateTeam($id: String!, $dto: UpdateTeamDto!) {
     id
     name
     createdAt
+    captain {
+      id
+      firstName
+      lastName
+      position
+    }
   }
 }
 

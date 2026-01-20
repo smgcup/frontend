@@ -14,7 +14,7 @@ import {
   NavigationMenuLink,
 } from '../ui/';
 import { User, Menu, X, ChevronDown } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 type MenuItem = {
@@ -100,12 +100,30 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const [mobileAccordionValue, setMobileAccordionValue] = useState<string | undefined>(undefined);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
 
   const activeMobileAccordionValue = menu.find((item) => item.items?.length && isMenuItemActive(item, pathname))?.title;
 
   useEffect(() => {
     setMobileAccordionValue(activeMobileAccordionValue);
   }, [activeMobileAccordionValue]);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileNavRef.current && !mobileNavRef.current.contains(event.target as Node) && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   const renderMenuItem = (item: MenuItem) => {
     const isActive = isMenuItemActive(item, pathname);
@@ -255,7 +273,7 @@ const Navbar = () => {
         </nav>
 
         {/* Mobile navigation */}
-        <div className="block lg:hidden">
+        <div ref={mobileNavRef} className="block lg:hidden">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <Image src={logoUrl} alt="SMG Cup Championship Logo" width={50} height={50} />
