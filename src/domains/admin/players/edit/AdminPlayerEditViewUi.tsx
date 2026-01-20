@@ -47,6 +47,7 @@ type FormState = {
   imageUrl: string | null;
   position: PlayerPosition | null;
   preferredFoot: PreferredFoot | null;
+  class: string | null;
 };
 
 type FieldName = keyof FormState;
@@ -75,6 +76,7 @@ const AdminPlayerEditViewUi = ({
     imageUrl: null,
     position: null,
     preferredFoot: null,
+    class: null,
   });
 
   // `errors` is field-level validation; `actionError` is for async failures (update/delete).
@@ -96,6 +98,7 @@ const AdminPlayerEditViewUi = ({
       imageUrl: false,
       position: false,
       preferredFoot: false,
+      class: false,
     }),
     [],
   );
@@ -121,10 +124,12 @@ const AdminPlayerEditViewUi = ({
       imageUrl: player.imageUrl ?? null,
       position: player.position,
       preferredFoot: player.preferredFoot ?? null,
+      class: player?.class ?? null,
     };
     // Avoid synchronous setState inside an effect body (can cause cascading renders)
     // Defer the state sync to a microtask and cancel if the effect is cleaned up.
     let cancelled = false;
+    console.log(1111, next);
     Promise.resolve().then(() => {
       if (cancelled) return;
       setInitialData(next);
@@ -208,6 +213,7 @@ const AdminPlayerEditViewUi = ({
       if (changedFields.dateOfBirth) dto.dateOfBirth = formData.dateOfBirth;
       if (changedFields.position) dto.position = formData.position;
       if (changedFields.preferredFoot) dto.preferredFoot = formData.preferredFoot;
+      if (changedFields.class) dto.class = formData.class;
 
       // If nothing changed, just go back (no-op update)
       if (Object.keys(dto).length === 0) {
@@ -307,6 +313,22 @@ const AdminPlayerEditViewUi = ({
                       className={dirtyClass('lastName')}
                     />
                     {errors.lastName && <FieldError>{errors.lastName}</FieldError>}
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="class">Class</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      id="class"
+                      name="class"
+                      type="text"
+                      placeholder="Enter class"
+                      value={formData.class ?? ''}
+                      onChange={handleChange}
+                      aria-invalid={!!errors.class}
+                      className={dirtyClass('class')}
+                    />
+                    {errors.class && <FieldError>{errors.class}</FieldError>}
                   </FieldContent>
                 </Field>
 
