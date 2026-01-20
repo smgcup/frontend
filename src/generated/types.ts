@@ -278,6 +278,7 @@ export type QueryTeamByIdArgs = {
 
 export type Team = {
   __typename?: 'Team';
+  captain?: Maybe<Player>;
   createdAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -313,5 +314,20 @@ export type UpdatePlayerDto = {
 };
 
 export type UpdateTeamDto = {
+  captainId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
 };
+
+
+export enum Queries {
+  __typename = '__typename',
+  health = 'health',
+  matchById = 'matchById',
+  matchEvents = 'matchEvents',
+  matches = 'matches',
+  news = 'news',
+  newsById = 'newsById',
+  playerById = 'playerById',
+  teamById = 'teamById',
+  teams = 'teams',
+}
