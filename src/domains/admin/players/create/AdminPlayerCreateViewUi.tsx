@@ -39,9 +39,11 @@ const AdminPlayerCreateViewUi = ({
     imageUrl: string;
     position: PlayerPosition | '';
     preferredFoot: PreferredFoot | '';
+    class: string | '';
   };
 
   const [formData, setFormData] = useState<FormState>({
+
     firstName: '',
     lastName: '',
     teamId: '',
@@ -51,6 +53,7 @@ const AdminPlayerCreateViewUi = ({
     imageUrl: '',
     position: '',
     preferredFoot: '',
+    class: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -76,6 +79,7 @@ const AdminPlayerCreateViewUi = ({
     setFormData((prev) => ({ ...prev, preferredFoot: value }));
     if (errors.preferredFoot) setErrors((prev) => ({ ...prev, preferredFoot: '' }));
   };
+
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -130,6 +134,7 @@ const AdminPlayerCreateViewUi = ({
       imageUrl: formData.imageUrl.trim() || '',
       position: formData.position,
       preferredFoot: formData.preferredFoot,
+      class: formData.class,
     });
 
     window.history.back();
@@ -212,6 +217,21 @@ const AdminPlayerCreateViewUi = ({
                   </Select>
                   {errors.teamId && <FieldError>{errors.teamId}</FieldError>}
                   <FieldDescription />
+                </FieldContent>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="class">Class</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="class"
+                    name="class"
+                    type="text"
+                    placeholder="Enter class"
+                    value={formData.class}
+                    onChange={handleChange}
+                    aria-invalid={!!errors.class}
+                  />
+                  {errors.class && <FieldError>{errors.class}</FieldError>}
                 </FieldContent>
               </Field>
 

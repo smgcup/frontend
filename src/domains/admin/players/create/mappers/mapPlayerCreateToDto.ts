@@ -11,5 +11,6 @@ export const mapPlayerCreateToDto = (input: CreatePlayerDto): CreatePlayerDto =>
     imageUrl: input.imageUrl ?? undefined,
     position: input.position,
     preferredFoot: input.preferredFoot,
+    class: input.class ?? undefined
   };
 };

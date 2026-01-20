@@ -45,6 +45,7 @@ export type CreateNewsDto = {
 };
 
 export type CreatePlayerDto = {
+  class?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth: Scalars['Date']['input'];
   firstName: Scalars['String']['input'];
   height: Scalars['Float']['input'];
@@ -213,6 +214,7 @@ export type News = {
 export type Player = {
   __typename?: 'Player';
   age: Scalars['Float']['output'];
+  class?: Maybe<Scalars['String']['output']>;
   dateOfBirth: Scalars['Date']['output'];
   firstName: Scalars['String']['output'];
   height: Scalars['Float']['output'];
@@ -302,6 +304,7 @@ export type UpdateNewsDto = {
 };
 
 export type UpdatePlayerDto = {
+  class?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['Date']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   height?: InputMaybe<Scalars['Float']['input']>;
