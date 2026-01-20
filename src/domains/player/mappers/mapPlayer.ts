@@ -4,7 +4,7 @@ import {
   PlayerByIdQuery,
   TeamsWithPlayersQuery,
   MatchEventsQuery,
-  GetPlayersStandingsQuery,
+  GetPlayerStandingsQuery,
   TeamByIdQuery,
 } from '@/graphql';
 
@@ -14,7 +14,7 @@ export const mapPlayer = (
     | MatchByIdQuery['matchById']['firstOpponent']['players'][number]
     | MatchByIdQuery['matchById']['secondOpponent']['players'][number]
     | TeamsWithPlayersQuery['teams'][number]['players'][number]
-    | GetPlayersStandingsQuery['teams'][number]['players'][number]
+    | GetPlayerStandingsQuery['teams'][number]['players'][number]
     | NonNullable<TeamByIdQuery['teamById']['captain']>
     | NonNullable<MatchEventsQuery['matchEvents'][number]['player']>
     | NonNullable<MatchEventsQuery['matchEvents'][number]['assistPlayer']>,

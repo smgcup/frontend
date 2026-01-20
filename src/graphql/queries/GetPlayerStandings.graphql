@@ -1,4 +1,4 @@
-query GetPlayersStandings {
+query GetPlayerStandings {
   teams {
     id
     name

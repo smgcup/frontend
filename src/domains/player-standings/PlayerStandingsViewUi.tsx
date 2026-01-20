@@ -4,11 +4,11 @@ import React from 'react';
 import type { PlayersPageData } from './contracts';
 import StandingsColumn from './components/StandingsColumn';
 
-type PlayersStandingsViewUiProps = {
+type PlayerStandingsViewUiProps = {
   data: PlayersPageData;
 };
 
-const PlayersStandingsViewUi = ({ data }: PlayersStandingsViewUiProps) => {
+const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
   const { standings } = data;
 
   return (
@@ -26,4 +26,4 @@ const PlayersStandingsViewUi = ({ data }: PlayersStandingsViewUiProps) => {
   );
 };
 
-export default PlayersStandingsViewUi;
+export default PlayerStandingsViewUi;

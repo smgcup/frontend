@@ -1,12 +1,7 @@
-import { ComingSoon } from '@/components/ComingSoon';
+import GamesView from '@/domains/games/GamesView';
 
-const page = () => {
-  return (
-    <ComingSoon
-      title="Games"
-      description="Game schedules, live scores, and highlights will be available soon. Don't miss the action!!!"
-    />
-  );
+const GamesPage = () => {
+  return <GamesView />;
 };
 
-export default page;
+export default GamesPage;

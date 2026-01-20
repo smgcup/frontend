@@ -11,6 +11,7 @@ import EventTimeline from '@/domains/matches/components/EventTimeline';
 import AddEventDialog from './components/AddEventDialog';
 import { type Match, type MatchEvent } from '@/domains/matches/contracts';
 import { MatchEventType, type CreateMatchEventDto } from '@/generated/types';
+import { MatchStatus } from '@/graphql';
 
 type AdminMatchLiveViewUiProps = {
   match: Match;
@@ -55,6 +56,29 @@ const AdminMatchLiveViewUi = ({
   // Extract teams array from match data, memoized to avoid unnecessary recalculations
   const teams = useMemo(() => [match.firstOpponent, match.secondOpponent], [match]);
 
+  // Get status configuration for display
+  const statusConfig = useMemo(() => {
+    const statusMap: Record<MatchStatus, { label: string; className: string }> = {
+      [MatchStatus.Scheduled]: {
+        label: 'Scheduled',
+        className: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+      },
+      [MatchStatus.Live]: {
+        label: 'Live',
+        className: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
+      },
+      [MatchStatus.Finished]: {
+        label: 'Finished',
+        className: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20',
+      },
+      [MatchStatus.Cancelled]: {
+        label: 'Cancelled',
+        className: 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20',
+      },
+    };
+    return statusMap[match.status];
+  }, [match.status]);
+
   // Get scores directly from the match data
   const { score1, score2 } = useMemo(() => {
     return { score1: match.score1 ?? 0, score2: match.score2 ?? 0 };
@@ -63,6 +87,11 @@ const AdminMatchLiveViewUi = ({
   // Count how many half time events have already been triggered
   const halfTimeCount = useMemo(() => {
     return events.filter((event) => event.type === MatchEventType.HalfTime).length;
+  }, [events]);
+
+  // Count how many full time events have already been added
+  const fullTimeCount = useMemo(() => {
+    return events.filter((event) => event.type === MatchEventType.FullTime).length;
   }, [events]);
 
   // Calculate the minute for half time event
@@ -84,6 +113,10 @@ const AdminMatchLiveViewUi = ({
   // Disable half time button after 120' half time has been added (halfTimeCount >= 4)
   // halfTimeCount: 0=45', 1=90', 2=105', 3=120', 4+=disabled
   const isHalfTimeDisabled = halfTimeCount >= 4;
+
+  // Disable full time button if there are no half times, if there are 2 or 3 half time events, or if a full time event already exists
+  // Full time can only be added when there is exactly 1 half time event and no full time event exists
+  const isFullTimeDisabled = (halfTimeCount !== 1 && halfTimeCount !== 3 && halfTimeCount !== 4) || fullTimeCount > 0;
 
   // Handler for half time - adds a half time event
   const [addingHalfTime, setAddingHalfTime] = useState(false);
@@ -131,9 +164,9 @@ const AdminMatchLiveViewUi = ({
         <CardHeader>
           <div className="flex items-center justify-around">
             <CardTitle className="text-2xl">Match Score</CardTitle>
-            <Badge variant="outline" className="bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20">
+            <Badge variant="outline" className={statusConfig.className}>
               <Clock className="h-3 w-3 mr-1" />
-              LIVE - {currentMinute}&apos;
+              {match.status === MatchStatus.Live ? `${statusConfig.label} - ${currentMinute}'` : statusConfig.label}
             </Badge>
           </div>
         </CardHeader>
@@ -203,7 +236,7 @@ const AdminMatchLiveViewUi = ({
             <Button
               variant="destructive"
               onClick={handleFullTime}
-              disabled={addingFullTime}
+              disabled={addingFullTime || isFullTimeDisabled}
               className="flex-1 bg-red-500 hover:bg-red-600"
             >
               {addingFullTime ? (

@@ -60,6 +60,10 @@ const requiresAssistPlayer = (type: MatchEventType): boolean => {
   return [MatchEventType.Goal].includes(type);
 };
 
+const requiresGoalkeeper = (type: MatchEventType): boolean => {
+  return [MatchEventType.GoalkeeperSave].includes(type);
+};
+
 const positionShortLabel = (position: PlayerPosition) => {
   switch (position) {
     case PlayerPosition.Goalkeeper:
@@ -102,6 +106,7 @@ const AddEventDialog = ({
   const needsPlayer = requiresPlayer(selectedEventType);
   const needsAssistPlayer = requiresAssistPlayer(selectedEventType);
   const needsTeam = requiresTeam(selectedEventType);
+  const needsGoalkeeper = requiresGoalkeeper(selectedEventType);
 
   // Get set of player IDs who have received a red card
   const playersWithRedCard = useMemo(() => {
@@ -134,17 +139,45 @@ const AddEventDialog = ({
 
   const availableTeamPlayers = useMemo(() => {
     if (!selectedTeam?.players) return [];
-    return selectedTeam.players.filter((player) => !playersWithRedCard.has(player.id));
-  }, [selectedTeam, playersWithRedCard]);
+    return selectedTeam.players
+      .filter((player) => !playersWithRedCard.has(player.id))
+      .filter((player) => !needsGoalkeeper || player.position === PlayerPosition.Goalkeeper);
+  }, [selectedTeam, playersWithRedCard, needsGoalkeeper]);
+
+  // Count half time events
+  const halfTimeCount = useMemo(() => {
+    return events.filter((event) => event.type === MatchEventType.HalfTime).length;
+  }, [events]);
+
+  // Count full time events
+  const fullTimeCount = useMemo(() => {
+    return events.filter((event) => event.type === MatchEventType.FullTime).length;
+  }, [events]);
+
+  // Check if FullTime can be added (only if there is exactly 1 half time event and no full time event exists)
+  const canAddFullTime = useMemo(() => {
+    return (halfTimeCount === 1 || halfTimeCount === 3 || halfTimeCount === 4) && fullTimeCount === 0;
+  }, [halfTimeCount, fullTimeCount]);
 
   useEffect(() => {
     if (!open) return;
-    setFormData((prev) => ({
-      ...prev,
-      minute: currentMinute.toString(),
-      type: presetType ?? prev.type,
-    }));
-  }, [open, currentMinute, presetType]);
+    setFormData((prev) => {
+      const newType = presetType ?? prev.type;
+      const newData = {
+        ...prev,
+        minute: currentMinute.toString(),
+        type: newType,
+      };
+      // Clear player if switching to goalkeeper save and current player is not a goalkeeper
+      if (requiresGoalkeeper(newType as MatchEventType) && prev.playerId) {
+        const currentPlayer = allPlayers.find((p) => p.id === prev.playerId);
+        if (currentPlayer && currentPlayer.position !== PlayerPosition.Goalkeeper) {
+          newData.playerId = '';
+        }
+      }
+      return newData;
+    });
+  }, [open, currentMinute, presetType, allPlayers]);
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => {
@@ -160,11 +193,26 @@ const AddEventDialog = ({
           newData.teamId = '';
           newData.playerId = '';
         }
+        // Clear player if switching to goalkeeper save and current player is not a goalkeeper
+        if (requiresGoalkeeper(newType) && prev.playerId) {
+          const currentPlayer = allPlayers.find((p) => p.id === prev.playerId);
+          if (currentPlayer && currentPlayer.position !== PlayerPosition.Goalkeeper) {
+            newData.playerId = '';
+          }
+        }
       }
       // Infer team in quick mode
       if (name === 'playerId' && isQuick) {
         const selected = allPlayers.find((p) => p.id === value);
         newData.teamId = selected?.teamId ?? '';
+      }
+      // Clear assist player if it's the same as the goal scorer
+      if (name === 'playerId' && needsAssistPlayer && newData.assistPlayerId === value) {
+        newData.assistPlayerId = '';
+      }
+      // Clear goal scorer if it's the same as the assist player
+      if (name === 'assistPlayerId' && newData.playerId === value) {
+        newData.playerId = '';
       }
       return newData;
     });
@@ -200,9 +248,38 @@ const AddEventDialog = ({
       newErrors.playerId = 'Selected player must belong to a team';
     }
 
+    // Ensure only goalkeepers can be selected for goalkeeper saves
+    if (needsGoalkeeper && formData.playerId) {
+      const selectedPlayer = allPlayers.find((p) => p.id === formData.playerId);
+      if (selectedPlayer && selectedPlayer.position !== PlayerPosition.Goalkeeper) {
+        newErrors.playerId = 'Only goalkeepers can be selected for goalkeeper saves';
+      }
+    }
+
+    // Prevent same player from being selected for both goal and assist
+    if (
+      needsAssistPlayer &&
+      formData.playerId &&
+      formData.assistPlayerId &&
+      formData.playerId === formData.assistPlayerId
+    ) {
+      newErrors.assistPlayerId = 'Assist player cannot be the same as the goal scorer';
+    }
+
     const minute = parseInt(formData.minute);
     if (!formData.minute || isNaN(minute) || minute < 0) {
       newErrors.minute = 'Minute must be greater than 0';
+    }
+
+    // Prevent FullTime if there are no half times, if there are 2 or 3 half time events, or if a full time event already exists
+    if (selectedEventType === MatchEventType.FullTime && !canAddFullTime) {
+      if (fullTimeCount > 0) {
+        newErrors.type = 'Only one Full Time event can be added';
+      } else if (halfTimeCount === 0) {
+        newErrors.type = 'Full Time cannot be added without a Half Time event';
+      } else if (halfTimeCount === 2) {
+        newErrors.type = 'Full Time cannot be added when there are 2 Half Time events';
+      }
     }
 
     setErrors(newErrors);
@@ -263,11 +340,15 @@ const AddEventDialog = ({
                       <SelectValue placeholder="Select event type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {EVENT_TYPES.map((event) => (
-                        <SelectItem key={event.value} value={event.value}>
-                          {event.label}
-                        </SelectItem>
-                      ))}
+                      {EVENT_TYPES.map((event) => {
+                        const isFullTime = event.value === MatchEventType.FullTime;
+                        const isDisabled = isFullTime && !canAddFullTime;
+                        return (
+                          <SelectItem key={event.value} value={event.value} disabled={isDisabled}>
+                            {event.label}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                   {errors.type && <FieldError>{errors.type}</FieldError>}
@@ -307,21 +388,24 @@ const AddEventDialog = ({
                       <SelectValue placeholder="Select player" />
                     </SelectTrigger>
                     <SelectContent>
-                      {allPlayers.map((player) => {
-                        const pos = positionShortLabel(player.position);
-                        return (
-                          <SelectItem key={player.id} value={player.id}>
-                            <span className="flex w-full items-center justify-between gap-3">
-                              <span className="truncate">
-                                {player.firstName} {player.lastName}
+                      {allPlayers
+                        .filter((player) => !needsAssistPlayer || player.id !== formData.assistPlayerId)
+                        .filter((player) => !needsGoalkeeper || player.position === PlayerPosition.Goalkeeper)
+                        .map((player) => {
+                          const pos = positionShortLabel(player.position);
+                          return (
+                            <SelectItem key={player.id} value={player.id}>
+                              <span className="flex w-full items-center justify-between gap-3">
+                                <span className="truncate">
+                                  {player.firstName} {player.lastName}
+                                </span>
+                                <span className="shrink-0 text-muted-foreground">
+                                  {pos ? `${pos} · ${player.teamName}` : player.teamName}
+                                </span>
                               </span>
-                              <span className="shrink-0 text-muted-foreground">
-                                {pos ? `${pos} · ${player.teamName}` : player.teamName}
-                              </span>
-                            </span>
-                          </SelectItem>
-                        );
-                      })}
+                            </SelectItem>
+                          );
+                        })}
                     </SelectContent>
                   </Select>
                   {errors.playerId && <FieldError>{errors.playerId}</FieldError>}
@@ -337,18 +421,20 @@ const AddEventDialog = ({
                       <SelectValue placeholder="Select player" />
                     </SelectTrigger>
                     <SelectContent>
-                      {availableTeamPlayers.map((player) => (
-                        <SelectItem key={player.id} value={player.id}>
-                          <span className="flex w-full items-center justify-between gap-3">
-                            <span className="truncate">
-                              {player.firstName} {player.lastName}
+                      {availableTeamPlayers
+                        .filter((player) => !needsAssistPlayer || player.id !== formData.assistPlayerId)
+                        .map((player) => (
+                          <SelectItem key={player.id} value={player.id}>
+                            <span className="flex w-full items-center justify-between gap-3">
+                              <span className="truncate">
+                                {player.firstName} {player.lastName}
+                              </span>
+                              <span className="shrink-0 text-muted-foreground">
+                                {positionShortLabel(player.position)}
+                              </span>
                             </span>
-                            <span className="shrink-0 text-muted-foreground">
-                              {positionShortLabel(player.position)}
-                            </span>
-                          </span>
-                        </SelectItem>
-                      ))}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   {errors.playerId && <FieldError>{errors.playerId}</FieldError>}
@@ -368,18 +454,20 @@ const AddEventDialog = ({
                       <SelectValue placeholder="Select assist player (optional)" />
                     </SelectTrigger>
                     <SelectContent>
-                      {allPlayers.map((player) => (
-                        <SelectItem key={player.id} value={player.id}>
-                          <span className="flex w-full items-center justify-between gap-3">
-                            <span className="truncate">
-                              {player.firstName} {player.lastName}
+                      {allPlayers
+                        .filter((player) => player.id !== formData.playerId)
+                        .map((player) => (
+                          <SelectItem key={player.id} value={player.id}>
+                            <span className="flex w-full items-center justify-between gap-3">
+                              <span className="truncate">
+                                {player.firstName} {player.lastName}
+                              </span>
+                              <span className="shrink-0 text-muted-foreground">
+                                {positionShortLabel(player.position)}
+                              </span>
                             </span>
-                            <span className="shrink-0 text-muted-foreground">
-                              {positionShortLabel(player.position)}
-                            </span>
-                          </span>
-                        </SelectItem>
-                      ))}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   {errors.assistPlayerId && <FieldError>{errors.assistPlayerId}</FieldError>}
