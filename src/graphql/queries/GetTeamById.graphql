@@ -8,6 +8,13 @@ query TeamById($id: String!) {
       id
       firstName
       lastName
+      position
+    }
+    captain {
+      id
+      firstName
+      lastName
+      position
     }
   }
 }
