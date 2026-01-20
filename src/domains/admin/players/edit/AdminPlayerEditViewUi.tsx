@@ -129,7 +129,6 @@ const AdminPlayerEditViewUi = ({
     // Avoid synchronous setState inside an effect body (can cause cascading renders)
     // Defer the state sync to a microtask and cancel if the effect is cleaned up.
     let cancelled = false;
-    console.log(1111, next);
     Promise.resolve().then(() => {
       if (cancelled) return;
       setInitialData(next);
