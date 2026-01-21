@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { Trophy } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { goalIcon, matchIcon, playerIcon, teamIcon } from '@/public/icons';
 import { Team } from '@/domains/team/contracts';
@@ -18,6 +21,12 @@ type TournamentStatisticsProps = {
   teams: Team[];
 };
 const TournamentStatistics = ({ teams }: TournamentStatisticsProps) => {
+  const router = useRouter();
+
+  const handleRowClick = (teamId: string) => {
+    router.push(`/teams/${teamId}`);
+  };
+
   const overallStats: Statistic[] = [
     {
       id: '1',
@@ -228,7 +237,11 @@ const TournamentStatistics = ({ teams }: TournamentStatisticsProps) => {
               </thead>
               <tbody>
                 {teams.map((team, index) => (
-                  <tr key={team.id} className="border-b transition-colors hover:bg-muted/50">
+                  <tr
+                    key={team.id}
+                    onClick={() => handleRowClick(team.id)}
+                    className="border-b transition-colors hover:bg-muted/50 cursor-pointer"
+                  >
                     <td className="px-3 py-4 text-center">
                       <PositionBadge position={index + 1} />
                     </td>
