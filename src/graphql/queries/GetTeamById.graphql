@@ -9,12 +9,15 @@ query TeamById($id: String!) {
       firstName
       lastName
       position
+      imageUrl
     }
     captain {
       id
       firstName
       lastName
       position
+      age
+      imageUrl
     }
   }
 }

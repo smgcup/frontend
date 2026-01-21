@@ -1,4 +1,7 @@
+'use client';
+
 import { Trophy } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import PositionBadge from '@/components/PositionBadge';
 
@@ -24,6 +27,12 @@ const TableHeader = ({ label }: TableHeaderProps) => {
 };
 
 const Table = ({ teams }: { teams: Team[] }) => {
+  const router = useRouter();
+
+  const handleRowClick = (teamId: string) => {
+    router.push(`/teams/${teamId}`);
+  };
+
   return (
     <div className="rounded-lg border bg-card p-6 shadow-sm">
       <div className="mb-6 flex items-center gap-2">
@@ -48,7 +57,11 @@ const Table = ({ teams }: { teams: Team[] }) => {
           </thead>
           <tbody>
             {teams.map((team, index) => (
-              <tr key={team.id} className="border-b transition-colors hover:bg-muted/50">
+              <tr
+                key={team.id}
+                onClick={() => handleRowClick(team.id)}
+                className="border-b transition-colors hover:bg-muted/50 cursor-pointer"
+              >
                 <td className="px-3 py-4 text-center">
                   <PositionBadge position={index + 1} />
                 </td>
