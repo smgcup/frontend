@@ -119,7 +119,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
         </div>
 
         <div className="border-t pt-4">
-          <Button asChild variant="outline" className="w-full bg-transparent">
+          <Button asChild variant="outline" className="w-full">
             <Link href={`/matches/${match.id}`}>
               {match.status === MatchStatus.Live ? 'View live' : 'View details'}
             </Link>
