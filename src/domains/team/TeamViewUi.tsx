@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, Calendar, BarChart3, Shield, ArrowLeft } from 'lucide-react';
+import { Users, Calendar, BarChart3, Shield } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { BackButton } from '@/app/(navbar-layout)/teams/[teamId]/BackButton';
 import { cn } from '@/lib/utils';
 import { PlayerPosition } from '@/generated/types';
 import type { Team } from './contracts';
@@ -48,7 +48,6 @@ const mockStats = {
 
 export function TeamViewUi({ team }: { team: Team }) {
   const [activeTab, setActiveTab] = useState<Tab>('squad');
-  const router = useRouter();
 
   const tabs = [
     { id: 'squad' as const, label: 'Squad', icon: Users },
@@ -72,13 +71,7 @@ export function TeamViewUi({ team }: { team: Team }) {
       {/* Header */}
       <div className="bg-linear-to-b from-primary/10 to-background border-b">
         <div className="container mx-auto px-4 py-8">
-          <button
-            onClick={() => router.back()}
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back</span>
-          </button>
+          <BackButton />
 
           <div className="flex items-center gap-4">
             <div className="h-20 w-20 rounded-xl bg-primary/10 flex items-center justify-center">
