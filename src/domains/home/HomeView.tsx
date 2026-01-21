@@ -10,6 +10,7 @@ type HomeViewProps = {
   matches: Match[];
 };
 const HomeView = ({ teams, news, matches }: HomeViewProps) => {
+  console.log('teams', teams);
   return <HomeViewUi teams={teams} news={news} matches={matches} />;
 };
 

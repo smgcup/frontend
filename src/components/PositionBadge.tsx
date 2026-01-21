@@ -3,12 +3,41 @@ import { cn } from '@/lib/utils';
 type PositionBadgeProps = {
   position: number;
   className?: string;
+  color?: 'default' | 'green' | 'red';
 };
 
-const PositionBadge = ({ position, className }: PositionBadgeProps) => {
+const PositionBadge = ({ position, className, color = 'default' }: PositionBadgeProps) => {
   // Convert 1-based position to 0-based index for styling logic
   const index = position - 1;
 
+  // If custom color is provided, use it instead of default styling
+  if (color === 'green') {
+    return (
+      <div
+        className={cn(
+          'mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+          className,
+        )}
+      >
+        {position}
+      </div>
+    );
+  }
+
+  if (color === 'red') {
+    return (
+      <div
+        className={cn(
+          'mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+          className,
+        )}
+      >
+        {position}
+      </div>
+    );
+  }
+
+  // Default styling
   return (
     <div
       className={cn(

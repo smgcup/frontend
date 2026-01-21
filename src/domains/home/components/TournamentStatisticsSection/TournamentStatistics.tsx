@@ -2,12 +2,10 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Trophy } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { goalIcon, matchIcon, playerIcon, teamIcon } from '@/public/icons';
 import { Team } from '@/domains/team/contracts';
-import PositionBadge from '@/components/PositionBadge';
+import StandingsTable from '@/components/StandingsTable';
 
 type Statistic = {
   id: string;
@@ -21,12 +19,6 @@ type TournamentStatisticsProps = {
   teams: Team[];
 };
 const TournamentStatistics = ({ teams }: TournamentStatisticsProps) => {
-  const router = useRouter();
-
-  const handleRowClick = (teamId: string) => {
-    router.push(`/teams/${teamId}`);
-  };
-
   const overallStats: Statistic[] = [
     {
       id: '1',
@@ -214,78 +206,8 @@ const TournamentStatistics = ({ teams }: TournamentStatisticsProps) => {
         </div>
 
         {/* Standings Table */}
-        <div className="mb-12 rounded-lg border bg-card p-6 shadow-sm">
-          <div className="mb-6 flex items-center gap-2">
-            <Trophy className="h-6 w-6 text-yellow-500" />
-            <h3 className="text-2xl font-bold">Standings</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">Pos</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">Team</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">P</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">W</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">D</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">L</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">GF</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">GA</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">GD</th>
-                  <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">Pts</th>
-                </tr>
-              </thead>
-              <tbody>
-                {teams.map((team, index) => (
-                  <tr
-                    key={team.id}
-                    onClick={() => handleRowClick(team.id)}
-                    className="border-b transition-colors hover:bg-muted/50 cursor-pointer"
-                  >
-                    <td className="px-3 py-4 text-center">
-                      <PositionBadge position={index + 1} />
-                    </td>
-                    <td className="px-4 py-4">
-                      <p className="font-semibold">{team.name}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-medium">{0}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-medium">{0}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-medium">{0}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-medium">{0}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-medium">{0}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-medium">{0}</p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p
-                        className={cn(
-                          'font-medium',
-                          0 > 0 && 'text-green-600 dark:text-green-400',
-                          0 < 0 && 'text-red-600 dark:text-red-400',
-                        )}
-                      >
-                        {0 > 0 ? '+' : ''}
-                        {0}
-                      </p>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <p className="font-bold">{0}</p>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="mb-12">
+          <StandingsTable teams={teams} limit={5} />
         </div>
 
         {/* Overall Stats Grid */}
