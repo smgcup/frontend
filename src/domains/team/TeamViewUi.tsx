@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Users, Calendar, BarChart3, Shield } from 'lucide-react';
 import Image from 'next/image';
-import { BackButton } from '@/app/(navbar-layout)/teams/[teamId]/BackButton';
+import { BackButton } from '@/components/BackButton';
 import { cn } from '@/lib/utils';
 import { PlayerPosition } from '@/generated/types';
 import type { Team } from './contracts';
