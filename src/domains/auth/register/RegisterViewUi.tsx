@@ -18,7 +18,6 @@ const RegisterViewUi = ({
 }: RegisterViewUiProps) => {
   return (
     <AuthCard
-      // children={<></>}
       title="Create an account!"
       description="Create an account to access your account."
       onSubmit={onRegister}

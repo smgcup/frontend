@@ -26,7 +26,6 @@ const isRegisterInput = (input: AuthInput): input is RegisterUserInput => {
 };
 
 const AuthCard = <T extends AuthInput>({
-  //   children,
   title,
   description,
   onSubmit,

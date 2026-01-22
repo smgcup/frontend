@@ -15,7 +15,6 @@ const LoginViewUi = ({ onLogin, onInputChange, loginUserLoading, loginInput, err
   return (
     <>
       <AuthCard
-        // children={<></>}
         title="Welcome back!"
         description="Login to access your account."
         onSubmit={onLogin}
