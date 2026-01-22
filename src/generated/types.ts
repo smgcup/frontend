@@ -21,6 +21,14 @@ export type AdminLoginResult = {
   ok: Scalars['Boolean']['output'];
 };
 
+export type AuthResponse = {
+  __typename?: 'AuthResponse';
+  /** JWT access token */
+  accessToken: Scalars['String']['output'];
+  /** Authenticated user */
+  user: User;
+};
+
 export type CreateMatchDto = {
   date: Scalars['Date']['input'];
   firstOpponentId: Scalars['String']['input'];
@@ -59,6 +67,26 @@ export type CreatePlayerDto = {
 
 export type CreateTeamDto = {
   name: Scalars['String']['input'];
+};
+
+export type CreateUserInput = {
+  /** Email address */
+  email: Scalars['String']['input'];
+  /** First name */
+  firstName: Scalars['String']['input'];
+  /** Last name */
+  lastName: Scalars['String']['input'];
+  /** Password */
+  password: Scalars['String']['input'];
+  /** Username */
+  username: Scalars['String']['input'];
+};
+
+export type LoginInput = {
+  /** Email address */
+  email: Scalars['String']['input'];
+  /** Password */
+  password: Scalars['String']['input'];
 };
 
 export type Match = {
@@ -111,11 +139,13 @@ export type Mutation = {
   createNews: News;
   createPlayer: Player;
   createTeam: Team;
+  createUser: AuthResponse;
   deleteMatch: Match;
   deleteMatchEvent: MatchEvent;
   deleteNews: News;
   deletePlayer: Player;
   deleteTeam: Team;
+  login: AuthResponse;
   updateMatch: Match;
   updateNews: News;
   updatePlayer: Player;
@@ -153,6 +183,11 @@ export type MutationCreateTeamArgs = {
 };
 
 
+export type MutationCreateUserArgs = {
+  createUserInput: CreateUserInput;
+};
+
+
 export type MutationDeleteMatchArgs = {
   id: Scalars['String']['input'];
 };
@@ -175,6 +210,11 @@ export type MutationDeletePlayerArgs = {
 
 export type MutationDeleteTeamArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type MutationLoginArgs = {
+  loginInput: LoginInput;
 };
 
 
@@ -251,6 +291,7 @@ export type Query = {
   playerById: Player;
   teamById: Team;
   teams: Array<Team>;
+  user: User;
 };
 
 
@@ -320,3 +361,29 @@ export type UpdateTeamDto = {
   captainId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
 };
+
+export type User = {
+  __typename?: 'User';
+  createdAt: Scalars['Date']['output'];
+  email: Scalars['String']['output'];
+  firstName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  lastName: Scalars['String']['output'];
+  password: Scalars['String']['output'];
+  username: Scalars['String']['output'];
+};
+
+
+export enum Queries {
+  __typename = '__typename',
+  health = 'health',
+  matchById = 'matchById',
+  matchEvents = 'matchEvents',
+  matches = 'matches',
+  news = 'news',
+  newsById = 'newsById',
+  playerById = 'playerById',
+  teamById = 'teamById',
+  teams = 'teams',
+  user = 'user',
+}
