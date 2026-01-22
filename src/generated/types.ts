@@ -81,6 +81,7 @@ export type Match = {
   date: Scalars['Date']['output'];
   firstOpponent: Team;
   id: Scalars['ID']['output'];
+  round: Scalars['Int']['output'];
   score1?: Maybe<Scalars['Int']['output']>;
   score2?: Maybe<Scalars['Int']['output']>;
   secondOpponent: Team;
