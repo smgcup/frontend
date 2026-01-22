@@ -44,8 +44,14 @@ export const TRANSLATION_CODES = {
   unknown: 'unknown',
   userEmailAlreadyInUse: 'userEmailAlreadyInUse',
   userEmailInvalid: 'userEmailInvalid',
+  userEmailNotFound: 'userEmailNotFound',
+  userEmailTooLong: 'userEmailTooLong',
+  userFirstNameInvalid: 'userFirstNameInvalid',
+  userFirstNameTooLong: 'userFirstNameTooLong',
   userFirstNameTooShort: 'userFirstNameTooShort',
   userInsufficientRole: 'userInsufficientRole',
+  userLastNameInvalid: 'userLastNameInvalid',
+  userLastNameTooLong: 'userLastNameTooLong',
   userLastNameTooShort: 'userLastNameTooShort',
   userNotAuthenticated: 'userNotAuthenticated',
   userNotFound: 'userNotFound',
@@ -60,6 +66,8 @@ export const TRANSLATION_CODES = {
   userTokenInvalid: 'userTokenInvalid',
   userTokenMissing: 'userTokenMissing',
   userUsernameAlreadyInUse: 'userUsernameAlreadyInUse',
+  userUsernameInvalid: 'userUsernameInvalid',
+  userUsernameTooLong: 'userUsernameTooLong',
   userUsernameTooShort: 'userUsernameTooShort',
 } as const;
 

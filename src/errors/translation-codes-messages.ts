@@ -48,7 +48,17 @@ export const translationCodesMessages = {
   [TRANSLATION_CODES.userLastNameTooShort]: 'User last name too short',
   [TRANSLATION_CODES.userNotAuthenticated]: 'User not authenticated',
   [TRANSLATION_CODES.userNotFound]: 'User not found',
+  // Register Errors
   [TRANSLATION_CODES.userPasswordInvalid]: 'Invalid login credentials',
   [TRANSLATION_CODES.userPasswordTooCommon]: 'User password too common',
   [TRANSLATION_CODES.userPasswordTooShort]: 'The minimum password length is 8 characters',
+  [TRANSLATION_CODES.userUsernameTooShort]: 'The minimum username length is 3 characters',
+  [TRANSLATION_CODES.userPasswordTooLong]: 'The maximum password length is 100 characters',
+  [TRANSLATION_CODES.userEmailTooLong]: 'The maximum email length is 255 characters',
+  [TRANSLATION_CODES.userFirstNameTooLong]: 'The maximum first name length is 100 characters',
+  [TRANSLATION_CODES.userFirstNameInvalid]: 'User first name is invalid',
+  [TRANSLATION_CODES.userLastNameInvalid]: 'User last name is invalid',
+  [TRANSLATION_CODES.userLastNameTooLong]: 'The maximum last name length is 100 characters',
+  [TRANSLATION_CODES.userUsernameTooLong]: 'The maximum username length is 100 characters',
+  [TRANSLATION_CODES.userUsernameInvalid]: 'User username is invalid',
 };
