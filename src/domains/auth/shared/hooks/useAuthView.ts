@@ -1,5 +1,14 @@
 import { useMutation } from '@apollo/client/react';
-import { LoginInput, LoginUserDocument, LoginUserMutation, LoginUserMutationVariables } from '@/graphql';
+import {
+  LoginInput,
+  LoginUserDocument,
+  LoginUserMutation,
+  LoginUserMutationVariables,
+  RegisterUserInput,
+  RegisterUserDocument,
+  RegisterUserMutation,
+  RegisterUserMutationVariables,
+} from '@/graphql';
 import { setCookie } from '@/lib/cookies';
 import { AUTH_COOKIE_NAME } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
@@ -8,7 +17,13 @@ import { getTranslationCodeMessage } from '@/errors/getTranslationCode';
 
 export const useAuthView = () => {
   const [loginInput, setLoginInput] = useState<LoginInput>({ email: '', password: '' });
-
+  const [registerInput, setRegisterInput] = useState<RegisterUserInput>({
+    email: '',
+    password: '',
+    username: '',
+    firstName: '',
+    lastName: '',
+  });
   const router = useRouter();
 
   const [loginUserMutation, { loading: loginUserLoading, error: loginUserError }] = useMutation<
@@ -23,11 +38,23 @@ export const useAuthView = () => {
     },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLButtonElement>) => {
+  const [registerUserMutation, { loading: registerUserLoading, error: registerUserError }] = useMutation<
+    RegisterUserMutation,
+    RegisterUserMutationVariables
+  >(RegisterUserDocument, {
+    onCompleted: (data) => {
+      if (data.register?.accessToken) {
+        setCookie(AUTH_COOKIE_NAME, data.register.accessToken, 7);
+        router.push('/inbox');
+      }
+    },
+  });
+
+  const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLButtonElement>) => {
     setLoginInput({ ...loginInput, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>, loginInput: LoginInput) => {
+  const handleLoginSubmit = async (e: FormEvent<HTMLFormElement>, loginInput: LoginInput) => {
     e.preventDefault();
     await loginUserMutation({
       variables: {
@@ -35,14 +62,31 @@ export const useAuthView = () => {
       },
     });
   };
+  const handleRegisterSubmit = async (e: FormEvent<HTMLFormElement>, registerInput: RegisterUserInput) => {
+    e.preventDefault();
+    await registerUserMutation({
+      variables: {
+        registerInput,
+      },
+    });
+  };
+  const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLButtonElement>) => {
+    setRegisterInput({ ...registerInput, [e.target.name]: e.target.value });
+  };
 
-  const errorMessage = loginUserError ? getTranslationCodeMessage(loginUserError) : null;
+  const loginErrorMessage = loginUserError ? getTranslationCodeMessage(loginUserError) : null;
+  const registerErrorMessage = registerUserError ? getTranslationCodeMessage(registerUserError) : null;
+
   return {
-    onLogin: handleSubmit,
-    onInputChange: handleChange,
+    onLogin: handleLoginSubmit,
+    onLoginInputChange: handleLoginChange,
+    onRegister: handleRegisterSubmit,
+    onRegisterInputChange: handleRegisterChange,
     loginUserLoading,
-    loginUserError,
+    loginErrorMessage,
+    registerUserLoading,
+    registerErrorMessage,
     loginInput,
-    errorMessage,
+    registerInput,
   };
 };

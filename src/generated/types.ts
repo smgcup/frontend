@@ -69,19 +69,6 @@ export type CreateTeamDto = {
   name: Scalars['String']['input'];
 };
 
-export type CreateUserInput = {
-  /** Email address */
-  email: Scalars['String']['input'];
-  /** First name */
-  firstName: Scalars['String']['input'];
-  /** Last name */
-  lastName: Scalars['String']['input'];
-  /** Password */
-  password: Scalars['String']['input'];
-  /** Username */
-  username: Scalars['String']['input'];
-};
-
 export type LoginInput = {
   /** Email address */
   email: Scalars['String']['input'];
@@ -139,13 +126,13 @@ export type Mutation = {
   createNews: News;
   createPlayer: Player;
   createTeam: Team;
-  createUser: AuthResponse;
   deleteMatch: Match;
   deleteMatchEvent: MatchEvent;
   deleteNews: News;
   deletePlayer: Player;
   deleteTeam: Team;
   login: AuthResponse;
+  register: AuthResponse;
   updateMatch: Match;
   updateNews: News;
   updatePlayer: Player;
@@ -183,11 +170,6 @@ export type MutationCreateTeamArgs = {
 };
 
 
-export type MutationCreateUserArgs = {
-  createUserInput: CreateUserInput;
-};
-
-
 export type MutationDeleteMatchArgs = {
   id: Scalars['String']['input'];
 };
@@ -215,6 +197,11 @@ export type MutationDeleteTeamArgs = {
 
 export type MutationLoginArgs = {
   loginInput: LoginInput;
+};
+
+
+export type MutationRegisterArgs = {
+  registerInput: RegisterUserInput;
 };
 
 
@@ -317,6 +304,19 @@ export type QueryPlayerByIdArgs = {
 
 export type QueryTeamByIdArgs = {
   id: Scalars['String']['input'];
+};
+
+export type RegisterUserInput = {
+  /** Email address */
+  email: Scalars['String']['input'];
+  /** First name */
+  firstName: Scalars['String']['input'];
+  /** Last name */
+  lastName: Scalars['String']['input'];
+  /** Password */
+  password: Scalars['String']['input'];
+  /** Username */
+  username: Scalars['String']['input'];
 };
 
 export type Team = {

@@ -7,20 +7,25 @@ import Image from 'next/image';
 import { Loader2 } from 'lucide-react';
 import React from 'react';
 import AuthField from './AuthField';
-import { LoginInput } from '@/graphql';
+import { LoginInput, RegisterUserInput } from '@/graphql';
 
-type AuthCardProps = {
-  //   children: React.ReactNode;
+type AuthInput = LoginInput | RegisterUserInput;
+
+type AuthCardProps<T extends AuthInput> = {
   title: string;
   description: string;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>, loginInput: LoginInput) => void;
-  input: LoginInput;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>, input: T) => void;
+  input: T;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   loading: boolean;
   errorMessage: string | null;
 };
 
-const AuthCard = ({
+const isRegisterInput = (input: AuthInput): input is RegisterUserInput => {
+  return 'firstName' in input && 'lastName' in input && 'username' in input;
+};
+
+const AuthCard = <T extends AuthInput>({
   //   children,
   title,
   description,
@@ -29,7 +34,7 @@ const AuthCard = ({
   onInputChange,
   loading,
   errorMessage,
-}: AuthCardProps) => {
+}: AuthCardProps<T>) => {
   return (
     <Card className="shadow-lg">
       <CardHeader className="items-center text-center pb-2">
@@ -42,6 +47,40 @@ const AuthCard = ({
       <CardContent className="pt-4">
         <form onSubmit={(e) => onSubmit(e, input)}>
           <FieldGroup className="gap-5">
+            {isRegisterInput(input) && (
+              <>
+                <AuthField
+                  label="First Name"
+                  name="firstName"
+                  type="text"
+                  placeholder="John"
+                  value={input.firstName}
+                  onChange={onInputChange}
+                  required={true}
+                  disabled={loading}
+                />
+                <AuthField
+                  label="Last Name"
+                  name="lastName"
+                  type="text"
+                  placeholder="Doe"
+                  value={input.lastName}
+                  onChange={onInputChange}
+                  required={true}
+                  disabled={loading}
+                />
+                <AuthField
+                  label="Username"
+                  name="username"
+                  type="text"
+                  placeholder="johndoe"
+                  value={input.username}
+                  onChange={onInputChange}
+                  required={true}
+                  disabled={loading}
+                />
+              </>
+            )}
             <AuthField
               label="Email"
               name="email"
@@ -70,7 +109,7 @@ const AuthCard = ({
                 className="w-full h-11 text-base font-medium cursor-pointer"
                 disabled={loading}
               >
-                {loading ? <Loader2 className="animate-spin" /> : 'Sign in'}
+                {loading ? <Loader2 className="animate-spin" /> : isRegisterInput(input) ? 'Sign up' : 'Sign in'}
               </Button>
             </Field>
           </FieldGroup>

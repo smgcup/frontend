@@ -4,15 +4,15 @@ import { useAuthView } from '../shared/hooks/useAuthView';
 import LoginViewUi from './LoginViewUi';
 
 const LoginView = () => {
-  const { onLogin, onInputChange, loginUserLoading, errorMessage, loginInput } = useAuthView();
+  const { onLogin, onLoginInputChange, loginUserLoading, loginErrorMessage, loginInput } = useAuthView();
 
   return (
     <LoginViewUi
       onLogin={onLogin}
-      onInputChange={onInputChange}
+      onInputChange={onLoginInputChange}
       loginUserLoading={loginUserLoading}
       loginInput={loginInput}
-      errorMessage={errorMessage}
+      errorMessage={loginErrorMessage}
     />
   );
 };
