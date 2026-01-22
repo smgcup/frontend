@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthView } from './hooks/useAuthView';
+import { useAuthView } from '../shared/hooks/useAuthView';
 import LoginViewUi from './LoginViewUi';
 
 const LoginView = () => {

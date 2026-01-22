@@ -23,7 +23,7 @@ export const useAuthView = () => {
     },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLButtonElement>) => {
     setLoginInput({ ...loginInput, [e.target.name]: e.target.value });
   };
 
