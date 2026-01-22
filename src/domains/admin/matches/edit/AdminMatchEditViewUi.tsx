@@ -71,11 +71,13 @@ const AdminMatchEditViewUi = ({
       return {
         date: '',
         status: MatchStatus.Scheduled,
+        round: 1,
       };
     }
     return {
       date: formatMatchDateForDatetimeLocalInput(match.date),
       status: match.status,
+      round: match.round,
     };
   }, [match]);
 
@@ -99,11 +101,17 @@ const AdminMatchEditViewUi = ({
   const errors = {
     date: getError('date'),
     status: getError('status'),
+    round: getError('round'),
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'round') {
+      const parsedValue = value === '' ? 0 : parseInt(value, 10);
+      setFormData((prev) => ({ ...prev, [name]: isNaN(parsedValue) ? 0 : parsedValue }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
     if (errors[name as keyof typeof errors]) {
       setLocalErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -128,6 +136,10 @@ const AdminMatchEditViewUi = ({
 
     if (!formData.status || !Object.values(MatchStatus).includes(formData.status)) {
       newErrors.status = 'Status is required';
+    }
+
+    if (!formData.round || formData.round < 1 || formData.round > 4) {
+      newErrors.round = 'Round must be between 1 and 4';
     }
 
     setLocalErrors(newErrors);
@@ -229,6 +241,25 @@ const AdminMatchEditViewUi = ({
                   />
                   {errors.date && <FieldError>{errors.date}</FieldError>}
                   <FieldDescription>Select the date and time for the match</FieldDescription>
+                </FieldContent>
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="round">Round *</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="round"
+                    name="round"
+                    type="number"
+                    min="1"
+                    max="4"
+                    value={formData.round}
+                    onChange={handleChange}
+                    aria-invalid={!!errors.round}
+                    disabled={updateLoading}
+                  />
+                  {errors.round && <FieldError>{errors.round}</FieldError>}
+                  <FieldDescription>Enter the round number (1-4)</FieldDescription>
                 </FieldContent>
               </Field>
 

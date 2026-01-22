@@ -5,6 +5,7 @@ query GetMatches {
     status
     score1
     score2
+    round
     firstOpponent {
       id
       name

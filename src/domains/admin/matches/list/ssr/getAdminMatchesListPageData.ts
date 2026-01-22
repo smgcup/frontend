@@ -1,7 +1,6 @@
 import { getClient } from '@/lib/initializeApollo';
 import { GetMatchesDocument, type GetMatchesQuery, type GetMatchesQueryVariables } from '@/graphql';
-import { mapAdminMatch } from '../mappers/mapAdminMatches';
-
+import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 export const getAdminMatchesListPageData = async () => {
   const client = await getClient();
 
@@ -9,7 +8,7 @@ export const getAdminMatchesListPageData = async () => {
     query: GetMatchesDocument,
   });
 
-  const matches = data?.matches.map(mapAdminMatch) ?? [];
+  const matches = data?.matches.map(mapMatch) ?? [];
 
   // Ensure this is safe to pass into client components (must be serializable).
   const errorMessage = error

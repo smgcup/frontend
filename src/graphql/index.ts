@@ -16,6 +16,8 @@ export * from './mutations/DeleteMatchEvent.generated';
 export * from './mutations/DeleteNews.generated';
 export * from './mutations/DeletePlayer.generated';
 export * from './mutations/DeleteTeam.generated';
+export * from './mutations/LoginUser.generated';
+export * from './mutations/RegisterUser.generated';
 export * from './mutations/UpdateMatch.generated';
 export * from './mutations/UpdateNews.generated';
 export * from './mutations/UpdatePlayer.generated';
