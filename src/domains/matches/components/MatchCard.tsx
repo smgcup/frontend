@@ -1,3 +1,5 @@
+'use client';
+
 import type React from 'react';
 import Link from 'next/link';
 import { Calendar, Clock, Trophy } from 'lucide-react';
@@ -61,9 +63,13 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
         <div className="flex items-center justify-between gap-4 mb-6">
           <div className="flex-1">
             <div className="block text-center">
-              <div className="text-2xl font-bold tracking-tight transition-colors group-hover:text-primary">
+              <Link
+                href={`/teams/${match.firstOpponent.id}`}
+                className="text-2xl font-bold tracking-tight transition-colors hover:text-primary underline"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {match.firstOpponent.name}
-              </div>
+              </Link>
               {showScore && match.score1 !== undefined && (
                 <div className="text-3xl font-black mt-2 text-primary">{match.score1}</div>
               )}
@@ -87,9 +93,13 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
 
           <div className="flex-1">
             <div className="block text-center">
-              <div className="text-2xl font-bold tracking-tight transition-colors group-hover:text-primary">
+              <Link
+                href={`/teams/${match.secondOpponent.id}`}
+                className="text-2xl font-bold tracking-tight transition-colors hover:text-primary underline"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {match.secondOpponent.name}
-              </div>
+              </Link>
               {showScore && match.score2 !== undefined && (
                 <div className="text-3xl font-black mt-2 text-primary">{match.score2}</div>
               )}
