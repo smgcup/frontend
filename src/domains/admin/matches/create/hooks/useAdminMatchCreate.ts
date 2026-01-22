@@ -11,6 +11,7 @@ export type AdminMatchCreateFormData = {
   secondOpponentId: string;
   date: string;
   status: MatchStatus;
+  round: number;
 };
 
 export const useAdminMatchCreate = () => {
@@ -42,6 +43,7 @@ export const useAdminMatchCreate = () => {
             secondOpponentId: data.secondOpponentId,
             date: d.toISOString(),
             status: data.status,
+            round: data.round,
           },
         },
       });

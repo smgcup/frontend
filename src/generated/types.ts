@@ -32,6 +32,7 @@ export type AuthResponse = {
 export type CreateMatchDto = {
   date: Scalars['Date']['input'];
   firstOpponentId: Scalars['String']['input'];
+  round: Scalars['Int']['input'];
   secondOpponentId: Scalars['String']['input'];
   status: MatchStatus;
 };
@@ -332,6 +333,7 @@ export type Team = {
 export type UpdateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
   firstOpponentId?: InputMaybe<Scalars['String']['input']>;
+  round?: InputMaybe<Scalars['Int']['input']>;
   score1?: InputMaybe<Scalars['Int']['input']>;
   score2?: InputMaybe<Scalars['Int']['input']>;
   secondOpponentId?: InputMaybe<Scalars['String']['input']>;
