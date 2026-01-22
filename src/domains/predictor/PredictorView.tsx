@@ -1,9 +1,11 @@
-import { getMatchesPageData } from '@/domains/matches/ssr/getMatchesPageData';
 import PredictorViewUi from './PredictorViewUi';
+import type { Match } from '@/domains/matches/contracts';
 
-const PredictorView = async () => {
-  const { matches } = await getMatchesPageData();
+type PredictorViewProps = {
+  matches: Match[];
+};
 
+const PredictorView = ({ matches }: PredictorViewProps) => {
   return <PredictorViewUi matches={matches} />;
 };
 

@@ -75,10 +75,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
 
   return (
     <nav
-      className={cn(
-        'sticky top-0 z-50 bg-background/95 backdrop-blur-sm transition-all duration-300 py-2 lg:py-3 border-b',
-        theme.border,
-      )}
+      className='sticky top-0 z-50 bg-background/95 backdrop-blur-sm transition-all duration-300 py-2 lg:py-3'
     >
       <div className="w-screen px-6">
         {/* Desktop navigation */}
