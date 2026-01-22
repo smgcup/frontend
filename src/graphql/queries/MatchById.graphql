@@ -5,6 +5,7 @@ query MatchById($id: String!) {
     status
     score1
     score2
+    round
     firstOpponent {
       id
       name
@@ -27,5 +28,3 @@ query MatchById($id: String!) {
     }
   }
 }
-
-

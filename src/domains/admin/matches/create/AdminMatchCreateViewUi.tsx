@@ -20,6 +20,7 @@ type AdminMatchCreateViewUiProps = {
     secondOpponentId: string;
     date: string;
     status: MatchStatus;
+    round: number;
   }) => Promise<void>;
   createLoading: boolean;
 };
@@ -38,6 +39,7 @@ const AdminMatchCreateViewUi = ({
     secondOpponentId: '',
     date: '',
     status: MatchStatus.Scheduled,
+    round: 1,
   });
 
   // Local (client-side) validation errors. External errors come from the server via props.
@@ -56,11 +58,17 @@ const AdminMatchCreateViewUi = ({
     secondOpponentId: getError('secondOpponentId'),
     date: getError('date'),
     status: getError('status'),
+    round: getError('round'),
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'round') {
+      const parsedValue = value === '' ? 0 : parseInt(value, 10);
+      setFormData((prev) => ({ ...prev, [name]: isNaN(parsedValue) ? 0 : parsedValue }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
     if (errors[name as keyof typeof errors]) {
       setLocalErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -99,6 +107,10 @@ const AdminMatchCreateViewUi = ({
     // Status has a default value, but validate it's a valid enum value
     if (!formData.status || !Object.values(MatchStatus).includes(formData.status as MatchStatus)) {
       newErrors.status = 'Status is required';
+    }
+
+    if (!formData.round || formData.round < 1 || formData.round > 4) {
+      newErrors.round = 'Round must be between 1 and 4';
     }
 
     setLocalErrors(newErrors);
@@ -225,6 +237,26 @@ const AdminMatchCreateViewUi = ({
                   />
                   {errors.date && <FieldError>{errors.date}</FieldError>}
                   <FieldDescription>Select the date and time for the match</FieldDescription>
+                </FieldContent>
+              </Field>
+
+              {/* Round */}
+              <Field>
+                <FieldLabel htmlFor="round">Round *</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="round"
+                    name="round"
+                    type="number"
+                    min="1"
+                    max="4"
+                    value={formData.round}
+                    onChange={handleChange}
+                    aria-invalid={!!errors.round}
+                    disabled={createLoading}
+                  />
+                  {errors.round && <FieldError>{errors.round}</FieldError>}
+                  <FieldDescription>Enter the round number (1-4)</FieldDescription>
                 </FieldContent>
               </Field>
 

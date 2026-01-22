@@ -8,6 +8,7 @@
 		"start": "next start",
 		"lint": "eslint",
 		"codegen": "graphql-codegen --config codegen.ts && pnpm run codegen:utils && prettier --write src/generated/ src/graphql/",
+    	"codegen:translation-codes": "node scripts/generate-translation-codes.cjs && prettier --write src/generated/translation-codes.ts",
 		"codegen:dev": "graphql-codegen --config codegen.dev.ts && pnpm run codegen:utils && prettier --write src/generated/ src/graphql/",
 		"codegen:staging": "graphql-codegen --config codegen.staging.ts && pnpm run codegen:utils && prettier --write src/generated/ src/graphql/",
 		"codegen:utils": "node ./scripts/generate-query-enum.cjs && node ./scripts/generate-graphql-index.cjs",

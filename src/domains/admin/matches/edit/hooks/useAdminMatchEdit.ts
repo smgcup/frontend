@@ -18,6 +18,7 @@ import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 export type AdminMatchEditFormData = {
   date: string;
   status: MatchStatus;
+  round: number;
 };
 
 /**
@@ -76,6 +77,7 @@ export const useAdminMatchEdit = (matchId: string) => {
           dto: {
             date: d.toISOString(),
             status: data.status,
+            round: data.round,
           },
         },
       });
