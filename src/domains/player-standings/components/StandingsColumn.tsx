@@ -15,10 +15,12 @@ const getCategoryEmoji = (category: CategoryType) => {
       return '⚽';
     case CATEGORIES.Assists:
       return '🤝';
-    case CATEGORIES.TotalPasses:
-      return '👟';
     case CATEGORIES.CleanSheets:
-      return '🤝';
+      return '🧤';
+    case CATEGORIES.RedCards:
+      return '🟥';
+    case CATEGORIES.YellowCards:
+      return '🟨';
     default:
       return null;
   }
