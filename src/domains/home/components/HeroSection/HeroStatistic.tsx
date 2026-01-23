@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 type HeroStatisticProps = {
   icon: string;
-  value: number;
+  value: number | string;
   label: string;
 };
 const HeroStatistic = ({ icon, value, label }: HeroStatisticProps) => {
