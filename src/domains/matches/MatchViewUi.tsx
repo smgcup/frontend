@@ -50,7 +50,7 @@ const MatchViewUi = ({ matches, error }: MatchViewUiProps) => {
           Complete schedule and results of all tournament matches
         </p>
 
-        <div className="flex gap-2 mb-12">
+        <div className="flex gap-2 mb-12 overflow-x-auto pb-2 -mx-4 sm:mx-0 px-4 sm:px-0">
           {rounds.map((round) => (
             <Button
               key={round}
