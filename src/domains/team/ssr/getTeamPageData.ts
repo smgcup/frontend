@@ -1,6 +1,14 @@
 import { getClient } from '@/lib/initializeApollo';
-import { TeamByIdDocument, TeamByIdQuery, TeamByIdQueryVariables } from '@/graphql';
+import {
+  TeamByIdDocument,
+  TeamByIdQuery,
+  TeamByIdQueryVariables,
+  GetMatchesDocument,
+  GetMatchesQuery,
+  GetMatchesQueryVariables,
+} from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
+import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 import type { Player } from '@/domains/player/contracts';
 import type { Team } from '@/domains/team/contracts';
 import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
@@ -9,13 +17,21 @@ export async function getTeamPageData(teamId: string): Promise<{ team: Team | nu
   const client = await getClient();
 
   try {
-    const { data, error } = await client.query<TeamByIdQuery, TeamByIdQueryVariables>({
-      query: TeamByIdDocument,
-      variables: { id: teamId },
-    });
+    // Fetch team and matches in parallel
+    const [teamResult, matchesResult] = await Promise.all([
+      client.query<TeamByIdQuery, TeamByIdQueryVariables>({
+        query: TeamByIdDocument,
+        variables: { id: teamId },
+      }),
+      client.query<GetMatchesQuery, GetMatchesQueryVariables>({
+        query: GetMatchesDocument,
+      }),
+    ]);
+
+    const { data, error } = teamResult;
 
     if (error || !data?.teamById) {
-      const errorMessage = error 
+      const errorMessage = error
         ? 'Failed to load team information. Please try again later.'
         : 'Team not found. The team you are looking for does not exist.';
       return { team: null, error: errorMessage };
@@ -37,12 +53,21 @@ export async function getTeamPageData(teamId: string): Promise<{ team: Team | nu
         }
       : undefined;
 
+    // Filter matches for this team (where team is either first or second opponent)
+    const allMatches = matchesResult.data?.matches ?? [];
+    const teamMatches = allMatches
+      .filter((match) => match.firstOpponent.id === teamId || match.secondOpponent.id === teamId)
+      .map(mapMatch)
+      // Sort by date, most recent first
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
     return {
       team: {
         id: team.id,
         name: team.name,
         players,
         captain,
+        matches: teamMatches,
       },
       error: null,
     };
