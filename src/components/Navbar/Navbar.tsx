@@ -237,7 +237,7 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 bg-background transition-all duration-300 py-2 lg:py-4">
       <div className="w-screen px-6">
         {/* Desktop navigation */}
-        <nav className="hidden items-center lg:flex">
+        <nav className="hidden lg:flex">
           <div className="flex flex-1 items-center">
             <Link href="/" className="flex items-center gap-2">
               <Image
@@ -257,19 +257,7 @@ const Navbar = () => {
               <NavigationMenuList>{menu.map((item) => renderMenuItem(item))}</NavigationMenuList>
             </NavigationMenu>
           </div>
-          <div className="flex flex-1 items-center justify-end gap-2">
-            {false ? (
-              <Button asChild size="lg">
-                <Link href={'/profile'}>
-                  <User className="size-5" />
-                </Link>
-              </Button>
-            ) : (
-              <Button asChild size="lg">
-                <Link href={'/login'}>{'Login'}</Link>
-              </Button>
-            )}
-          </div>
+          <div className="flex flex-1 items-center justify-end gap-2">{/* We leave this empty for now */}</div>
         </nav>
 
         {/* Mobile navigation */}
@@ -279,17 +267,6 @@ const Navbar = () => {
               <Image src={logoUrl} alt="SMG Cup Championship Logo" width={50} height={50} />
             </Link>
             <div className="flex items-center gap-2">
-              {false ? (
-                <Button asChild size="icon">
-                  <Link href={'/profile'}>
-                    <User className="size-5" />
-                  </Link>
-                </Button>
-              ) : (
-                <Button asChild size="lg">
-                  <Link href={'/login'}>{'Login'}</Link>
-                </Button>
-              )}
               <Button
                 variant="outline"
                 size="icon"

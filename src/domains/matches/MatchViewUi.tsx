@@ -1,20 +1,25 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import type { Match } from './contracts';
 import MatchCard from './components/MatchCard';
 import { MatchStatus } from '@/graphql';
+import { Button } from '@/components/ui/button';
 type MatchViewUiProps = {
   matches: Match[];
   error?: unknown;
 };
 
 const compareMatches = (a: Match, b: Match) => {
+  // Primary: live matches first
+  if (a.status === MatchStatus.Live && b.status !== MatchStatus.Live) return -1;
+  if (b.status === MatchStatus.Live && a.status !== MatchStatus.Live) return 1;
+
   const aTime = new Date(a.date).getTime();
   const bTime = new Date(b.date).getTime();
 
-  // Primary: chronological
+  // Secondary: chronological
   if (aTime !== bTime) return aTime - bTime;
 
-  // Secondary: push cancelled last
+  // Tertiary: push cancelled last
   if (a.status === MatchStatus.Cancelled && b.status !== MatchStatus.Cancelled) return 1;
   if (b.status === MatchStatus.Cancelled && a.status !== MatchStatus.Cancelled) return -1;
 
@@ -22,7 +27,15 @@ const compareMatches = (a: Match, b: Match) => {
 };
 
 const MatchViewUi = ({ matches, error }: MatchViewUiProps) => {
-  const sortedMatches = [...matches].sort(compareMatches);
+  const [selectedRound, setSelectedRound] = useState(1);
+
+  const filteredMatches = useMemo(() => {
+    return matches.filter((match) => match.round === selectedRound);
+  }, [matches, selectedRound]);
+
+  const sortedMatches = [...filteredMatches].sort(compareMatches);
+
+  const rounds = [1, 2, 3, 4];
 
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8">
@@ -33,9 +46,22 @@ const MatchViewUi = ({ matches, error }: MatchViewUiProps) => {
             ({sortedMatches.length} {sortedMatches.length === 1 ? 'match' : 'matches'})
           </span>
         </h1>
-        <p className="text-muted-foreground text-lg mb-12 max-w-2xl leading-relaxed">
+        <p className="text-muted-foreground text-lg mb-8 max-w-2xl leading-relaxed">
           Complete schedule and results of all tournament matches
         </p>
+
+        <div className="flex gap-2 mb-12">
+          {rounds.map((round) => (
+            <Button
+              key={round}
+              variant={selectedRound === round ? 'default' : 'outline'}
+              onClick={() => setSelectedRound(round)}
+              className="rounded-full p-4"
+            >
+              Round {round}
+            </Button>
+          ))}
+        </div>
 
         {Boolean(error) && (
           <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive mb-8">

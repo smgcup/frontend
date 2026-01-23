@@ -11,6 +11,7 @@ export type Match = {
   status: MatchStatus;
   score1?: number;
   score2?: number;
+  round: number;
 };
 
 export type MatchEvent = {

@@ -9,7 +9,7 @@ import {
 } from '@/graphql';
 import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 import { mapMatchEvent } from '@/domains/matches/mappers/mapMatchEvent';
-import type { Match, MatchEvent } from '@/domains/matches/contracts';
+import type { MatchEvent } from '@/domains/matches/contracts';
 
 export const getAdminMatchLivePageData = async (matchId: string) => {
   const client = await getClient();
@@ -24,21 +24,18 @@ export const getAdminMatchLivePageData = async (matchId: string) => {
     variables: { matchId },
   });
 
-  const matchRow = matchData?.matchById;
-  const mappedMatch = matchData?.matchById ? mapMatch(matchData?.matchById) : null;
-  const match =
-    mappedMatch && matchRow
-      ? {
-          id: mappedMatch.id,
-          firstOpponent: mappedMatch.firstOpponent,
-          secondOpponent: mappedMatch.secondOpponent,
-          date: mappedMatch.date,
-          status: mappedMatch.status,
-          // Live view expects scores to always be numbers.
-          score1: matchRow.score1 ?? 0,
-          score2: matchRow.score2 ?? 0,
-        }
-      : null;
+  if (!matchData || !matchData.matchById) {
+    return { match: null, events: [], matchErrorMessage: 'Match not found', eventsErrorMessage: 'Events not found' };
+  }
+
+  const matchRow = matchData.matchById;
+  const mappedMatch = mapMatch(matchRow);
+
+  const match = {
+    ...mappedMatch,
+    score1: mappedMatch?.score1 ?? 0,
+    score2: mappedMatch?.score2 ?? 0,
+  };
 
   const eventsRows = eventsData?.matchEvents ?? [];
   // Sort ascending by minute, then createdAt (stable-ish)
