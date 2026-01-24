@@ -13,18 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import {
-  Pencil,
-  Trash2,
-  Calendar,
-  Clock,
-  Loader2,
-  Radio,
-  Trophy,
-  MapPin,
-  MoreVertical,
-  Play,
-} from 'lucide-react';
+import { Pencil, Trash2, Calendar, Clock, Loader2, Radio, Trophy, MapPin, MoreVertical, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -42,6 +31,9 @@ type AdminMatchCardProps = {
   showMatchId: string | null;
   onDeleteMatch: (id: string) => Promise<void>;
   onToggleMatchId: (id: string) => void;
+  startLoading: boolean;
+  startingId: string | null;
+  onStartMatch: (id: string) => Promise<void>;
 };
 
 const AdminMatchCard = ({
@@ -51,6 +43,9 @@ const AdminMatchCard = ({
   showMatchId,
   onDeleteMatch,
   onToggleMatchId,
+  startLoading,
+  startingId,
+  onStartMatch,
 }: AdminMatchCardProps) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -206,11 +201,15 @@ const AdminMatchCard = ({
         <div className="pt-4 border-t flex items-center justify-end gap-2">
           {/* Show "Start Match" button for SCHEDULED matches */}
           {match.status === MatchStatus.Scheduled && (
-            <Button variant="outline" size="sm" asChild className="gap-2">
-              <Link href={`/admin/matches/${match.id}/live`}>
-                <Play className="h-4 w-4" />
-                Start Match
-              </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => onStartMatch(match.id)}
+              disabled={startLoading || startingId === match.id}
+            >
+              {startingId === match.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+              {startingId === match.id ? 'Starting...' : 'Start Match'}
             </Button>
           )}
           {/* Show "Manage Live" button only for LIVE matches */}

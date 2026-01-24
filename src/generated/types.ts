@@ -135,6 +135,7 @@ export type Mutation = {
   deleteTeam: Team;
   login: AuthResponse;
   register: AuthResponse;
+  startMatch: Match;
   updateMatch: Match;
   updateNews: News;
   updatePlayer: Player;
@@ -207,6 +208,11 @@ export type MutationRegisterArgs = {
 };
 
 
+export type MutationStartMatchArgs = {
+  id: Scalars['String']['input'];
+};
+
+
 export type MutationUpdateMatchArgs = {
   id: Scalars['String']['input'];
   updateMatchDto: UpdateMatchDto;
@@ -252,6 +258,7 @@ export type Player = {
   lastName: Scalars['String']['output'];
   position: PlayerPosition;
   preferredFoot: PreferredFoot;
+  stats?: Maybe<PlayerStats>;
   team: Team;
   weight: Scalars['Float']['output'];
 };
@@ -262,6 +269,18 @@ export enum PlayerPosition {
   Goalkeeper = 'GOALKEEPER',
   Midfielder = 'MIDFIELDER'
 }
+
+export type PlayerStats = {
+  __typename?: 'PlayerStats';
+  assists: Scalars['Float']['output'];
+  goalkeeperSaves: Scalars['Float']['output'];
+  goals: Scalars['Float']['output'];
+  penaltiesMissed: Scalars['Float']['output'];
+  penaltiesScored: Scalars['Float']['output'];
+  playerId: Scalars['ID']['output'];
+  redCards: Scalars['Float']['output'];
+  yellowCards: Scalars['Float']['output'];
+};
 
 export enum PreferredFoot {
   Both = 'BOTH',
@@ -375,18 +394,3 @@ export type User = {
   password: Scalars['String']['output'];
   username: Scalars['String']['output'];
 };
-
-
-export enum Queries {
-  __typename = '__typename',
-  health = 'health',
-  matchById = 'matchById',
-  matchEvents = 'matchEvents',
-  matches = 'matches',
-  news = 'news',
-  newsById = 'newsById',
-  playerById = 'playerById',
-  teamById = 'teamById',
-  teams = 'teams',
-  user = 'user',
-}

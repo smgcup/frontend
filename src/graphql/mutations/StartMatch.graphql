@@ -1,0 +1,16 @@
+mutation StartMatch($id: String!) {
+  startMatch(id: $id) {
+    id
+    status
+    score1
+    score2
+    firstOpponent {
+      id
+      name
+    }
+    secondOpponent {
+      id
+      name
+    }
+  }
+}
