@@ -13,11 +13,19 @@ type AdminMatchesListViewUiProps = {
   matches: Match[];
   deleteLoading: boolean;
   onDeleteMatch: (id: string) => Promise<void>;
+  onStartMatch: (id: string) => Promise<void>;
 };
 
-const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: AdminMatchesListViewUiProps) => {
+const AdminMatchesListViewUi = ({
+  matches,
+  deleteLoading,
+  onDeleteMatch,
+  onStartMatch,
+}: AdminMatchesListViewUiProps) => {
   // Track which match is currently being deleted (for showing loading state on specific match)
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  // Track which match is currently being started (for showing loading state on specific match)
+  const [startingId, setStartingId] = useState<string | null>(null);
   // Track which match's ID popup is currently shown
   const [showMatchId, setShowMatchId] = useState<string | null>(null);
 
@@ -25,6 +33,12 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
     setDeletingId(id);
     await onDeleteMatch(id);
     setDeletingId(null);
+  };
+
+  const handleStartMatch = async (id: string) => {
+    setStartingId(id);
+    await onStartMatch(id);
+    setStartingId(null);
   };
 
   const handleToggleMatchId = (id: string) => {
@@ -116,6 +130,8 @@ const AdminMatchesListViewUi = ({ matches, deleteLoading, onDeleteMatch }: Admin
               showMatchId={showMatchId}
               onDeleteMatch={handleDelete}
               onToggleMatchId={handleToggleMatchId}
+              startingId={startingId}
+              onStartMatch={handleStartMatch}
             />
           ))}
         </div>

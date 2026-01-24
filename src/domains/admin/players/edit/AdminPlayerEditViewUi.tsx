@@ -3,11 +3,20 @@
 import type { Player } from '@/domains/player/contracts';
 import type { Team } from '@/domains/team/contracts';
 import { PlayerPosition, PreferredFoot, UpdatePlayerDto } from '@/graphql';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Cropper, { Area } from 'react-easy-crop';
 import { ErrorLike } from '@apollo/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -23,6 +32,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Loader2, Save, Trash2 } from 'lucide-react';
+import Image from 'next/image';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
 
@@ -44,7 +54,6 @@ type FormState = {
   height: number | null;
   weight: number | null;
   dateOfBirth: string | null;
-  imageUrl: string | null;
   position: PlayerPosition | null;
   preferredFoot: PreferredFoot | null;
   class: string | null;
@@ -73,11 +82,21 @@ const AdminPlayerEditViewUi = ({
     height: null,
     weight: null,
     dateOfBirth: null,
-    imageUrl: null,
     position: null,
     preferredFoot: null,
     class: null,
   });
+
+  // Separate state for file upload and cropping
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Cropping state
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
   // `errors` is field-level validation; `actionError` is for async failures (update/delete).
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -95,7 +114,6 @@ const AdminPlayerEditViewUi = ({
       height: false,
       weight: false,
       dateOfBirth: false,
-      imageUrl: false,
       position: false,
       preferredFoot: false,
       class: false,
@@ -103,6 +121,7 @@ const AdminPlayerEditViewUi = ({
     [],
   );
   const [changedFields, setChangedFields] = useState<Record<FieldName, boolean>>(resetChangedFields);
+  const [imageChanged, setImageChanged] = useState(false);
 
   // When the `player` arrives/changes (SSR/CSR hydration, navigation between IDs, refetch),
   // sync it into local controlled form state.
@@ -121,7 +140,6 @@ const AdminPlayerEditViewUi = ({
       height: player.height ?? null,
       weight: player.weight ?? null,
       dateOfBirth: player.dateOfBirth ?? null,
-      imageUrl: player.imageUrl ?? null,
       position: player.position,
       preferredFoot: player.preferredFoot ?? null,
       class: player?.class ?? null,
@@ -134,6 +152,9 @@ const AdminPlayerEditViewUi = ({
       setInitialData(next);
       setFormData(next);
       setChangedFields(resetChangedFields);
+      setImageChanged(false);
+      setImageFile(null);
+      setImagePreview(player.imageUrl ?? null);
     });
 
     return () => {
@@ -169,6 +190,100 @@ const AdminPlayerEditViewUi = ({
       return next;
     });
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Open crop dialog with the selected image
+      const previewUrl = URL.createObjectURL(file);
+      setImageToCrop(previewUrl);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCropDialogOpen(true);
+    }
+  };
+
+  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const createCroppedImage = async (imageSrc: string, pixelCrop: Area): Promise<Blob> => {
+    const image = new window.Image();
+    image.src = imageSrc;
+    await new Promise((resolve) => {
+      image.onload = resolve;
+    });
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    // Set canvas size to the cropped area
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+
+    // Draw the cropped portion of the image
+    ctx.drawImage(
+      image,
+      pixelCrop.x,
+      pixelCrop.y,
+      pixelCrop.width,
+      pixelCrop.height,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height,
+    );
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error('Failed to create blob'));
+        }
+      }, 'image/png');
+    });
+  };
+
+  const handleCropConfirm = async () => {
+    if (!imageToCrop || !croppedAreaPixels) return;
+
+    try {
+      const croppedBlob = await createCroppedImage(imageToCrop, croppedAreaPixels);
+      const croppedFile = new File([croppedBlob], 'cropped-image.png', { type: 'image/png' });
+
+      setImageFile(croppedFile);
+      setImageChanged(true);
+      setImagePreview(URL.createObjectURL(croppedBlob));
+      setCropDialogOpen(false);
+      setImageToCrop(null);
+    } catch (error) {
+      console.error('Error cropping image:', error);
+    }
+  };
+
+  const handleCropCancel = () => {
+    setCropDialogOpen(false);
+    setImageToCrop(null);
+    // Reset the file input
+    const fileInput = document.getElementById('image') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Remove data URL prefix (e.g., "data:image/png;base64,")
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = (error) => reject(error);
+    });
   };
 
   const validateForm = () => {
@@ -208,11 +323,19 @@ const AdminPlayerEditViewUi = ({
       if (changedFields.teamId) dto.teamId = formData.teamId;
       if (changedFields.height && formData.height) dto.height = Number(formData.height);
       if (changedFields.weight && formData.weight) dto.weight = Number(formData.weight);
-      if (changedFields.imageUrl) dto.imageUrl = formData.imageUrl?.trim();
       if (changedFields.dateOfBirth) dto.dateOfBirth = formData.dateOfBirth;
       if (changedFields.position) dto.position = formData.position;
       if (changedFields.preferredFoot) dto.preferredFoot = formData.preferredFoot;
       if (changedFields.class) dto.class = formData.class;
+
+      // Handle image file upload
+      if (imageChanged && imageFile) {
+        const fileBase64 = await fileToBase64(imageFile);
+        dto.image = {
+          fileBase64,
+          mimeType: imageFile.type,
+        };
+      }
 
       // If nothing changed, just go back (no-op update)
       if (Object.keys(dto).length === 0) {
@@ -243,7 +366,7 @@ const AdminPlayerEditViewUi = ({
     }
   };
 
-  const isDirty = Object.values(changedFields).some(Boolean);
+  const isDirty = Object.values(changedFields).some(Boolean) || imageChanged;
   const dirtyClass = (field: FieldName) => (changedFields[field] ? 'ring-1 ring-primary bg-primary/5' : '');
 
   const selectedTeamName = useMemo(() => {
@@ -415,18 +538,29 @@ const AdminPlayerEditViewUi = ({
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="imageUrl">Image URL</FieldLabel>
+                  <FieldLabel htmlFor="image">Player Image</FieldLabel>
                   <FieldContent>
+                    {imagePreview && (
+                      <div className="mb-2">
+                        <Image
+                          src={imagePreview}
+                          alt="Player preview"
+                          width={96}
+                          height={96}
+                          className="rounded-full object-cover border"
+                          unoptimized
+                        />
+                      </div>
+                    )}
                     <Input
-                      id="imageUrl"
-                      name="imageUrl"
-                      type="url"
-                      placeholder="https://..."
-                      value={formData.imageUrl ?? ''}
-                      onChange={handleChange}
-                      className={dirtyClass('imageUrl')}
+                      id="image"
+                      name="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className={imageChanged ? 'ring-1 ring-primary bg-primary/5' : ''}
                     />
-                    <FieldDescription />
+                    <FieldDescription>Upload a new image to replace the current one</FieldDescription>
                   </FieldContent>
                 </Field>
 
@@ -536,6 +670,51 @@ const AdminPlayerEditViewUi = ({
           </CardFooter>
         </form>
       </Card>
+
+      {/* Image Crop Dialog */}
+      <Dialog open={cropDialogOpen} onOpenChange={(open) => !open && handleCropCancel()}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Crop Image</DialogTitle>
+            <DialogDescription>Adjust the crop area for the player photo</DialogDescription>
+          </DialogHeader>
+          <div className="relative h-80 w-full bg-muted rounded-lg overflow-hidden">
+            {imageToCrop && (
+              <Cropper
+                image={imageToCrop}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                cropShape="round"
+                showGrid={false}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            )}
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">Zoom:</span>
+            <input
+              type="range"
+              min={1}
+              max={3}
+              step={0.1}
+              value={zoom}
+              onChange={(e) => setZoom(Number(e.target.value))}
+              className="flex-1"
+            />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={handleCropCancel}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleCropConfirm}>
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
