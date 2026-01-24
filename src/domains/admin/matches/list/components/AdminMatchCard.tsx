@@ -31,7 +31,6 @@ type AdminMatchCardProps = {
   showMatchId: string | null;
   onDeleteMatch: (id: string) => Promise<void>;
   onToggleMatchId: (id: string) => void;
-  startLoading: boolean;
   startingId: string | null;
   onStartMatch: (id: string) => Promise<void>;
 };
@@ -43,7 +42,6 @@ const AdminMatchCard = ({
   showMatchId,
   onDeleteMatch,
   onToggleMatchId,
-  startLoading,
   startingId,
   onStartMatch,
 }: AdminMatchCardProps) => {
@@ -206,7 +204,7 @@ const AdminMatchCard = ({
               size="sm"
               className="gap-2"
               onClick={() => onStartMatch(match.id)}
-              disabled={startLoading || startingId === match.id}
+              disabled={startingId === match.id}
             >
               {startingId === match.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
               {startingId === match.id ? 'Starting...' : 'Start Match'}

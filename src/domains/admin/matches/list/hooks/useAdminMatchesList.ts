@@ -22,10 +22,7 @@ export const useAdminMatchesList = () => {
   >(DeleteMatchDocument);
 
   // Mutation hook to start a match
-  // Returns the mutation function and loading state
-  const [startMatchMutation, { loading: startLoading }] = useMutation<StartMatchMutation, StartMatchMutationVariables>(
-    StartMatchDocument,
-  );
+  const [startMatchMutation] = useMutation<StartMatchMutation, StartMatchMutationVariables>(StartMatchDocument);
 
   const onDeleteMatch = async (id: string) => {
     await deleteMatchMutation({ variables: { id } });
@@ -42,7 +39,6 @@ export const useAdminMatchesList = () => {
   return {
     deleteLoading,
     onDeleteMatch,
-    startLoading,
     onStartMatch,
   };
 };

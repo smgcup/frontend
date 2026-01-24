@@ -13,7 +13,6 @@ type AdminMatchesListViewUiProps = {
   matches: Match[];
   deleteLoading: boolean;
   onDeleteMatch: (id: string) => Promise<void>;
-  startLoading: boolean;
   onStartMatch: (id: string) => Promise<void>;
 };
 
@@ -21,7 +20,6 @@ const AdminMatchesListViewUi = ({
   matches,
   deleteLoading,
   onDeleteMatch,
-  startLoading,
   onStartMatch,
 }: AdminMatchesListViewUiProps) => {
   // Track which match is currently being deleted (for showing loading state on specific match)
@@ -132,7 +130,6 @@ const AdminMatchesListViewUi = ({
               showMatchId={showMatchId}
               onDeleteMatch={handleDelete}
               onToggleMatchId={handleToggleMatchId}
-              startLoading={startLoading}
               startingId={startingId}
               onStartMatch={handleStartMatch}
             />

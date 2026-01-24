@@ -9,14 +9,13 @@ type AdminMatchesListViewProps = {
 };
 
 const AdminMatchesListView = ({ matches }: AdminMatchesListViewProps) => {
-  const { deleteLoading, onDeleteMatch, startLoading, onStartMatch } = useAdminMatchesList();
+  const { deleteLoading, onDeleteMatch, onStartMatch } = useAdminMatchesList();
 
   return (
     <AdminMatchesListViewUi
       matches={matches}
       deleteLoading={deleteLoading}
       onDeleteMatch={onDeleteMatch}
-      startLoading={startLoading}
       onStartMatch={onStartMatch}
     />
   );
