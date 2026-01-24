@@ -63,12 +63,21 @@ const StandingsTable = ({ teams, limit, title = 'Standings' }: StandingsTablePro
             {displayedTeams.map((team, index) => {
               const position = index + 1;
               const positionColor = getPositionColor(position, totalTeams);
+              
+              // Add thicker border after top 4 (after position 4, index 3)
+              const isAfterTop4 = index === 3;
+              // Add thicker border before bottom 4 (on the row before the first of bottom 4)
+              const isBeforeBottom4 = index === totalTeams - 4 - 1;
+              
+              const borderClass = isAfterTop4 || isBeforeBottom4 
+                ? "border-b-2 border-foreground/30" 
+                : "border-b";
 
               return (
                 <tr
                   key={team.id}
                   onClick={() => handleRowClick(team.id)}
-                  className="border-b transition-colors hover:bg-muted/50 cursor-pointer"
+                  className={`${borderClass} transition-colors hover:bg-muted/50 cursor-pointer`}
                 >
                   <td className="px-3 py-4 text-center">
                     <PositionBadge position={position} color={positionColor} />

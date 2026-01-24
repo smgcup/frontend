@@ -1,13 +1,19 @@
 import type { Match } from '@/domains/matches/contracts';
-import type { Team } from '@/domains/team/contracts';
+
+export type ScorePrediction = {
+  homeScore: number;
+  awayScore: number;
+};
 
 export type Prediction = {
   id: string;
   matchId: string;
   match: Match;
-  predictedWinner: Team | 'draw';
+  predictedHomeScore: number;
+  predictedAwayScore: number;
   createdAt: string;
-  isCorrect?: boolean;
+  isExactCorrect?: boolean;
+  isOutcomeCorrect?: boolean;
   pointsEarned?: number;
 };
 

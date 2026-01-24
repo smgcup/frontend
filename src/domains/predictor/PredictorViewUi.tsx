@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Trophy, Target, Zap, Clock } from 'lucide-react';
+import { Trophy, Target, Zap, Clock, Star } from 'lucide-react';
 import type { Match } from '@/domains/matches/contracts';
+import type { ScorePrediction } from '@/domains/predictor/contracts';
 import { MatchStatus } from '@/graphql';
 import PredictionCard from './components/PredictionCard';
 
@@ -11,48 +12,60 @@ type PredictorViewUiProps = {
 };
 
 const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
-  const [predictions, setPredictions] = useState<Record<string, string>>({});
+  const [predictions, setPredictions] = useState<Record<string, ScorePrediction>>({});
 
   // Filter to only show scheduled matches that can be predicted
   const predictableMatches = matches.filter((match) => match.status === MatchStatus.Scheduled);
 
-  const handlePrediction = (matchId: string, prediction: string) => {
+  const handlePredictionChange = (matchId: string, prediction: ScorePrediction) => {
     setPredictions((prev) => ({
       ...prev,
       [matchId]: prediction,
     }));
   };
 
+  const predictedCount = Object.keys(predictions).length;
+
   const stats = [
-    { icon: <Target className="h-5 w-5" />, label: 'Your Accuracy', value: '—' },
+    { icon: <Target className="h-5 w-5" />, label: 'Exact Hits', value: '0' },
+    { icon: <Star className="h-5 w-5" />, label: 'Correct Outcome', value: '0' },
     { icon: <Zap className="h-5 w-5" />, label: 'Total Points', value: '0' },
-    { icon: <Trophy className="h-5 w-5" />, label: 'Rank', value: '—' },
+    { icon: <Trophy className="h-5 w-5" />, label: 'Rank', value: '-' },
   ];
 
   return (
     <div className="min-h-[calc(100vh-60px)]">
-      {/* Hero Section with Orange Theme */}
-      <div className="relative overflow-hidden bg-linear-to-br from-orange-500 to-orange-400">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.05%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-30" />
+      {/* Hero Section */}
+      <div className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
         <div className="relative container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="text-center text-white">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">Match Predictor</h1>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-white/80">
-              Predict match outcomes and earn points. The more accurate your predictions, the higher you climb!
+          <div className="text-center">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">Score Predictor</h1>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+              Predict the exact final score for each match. Exact predictions earn bonus points!
             </p>
           </div>
 
+          {/* Scoring Info */}
+          <div className="mt-6 flex justify-center">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-full bg-muted/50 backdrop-blur-sm px-6 py-2 border border-border text-sm font-medium transition hover:bg-muted/80"
+            >
+              View Score Rules
+            </button>
+          </div>
+
           {/* Stats Row */}
-          <div className="mt-8 flex flex-wrap justify-center gap-6">
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 rounded-xl bg-white/10 backdrop-blur-sm px-5 py-3 border border-white/20"
+                className="flex items-center gap-3 rounded-xl bg-muted/50 backdrop-blur-sm px-5 py-3 border border-border"
               >
-                <div className="text-white/80">{stat.icon}</div>
+                <div className="text-muted-foreground">{stat.icon}</div>
                 <div>
-                  <div className="text-xs text-white/60 font-medium">{stat.label}</div>
-                  <div className="text-lg font-bold text-white">{stat.value}</div>
+                  <div className="text-xs text-muted-foreground font-medium">{stat.label}</div>
+                  <div className="text-lg font-bold">{stat.value}</div>
                 </div>
               </div>
             ))}
@@ -62,12 +75,20 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
 
       {/* Matches Section */}
       <div className="container mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Clock className="h-5 w-5 text-orange-500" />
-            <h2 className="text-2xl font-bold">Upcoming Matches</h2>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <Clock className="h-5 w-5 text-orange-500" />
+              <h2 className="text-2xl font-bold">Upcoming Matches</h2>
+            </div>
+            <p className="text-muted-foreground">Predict the exact final score for each match before kickoff.</p>
           </div>
-          <p className="text-muted-foreground">Select your predicted winner for each match before the deadline.</p>
+          {predictableMatches.length > 0 && (
+            <div className="text-sm text-muted-foreground">
+              <span className="font-semibold text-orange-500">{predictedCount}</span> of{' '}
+              <span className="font-semibold">{predictableMatches.length}</span> predicted
+            </div>
+          )}
         </div>
 
         {predictableMatches.length === 0 ? (
@@ -77,13 +98,13 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
             <p className="text-muted-foreground">Check back later for new matches to predict.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {predictableMatches.map((match) => (
               <PredictionCard
                 key={match.id}
                 match={match}
-                currentPrediction={predictions[match.id]}
-                onPredict={(prediction) => handlePrediction(match.id, prediction)}
+                prediction={predictions[match.id] ?? null}
+                onPredictionChange={(prediction) => handlePredictionChange(match.id, prediction)}
               />
             ))}
           </div>
