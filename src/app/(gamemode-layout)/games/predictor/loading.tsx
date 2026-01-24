@@ -2,15 +2,15 @@ const PredictorLoading = () => {
   return (
     <div className="min-h-[calc(100vh-60px)]">
       {/* Hero Skeleton */}
-      <div className="relative overflow-hidden bg-linear-to-br from-orange-500 via-orange-600 to-amber-600">
+      <div className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
         <div className="container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="h-10 w-64 bg-white/20 rounded-lg mx-auto animate-pulse" />
-            <div className="h-6 w-96 bg-white/20 rounded-lg mx-auto mt-4 animate-pulse" />
+            <div className="h-10 w-64 bg-muted rounded-lg mx-auto animate-pulse" />
+            <div className="h-6 w-full bg-muted rounded-lg mx-auto mt-4 animate-pulse" />
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 w-40 bg-white/10 rounded-xl animate-pulse" />
+              <div key={i} className="h-16 w-40 bg-muted/50 rounded-xl animate-pulse" />
             ))}
           </div>
         </div>

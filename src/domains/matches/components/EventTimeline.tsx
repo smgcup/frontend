@@ -18,13 +18,21 @@ const formatMatchTime = (event: MatchEvent, chronologicalHalfTimes: MatchEvent[]
   const eventMinute = typeof event.minute === 'number' ? event.minute : 0;
   const minutes = Math.floor(eventMinute);
   const fraction = eventMinute - minutes;
+  const eventCreatedAt = new Date(event.createdAt).getTime();
 
   // Determine which half this event belongs to
-  // Find the most recent half-time event that occurred before or at this event's minute
+  // Find the most recent half-time event that occurred before this event
+  // (using creation time as tiebreaker when minutes are equal)
   let mostRecentHalfTimeIndex = -1;
   for (let i = chronologicalHalfTimes.length - 1; i >= 0; i--) {
-    const halfTimeMinute = typeof chronologicalHalfTimes[i].minute === 'number' ? chronologicalHalfTimes[i].minute : 0;
-    if (halfTimeMinute <= eventMinute) {
+    const halfTimeEvent = chronologicalHalfTimes[i];
+    const halfTimeMinute = typeof halfTimeEvent.minute === 'number' ? halfTimeEvent.minute : 0;
+    const halfTimeCreatedAt = new Date(halfTimeEvent.createdAt).getTime();
+    
+    // Half-time occurred before this event if:
+    // 1. Its minute is less than the event's minute, OR
+    // 2. Minutes are equal but half-time was created before the event
+    if (halfTimeMinute < eventMinute || (halfTimeMinute === eventMinute && halfTimeCreatedAt < eventCreatedAt)) {
       mostRecentHalfTimeIndex = i;
       break;
     }

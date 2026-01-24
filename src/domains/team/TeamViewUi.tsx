@@ -9,7 +9,7 @@ import { PlayerPosition } from '@/generated/types';
 import type { Team } from './contracts';
 import type { Player } from '@/domains/player/contracts';
 import type { Match } from '@/domains/matches/contracts';
-import { MatchStatus } from '@/graphql';
+import MatchCard from '@/domains/matches/components/MatchCard';
 
 type Tab = 'squad' | 'matches' | 'stats';
 
@@ -26,9 +26,6 @@ const POSITION_LABELS: Record<PlayerPosition, string> = {
   [PlayerPosition.Midfielder]: 'Midfielders',
   [PlayerPosition.Forward]: 'Forwards',
 };
-
-// Mock data for matches
-const mockMatches: Match[] = [];
 
 // Mock data for stats
 const mockStats = {
@@ -63,7 +60,7 @@ export function TeamViewUi({ team }: { team: Team }) {
       }
       return acc;
     },
-    {} as Record<PlayerPosition, Player[]>
+    {} as Record<PlayerPosition, Player[]>,
   );
 
   return (
@@ -96,7 +93,7 @@ export function TeamViewUi({ team }: { team: Team }) {
       {/* Tabs */}
       <div className="border-b sticky top-[66px] bg-background/95 backdrop-blur-sm z-10">
         <div className="container mx-auto px-4">
-          <div className="flex gap-1">
+          <div className="flex gap-1 justify-center md:justify-start">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -105,7 +102,7 @@ export function TeamViewUi({ team }: { team: Team }) {
                   'flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors',
                   activeTab === tab.id
                     ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30',
                 )}
               >
                 <tab.icon className="h-4 w-4" />
@@ -126,16 +123,10 @@ export function TeamViewUi({ team }: { team: Team }) {
 
               return (
                 <div key={position}>
-                  <h2 className="text-xl font-semibold mb-4 text-primary">
-                    {POSITION_LABELS[position]}
-                  </h2>
+                  <h2 className="text-xl font-semibold mb-4 text-primary">{POSITION_LABELS[position]}</h2>
                   <div className="space-y-3">
                     {players.map((player) => (
-                      <PlayerCard
-                        key={player.id}
-                        player={player}
-                        isCaptain={team.captain?.id === player.id}
-                      />
+                      <PlayerCard key={player.id} player={player} isCaptain={team.captain?.id === player.id} />
                     ))}
                   </div>
                 </div>
@@ -154,77 +145,27 @@ export function TeamViewUi({ team }: { team: Team }) {
         {activeTab === 'matches' && (
           <div className="space-y-4">
             <h2 className="text-xl font-semibold mb-4">Recent Matches</h2>
-            {mockMatches.length === 0 ? (
+            {(team.matches ?? []).length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>There are no matches yet</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {mockMatches.map((match) => {
-                  const isHome = match.firstOpponent.id === team.id;
-                  const opponent = isHome ? match.secondOpponent : match.firstOpponent;
-                  const teamScore = isHome ? match.score1 : match.score2;
-                  const opponentScore = isHome ? match.score2 : match.score1;
-                  
-                  // Calculate result (only for finished matches)
-                  let result: 'W' | 'D' | 'L' | null = null;
-                  if (match.status === MatchStatus.Finished && teamScore !== undefined && opponentScore !== undefined) {
-                    if (teamScore > opponentScore) {
-                      result = 'W';
-                    } else if (teamScore < opponentScore) {
-                      result = 'L';
-                    } else {
-                      result = 'D';
-                    }
-                  }
-                  
-                  const scoreDisplay = 
-                    match.status === MatchStatus.Finished && teamScore !== undefined && opponentScore !== undefined
-                      ? `${teamScore}-${opponentScore}`
-                      : match.status === MatchStatus.Live && teamScore !== undefined && opponentScore !== undefined
-                      ? `${teamScore}-${opponentScore}`
-                      : '—';
-                  
-                  return (
-                    <div
-                      key={match.id}
-                      className="flex items-center justify-between p-4 rounded-xl border bg-card/50 hover:bg-card transition-colors"
-                    >
-                      <div className="flex items-center gap-4">
-                        {result && (
-                          <span
-                            className={cn(
-                              'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold',
-                              result === 'W' && 'bg-green-500/10 text-green-600',
-                              result === 'D' && 'bg-yellow-500/10 text-yellow-600',
-                              result === 'L' && 'bg-red-500/10 text-red-600'
-                            )}
-                          >
-                            {result}
-                          </span>
-                        )}
-                        <div>
-                          <p className="font-medium">
-                            {isHome ? 'vs' : '@'} {opponent.name}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(match.date).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                            })}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold">{scoreDisplay}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {isHome ? 'Home' : 'Away'}
-                        </p>
-                      </div>
-                    </div>
-                  );
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {(team.matches ?? []).map((match) => {
+                  // Transform match so the viewed team is always on the left (firstOpponent)
+                  const isTeamFirst = match.firstOpponent.id === team.id;
+                  const normalizedMatch: Match = isTeamFirst
+                    ? match
+                    : {
+                        ...match,
+                        firstOpponent: match.secondOpponent,
+                        secondOpponent: match.firstOpponent,
+                        score1: match.score2,
+                        score2: match.score1,
+                      };
+
+                  return <MatchCard key={match.id} match={normalizedMatch} />;
                 })}
               </div>
             )}
@@ -291,9 +232,7 @@ function PlayerCard({ player, isCaptain }: { player: Player; isCaptain: boolean 
             {player.firstName} {player.lastName}
           </p>
           {isCaptain && (
-            <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
-              Captain
-            </span>
+            <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">Captain</span>
           )}
         </div>
       </div>
@@ -319,7 +258,7 @@ function StatCard({
           highlight === 'green' && 'text-green-600',
           highlight === 'yellow' && 'text-yellow-600',
           highlight === 'red' && 'text-red-600',
-          !highlight && 'text-foreground'
+          !highlight && 'text-foreground',
         )}
       >
         {value}
