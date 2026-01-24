@@ -118,6 +118,9 @@ const AdminMatchLiveViewUi = ({
   // Full time can only be added when there is exactly 1 half time event and no full time event exists
   const isFullTimeDisabled = (halfTimeCount !== 1 && halfTimeCount !== 3 && halfTimeCount !== 4) || fullTimeCount > 0;
 
+  // Check if match is currently live - events can only be added when match is live
+  const isMatchLive = match.status === MatchStatus.Live;
+
   // Handler for half time - adds a half time event
   const [addingHalfTime, setAddingHalfTime] = useState(false);
   const handleHalfTime = async () => {
@@ -189,6 +192,11 @@ const AdminMatchLiveViewUi = ({
       <Card>
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
+          {!isMatchLive && (
+            <p className="text-sm text-muted-foreground">
+              Events can only be added when the match is live.
+            </p>
+          )}
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -205,7 +213,11 @@ const AdminMatchLiveViewUi = ({
                   mode="quick"
                   presetType={event.type}
                   trigger={
-                    <Button variant="outline" className={cn('h-auto flex-col gap-2 py-4', event.color)}>
+                    <Button
+                      variant="outline"
+                      className={cn('h-auto flex-col gap-2 py-4', event.color)}
+                      disabled={!isMatchLive}
+                    >
                       <Icon className="h-5 w-5" />
                       <span className="text-xs">{event.label}</span>
                     </Button>
@@ -218,7 +230,7 @@ const AdminMatchLiveViewUi = ({
             <Button
               variant="outline"
               onClick={handleHalfTime}
-              disabled={addingHalfTime || isHalfTimeDisabled}
+              disabled={!isMatchLive || addingHalfTime || isHalfTimeDisabled}
               className="flex-1"
             >
               {addingHalfTime ? (
@@ -236,7 +248,7 @@ const AdminMatchLiveViewUi = ({
             <Button
               variant="destructive"
               onClick={handleFullTime}
-              disabled={addingFullTime || isFullTimeDisabled}
+              disabled={!isMatchLive || addingFullTime || isFullTimeDisabled}
               className="flex-1 bg-red-500 hover:bg-red-600"
             >
               {addingFullTime ? (
