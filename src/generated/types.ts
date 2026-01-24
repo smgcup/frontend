@@ -139,6 +139,7 @@ export type Mutation = {
   updateNews: News;
   updatePlayer: Player;
   updateTeam: Team;
+  uploadFile: UploadResponse;
 };
 
 
@@ -230,6 +231,11 @@ export type MutationUpdateTeamArgs = {
   updateTeamDto: UpdateTeamDto;
 };
 
+
+export type MutationUploadFileArgs = {
+  uploadFileDto: UploadFileDto;
+};
+
 export type News = {
   __typename?: 'News';
   category: Scalars['String']['output'];
@@ -252,6 +258,7 @@ export type Player = {
   lastName: Scalars['String']['output'];
   position: PlayerPosition;
   preferredFoot: PreferredFoot;
+  stats?: Maybe<PlayerStats>;
   team: Team;
   weight: Scalars['Float']['output'];
 };
@@ -262,6 +269,18 @@ export enum PlayerPosition {
   Goalkeeper = 'GOALKEEPER',
   Midfielder = 'MIDFIELDER'
 }
+
+export type PlayerStats = {
+  __typename?: 'PlayerStats';
+  assists: Scalars['Float']['output'];
+  goalkeeperSaves: Scalars['Float']['output'];
+  goals: Scalars['Float']['output'];
+  penaltiesMissed: Scalars['Float']['output'];
+  penaltiesScored: Scalars['Float']['output'];
+  playerId: Scalars['ID']['output'];
+  redCards: Scalars['Float']['output'];
+  yellowCards: Scalars['Float']['output'];
+};
 
 export enum PreferredFoot {
   Both = 'BOTH',
@@ -352,7 +371,7 @@ export type UpdatePlayerDto = {
   dateOfBirth?: InputMaybe<Scalars['Date']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   height?: InputMaybe<Scalars['Float']['input']>;
-  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  image?: InputMaybe<UpdatePlayerImageDto>;
   lastName?: InputMaybe<Scalars['String']['input']>;
   position?: InputMaybe<PlayerPosition>;
   preferredFoot?: InputMaybe<PreferredFoot>;
@@ -360,9 +379,27 @@ export type UpdatePlayerDto = {
   weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type UpdatePlayerImageDto = {
+  fileBase64: Scalars['String']['input'];
+  mimeType: Scalars['String']['input'];
+};
+
 export type UpdateTeamDto = {
   captainId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UploadFileDto = {
+  bucket?: InputMaybe<Scalars['String']['input']>;
+  fileBase64: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
+  mimeType: Scalars['String']['input'];
+};
+
+export type UploadResponse = {
+  __typename?: 'UploadResponse';
+  path: Scalars['String']['output'];
+  signedUrl: Scalars['String']['output'];
 };
 
 export type User = {
