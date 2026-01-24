@@ -135,6 +135,7 @@ export type Mutation = {
   deleteTeam: Team;
   login: AuthResponse;
   register: AuthResponse;
+  startMatch: Match;
   updateMatch: Match;
   updateNews: News;
   updatePlayer: Player;
@@ -205,6 +206,11 @@ export type MutationLoginArgs = {
 
 export type MutationRegisterArgs = {
   registerInput: RegisterUserInput;
+};
+
+
+export type MutationStartMatchArgs = {
+  id: Scalars['String']['input'];
 };
 
 
@@ -412,18 +418,3 @@ export type User = {
   password: Scalars['String']['output'];
   username: Scalars['String']['output'];
 };
-
-
-export enum Queries {
-  __typename = '__typename',
-  health = 'health',
-  matchById = 'matchById',
-  matchEvents = 'matchEvents',
-  matches = 'matches',
-  news = 'news',
-  newsById = 'newsById',
-  playerById = 'playerById',
-  teamById = 'teamById',
-  teams = 'teams',
-  user = 'user',
-}
