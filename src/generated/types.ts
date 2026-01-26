@@ -70,6 +70,14 @@ export type CreateTeamDto = {
   name: Scalars['String']['input'];
 };
 
+export enum LeaderboardSortType {
+  Assists = 'ASSISTS',
+  CleanSheets = 'CLEAN_SHEETS',
+  Goals = 'GOALS',
+  RedCards = 'RED_CARDS',
+  YellowCards = 'YELLOW_CARDS'
+}
+
 export type LoginInput = {
   /** Email address */
   email: Scalars['String']['input'];
@@ -252,6 +260,13 @@ export type News = {
   title: Scalars['String']['output'];
 };
 
+export type PaginatedPlayersResponse = {
+  __typename?: 'PaginatedPlayersResponse';
+  hasMore: Scalars['Boolean']['output'];
+  players: Array<Player>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Player = {
   __typename?: 'Player';
   age: Scalars['Float']['output'];
@@ -303,6 +318,7 @@ export type Query = {
   news: Array<News>;
   newsById: News;
   playerById: Player;
+  playersLeaderboard: PaginatedPlayersResponse;
   teamById: Team;
   teams: Array<Team>;
   user: User;
@@ -326,6 +342,13 @@ export type QueryNewsByIdArgs = {
 
 export type QueryPlayerByIdArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryPlayersLeaderboardArgs = {
+  limit?: Scalars['Int']['input'];
+  page?: Scalars['Int']['input'];
+  sortBy: LeaderboardSortType;
 };
 
 
