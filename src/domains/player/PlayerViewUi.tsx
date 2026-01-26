@@ -7,6 +7,8 @@ import { BackButton } from '@/components/BackButton';
 import { cn } from '@/lib/utils';
 import { PreferredFoot } from '@/generated/types';
 import type { Player } from './contracts';
+import type { Match } from '@/domains/matches/contracts';
+import MatchCard from '@/domains/matches/components/MatchCard';
 
 type Tab = 'overview' | 'matches' | 'stats';
 
@@ -143,11 +145,33 @@ export function PlayerViewUi({ player }: { player: Player }) {
 
         {activeTab === 'matches' && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold mb-4">Recent Matches</h2>
-            <div className="text-center py-12 text-muted-foreground">
-              <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No matches available yet</p>
-            </div>
+            <h2 className="text-xl font-semibold mb-4">
+              {player.team ? `${player.team.name} Matches` : 'Recent Matches'}
+            </h2>
+            {!player.matches || player.matches.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>There are no matches yet</p>
+              </div>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {player.matches.map((match) => {
+                  // Transform match so the player's team is always on the left (firstOpponent)
+                  const isTeamFirst = match.firstOpponent.id === player.team?.id;
+                  const normalizedMatch: Match = isTeamFirst
+                    ? match
+                    : {
+                        ...match,
+                        firstOpponent: match.secondOpponent,
+                        secondOpponent: match.firstOpponent,
+                        score1: match.score2,
+                        score2: match.score1,
+                      };
+
+                  return <MatchCard key={match.id} match={normalizedMatch} />;
+                })}
+              </div>
+            )}
           </div>
         )}
 
@@ -179,14 +203,6 @@ export function PlayerViewUi({ player }: { player: Player }) {
               <div className="grid grid-cols-2 gap-4">
                 <StatCard label="Yellow Cards" value={mockStats.yellowCards} highlight="yellow" />
                 <StatCard label="Red Cards" value={mockStats.redCards} highlight="red" />
-              </div>
-            </div>
-
-            {/* Additional Stats */}
-            <div>
-              <h3 className="text-lg font-medium mb-3">Additional Stats</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <StatCard label="Pass Accuracy" value={`${mockStats.passAccuracy}%`} />
               </div>
             </div>
           </div>
