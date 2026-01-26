@@ -24,6 +24,7 @@ const NewsDetailViewUi = ({ news }: NewsDetailViewUiProps) => {
     );
   }
 
+  //TODO: Extract to a helper function in the utils folder
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {

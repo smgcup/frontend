@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Trophy } from 'lucide-react';
 import PositionBadge from '@/components/PositionBadge';
 import { Team } from '@/domains/team/contracts';
+import { cn } from '@/lib/utils';
 
 type StandingsTableProps = {
   teams: Team[];
@@ -11,8 +12,10 @@ type StandingsTableProps = {
   title?: string;
 };
 
-const TableHeader = ({ label }: { label: string }) => {
-  return <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">{label}</th>;
+const TableHeader = ({ label, className }: { label: string; className?: string }) => {
+  return (
+    <th className={cn('px-3 py-3 text-center text-sm font-semibold text-muted-foreground', className)}>{label}</th>
+  );
 };
 
 const StandingsTable = ({ teams, limit, title = 'Standings' }: StandingsTableProps) => {
@@ -48,7 +51,7 @@ const StandingsTable = ({ teams, limit, title = 'Standings' }: StandingsTablePro
           <thead>
             <tr className="border-b">
               <TableHeader label="Pos" />
-              <TableHeader label="Team" />
+              <TableHeader label="Team" className="text-left" />
               <TableHeader label="P" />
               <TableHeader label="W" />
               <TableHeader label="D" />
@@ -63,15 +66,13 @@ const StandingsTable = ({ teams, limit, title = 'Standings' }: StandingsTablePro
             {displayedTeams.map((team, index) => {
               const position = index + 1;
               const positionColor = getPositionColor(position, totalTeams);
-              
+
               // Add thicker border after top 4 (after position 4, index 3)
               const isAfterTop4 = index === 3;
               // Add thicker border before bottom 4 (on the row before the first of bottom 4)
               const isBeforeBottom4 = index === totalTeams - 4 - 1;
-              
-              const borderClass = isAfterTop4 || isBeforeBottom4 
-                ? "border-b-2 border-foreground/30" 
-                : "border-b";
+
+              const borderClass = isAfterTop4 || isBeforeBottom4 ? 'border-b-2 border-foreground/30' : 'border-b';
 
               return (
                 <tr

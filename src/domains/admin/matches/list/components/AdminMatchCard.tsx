@@ -45,7 +45,11 @@ const AdminMatchCard = ({
   startingId,
   onStartMatch,
 }: AdminMatchCardProps) => {
-  const formatDate = (dateString: string) => {
+  //TODO: Extract to a helper function in the utils folder
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) {
+      return '-';
+    }
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       weekday: 'short',
@@ -54,7 +58,10 @@ const AdminMatchCard = ({
     });
   };
 
-  const formatTime = (dateString: string) => {
+  const formatTime = (dateString: string | null | undefined) => {
+    if (!dateString) {
+      return '-';
+    }
     const date = new Date(dateString);
     return date.toLocaleTimeString('en-US', {
       hour: '2-digit',

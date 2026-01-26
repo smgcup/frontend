@@ -30,7 +30,7 @@ export type AuthResponse = {
 };
 
 export type CreateMatchDto = {
-  date: Scalars['Date']['input'];
+  date?: InputMaybe<Scalars['Date']['input']>;
   firstOpponentId: Scalars['String']['input'];
   round: Scalars['Int']['input'];
   secondOpponentId: Scalars['String']['input'];
@@ -79,7 +79,7 @@ export type LoginInput = {
 
 export type Match = {
   __typename?: 'Match';
-  date: Scalars['Date']['output'];
+  date?: Maybe<Scalars['Date']['output']>;
   firstOpponent: Team;
   id: Scalars['ID']['output'];
   round: Scalars['Int']['output'];
@@ -418,3 +418,18 @@ export type User = {
   password: Scalars['String']['output'];
   username: Scalars['String']['output'];
 };
+
+
+export enum Queries {
+  __typename = '__typename',
+  health = 'health',
+  matchById = 'matchById',
+  matchEvents = 'matchEvents',
+  matches = 'matches',
+  news = 'news',
+  newsById = 'newsById',
+  playerById = 'playerById',
+  teamById = 'teamById',
+  teams = 'teams',
+  user = 'user',
+}

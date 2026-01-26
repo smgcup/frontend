@@ -7,7 +7,7 @@ export type Match = {
   id: string;
   firstOpponent: Team;
   secondOpponent: Team;
-  date: string;
+  date?: string | null;
   status: MatchStatus;
   score1?: number;
   score2?: number;

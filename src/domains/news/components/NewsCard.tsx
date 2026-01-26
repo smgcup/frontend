@@ -4,6 +4,7 @@ import { News } from '../contracts';
 import Image from 'next/image';
 
 const NewsCard = ({ news }: { news: News }) => {
+  //TODO: Extract to a helper function in the utils folder
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();

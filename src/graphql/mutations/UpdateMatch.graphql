@@ -15,5 +15,3 @@ mutation UpdateMatch($id: String!, $dto: UpdateMatchDto!) {
     }
   }
 }
-
-

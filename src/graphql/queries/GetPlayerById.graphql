@@ -8,6 +8,8 @@ query PlayerById($id: String!) {
     imageUrl
     preferredFoot
     position
+    dateOfBirth
+    age
     team {
       id
       name

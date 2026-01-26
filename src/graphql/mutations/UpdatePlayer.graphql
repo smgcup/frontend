@@ -3,5 +3,3 @@ mutation UpdatePlayer($id: String!, $dto: UpdatePlayerDto!) {
     id
   }
 }
-
-
