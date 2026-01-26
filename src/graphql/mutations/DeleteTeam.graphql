@@ -3,5 +3,3 @@ mutation DeleteTeam($id: String!) {
     id
   }
 }
-
-

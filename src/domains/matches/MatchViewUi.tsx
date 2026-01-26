@@ -13,8 +13,8 @@ const compareMatches = (a: Match, b: Match) => {
   if (a.status === MatchStatus.Live && b.status !== MatchStatus.Live) return -1;
   if (b.status === MatchStatus.Live && a.status !== MatchStatus.Live) return 1;
 
-  const aTime = new Date(a.date).getTime();
-  const bTime = new Date(b.date).getTime();
+  const aTime = a.date ? new Date(a.date).getTime() : 0;
+  const bTime = b.date ? new Date(b.date).getTime() : 0;
 
   // Secondary: chronological
   if (aTime !== bTime) return aTime - bTime;

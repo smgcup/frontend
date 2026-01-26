@@ -3,5 +3,3 @@ mutation DeleteMatchEvent($id: String!) {
     id
   }
 }
-
-

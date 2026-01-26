@@ -100,10 +100,6 @@ const AdminMatchCreateViewUi = ({
       newErrors.secondOpponentId = 'Teams must be different';
     }
 
-    if (!formData.date) {
-      newErrors.date = 'Date is required';
-    }
-
     // Status has a default value, but validate it's a valid enum value
     if (!formData.status || !Object.values(MatchStatus).includes(formData.status as MatchStatus)) {
       newErrors.status = 'Status is required';
@@ -224,7 +220,7 @@ const AdminMatchCreateViewUi = ({
 
               {/* Date */}
               <Field>
-                <FieldLabel htmlFor="date">Date & Time *</FieldLabel>
+                <FieldLabel htmlFor="date">Date & Time</FieldLabel>
                 <FieldContent>
                   <Input
                     id="date"
@@ -236,7 +232,7 @@ const AdminMatchCreateViewUi = ({
                     disabled={createLoading}
                   />
                   {errors.date && <FieldError>{errors.date}</FieldError>}
-                  <FieldDescription>Select the date and time for the match</FieldDescription>
+                  <FieldDescription>Optionally select the date and time for the match</FieldDescription>
                 </FieldContent>
               </Field>
 

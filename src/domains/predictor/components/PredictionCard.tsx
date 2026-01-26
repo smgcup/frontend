@@ -13,18 +13,27 @@ type PredictionCardProps = {
 };
 
 const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCardProps) => {
-  const formatDate = (dateString: string) =>
+  //TODO: Extract to a helper function in the utils folder
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) {
+      return '-';
+    }
     new Intl.DateTimeFormat('en-US', {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
     }).format(new Date(dateString));
+  };
 
-  const formatTime = (dateString: string) =>
+  const formatTime = (dateString: string | null | undefined) => {
+    if (!dateString) {
+      return '-';
+    }
     new Intl.DateTimeFormat('en-US', {
       hour: '2-digit',
       minute: '2-digit',
     }).format(new Date(dateString));
+  };
 
   const homeScore = prediction?.homeScore ?? 0;
   const awayScore = prediction?.awayScore ?? 0;

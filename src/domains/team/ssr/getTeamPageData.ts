@@ -59,7 +59,7 @@ export async function getTeamPageData(teamId: string): Promise<{ team: Team | nu
       .filter((match) => match.firstOpponent.id === teamId || match.secondOpponent.id === teamId)
       .map(mapMatch)
       // Sort by date, most recent first
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      .sort((a, b) => (b.date ? new Date(b.date).getTime() - new Date(a.date ?? '').getTime() : 0));
 
     return {
       team: {
