@@ -15,7 +15,7 @@ const UpcomingMatchesSection = ({ matches }: UpcomingMatchesSectionProps) => {
       // Live first
       if (a.status === MatchStatus.Live && b.status !== MatchStatus.Live) return -1;
       if (b.status === MatchStatus.Live && a.status !== MatchStatus.Live) return 1;
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
+      return new Date(a.date ?? '').getTime() - new Date(b.date ?? '').getTime();
     });
 
   // Show only first 3 matches

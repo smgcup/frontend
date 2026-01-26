@@ -1,0 +1,23 @@
+query GetLeaderboard($sortBy: LeaderboardSortType!, $page: Int, $limit: Int) {
+  playersLeaderboard(sortBy: $sortBy, page: $page, limit: $limit) {
+    players {
+      id
+      firstName
+      lastName
+      position
+      imageUrl
+      team {
+        id
+        name
+      }
+      stats {
+        goals
+        assists
+        yellowCards
+        redCards
+      }
+    }
+    totalCount
+    hasMore
+  }
+}

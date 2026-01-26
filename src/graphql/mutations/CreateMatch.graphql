@@ -15,5 +15,3 @@ mutation CreateMatch($dto: CreateMatchDto!) {
     }
   }
 }
-
-

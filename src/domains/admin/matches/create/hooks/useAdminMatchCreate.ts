@@ -29,8 +29,8 @@ export const useAdminMatchCreate = () => {
     setSubmitError(null);
     setExternalErrors({});
 
-    const d = new Date(data.date);
-    if (Number.isNaN(d.getTime())) {
+    const d = data.date ? new Date(data.date) : null;
+    if (d !== null && Number.isNaN(d.getTime())) {
       setExternalErrors({ date: 'Invalid date' });
       return;
     }
@@ -41,7 +41,7 @@ export const useAdminMatchCreate = () => {
           dto: {
             firstOpponentId: data.firstOpponentId,
             secondOpponentId: data.secondOpponentId,
-            date: d.toISOString(),
+            date: d?.toISOString() ?? null,
             status: data.status,
             round: data.round,
           },

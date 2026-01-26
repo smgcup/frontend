@@ -1,4 +1,5 @@
 import type { Team } from '../team/contracts';
+import type { Match } from '../matches/contracts';
 import type { PlayerPosition, PreferredFoot } from '@/graphql';
 
 export type Player = {
@@ -14,4 +15,5 @@ export type Player = {
   preferredFoot?: PreferredFoot;
   imageUrl?: string | null;
   class?: string | null;
+  matches?: Match[];
 };

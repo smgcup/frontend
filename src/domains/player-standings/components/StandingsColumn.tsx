@@ -1,6 +1,4 @@
 import React from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import type { StandingsCategory } from '../contracts';
 import PlayerRow from './PlayerRow';
 import { CATEGORIES, CategoryType } from '../constants';
@@ -31,28 +29,19 @@ const StandingsColumn = ({ category }: StandingsColumnProps) => {
 
   return (
     <div className="min-w-[80vw] md:min-w-0 snap-center shrink-0 md:shrink">
-      <button
-        type="button"
-        className="group flex items-center gap-2 mb-4 cursor-pointer text-left px-2 py-1 -mx-2 -my-1 rounded-md transition-colors md:hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        onClick={() => {
-          // Placeholder for navigation/handler logic
-        }}
-      >
+      <div className="flex items-center gap-2 mb-4 px-2 py-1 -mx-2 -my-1">
         {categoryEmoji && <span className="text-xl leading-none">{categoryEmoji}</span>}
         <span className="text-xl font-bold">{category.title}</span>
-        <span className="text-muted-foreground text-sm">&gt;</span>
-      </button>
-
-      <div className="bg-card rounded-xl overflow-hidden border">
-        {category.players.map((player, index) => (
-          <PlayerRow key={player.id} player={player} isLast={index === category.players.length - 1} />
-        ))}
       </div>
 
-      <div className="mt-4">
-        <Button asChild variant="outline" className="w-full">
-          <Link href="/players/test">View All</Link>
-        </Button>
+      <div className="bg-card rounded-xl overflow-hidden border">
+        {category.players.length === 0 ? (
+          <div className="p-4 text-center text-muted-foreground">No players</div>
+        ) : (
+          category.players.map((player, index) => (
+            <PlayerRow key={player.id} player={player} isLast={index === category.players.length - 1} />
+          ))
+        )}
       </div>
     </div>
   );

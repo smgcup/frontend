@@ -30,7 +30,10 @@ type AdminMatchEditViewUiProps = {
   updateLoading: boolean; // Whether the update mutation is currently in progress
 };
 
-function formatMatchDateForDatetimeLocalInput(dateString: string) {
+function formatMatchDateForDatetimeLocalInput(dateString: string | null | undefined) {
+  if (!dateString) {
+    return '-';
+  }
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) {
     return '';
@@ -95,7 +98,7 @@ const AdminMatchEditViewUi = ({
   const getError = (field: string): string => {
     return Object.prototype.hasOwnProperty.call(localErrors, field)
       ? localErrors[field]
-      : externalErrors?.[field] ?? '';
+      : (externalErrors?.[field] ?? '');
   };
 
   const errors = {

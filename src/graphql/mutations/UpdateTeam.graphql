@@ -11,5 +11,3 @@ mutation UpdateTeam($id: String!, $dto: UpdateTeamDto!) {
     }
   }
 }
-
-

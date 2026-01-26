@@ -7,7 +7,7 @@ export const mapMatch = (match: GetMatchesQuery['matches'][number] | MatchByIdQu
     id: match.id,
     firstOpponent: mapTeam(match.firstOpponent),
     secondOpponent: mapTeam(match.secondOpponent),
-    date: String(match.date),
+    date: match.date ? String(match.date) : undefined,
     status: match.status,
     score1: match.score1 ?? undefined,
     score2: match.score2 ?? undefined,

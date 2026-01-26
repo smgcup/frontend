@@ -1,11 +1,11 @@
-import type { PlayersPageData } from './contracts';
+'use client';
+
 import PlayerStandingsViewUi from './PlayerStandingsViewUi';
+import { usePlayerStandings } from './hooks/usePlayerStandings';
 
-type PlayersViewProps = {
-  data: PlayersPageData;
-};
+const PlayerStandingsView = () => {
+  const data = usePlayerStandings();
 
-const PlayerStandingsView = ({ data }: PlayersViewProps) => {
   return <PlayerStandingsViewUi data={data} />;
 };
 

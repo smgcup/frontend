@@ -40,6 +40,7 @@ const AdminNewsListViewUi = ({
 }: AdminNewsListViewUiProps) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  //TODO: Extract to a helper function in the utils folder
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {

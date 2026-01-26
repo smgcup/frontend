@@ -30,7 +30,7 @@ export type AuthResponse = {
 };
 
 export type CreateMatchDto = {
-  date: Scalars['Date']['input'];
+  date?: InputMaybe<Scalars['Date']['input']>;
   firstOpponentId: Scalars['String']['input'];
   round: Scalars['Int']['input'];
   secondOpponentId: Scalars['String']['input'];
@@ -70,6 +70,14 @@ export type CreateTeamDto = {
   name: Scalars['String']['input'];
 };
 
+export enum LeaderboardSortType {
+  Assists = 'ASSISTS',
+  CleanSheets = 'CLEAN_SHEETS',
+  Goals = 'GOALS',
+  RedCards = 'RED_CARDS',
+  YellowCards = 'YELLOW_CARDS'
+}
+
 export type LoginInput = {
   /** Email address */
   email: Scalars['String']['input'];
@@ -79,7 +87,7 @@ export type LoginInput = {
 
 export type Match = {
   __typename?: 'Match';
-  date: Scalars['Date']['output'];
+  date?: Maybe<Scalars['Date']['output']>;
   firstOpponent: Team;
   id: Scalars['ID']['output'];
   round: Scalars['Int']['output'];
@@ -252,6 +260,13 @@ export type News = {
   title: Scalars['String']['output'];
 };
 
+export type PaginatedPlayersResponse = {
+  __typename?: 'PaginatedPlayersResponse';
+  hasMore: Scalars['Boolean']['output'];
+  players: Array<Player>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Player = {
   __typename?: 'Player';
   age: Scalars['Float']['output'];
@@ -303,6 +318,7 @@ export type Query = {
   news: Array<News>;
   newsById: News;
   playerById: Player;
+  playersLeaderboard: PaginatedPlayersResponse;
   teamById: Team;
   teams: Array<Team>;
   user: User;
@@ -326,6 +342,13 @@ export type QueryNewsByIdArgs = {
 
 export type QueryPlayerByIdArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryPlayersLeaderboardArgs = {
+  limit?: Scalars['Int']['input'];
+  page?: Scalars['Int']['input'];
+  sortBy: LeaderboardSortType;
 };
 
 
@@ -418,3 +441,18 @@ export type User = {
   password: Scalars['String']['output'];
   username: Scalars['String']['output'];
 };
+
+
+export enum Queries {
+  __typename = '__typename',
+  health = 'health',
+  matchById = 'matchById',
+  matchEvents = 'matchEvents',
+  matches = 'matches',
+  news = 'news',
+  newsById = 'newsById',
+  playerById = 'playerById',
+  teamById = 'teamById',
+  teams = 'teams',
+  user = 'user',
+}

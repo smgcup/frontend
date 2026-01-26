@@ -7,25 +7,36 @@ import { cn } from '@/lib/utils';
 import type { Match } from '../contracts';
 import { Button } from '@/components/ui/button';
 import { MatchStatus } from '@/graphql';
+
 type MatchCardProps = {
   match: Match;
 };
 
 const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
-  const formatDate = (dateString: string) =>
-    new Intl.DateTimeFormat('bg-BG', {
+  //TODO: Extract to a helper function in the utils folder
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) {
+      return '-';
+    }
+    return new Intl.DateTimeFormat('bg-BG', {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
       timeZone: 'Europe/Sofia',
     }).format(new Date(dateString));
+  };
 
-  const formatTime = (dateString: string) =>
-    new Intl.DateTimeFormat('bg-BG', {
+  //TODO: Extract to a helper function in the utils folder
+  const formatTime = (dateString: string | null | undefined) => {
+    if (!dateString) {
+      return '-';
+    }
+    return new Intl.DateTimeFormat('bg-BG', {
       hour: '2-digit',
       minute: '2-digit',
       timeZone: 'Europe/Sofia',
     }).format(new Date(dateString));
+  };
 
   const statusConfig = (() => {
     const statusMap: Record<MatchStatus, { label: string; className: string }> = {
@@ -38,7 +49,6 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
   })();
 
   const showScore = match.status === MatchStatus.Finished || match.status === MatchStatus.Live;
-
   return (
     <div className="group relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 flex flex-col h-full">
       <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -65,7 +75,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
             <div className="block text-center">
               <Link
                 href={`/teams/${match.firstOpponent.id}`}
-                className="text-2xl font-bold tracking-tight transition-colors hover:text-primary underline"
+                className="text-2xl font-bold tracking-tight transition-colors hover:text-primary"
                 onClick={(e) => e.stopPropagation()}
               >
                 {match.firstOpponent.name}
@@ -95,7 +105,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
             <div className="block text-center">
               <Link
                 href={`/teams/${match.secondOpponent.id}`}
-                className="text-2xl font-bold tracking-tight transition-colors hover:text-primary underline"
+                className="text-2xl font-bold tracking-tight transition-colors hover:text-primary"
                 onClick={(e) => e.stopPropagation()}
               >
                 {match.secondOpponent.name}

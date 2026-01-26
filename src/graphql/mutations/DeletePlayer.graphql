@@ -3,5 +3,3 @@ mutation DeletePlayer($id: String!) {
     id
   }
 }
-
-
