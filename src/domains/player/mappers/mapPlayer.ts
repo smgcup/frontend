@@ -28,7 +28,7 @@ export const mapPlayer = (
   const age = 'age' in player ? player.age : undefined;
   const imageUrl = 'imageUrl' in player ? player.imageUrl : undefined;
   const playerClass = 'class' in player ? player.class : undefined;
-
+  const dateOfBirth = 'dateOfBirth' in player ? player.dateOfBirth : undefined;
 
   return {
     id: player.id,
@@ -42,5 +42,6 @@ export const mapPlayer = (
     age,
     imageUrl,
     class: playerClass,
+    dateOfBirth,
   };
 };

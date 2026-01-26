@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Users, Calendar, BarChart3, Shield } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { BackButton } from '@/components/BackButton';
 import { cn } from '@/lib/utils';
 import { PlayerPosition } from '@/generated/types';
@@ -211,32 +212,34 @@ export function TeamViewUi({ team }: { team: Team }) {
 
 function PlayerCard({ player, isCaptain }: { player: Player; isCaptain: boolean }) {
   return (
-    <div className="flex items-center gap-4 p-4 rounded-xl border bg-card/50 hover:bg-card transition-colors">
-      <div className="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden shrink-0 relative">
-        {player.imageUrl ? (
-          <Image
-            src={player.imageUrl ?? '/placeholder.svg'}
-            alt={`${player.firstName} ${player.lastName}`}
-            fill
-            sizes="56px"
-            className="object-cover"
-            unoptimized
-          />
-        ) : (
-          <Users className="h-6 w-6 text-primary/50" />
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="font-semibold text-foreground">
-            {player.firstName} {player.lastName}
-          </p>
-          {isCaptain && (
-            <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">Captain</span>
+    <Link href={`/players/${player.id}`} className="block">
+      <div className="flex items-center gap-4 p-4 rounded-xl border bg-card/50 hover:bg-card transition-colors cursor-pointer">
+        <div className="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden shrink-0 relative">
+          {player.imageUrl ? (
+            <Image
+              src={player.imageUrl ?? '/placeholder.svg'}
+              alt={`${player.firstName} ${player.lastName}`}
+              fill
+              sizes="56px"
+              className="object-cover"
+              unoptimized
+            />
+          ) : (
+            <Users className="h-6 w-6 text-primary/50" />
           )}
         </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="font-semibold text-foreground">
+              {player.firstName} {player.lastName}
+            </p>
+            {isCaptain && (
+              <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">Captain</span>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
