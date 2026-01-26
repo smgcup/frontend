@@ -196,7 +196,9 @@ const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditF
                         <SelectTrigger
                           id="category"
                           aria-invalid={!!errors.category}
-                          className={formData.category !== initialData.category ? 'ring-1 ring-primary bg-primary/5' : ''}
+                          className={
+                            formData.category !== initialData.category ? 'ring-1 ring-primary bg-primary/5' : ''
+                          }
                         >
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
@@ -284,13 +286,7 @@ const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditF
                 <CardContent>
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
                     {imagePreview ? (
-                      <Image
-                        src={imagePreview}
-                        alt="Preview"
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
+                      <Image src={imagePreview} alt="Preview" fill className="object-cover" />
                     ) : (
                       <div className="flex h-full items-center justify-center">
                         <ImageIcon className="h-12 w-12 text-muted-foreground/30" />
