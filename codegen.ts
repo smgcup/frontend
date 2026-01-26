@@ -14,6 +14,7 @@ const config: CodegenConfig = {
     inputValueDeprecation: true,
     scalars: {
       DateTime: 'string',
+      DateSimple: 'string',
       Date: 'string',
     },
   },

@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ImageIcon, Loader2, Eye, Save } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import type { News } from '@/domains/news/contracts';
-import type { UpdateNewsDto } from '@/graphql';
+import type { UpdateNewsDto, ImageUploadInput } from '@/graphql';
 
 type AdminNewsEditViewUiProps = {
   news: News | null;
@@ -39,11 +39,21 @@ const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditF
   const [formData, setFormData] = useState(() => ({
     title: news.title,
     content: news.content,
-    imageUrl: news.imageUrl,
     category: news.category,
   }));
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(news.imageUrl);
+  const [imageChanged, setImageChanged] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPreview, setShowPreview] = useState(true);
+
+  // Track which fields have changed
+  const [initialData] = useState(() => ({
+    title: news.title,
+    content: news.content,
+    category: news.category,
+  }));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -58,6 +68,31 @@ const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditF
     if (errors.category) {
       setErrors((prev) => ({ ...prev, category: '' }));
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      setImageChanged(true);
+      if (errors.image) {
+        setErrors((prev) => ({ ...prev, image: '' }));
+      }
+    }
+  };
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = (error) => reject(error);
+    });
   };
 
   const validateForm = () => {
@@ -75,12 +110,6 @@ const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditF
       newErrors.content = 'Content must be at least 20 characters';
     }
 
-    if (!formData.imageUrl.trim()) {
-      newErrors.imageUrl = 'Image URL is required';
-    } else if (!isValidUrl(formData.imageUrl)) {
-      newErrors.imageUrl = 'Please enter a valid URL';
-    }
-
     if (!formData.category) {
       newErrors.category = 'Category is required';
     }
@@ -89,20 +118,41 @@ const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditF
     return Object.keys(newErrors).length === 0;
   };
 
-  const isValidUrl = (url: string) => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-    await onUpdateNews(formData);
+
+    const dto: UpdateNewsDto = {};
+
+    // Only include changed fields
+    if (formData.title !== initialData.title) {
+      dto.title = formData.title.trim();
+    }
+    if (formData.content !== initialData.content) {
+      dto.content = formData.content.trim();
+    }
+    if (formData.category !== initialData.category) {
+      dto.category = formData.category;
+    }
+
+    // Handle image upload if changed
+    if (imageChanged && imageFile) {
+      const fileBase64 = await fileToBase64(imageFile);
+      const image: ImageUploadInput = {
+        fileBase64,
+        mimeType: imageFile.type,
+      };
+      dto.image = image;
+    }
+
+    await onUpdateNews(dto);
   };
+
+  const hasChanges =
+    formData.title !== initialData.title ||
+    formData.content !== initialData.content ||
+    formData.category !== initialData.category ||
+    imageChanged;
 
   return (
     <div className="py-4 lg:p-10">
@@ -132,7 +182,7 @@ const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditF
                         value={formData.title}
                         onChange={handleChange}
                         aria-invalid={!!errors.title}
-                        className="text-base"
+                        className={`text-base ${formData.title !== initialData.title ? 'ring-1 ring-primary bg-primary/5' : ''}`}
                       />
                       {errors.title && <FieldError>{errors.title}</FieldError>}
                     </FieldContent>
@@ -143,7 +193,11 @@ const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditF
                     <FieldLabel htmlFor="category">Category *</FieldLabel>
                     <FieldContent>
                       <Select value={formData.category} onValueChange={handleCategoryChange}>
-                        <SelectTrigger id="category" aria-invalid={!!errors.category}>
+                        <SelectTrigger
+                          id="category"
+                          aria-invalid={!!errors.category}
+                          className={formData.category !== initialData.category ? 'ring-1 ring-primary bg-primary/5' : ''}
+                        >
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -158,21 +212,21 @@ const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditF
                     </FieldContent>
                   </Field>
 
-                  {/* Image URL */}
+                  {/* Image Upload */}
                   <Field>
-                    <FieldLabel htmlFor="imageUrl">Image URL *</FieldLabel>
+                    <FieldLabel htmlFor="image">Cover Image</FieldLabel>
                     <FieldContent>
                       <Input
-                        id="imageUrl"
-                        name="imageUrl"
-                        type="url"
-                        placeholder="https://example.com/image.jpg"
-                        value={formData.imageUrl}
-                        onChange={handleChange}
-                        aria-invalid={!!errors.imageUrl}
+                        id="image"
+                        name="image"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        aria-invalid={!!errors.image}
+                        className={imageChanged ? 'ring-1 ring-primary bg-primary/5' : ''}
                       />
-                      {errors.imageUrl && <FieldError>{errors.imageUrl}</FieldError>}
-                      <FieldDescription>Provide a direct link to the article cover image</FieldDescription>
+                      {errors.image && <FieldError>{errors.image}</FieldError>}
+                      <FieldDescription>Upload a new image to replace the current one</FieldDescription>
                     </FieldContent>
                   </Field>
 
@@ -188,7 +242,7 @@ const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditF
                         onChange={handleChange}
                         aria-invalid={!!errors.content}
                         rows={12}
-                        className="resize-none font-mono text-sm"
+                        className={`resize-none font-mono text-sm ${formData.content !== initialData.content ? 'ring-1 ring-primary bg-primary/5' : ''}`}
                       />
                       {errors.content && <FieldError>{errors.content}</FieldError>}
                       <FieldDescription>You can use Markdown for formatting</FieldDescription>
@@ -201,7 +255,7 @@ const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditF
                 <Button type="button" variant="outline" asChild className="w-full sm:w-auto">
                   <Link href="/admin/news">Cancel</Link>
                 </Button>
-                <Button type="submit" disabled={updateLoading} className="w-full sm:w-auto gap-2">
+                <Button type="submit" disabled={updateLoading || !hasChanges} className="w-full sm:w-auto gap-2">
                   {updateLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                   {updateLoading ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -229,15 +283,13 @@ const AdminNewsEditForm = ({ news, updateLoading, onUpdateNews }: AdminNewsEditF
               {showPreview && (
                 <CardContent>
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-                    {formData.imageUrl && isValidUrl(formData.imageUrl) ? (
+                    {imagePreview ? (
                       <Image
-                        src={formData.imageUrl}
+                        src={imagePreview}
                         alt="Preview"
                         fill
                         className="object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
+                        unoptimized
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center">
