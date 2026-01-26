@@ -184,11 +184,11 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
         <div className="pt-4 border-t space-y-2.5 mt-auto mb-4">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <Calendar className="h-4 w-4 text-orange-500/70" />
-            <span className="font-medium">{formatDate(match.date)}</span>
+            <span className="font-medium">{match.date ? formatDate(match.date) : 'TBD'}</span>
           </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <Clock className="h-4 w-4 text-orange-500/70" />
-            <span className="font-medium">{formatTime(match.date)}</span>
+            <span className="font-medium">{match.date ? formatTime(match.date) : 'TBD'}</span>
           </div>
         </div>
       </div>
