@@ -9,9 +9,9 @@ export const mapTeam = (
     | GetPlayerStandingsQuery['teams'][number]
     | TeamByIdQuery['teamById'],
 ): Team => {
-  const players = 'players' in team ? team.players.map(mapPlayer) : [];
+  const players = 'players' in team ? team.players.map(mapPlayer) : undefined;
   const captain = 'captain' in team && team.captain ? mapPlayer(team.captain) : undefined;
-  
+
   return {
     id: team.id,
     name: team.name,
