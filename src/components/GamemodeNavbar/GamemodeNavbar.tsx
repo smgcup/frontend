@@ -79,7 +79,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
     >
       <div className="w-screen px-6">
         {/* Desktop navigation */}
-        <div className="hidden items-center lg:flex">
+        <div className="hidden items-center lg:grid lg:grid-cols-3">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" asChild className="gap-2">
               <Link href="/games">
@@ -100,7 +100,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
             </Link>
           </div>
 
-          <div className="flex flex-1 items-center justify-center gap-1">
+          <div className="flex items-center justify-center gap-1">
             {config.navItems.map((item) => (
               <Link
                 key={item.url}
@@ -118,7 +118,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-end gap-2">
             <Button asChild size="sm" className={cn(theme.bg, 'hover:opacity-90 text-white border-0')}>
               <Link href="/login">Login to Play</Link>
             </Button>

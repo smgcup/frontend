@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Trophy, Target, Zap, Clock, Star } from 'lucide-react';
+import { Trophy, Clock } from 'lucide-react';
 import type { Match } from '@/domains/matches/contracts';
 import type { ScorePrediction } from '@/domains/predictor/contracts';
 import { MatchStatus } from '@/graphql';
 import PredictionCard from './components/PredictionCard';
+import ScoreRulesDialog from './components/ScoreRulesDialog';
 
 type PredictorViewUiProps = {
   matches: Match[];
@@ -13,6 +14,7 @@ type PredictorViewUiProps = {
 
 const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
   const [predictions, setPredictions] = useState<Record<string, ScorePrediction>>({});
+  const [scoreRulesOpen, setScoreRulesOpen] = useState(false);
 
   // Filter to only show scheduled matches that can be predicted
   const predictableMatches = matches.filter((match) => match.status === MatchStatus.Scheduled);
@@ -25,13 +27,6 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
   };
 
   const predictedCount = Object.keys(predictions).length;
-
-  const stats = [
-    { icon: <Target className="h-5 w-5" />, label: 'Exact Hits', value: '0' },
-    { icon: <Star className="h-5 w-5" />, label: 'Correct Outcome', value: '0' },
-    { icon: <Zap className="h-5 w-5" />, label: 'Total Points', value: '0' },
-    { icon: <Trophy className="h-5 w-5" />, label: 'Rank', value: '-' },
-  ];
 
   return (
     <div className="min-h-[calc(100vh-60px)]">
@@ -49,27 +44,14 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
           <div className="mt-6 flex justify-center">
             <button
               type="button"
+              onClick={() => setScoreRulesOpen(true)}
               className="inline-flex items-center gap-2 rounded-full bg-muted/50 backdrop-blur-sm px-6 py-2 border border-border text-sm font-medium transition hover:bg-muted/80"
             >
               View Score Rules
             </button>
           </div>
+          <ScoreRulesDialog open={scoreRulesOpen} onOpenChange={setScoreRulesOpen} />
 
-          {/* Stats Row */}
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 rounded-xl bg-muted/50 backdrop-blur-sm px-5 py-3 border border-border"
-              >
-                <div className="text-muted-foreground">{stat.icon}</div>
-                <div>
-                  <div className="text-xs text-muted-foreground font-medium">{stat.label}</div>
-                  <div className="text-lg font-bold">{stat.value}</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
