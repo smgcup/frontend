@@ -23,12 +23,5 @@ mutation UpdatePrediction($id: String!, $input: UpdatePredictionDto!) {
         name
       }
     }
-    user {
-      id
-      username
-      firstName
-      lastName
-      email
-    }
   }
 }

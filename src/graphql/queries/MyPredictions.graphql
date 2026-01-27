@@ -23,12 +23,5 @@ query MyPredictions {
         name
       }
     }
-    user {
-      id
-      username
-      firstName
-      lastName
-      email
-    }
   }
 }

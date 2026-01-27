@@ -23,12 +23,5 @@ mutation CreatePrediction($input: CreatePredictionDto!) {
         name
       }
     }
-    user {
-      id
-      username
-      firstName
-      lastName
-      email
-    }
   }
 }

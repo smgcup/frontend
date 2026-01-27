@@ -341,8 +341,8 @@ export type Prediction = {
   id: Scalars['ID']['output'];
   match: Match;
   pointsEarned?: Maybe<Scalars['Int']['output']>;
-  predictedScore1?: Maybe<Scalars['Int']['output']>;
-  predictedScore2?: Maybe<Scalars['Int']['output']>;
+  predictedScore1: Scalars['Int']['output'];
+  predictedScore2: Scalars['Int']['output'];
   updatedAt: Scalars['Date']['output'];
   user: User;
 };
