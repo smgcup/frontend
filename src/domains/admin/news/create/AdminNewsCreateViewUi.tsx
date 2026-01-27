@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ImageIcon, Loader2, Eye } from 'lucide-react';
-import type { CreateNewsDto } from '@/graphql';
+import type { CreateNewsDto, ImageUploadInput } from '@/graphql';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 
 type AdminNewsCreateViewUiProps = {
@@ -30,10 +30,11 @@ const AdminNewsCreateViewUi = ({ onCreateNews, createLoading }: AdminNewsCreateV
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    imageUrl: '',
     category: '',
   });
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPreview, setShowPreview] = useState(false);
 
@@ -52,6 +53,30 @@ const AdminNewsCreateViewUi = ({ onCreateNews, createLoading }: AdminNewsCreateV
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      if (errors.image) {
+        setErrors((prev) => ({ ...prev, image: '' }));
+      }
+    }
+  };
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -67,10 +92,8 @@ const AdminNewsCreateViewUi = ({ onCreateNews, createLoading }: AdminNewsCreateV
       newErrors.content = 'Content must be at least 20 characters';
     }
 
-    if (!formData.imageUrl.trim()) {
-      newErrors.imageUrl = 'Image URL is required';
-    } else if (!isValidUrl(formData.imageUrl)) {
-      newErrors.imageUrl = 'Please enter a valid URL';
+    if (!imageFile) {
+      newErrors.image = 'Image is required';
     }
 
     if (!formData.category) {
@@ -81,19 +104,20 @@ const AdminNewsCreateViewUi = ({ onCreateNews, createLoading }: AdminNewsCreateV
     return Object.keys(newErrors).length === 0;
   };
 
-  const isValidUrl = (url: string) => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
-    await onCreateNews(formData);
+    if (!validateForm() || !imageFile) return;
+
+    const fileBase64 = await fileToBase64(imageFile);
+    const image: ImageUploadInput = {
+      fileBase64,
+      mimeType: imageFile.type,
+    };
+
+    await onCreateNews({
+      ...formData,
+      image,
+    });
   };
 
   return (
@@ -154,21 +178,20 @@ const AdminNewsCreateViewUi = ({ onCreateNews, createLoading }: AdminNewsCreateV
                     </FieldContent>
                   </Field>
 
-                  {/* Image URL */}
+                  {/* Image Upload */}
                   <Field>
-                    <FieldLabel htmlFor="imageUrl">Image URL *</FieldLabel>
+                    <FieldLabel htmlFor="image">Cover Image *</FieldLabel>
                     <FieldContent>
                       <Input
-                        id="imageUrl"
-                        name="imageUrl"
-                        type="url"
-                        placeholder="https://example.com/image.jpg"
-                        value={formData.imageUrl}
-                        onChange={handleChange}
-                        aria-invalid={!!errors.imageUrl}
+                        id="image"
+                        name="image"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        aria-invalid={!!errors.image}
                       />
-                      {errors.imageUrl && <FieldError>{errors.imageUrl}</FieldError>}
-                      <FieldDescription>Provide a direct link to the article cover image</FieldDescription>
+                      {errors.image && <FieldError>{errors.image}</FieldError>}
+                      <FieldDescription>Upload a cover image for the article (16:9 ratio recommended)</FieldDescription>
                     </FieldContent>
                   </Field>
 
@@ -225,15 +248,13 @@ const AdminNewsCreateViewUi = ({ onCreateNews, createLoading }: AdminNewsCreateV
               {showPreview && (
                 <CardContent>
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-                    {formData.imageUrl && isValidUrl(formData.imageUrl) ? (
+                    {imagePreview ? (
                       <Image
-                        src={formData.imageUrl}
+                        src={imagePreview}
                         alt="Preview"
                         fill
                         className="object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
+                        unoptimized
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center">
