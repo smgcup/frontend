@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { type Match } from '@/domains/matches/contracts';
 import { MatchStatus } from '@/graphql';
+import { formatLocation } from '../../utils/formatLocation';
 
 type AdminMatchCardProps = {
   match: Match;
@@ -198,7 +199,7 @@ const AdminMatchCard = ({
           </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4 text-primary/70" />
-            <span className="font-medium">SMG Arena</span>
+            <span className="font-medium">{formatLocation(match.location)}</span>
           </div>
         </div>
 

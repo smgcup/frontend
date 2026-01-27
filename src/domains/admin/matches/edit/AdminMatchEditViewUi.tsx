@@ -11,8 +11,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, Radio } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import { MatchStatus } from '@/graphql';
+import { MatchLocation } from '@/generated/types';
 import { type AdminMatchEditFormData } from './hooks/useAdminMatchEdit';
 import { Match } from '@/domains/matches/contracts';
+import { formatLocation } from '../utils/formatLocation';
 
 /**
  * Props for the AdminMatchEditViewUi component.
@@ -75,12 +77,14 @@ const AdminMatchEditViewUi = ({
         date: '',
         status: MatchStatus.Scheduled,
         round: 1,
+        location: null,
       };
     }
     return {
       date: formatMatchDateForDatetimeLocalInput(match.date),
       status: match.status,
       round: match.round,
+      location: match.location ?? null,
     };
   }, [match]);
 
@@ -105,6 +109,7 @@ const AdminMatchEditViewUi = ({
     date: getError('date'),
     status: getError('status'),
     round: getError('round'),
+    location: getError('location'),
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,7 +128,7 @@ const AdminMatchEditViewUi = ({
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === 'location' ? (value === '__NONE__' ? null : (value as MatchLocation)) : value,
     }));
     if (errors[name as keyof typeof errors]) {
       setLocalErrors((prev) => ({ ...prev, [name]: '' }));
@@ -287,6 +292,31 @@ const AdminMatchEditViewUi = ({
                   </Select>
                   {errors.status && <FieldError>{errors.status}</FieldError>}
                   <FieldDescription>Update the match status</FieldDescription>
+                </FieldContent>
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="location">Location</FieldLabel>
+                <FieldContent>
+                  <Select
+                    value={formData.location ?? '__NONE__'}
+                    onValueChange={(value) => handleSelectChange('location', value)}
+                    disabled={updateLoading}
+                  >
+                    <SelectTrigger id="location" className="w-full" aria-invalid={!!errors.location}>
+                      <SelectValue placeholder="Select location (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__NONE__">No location</SelectItem>
+                      {Object.values(MatchLocation).map((location) => (
+                        <SelectItem key={location} value={location}>
+                          {formatLocation(location)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.location && <FieldError>{errors.location}</FieldError>}
+                  <FieldDescription>Select the match location (optional)</FieldDescription>
                 </FieldContent>
               </Field>
             </FieldGroup>

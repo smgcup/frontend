@@ -37,7 +37,7 @@ const UpcomingMatchesSection = ({ matches }: UpcomingMatchesSectionProps) => {
               Live &amp; Upcoming Matches
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl leading-relaxed">
-              Don&apos;t miss the exciting matches between the teams in the league
+              Don&apos;t miss the exciting matches between the teams in the competition.
             </p>
           </div>
           {hasMoreMatches && (

@@ -2,11 +2,12 @@
 
 import type React from 'react';
 import Link from 'next/link';
-import { Calendar, Clock, Trophy } from 'lucide-react';
+import { Calendar, Clock, Trophy, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Match } from '../contracts';
 import { Button } from '@/components/ui/button';
 import { MatchStatus } from '@/graphql';
+import { MatchLocation } from '@/generated/types';
 
 type MatchCardProps = {
   match: Match;
@@ -36,6 +37,17 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
       minute: '2-digit',
       timeZone: 'Europe/Sofia',
     }).format(new Date(dateString));
+  };
+
+  const formatLocation = (location: Match['location']) => {
+    if (!location) {
+      return '-';
+    }
+    const locationMap: Record<MatchLocation, string> = {
+      [MatchLocation.SmgArena]: 'SMG Arena',
+      [MatchLocation.CkGreenSport]: 'CK Green Sport',
+    };
+    return locationMap[location] || location;
   };
 
   const statusConfig = (() => {
@@ -125,6 +137,10 @@ const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <Clock className="h-4 w-4 text-primary/70" />
             <span className="font-medium">{formatTime(match.date)}</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4 text-primary/70" />
+            <span className="font-medium">{formatLocation(match.location)}</span>
           </div>
         </div>
 

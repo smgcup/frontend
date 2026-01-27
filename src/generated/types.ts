@@ -32,6 +32,7 @@ export type AuthResponse = {
 export type CreateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
   firstOpponentId: Scalars['String']['input'];
+  location?: InputMaybe<MatchLocation>;
   round: Scalars['Int']['input'];
   secondOpponentId: Scalars['String']['input'];
   status: MatchStatus;
@@ -49,7 +50,7 @@ export type CreateMatchEventDto = {
 export type CreateNewsDto = {
   category: Scalars['String']['input'];
   content: Scalars['String']['input'];
-  image: ImageUploadInput;
+  imageUrl: Scalars['String']['input'];
   title: Scalars['String']['input'];
 };
 
@@ -68,11 +69,6 @@ export type CreatePlayerDto = {
 
 export type CreateTeamDto = {
   name: Scalars['String']['input'];
-};
-
-export type ImageUploadInput = {
-  fileBase64: Scalars['String']['input'];
-  mimeType: Scalars['String']['input'];
 };
 
 export enum LeaderboardSortType {
@@ -95,6 +91,7 @@ export type Match = {
   date?: Maybe<Scalars['Date']['output']>;
   firstOpponent: Team;
   id: Scalars['ID']['output'];
+  location?: Maybe<MatchLocation>;
   round: Scalars['Int']['output'];
   score1?: Maybe<Scalars['Int']['output']>;
   score2?: Maybe<Scalars['Int']['output']>;
@@ -123,6 +120,11 @@ export enum MatchEventType {
   PenaltyScored = 'PENALTY_SCORED',
   RedCard = 'RED_CARD',
   YellowCard = 'YELLOW_CARD'
+}
+
+export enum MatchLocation {
+  CkGreenSport = 'CK_GREEN_SPORT',
+  SmgArena = 'SMG_ARENA'
 }
 
 export enum MatchStatus {
@@ -386,6 +388,7 @@ export type Team = {
 export type UpdateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
   firstOpponentId?: InputMaybe<Scalars['String']['input']>;
+  location?: InputMaybe<MatchLocation>;
   round?: InputMaybe<Scalars['Int']['input']>;
   score1?: InputMaybe<Scalars['Int']['input']>;
   score2?: InputMaybe<Scalars['Int']['input']>;
@@ -396,7 +399,7 @@ export type UpdateMatchDto = {
 export type UpdateNewsDto = {
   category?: InputMaybe<Scalars['String']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
-  image?: InputMaybe<ImageUploadInput>;
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -405,12 +408,17 @@ export type UpdatePlayerDto = {
   dateOfBirth?: InputMaybe<Scalars['Date']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   height?: InputMaybe<Scalars['Float']['input']>;
-  image?: InputMaybe<ImageUploadInput>;
+  image?: InputMaybe<UpdatePlayerImageDto>;
   lastName?: InputMaybe<Scalars['String']['input']>;
   position?: InputMaybe<PlayerPosition>;
   preferredFoot?: InputMaybe<PreferredFoot>;
   teamId?: InputMaybe<Scalars['String']['input']>;
   weight?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type UpdatePlayerImageDto = {
+  fileBase64: Scalars['String']['input'];
+  mimeType: Scalars['String']['input'];
 };
 
 export type UpdateTeamDto = {
@@ -441,19 +449,3 @@ export type User = {
   password: Scalars['String']['output'];
   username: Scalars['String']['output'];
 };
-
-
-export enum Queries {
-  __typename = '__typename',
-  health = 'health',
-  matchById = 'matchById',
-  matchEvents = 'matchEvents',
-  matches = 'matches',
-  news = 'news',
-  newsById = 'newsById',
-  playerById = 'playerById',
-  playersLeaderboard = 'playersLeaderboard',
-  teamById = 'teamById',
-  teams = 'teams',
-  user = 'user',
-}
