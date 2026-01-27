@@ -80,26 +80,35 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
 
       <div className="relative p-6 flex flex-col h-full pt-7">
         {/* Header with status and accuracy badge */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="grid grid-cols-3 items-center gap-2 mb-6">
           <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-            <Target className="h-3.5 w-3.5" />
+            <Target className="h-3.5 w-3.5 shrink-0" />
             <span>Prediction</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center">
             {accuracyBadge && (
               <span
                 className={cn(
-                  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border',
+                  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border shrink-0',
                   accuracyBadge.className,
                 )}
               >
                 {accuracyBadge.icon}
-                {accuracyBadge.text}
+                {accuracyBadge.text === 'Correct Outcome' ? (
+                  <span className="flex flex-col sm:flex-row sm:gap-1 items-start sm:items-center leading-tight">
+                    <span>Correct</span>
+                    <span>Outcome</span>
+                  </span>
+                ) : (
+                  <span>{accuracyBadge.text}</span>
+                )}
               </span>
             )}
+          </div>
+          <div className="flex items-center justify-end">
             <span
               className={cn(
-                'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold',
+                'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap shrink-0',
                 statusConfig.className,
               )}
             >
