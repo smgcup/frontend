@@ -1,6 +1,6 @@
 'use client';
 
-import React from "react"
+import React from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -43,7 +43,7 @@ const gamemodeConfigs: Record<string, GamemodeConfig> = {
 const themeClasses: Record<GamemodeConfig['theme'], { bg: string; text: string; border: string; hover: string }> = {
   orange: {
     bg: 'bg-orange-500',
-    text: 'text-orange-500',
+    text: 'text-orange-400',
     border: 'border-orange-500/20',
     hover: 'hover:bg-orange-500/10',
   },
@@ -74,9 +74,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
   };
 
   return (
-    <nav
-      className='sticky top-0 z-50 bg-background/95 backdrop-blur-sm transition-all duration-300 py-2 lg:py-3'
-    >
+    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm transition-all duration-300 py-2 lg:py-3">
       <div className="w-screen px-6">
         {/* Desktop navigation */}
         <div className="hidden items-center lg:grid lg:grid-cols-3">
@@ -90,7 +88,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
             <div className="h-6 w-px bg-border" />
             <Link href={config.basePath} className="flex items-center gap-2">
               <Image
-                src={logoPng || "/placeholder.svg"}
+                src={logoPng || '/placeholder.svg'}
                 alt="SMG Cup Championship Logo"
                 width={40}
                 height={40}
@@ -135,7 +133,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
                 </Link>
               </Button>
               <Link href={config.basePath} className="flex items-center gap-2">
-                <Image src={logoPng || "/placeholder.svg"} alt="SMG Cup Championship Logo" width={32} height={32} />
+                <Image src={logoPng || '/placeholder.svg'} alt="SMG Cup Championship Logo" width={32} height={32} />
                 <span className={cn('font-bold tracking-tight', theme.text)}>{config.name}</span>
               </Link>
             </div>

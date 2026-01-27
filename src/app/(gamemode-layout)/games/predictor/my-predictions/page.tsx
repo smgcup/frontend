@@ -41,17 +41,17 @@ const MyPredictionsPage = () => {
 
       {/* Stats Section */}
       <div className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="flex items-center gap-3 rounded-xl bg-muted/50 backdrop-blur-sm px-5 py-3 border border-border"
+              className="flex flex-col gap-3 rounded-xl border bg-card p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5"
             >
-              <div className="text-muted-foreground">{stat.icon}</div>
-              <div>
-                <div className="text-xs text-muted-foreground font-medium">{stat.label}</div>
-                <div className="text-lg font-bold">{stat.value}</div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">{stat.label}</span>
+                <span className="text-muted-foreground/80">{stat.icon}</span>
               </div>
+              <p className="text-2xl font-bold tracking-tight sm:text-3xl">{stat.value}</p>
             </div>
           ))}
         </div>
