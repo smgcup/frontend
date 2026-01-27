@@ -67,6 +67,12 @@ export type CreatePlayerDto = {
   weight: Scalars['Float']['input'];
 };
 
+export type CreatePredictionDto = {
+  matchId: Scalars['String']['input'];
+  predictedScore1: Scalars['Int']['input'];
+  predictedScore2: Scalars['Int']['input'];
+};
+
 export type CreateTeamDto = {
   name: Scalars['String']['input'];
 };
@@ -142,11 +148,13 @@ export type Mutation = {
   createMatchEvent: MatchEvent;
   createNews: News;
   createPlayer: Player;
+  createPrediction: Prediction;
   createTeam: Team;
   deleteMatch: Match;
   deleteMatchEvent: MatchEvent;
   deleteNews: News;
   deletePlayer: Player;
+  deletePrediction: Prediction;
   deleteTeam: Team;
   login: AuthResponse;
   register: AuthResponse;
@@ -154,6 +162,7 @@ export type Mutation = {
   updateMatch: Match;
   updateNews: News;
   updatePlayer: Player;
+  updatePrediction: Prediction;
   updateTeam: Team;
   uploadFile: UploadResponse;
 };
@@ -184,6 +193,11 @@ export type MutationCreatePlayerArgs = {
 };
 
 
+export type MutationCreatePredictionArgs = {
+  input: CreatePredictionDto;
+};
+
+
 export type MutationCreateTeamArgs = {
   createTeamDto: CreateTeamDto;
 };
@@ -205,6 +219,11 @@ export type MutationDeleteNewsArgs = {
 
 
 export type MutationDeletePlayerArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationDeletePredictionArgs = {
   id: Scalars['String']['input'];
 };
 
@@ -244,6 +263,12 @@ export type MutationUpdateNewsArgs = {
 export type MutationUpdatePlayerArgs = {
   id: Scalars['String']['input'];
   updatePlayerDto: UpdatePlayerDto;
+};
+
+
+export type MutationUpdatePredictionArgs = {
+  id: Scalars['String']['input'];
+  input: UpdatePredictionDto;
 };
 
 
@@ -310,6 +335,18 @@ export type PlayerStats = {
   yellowCards: Scalars['Float']['output'];
 };
 
+export type Prediction = {
+  __typename?: 'Prediction';
+  createdAt: Scalars['Date']['output'];
+  id: Scalars['ID']['output'];
+  match: Match;
+  pointsEarned?: Maybe<Scalars['Int']['output']>;
+  predictedScore1?: Maybe<Scalars['Int']['output']>;
+  predictedScore2?: Maybe<Scalars['Int']['output']>;
+  updatedAt: Scalars['Date']['output'];
+  user: User;
+};
+
 export enum PreferredFoot {
   Both = 'BOTH',
   Left = 'LEFT',
@@ -322,10 +359,15 @@ export type Query = {
   matchById: Match;
   matchEvents: Array<MatchEvent>;
   matches: Array<Match>;
+  myPredictionForMatch?: Maybe<Prediction>;
+  myPredictionStats: UserPredictionStats;
+  myPredictions: Array<Prediction>;
   news: Array<News>;
   newsById: News;
   playerById: Player;
   playersLeaderboard: PaginatedPlayersResponse;
+  predictionLeaderboard: Array<UserPredictionStats>;
+  predictionsByMatch: Array<Prediction>;
   teamById: Team;
   teams: Array<Team>;
   user: User;
@@ -338,6 +380,11 @@ export type QueryMatchByIdArgs = {
 
 
 export type QueryMatchEventsArgs = {
+  matchId: Scalars['String']['input'];
+};
+
+
+export type QueryMyPredictionForMatchArgs = {
   matchId: Scalars['String']['input'];
 };
 
@@ -356,6 +403,11 @@ export type QueryPlayersLeaderboardArgs = {
   limit?: Scalars['Int']['input'];
   page?: Scalars['Int']['input'];
   sortBy: LeaderboardSortType;
+};
+
+
+export type QueryPredictionsByMatchArgs = {
+  matchId: Scalars['String']['input'];
 };
 
 
@@ -421,6 +473,11 @@ export type UpdatePlayerImageDto = {
   mimeType: Scalars['String']['input'];
 };
 
+export type UpdatePredictionDto = {
+  predictedScore1?: InputMaybe<Scalars['Int']['input']>;
+  predictedScore2?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type UpdateTeamDto = {
   captainId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -448,4 +505,15 @@ export type User = {
   lastName: Scalars['String']['output'];
   password: Scalars['String']['output'];
   username: Scalars['String']['output'];
+};
+
+export type UserPredictionStats = {
+  __typename?: 'UserPredictionStats';
+  correctOutcomesCount: Scalars['Int']['output'];
+  exactMatchesCount: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  lastUpdated: Scalars['Date']['output'];
+  totalPoints: Scalars['Int']['output'];
+  totalPredictionsCount: Scalars['Int']['output'];
+  user: User;
 };

@@ -10,7 +10,7 @@ type PredictionResultCardProps = {
 };
 
 const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
-  const { match, predictedHomeScore, predictedAwayScore, isExactCorrect, isOutcomeCorrect, pointsEarned } = prediction;
+  const { match, predictedScore1, predictedScore2, isExactCorrect, isOutcomeCorrect, pointsEarned } = prediction;
 
   const formatDate = (dateString: string) =>
     new Intl.DateTimeFormat('bg-BG', {
@@ -69,7 +69,7 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
 
   // Determine if predicted winner matches actual winner
   const predictedWinner =
-    predictedHomeScore > predictedAwayScore ? 'home' : predictedHomeScore < predictedAwayScore ? 'away' : 'draw';
+    predictedScore1 > predictedScore2 ? 'home' : predictedScore1 < predictedScore2 ? 'away' : 'draw';
 
   return (
     <div className="group relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/5 hover:-translate-y-1 flex flex-col h-full">
@@ -130,14 +130,14 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
                   predictedWinner === 'home' ? 'text-orange-500' : 'text-muted-foreground/50',
                 )}
               >
-                {predictedHomeScore}
+                {predictedScore1}
               </div>
               {/* Actual Score (if completed) */}
               {isCompleted && actualScore1 !== undefined && (
                 <div
                   className={cn(
                     'text-lg font-semibold mt-1',
-                    actualScore1 === predictedHomeScore
+                    actualScore1 === predictedScore1
                       ? 'text-green-600 dark:text-green-400'
                       : 'text-muted-foreground',
                   )}
@@ -170,14 +170,14 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
                   predictedWinner === 'away' ? 'text-orange-500' : 'text-muted-foreground/50',
                 )}
               >
-                {predictedAwayScore}
+                {predictedScore2}
               </div>
               {/* Actual Score (if completed) */}
               {isCompleted && actualScore2 !== undefined && (
                 <div
                   className={cn(
                     'text-lg font-semibold mt-1',
-                    actualScore2 === predictedAwayScore
+                    actualScore2 === predictedScore2
                       ? 'text-green-600 dark:text-green-400'
                       : 'text-muted-foreground',
                   )}

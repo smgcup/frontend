@@ -35,27 +35,27 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
     }).format(new Date(dateString));
   };
 
-  const homeScore = prediction?.homeScore ?? 0;
-  const awayScore = prediction?.awayScore ?? 0;
+  const predictedScore1 = prediction?.predictedScore1 ?? 0;
+  const predictedScore2 = prediction?.predictedScore2 ?? 0;
   const hasPrediction = prediction !== null;
 
   const updateScore = (team: 'home' | 'away', delta: number) => {
-    const currentHome = prediction?.homeScore ?? 0;
-    const currentAway = prediction?.awayScore ?? 0;
+    const currentScore1 = prediction?.predictedScore1 ?? 0;
+    const currentScore2 = prediction?.predictedScore2 ?? 0;
 
     if (team === 'home') {
-      const newScore = Math.max(0, Math.min(20, currentHome + delta));
-      onPredictionChange({ homeScore: newScore, awayScore: currentAway });
+      const newScore = Math.max(0, Math.min(20, currentScore1 + delta));
+      onPredictionChange({ predictedScore1: newScore, predictedScore2: currentScore2 });
     } else {
-      const newScore = Math.max(0, Math.min(20, currentAway + delta));
-      onPredictionChange({ homeScore: currentHome, awayScore: newScore });
+      const newScore = Math.max(0, Math.min(20, currentScore2 + delta));
+      onPredictionChange({ predictedScore1: currentScore1, predictedScore2: newScore });
     }
   };
 
   const getOutcomeLabel = () => {
     if (!hasPrediction) return null;
-    if (homeScore > awayScore) return { text: `${match.firstOpponent.name} wins`, color: 'text-orange-500' };
-    if (awayScore > homeScore) return { text: `${match.secondOpponent.name} wins`, color: 'text-orange-500' };
+    if (predictedScore1 > predictedScore2) return { text: `${match.firstOpponent.name} wins`, color: 'text-orange-500' };
+    if (predictedScore2 > predictedScore1) return { text: `${match.secondOpponent.name} wins`, color: 'text-orange-500' };
     return { text: 'Draw', color: 'text-muted-foreground' };
   };
 
@@ -87,7 +87,7 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
             <div
               className={cn(
                 'font-bold text-base leading-tight transition-colors',
-                hasPrediction && homeScore > awayScore && 'text-orange-500',
+                hasPrediction && predictedScore1 > predictedScore2 && 'text-orange-500',
               )}
             >
               {match.firstOpponent.name}
@@ -107,18 +107,18 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
             <div
               className={cn(
                 'w-12 h-12 flex items-center justify-center rounded-xl text-2xl font-bold transition-all',
-                hasPrediction && homeScore > awayScore
+                hasPrediction && predictedScore1 > predictedScore2
                   ? 'bg-orange-500 text-white'
                   : 'bg-muted/50 border-2 border-border',
               )}
             >
-              {homeScore}
+              {predictedScore1}
             </div>
             <button
               type="button"
               onClick={() => updateScore('home', -1)}
               className="p-1.5 rounded-lg bg-muted hover:bg-orange-500/20 hover:text-orange-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              disabled={homeScore <= 0}
+              disabled={predictedScore1 <= 0}
               aria-label="Decrease home score"
             >
               <Minus className="h-4 w-4" />
@@ -143,18 +143,18 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
             <div
               className={cn(
                 'w-12 h-12 flex items-center justify-center rounded-xl text-2xl font-bold transition-all',
-                hasPrediction && awayScore > homeScore
+                hasPrediction && predictedScore2 > predictedScore1
                   ? 'bg-orange-500 text-white'
                   : 'bg-muted/50 border-2 border-border',
               )}
             >
-              {awayScore}
+              {predictedScore2}
             </div>
             <button
               type="button"
               onClick={() => updateScore('away', -1)}
               className="p-1.5 rounded-lg bg-muted hover:bg-orange-500/20 hover:text-orange-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              disabled={awayScore <= 0}
+              disabled={predictedScore2 <= 0}
               aria-label="Decrease away score"
             >
               <Minus className="h-4 w-4" />
@@ -166,7 +166,7 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
             <div
               className={cn(
                 'font-bold text-base leading-tight transition-colors',
-                hasPrediction && awayScore > homeScore && 'text-orange-500',
+                hasPrediction && predictedScore2 > predictedScore1 && 'text-orange-500',
               )}
             >
               {match.secondOpponent.name}

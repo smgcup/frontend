@@ -1,0 +1,34 @@
+mutation CreatePrediction($input: CreatePredictionDto!) {
+  createPrediction(input: $input) {
+    id
+    predictedScore1
+    predictedScore2
+    createdAt
+    updatedAt
+    pointsEarned
+    match {
+      id
+      date
+      status
+      score1
+      score2
+      round
+      location
+      firstOpponent {
+        id
+        name
+      }
+      secondOpponent {
+        id
+        name
+      }
+    }
+    user {
+      id
+      username
+      firstName
+      lastName
+      email
+    }
+  }
+}
