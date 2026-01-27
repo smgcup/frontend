@@ -12,6 +12,7 @@ import {
   type UpdateMatchMutation,
   type UpdateMatchMutationVariables,
 } from '@/graphql';
+import { MatchLocation } from '@/generated/types';
 import { getTranslationCode } from '../../utils/getTranslationCode';
 import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 
@@ -19,6 +20,7 @@ export type AdminMatchEditFormData = {
   date: string;
   status: MatchStatus;
   round: number;
+  location?: MatchLocation | null;
 };
 
 /**
@@ -78,6 +80,7 @@ export const useAdminMatchEdit = (matchId: string) => {
             date: d.toISOString(),
             status: data.status,
             round: data.round,
+            location: data.location ?? null,
           },
         },
       });

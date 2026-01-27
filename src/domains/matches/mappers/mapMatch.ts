@@ -12,5 +12,6 @@ export const mapMatch = (match: GetMatchesQuery['matches'][number] | MatchByIdQu
     score1: match.score1 ?? undefined,
     score2: match.score2 ?? undefined,
     round: match.round,
+    location: match.location ?? undefined,
   };
 };

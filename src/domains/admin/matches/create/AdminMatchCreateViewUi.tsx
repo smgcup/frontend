@@ -9,6 +9,7 @@ import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLab
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import { MatchStatus } from '@/graphql';
+import { MatchLocation } from '@/generated/types';
 import { Team } from '@/domains/team/contracts';
 
 type AdminMatchCreateViewUiProps = {
@@ -21,6 +22,7 @@ type AdminMatchCreateViewUiProps = {
     date: string;
     status: MatchStatus;
     round: number;
+    location?: MatchLocation | null;
   }) => Promise<void>;
   createLoading: boolean;
 };
@@ -40,6 +42,7 @@ const AdminMatchCreateViewUi = ({
     date: '',
     status: MatchStatus.Scheduled,
     round: 1,
+    location: null as MatchLocation | null,
   });
 
   // Local (client-side) validation errors. External errors come from the server via props.
@@ -59,6 +62,7 @@ const AdminMatchCreateViewUi = ({
     date: getError('date'),
     status: getError('status'),
     round: getError('round'),
+    location: getError('location'),
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +79,10 @@ const AdminMatchCreateViewUi = ({
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === 'location' ? (value === '__NONE__' ? null : (value as MatchLocation)) : value,
+    }));
     if (errors[name as keyof typeof errors]) {
       setLocalErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -278,6 +285,32 @@ const AdminMatchCreateViewUi = ({
                   </Select>
                   {errors.status && <FieldError>{errors.status}</FieldError>}
                   <FieldDescription>Set the initial match status</FieldDescription>
+                </FieldContent>
+              </Field>
+
+              {/* Location */}
+              <Field>
+                <FieldLabel htmlFor="location">Location</FieldLabel>
+                <FieldContent>
+                  <Select
+                    value={formData.location ?? '__NONE__'}
+                    onValueChange={(value) => handleSelectChange('location', value)}
+                    disabled={createLoading}
+                  >
+                    <SelectTrigger id="location" className="w-full" aria-invalid={!!errors.location}>
+                      <SelectValue placeholder="Select location (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__NONE__">No location</SelectItem>
+                      {Object.values(MatchLocation).map((location) => (
+                        <SelectItem key={location} value={location}>
+                          {location === MatchLocation.SmgArena ? 'SMG Arena' : 'CK Green Sport'}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.location && <FieldError>{errors.location}</FieldError>}
+                  <FieldDescription>Select the match location (optional)</FieldDescription>
                 </FieldContent>
               </Field>
             </FieldGroup>

@@ -1,5 +1,5 @@
 import { MatchStatus } from '@/graphql';
-import type { MatchEventType } from '@/generated/types';
+import type { MatchEventType, MatchLocation } from '@/generated/types';
 import type { Player } from '@/domains/player/contracts';
 import type { Team } from '@/domains/team/contracts';
 
@@ -12,6 +12,7 @@ export type Match = {
   score1?: number;
   score2?: number;
   round: number;
+  location?: MatchLocation | null;
 };
 
 export type MatchEvent = {
