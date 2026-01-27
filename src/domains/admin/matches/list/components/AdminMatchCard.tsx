@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { type Match } from '@/domains/matches/contracts';
 import { MatchStatus } from '@/graphql';
-import { MatchLocation } from '@/generated/types';
+import { formatLocation } from '../../utils/formatLocation';
 
 type AdminMatchCardProps = {
   match: Match;
@@ -68,17 +68,6 @@ const AdminMatchCard = ({
       hour: '2-digit',
       minute: '2-digit',
     });
-  };
-
-  const formatLocation = (location: Match['location']) => {
-    if (!location) {
-      return '-';
-    }
-    const locationMap: Record<MatchLocation, string> = {
-      [MatchLocation.SmgArena]: 'SMG Arena',
-      [MatchLocation.CkGreenSport]: 'CK Green Sport',
-    };
-    return locationMap[location] || location;
   };
 
   const getStatusConfig = (status: Match['status']) => {
