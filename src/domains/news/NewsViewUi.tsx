@@ -9,12 +9,15 @@ const NewsViewUi = ({ news }: NewsViewUiProps) => {
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8">
       <div className="container mx-auto max-w-7xl">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-12">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
           News{' '}
           <span className="text-muted-foreground font-normal text-2xl">
             ({news.length} {news.length === 1 ? 'article' : 'articles'})
           </span>
         </h1>
+        <p className="mt-4 text-lg text-muted-foreground mb-12">
+          Stay updated with the latest tournament news and announcements
+        </p>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {news.map((news) => (
             <Link

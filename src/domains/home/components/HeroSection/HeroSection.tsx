@@ -30,8 +30,8 @@ const HeroSection = () => {
 
           {/* Subtitle */}
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
-            Experience the excitement of inter-class football competition. Follow your favorite teams, track matches,
-            and celebrate the champions.
+            Experience the excitement of the best school football tournament. Follow your favorite teams, track matches,
+            and enjoy every single moment of the competition
           </p>
 
           {/* CTA Buttons */}
