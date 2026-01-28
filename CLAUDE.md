@@ -69,6 +69,29 @@ Example flow: Page → SSR function → Apollo query → Mapper → Domain contr
 3. Import typed document and types from `@/graphql`
    - Example: `import { GetMatchesDocument, type GetMatchesQuery } from '@/graphql'`
 
+### Authentication
+
+**AuthContext (`src/contexts/AuthContext.tsx`):**
+- Provides `user`, `isAuthenticated`, `isLoading`, `logout()`, `refetchUser()`
+- Fetches current user via `GetMe` query when token exists
+- Token stored in `auth_token` cookie (7-day expiration)
+
+```tsx
+import { useAuth } from '@/contexts/AuthContext';
+
+const { user, isAuthenticated, isLoading, logout } = useAuth();
+```
+
+**Middleware (`src/middleware.ts`):**
+- Protects routes requiring authentication (redirects to `/login?redirect={path}`)
+- Redirects authenticated users away from auth pages (`/login`, `/register`)
+- Protected routes defined in `PROTECTED_ROUTES` array
+- Add new protected routes to both `PROTECTED_ROUTES` and `config.matcher`
+
+**User Domain (`src/domains/user/`):**
+- `contracts.ts` - `User` type definition
+- `mappers/mapUser.ts` - Maps GraphQL user response to domain type
+
 ### UI Components
 
 - Shadcn/UI components in `src/components/ui/` (radix-nova style)
