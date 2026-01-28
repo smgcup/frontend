@@ -6,8 +6,7 @@ import { Trophy, Clock } from 'lucide-react';
 import type { Match } from '@/domains/matches/contracts';
 import type { ScorePrediction } from '@/domains/predictor/contracts';
 import { MatchStatus, MyPredictionsDocument, type MyPredictionsQuery } from '@/graphql';
-import { getCookie } from '@/lib/cookies';
-import { AUTH_COOKIE_NAME } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { usePrediction } from './hooks/usePrediction';
 import PredictionCard from './components/PredictionCard';
 import ScoreRulesDialog from './components/ScoreRulesDialog';
@@ -23,22 +22,13 @@ type ExistingPrediction = {
   predictedScore2: number;
 };
 
-// Custom hook for checking auth token from cookie
-const useIsAuthenticated = () => {
-  const [isAuthenticated] = useState(() => {
-    if (typeof window === 'undefined') return false; // SSR
-    return !!getCookie(AUTH_COOKIE_NAME);
-  });
-  return isAuthenticated;
-};
-
 const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
   const [localPredictions, setLocalPredictions] = useState<Record<string, ScorePrediction>>({});
   const [savedPredictionIds, setSavedPredictionIds] = useState<Record<string, string>>({});
   const [scoreRulesOpen, setScoreRulesOpen] = useState(false);
   const [matchErrors, setMatchErrors] = useState<Record<string, string | null>>({});
 
-  const isAuthenticated = useIsAuthenticated();
+  const { isAuthenticated } = useAuth();
   const { savePrediction, submittingMatchId, errorMessage, clearError } = usePrediction();
 
   // Fetch user's existing predictions (only if authenticated)
@@ -111,12 +101,7 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
       clearError();
       const existingId = allExistingPredictionIds[matchId];
 
-      const savedId = await savePrediction(
-        matchId,
-        prediction.predictedScore1,
-        prediction.predictedScore2,
-        existingId,
-      );
+      const savedId = await savePrediction(matchId, prediction.predictedScore1, prediction.predictedScore2, existingId);
 
       if (savedId) {
         // Store the new prediction ID for updates
