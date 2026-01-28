@@ -26,6 +26,7 @@ export * from './mutations/UpdatePlayer.generated';
 export * from './mutations/UpdatePrediction.generated';
 export * from './mutations/UpdateTeam.generated';
 export * from './queries/GetLeaderboard.generated';
+export * from './queries/GetMe.generated';
 export * from './queries/GetNews.generated';
 export * from './queries/GetNewsById.generated';
 export * from './queries/GetPlayerById.generated';

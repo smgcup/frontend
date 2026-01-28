@@ -7,9 +7,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import logoPng from '@/public/favicon.png';
 import { Button } from '../ui/';
-import { ArrowLeft, Menu, X, Trophy, Home, ListChecks } from 'lucide-react';
+import { ArrowLeft, Menu, X, Trophy, Home, ListChecks, User } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 type GamemodeConfig = {
   name: string;
@@ -40,18 +41,23 @@ const gamemodeConfigs: Record<string, GamemodeConfig> = {
   },
 };
 
-const themeClasses: Record<GamemodeConfig['theme'], { bg: string; text: string; border: string; hover: string }> = {
+const themeClasses: Record<
+  GamemodeConfig['theme'],
+  { bg: string; text: string; border: string; hover: string; bgLight: string }
+> = {
   orange: {
     bg: 'bg-orange-500',
     text: 'text-orange-400',
     border: 'border-orange-500/20',
     hover: 'hover:bg-orange-500/10',
+    bgLight: 'bg-orange-500/10',
   },
   emerald: {
     bg: 'bg-emerald-500',
     text: 'text-emerald-500',
     border: 'border-emerald-500/20',
     hover: 'hover:bg-emerald-500/10',
+    bgLight: 'bg-emerald-500/10',
   },
 };
 
@@ -62,6 +68,7 @@ type GamemodeNavbarProps = {
 const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { isAuthenticated, user, isLoading } = useAuth();
 
   const config = gamemodeConfigs[gamemode];
   const theme = themeClasses[config.theme];
@@ -117,9 +124,20 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
           </div>
 
           <div className="flex items-center justify-end gap-2">
-            <Button asChild size="sm" className={cn(theme.bg, 'hover:opacity-90 text-white border-0')}>
-              <Link href="/login">Login to Play</Link>
-            </Button>
+            {isLoading ? (
+              <div className={cn('h-9 w-24 rounded-lg animate-pulse', theme.bg, 'opacity-50')} />
+            ) : isAuthenticated && user ? (
+              <div className={cn('flex items-center gap-2 px-4 py-2 rounded-lg border', theme.bgLight, theme.border)}>
+                <User className={cn('h-4 w-4', theme.text)} />
+                <span className={cn('text-sm font-medium', theme.text)}>
+                  {user.username || user.email?.split('@')[0] || 'User'}
+                </span>
+              </div>
+            ) : (
+              <Button asChild size="sm" className={cn(theme.bg, 'hover:opacity-90 text-white border-0')}>
+                <Link href="/login">Login to Play</Link>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -181,9 +199,22 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
                 </Link>
               ))}
               <div className="pt-2 mt-2 border-t">
-                <Button asChild size="sm" className={cn('w-full', theme.bg, 'hover:opacity-90 text-white border-0')}>
-                  <Link href="/login">Login to Play</Link>
-                </Button>
+                {isLoading ? (
+                  <div className={cn('h-9 w-full rounded-lg animate-pulse', theme.bg, 'opacity-50')} />
+                ) : isAuthenticated && user ? (
+                  <div
+                    className={cn('flex items-center gap-2 px-4 py-3 rounded-lg border', theme.bgLight, theme.border)}
+                  >
+                    <User className={cn('h-4 w-4', theme.text)} />
+                    <span className={cn('text-sm font-medium', theme.text)}>
+                      {user.username || user.email?.split('@')[0] || 'User'}
+                    </span>
+                  </div>
+                ) : (
+                  <Button asChild size="sm" className={cn('w-full', theme.bg, 'hover:opacity-90 text-white border-0')}>
+                    <Link href="/login">Login to Play</Link>
+                  </Button>
+                )}
               </div>
             </nav>
           </div>

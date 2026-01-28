@@ -11,7 +11,7 @@ import {
 } from '@/graphql';
 import { setCookie } from '@/lib/cookies';
 import { AUTH_COOKIE_NAME } from '@/lib/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { getTranslationCodeMessage } from '@/errors/getTranslationCode';
 
@@ -25,6 +25,8 @@ export const useAuthView = () => {
     lastName: '',
   });
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/inbox';
 
   const [loginUserMutation, { loading: loginUserLoading, error: loginUserError }] = useMutation<
     LoginUserMutation,
@@ -33,7 +35,7 @@ export const useAuthView = () => {
     onCompleted: (data) => {
       if (data.login?.accessToken) {
         setCookie(AUTH_COOKIE_NAME, data.login.accessToken, 7);
-        router.push('/inbox');
+        router.push(redirectTo);
       }
     },
   });
@@ -45,7 +47,7 @@ export const useAuthView = () => {
     onCompleted: (data) => {
       if (data.register?.accessToken) {
         setCookie(AUTH_COOKIE_NAME, data.register.accessToken, 7);
-        router.push('/inbox');
+        router.push(redirectTo);
       }
     },
   });
