@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { LeaderboardEntry } from '../contracts';
-import { getDisplayName } from '../utils/getDisplayName';
+import { getUserDisplayName } from '../utils/getUserDisplayName';
 
 const STATS = [
   { key: 'pts', short: 'Pts', full: 'Total Points' },
@@ -38,9 +38,7 @@ function StatHeader({ short, full }: { short: string; full: string }) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center" className="min-w-max px-3 py-2">
-            <DropdownMenuLabel className="text-sm font-normal text-foreground">
-              {full}
-            </DropdownMenuLabel>
+            <DropdownMenuLabel className="text-sm font-normal text-foreground">{full}</DropdownMenuLabel>
           </DropdownMenuContent>
         </DropdownMenu>
       </span>
@@ -63,12 +61,8 @@ const PredictorLeaderboardTable = ({ leaderboard }: PredictorLeaderboardTablePro
         <table className="w-full">
           <thead>
             <tr className="border-b border-orange-500/20">
-              <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">
-                Pos
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
-                Player
-              </th>
+              <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">Pos</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">Player</th>
               {STATS.map(({ key, short, full }) => (
                 <StatHeader key={key} short={short} full={full} />
               ))}
@@ -82,21 +76,16 @@ const PredictorLeaderboardTable = ({ leaderboard }: PredictorLeaderboardTablePro
               return (
                 <tr
                   key={player.id}
-                  className={cn(
-                    'border-b transition-colors hover:bg-orange-500/5',
-                    isTop3 && 'bg-orange-500/5',
-                  )}
+                  className={cn('border-b transition-colors hover:bg-orange-500/5', isTop3 && 'bg-orange-500/5')}
                 >
                   <td className="px-3 py-4 text-center">
                     <PositionBadge position={position} />
                   </td>
                   <td className="px-4 py-4">
-                    <p className="font-semibold">{getDisplayName(player.user)}</p>
+                    <p className="font-semibold">{getUserDisplayName(player.user)}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-bold text-orange-600 dark:text-orange-400">
-                      {player.totalPoints}
-                    </p>
+                    <p className="font-bold text-orange-600 dark:text-orange-400">{player.totalPoints}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
                     <p className="font-medium">{player.exactMatchesCount}</p>

@@ -2,7 +2,7 @@ import { Trophy, AlertCircle } from 'lucide-react';
 import { getLeaderboardPageData } from '@/domains/predictor/ssr/getLeaderboardPageData';
 import { BackButton } from '@/components/BackButton';
 import PredictorLeaderboardTable from '@/domains/predictor/components/PredictorLeaderboardTable';
-import { getDisplayName } from '@/domains/predictor/utils/getDisplayName';
+import { getUserDisplayName } from '@/domains/predictor/utils/getUserDisplayName';
 
 const LeaderboardPage = async () => {
   const { leaderboard, error } = await getLeaderboardPageData();
@@ -76,9 +76,7 @@ const LeaderboardPage = async () => {
         <BackButton />
         <div className="container mx-auto max-w-7xl">
           <div className="mb-12 text-center">
-            <h2 className="text-2xl font-bold text-orange-600 dark:text-orange-400 sm:text-3xl">
-              Top predictors
-            </h2>
+            <h2 className="text-2xl font-bold text-orange-600 dark:text-orange-400 sm:text-3xl">Top predictors</h2>
             <p className="mt-2 text-muted-foreground">Points, accuracy, and prediction stats</p>
           </div>
 
@@ -91,7 +89,7 @@ const LeaderboardPage = async () => {
                     <span className="text-lg sm:text-2xl font-bold">2</span>
                   </div>
                   <div className="bg-gray-100 dark:bg-gray-800 rounded-t-lg w-20 h-16 sm:w-28 sm:h-24 flex flex-col items-center justify-center">
-                    <p className="font-semibold text-xs sm:text-sm">{getDisplayName(leaderboard[1].user)}</p>
+                    <p className="font-semibold text-xs sm:text-sm">{getUserDisplayName(leaderboard[1].user)}</p>
                     <p className="text-xs text-muted-foreground">{leaderboard[1].totalPoints} pts</p>
                   </div>
                 </div>
@@ -102,7 +100,7 @@ const LeaderboardPage = async () => {
                   <Trophy className="h-6 w-6 sm:h-10 sm:w-10 text-yellow-500" />
                 </div>
                 <div className="bg-linear-to-b from-yellow-100 to-yellow-50 dark:from-yellow-900/30 dark:to-yellow-900/10 rounded-t-lg w-24 h-24 sm:w-32 sm:h-32 flex flex-col items-center justify-center border-t-2 sm:border-t-4 border-yellow-500">
-                  <p className="font-bold text-sm sm:text-lg">{getDisplayName(leaderboard[0].user)}</p>
+                  <p className="font-bold text-sm sm:text-lg">{getUserDisplayName(leaderboard[0].user)}</p>
                   <p className="text-orange-600 dark:text-orange-400 font-semibold text-xs sm:text-sm">
                     {leaderboard[0].totalPoints} pts
                   </p>
@@ -115,7 +113,7 @@ const LeaderboardPage = async () => {
                     <span className="text-lg sm:text-2xl font-bold text-amber-700 dark:text-amber-500">3</span>
                   </div>
                   <div className="bg-amber-50 dark:bg-amber-900/20 rounded-t-lg w-20 h-14 sm:w-28 sm:h-20 flex flex-col items-center justify-center">
-                    <p className="font-semibold text-xs sm:text-sm">{getDisplayName(leaderboard[2].user)}</p>
+                    <p className="font-semibold text-xs sm:text-sm">{getUserDisplayName(leaderboard[2].user)}</p>
                     <p className="text-xs text-muted-foreground">{leaderboard[2].totalPoints} pts</p>
                   </div>
                 </div>
