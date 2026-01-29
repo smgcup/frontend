@@ -1,7 +1,8 @@
 'use client';
 
-import { Calendar, Clock, Minus, Plus, Check } from 'lucide-react';
+import { Calendar, Clock, Minus, Plus, Check, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { predictorTheme } from '@/lib/gamemodeThemes';
 import type { Match } from '@/domains/matches/contracts';
 import type { ScorePrediction } from '@/domains/predictor/contracts';
 import { Button } from '@/components/ui/button';
@@ -9,16 +10,31 @@ import { Button } from '@/components/ui/button';
 type PredictionCardProps = {
   match: Match;
   prediction: ScorePrediction | null;
+  savedPrediction?: ScorePrediction | null;
+  existingPredictionId?: string;
   onPredictionChange: (prediction: ScorePrediction) => void;
+  onSave?: () => Promise<void>;
+  isSaving?: boolean;
+  error?: string | null;
+  isAuthenticated?: boolean;
 };
 
-const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCardProps) => {
-  //TODO: Extract to a helper function in the utils folder
+const PredictionCard = ({
+  match,
+  prediction,
+  savedPrediction,
+  existingPredictionId,
+  onPredictionChange,
+  onSave,
+  isSaving,
+  error,
+  isAuthenticated,
+}: PredictionCardProps) => {
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) {
       return '-';
     }
-    new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('en-US', {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
@@ -29,53 +45,97 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
     if (!dateString) {
       return '-';
     }
-    new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('en-US', {
       hour: '2-digit',
       minute: '2-digit',
     }).format(new Date(dateString));
   };
 
-  const homeScore = prediction?.homeScore ?? 0;
-  const awayScore = prediction?.awayScore ?? 0;
+  const predictedScore1 = prediction?.predictedScore1 ?? 0;
+  const predictedScore2 = prediction?.predictedScore2 ?? 0;
   const hasPrediction = prediction !== null;
 
+  // Check if prediction has changed from saved values
+  const hasChanges =
+    hasPrediction &&
+    (!savedPrediction ||
+      prediction.predictedScore1 !== savedPrediction.predictedScore1 ||
+      prediction.predictedScore2 !== savedPrediction.predictedScore2);
+
   const updateScore = (team: 'home' | 'away', delta: number) => {
-    const currentHome = prediction?.homeScore ?? 0;
-    const currentAway = prediction?.awayScore ?? 0;
+    const currentScore1 = prediction?.predictedScore1 ?? 0;
+    const currentScore2 = prediction?.predictedScore2 ?? 0;
 
     if (team === 'home') {
-      const newScore = Math.max(0, Math.min(20, currentHome + delta));
-      onPredictionChange({ homeScore: newScore, awayScore: currentAway });
+      const newScore = Math.max(0, Math.min(20, currentScore1 + delta));
+      onPredictionChange({ predictedScore1: newScore, predictedScore2: currentScore2 });
     } else {
-      const newScore = Math.max(0, Math.min(20, currentAway + delta));
-      onPredictionChange({ homeScore: currentHome, awayScore: newScore });
+      const newScore = Math.max(0, Math.min(20, currentScore2 + delta));
+      onPredictionChange({ predictedScore1: currentScore1, predictedScore2: newScore });
     }
   };
 
   const getOutcomeLabel = () => {
     if (!hasPrediction) return null;
-    if (homeScore > awayScore) return { text: `${match.firstOpponent.name} wins`, color: 'text-orange-500' };
-    if (awayScore > homeScore) return { text: `${match.secondOpponent.name} wins`, color: 'text-orange-500' };
+    if (predictedScore1 > predictedScore2)
+      return { text: `${match.firstOpponent.name} wins`, color: predictorTheme.text };
+    if (predictedScore2 > predictedScore1)
+      return { text: `${match.secondOpponent.name} wins`, color: predictorTheme.text };
     return { text: 'Draw', color: 'text-muted-foreground' };
   };
 
   const outcome = getOutcomeLabel();
 
+  const handleSave = async () => {
+    if (onSave) {
+      await onSave();
+      // TODO: Add toast notification for successful save
+    }
+  };
+
+  const getButtonText = () => {
+    if (isSaving) {
+      return (
+        <span className="flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Saving...
+        </span>
+      );
+    }
+    if (existingPredictionId && hasChanges) {
+      return (
+        <span className="flex items-center gap-2">
+          <Check className="h-4 w-4" />
+          Update Prediction
+        </span>
+      );
+    }
+    return (
+      <span className="flex items-center gap-2">
+        <Check className="h-4 w-4" />
+        Save Prediction
+      </span>
+    );
+  };
+
+  const canSave = hasChanges && onSave && !isSaving;
+  const showLoginHint = hasPrediction && !isAuthenticated && !onSave;
+
   return (
-    <div className="group relative overflow-hidden rounded-xl border bg-card transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10">
-      {/* Orange accent line at top */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-orange-400 via-orange-500 to-amber-500" />
+    <div className={cn('group relative overflow-hidden rounded-xl border bg-card transition-all duration-300 hover:shadow-lg', predictorTheme.shadow)}>
+      {/* Accent line at top */}
+      <div className={cn('absolute top-0 left-0 right-0 h-1', predictorTheme.gradientLine)} />
 
       <div className="p-5 pt-6">
         {/* Date and Time */}
         <div className="flex items-center justify-center gap-4 mb-6 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <Calendar className="h-4 w-4 text-orange-500/70" />
+            <Calendar className={cn('h-4 w-4', predictorTheme.iconMuted)} />
             <span>{formatDate(match.date)}</span>
           </div>
           <span className="text-muted-foreground/30">|</span>
           <div className="flex items-center gap-1.5">
-            <Clock className="h-4 w-4 text-orange-500/70" />
+            <Clock className={cn('h-4 w-4', predictorTheme.iconMuted)} />
             <span>{formatTime(match.date)}</span>
           </div>
         </div>
@@ -86,8 +146,8 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
           <div className="flex-1 text-center">
             <div
               className={cn(
-                'font-bold text-base leading-tight transition-colors',
-                hasPrediction && homeScore > awayScore && 'text-orange-500',
+                'font-bold text-2xl leading-tight transition-colors',
+                hasPrediction && predictedScore1 > predictedScore2 && predictorTheme.scoreWinner,
               )}
             >
               {match.firstOpponent.name}
@@ -99,7 +159,8 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
             <button
               type="button"
               onClick={() => updateScore('home', 1)}
-              className="p-1.5 rounded-lg bg-muted hover:bg-orange-500/20 hover:text-orange-500 transition-colors"
+              disabled={isSaving}
+              className={cn('p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed', predictorTheme.hoverBg, predictorTheme.hoverText)}
               aria-label="Increase home score"
             >
               <Plus className="h-4 w-4" />
@@ -107,18 +168,18 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
             <div
               className={cn(
                 'w-12 h-12 flex items-center justify-center rounded-xl text-2xl font-bold transition-all',
-                hasPrediction && homeScore > awayScore
-                  ? 'bg-orange-500 text-white'
+                hasPrediction && predictedScore1 > predictedScore2
+                  ? cn(predictorTheme.bg, 'text-white')
                   : 'bg-muted/50 border-2 border-border',
               )}
             >
-              {homeScore}
+              {predictedScore1}
             </div>
             <button
               type="button"
               onClick={() => updateScore('home', -1)}
-              className="p-1.5 rounded-lg bg-muted hover:bg-orange-500/20 hover:text-orange-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              disabled={homeScore <= 0}
+              disabled={isSaving || predictedScore1 <= 0}
+              className={cn('p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed', predictorTheme.hoverBg, predictorTheme.hoverText)}
               aria-label="Decrease home score"
             >
               <Minus className="h-4 w-4" />
@@ -127,7 +188,7 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
 
           {/* VS Divider */}
           <div className="px-2">
-            <span className="text-sm font-semibold text-muted-foreground">VS</span>
+            <span className="text-lg font-semibold text-muted-foreground">VS</span>
           </div>
 
           {/* Away Score Control */}
@@ -135,7 +196,8 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
             <button
               type="button"
               onClick={() => updateScore('away', 1)}
-              className="p-1.5 rounded-lg bg-muted hover:bg-orange-500/20 hover:text-orange-500 transition-colors"
+              disabled={isSaving}
+              className={cn('p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed', predictorTheme.hoverBg, predictorTheme.hoverText)}
               aria-label="Increase away score"
             >
               <Plus className="h-4 w-4" />
@@ -143,18 +205,18 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
             <div
               className={cn(
                 'w-12 h-12 flex items-center justify-center rounded-xl text-2xl font-bold transition-all',
-                hasPrediction && awayScore > homeScore
-                  ? 'bg-orange-500 text-white'
+                hasPrediction && predictedScore2 > predictedScore1
+                  ? cn(predictorTheme.bg, 'text-white')
                   : 'bg-muted/50 border-2 border-border',
               )}
             >
-              {awayScore}
+              {predictedScore2}
             </div>
             <button
               type="button"
               onClick={() => updateScore('away', -1)}
-              className="p-1.5 rounded-lg bg-muted hover:bg-orange-500/20 hover:text-orange-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              disabled={awayScore <= 0}
+              disabled={isSaving || predictedScore2 <= 0}
+              className={cn('p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed', predictorTheme.hoverBg, predictorTheme.hoverText)}
               aria-label="Decrease away score"
             >
               <Minus className="h-4 w-4" />
@@ -165,8 +227,8 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
           <div className="flex-1 text-center">
             <div
               className={cn(
-                'font-bold text-base leading-tight transition-colors',
-                hasPrediction && awayScore > homeScore && 'text-orange-500',
+                'font-bold text-2xl leading-tight transition-colors',
+                hasPrediction && predictedScore2 > predictedScore1 && predictorTheme.scoreWinner,
               )}
             >
               {match.secondOpponent.name}
@@ -186,22 +248,17 @@ const PredictionCard = ({ match, prediction, onPredictionChange }: PredictionCar
           <Button
             className={cn(
               'w-full transition-all',
-              hasPrediction
-                ? 'bg-orange-500 hover:bg-orange-600 text-white'
+              canSave
+                ? cn(predictorTheme.buttonPrimary, predictorTheme.buttonPrimaryHover)
                 : 'bg-muted text-muted-foreground cursor-not-allowed',
             )}
-            disabled={!hasPrediction}
+            disabled={!canSave}
+            onClick={handleSave}
           >
-            {hasPrediction ? (
-              <span className="flex items-center gap-2">
-                <Check className="h-4 w-4" />
-                Save Prediction
-              </span>
-            ) : (
-              'Set Your Score'
-            )}
+            {hasPrediction ? getButtonText() : 'Set Your Score'}
           </Button>
-          {hasPrediction && <p className="text-xs text-center text-muted-foreground mt-2">Login required to save</p>}
+          {showLoginHint && <p className="text-xs text-center text-muted-foreground mt-2">Login required to save</p>}
+          {error && <p className="text-sm text-center text-destructive mt-2">{error}</p>}
         </div>
       </div>
     </div>

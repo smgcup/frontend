@@ -125,7 +125,6 @@ export const usePlayerStandings = (): PlayersPageData => {
     return ALL_SORT_TYPES.map((sortType) => {
       const leaderboard = dataByType[sortType]?.playersLeaderboard;
       const categoryTitle = SORT_TYPE_TO_CATEGORY[sortType];
-      console.log(SORT_TYPE_TO_CATEGORY);
 
       const players: PlayerStanding[] =
         leaderboard?.players.map((player, index) => ({

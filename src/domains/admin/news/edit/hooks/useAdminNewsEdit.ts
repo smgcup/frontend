@@ -37,7 +37,7 @@ export const useAdminNewsEdit = (newsId: string) => {
       },
     });
 
-    if (data?.updateNews.id) {
+    if (data?.updateNews) {
       router.push('/admin/news');
     }
 

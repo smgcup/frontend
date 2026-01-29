@@ -13,7 +13,7 @@ import {
   NavigationMenuContent,
   NavigationMenuLink,
 } from '../ui/';
-import { User, Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 

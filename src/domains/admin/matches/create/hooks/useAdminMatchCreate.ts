@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { useRouter } from 'next/navigation';
 import { CreateMatchDocument, CreateMatchMutation, CreateMatchMutationVariables, MatchStatus } from '@/graphql';
+import { MatchLocation } from '@/generated/types';
 import { getTranslationCode } from '../../utils/getTranslationCode';
 
 export type AdminMatchCreateFormData = {
@@ -12,6 +13,7 @@ export type AdminMatchCreateFormData = {
   date: string;
   status: MatchStatus;
   round: number;
+  location?: MatchLocation | null;
 };
 
 export const useAdminMatchCreate = () => {
@@ -44,6 +46,7 @@ export const useAdminMatchCreate = () => {
             date: d?.toISOString() ?? null,
             status: data.status,
             round: data.round,
+            location: data.location ?? null,
           },
         },
       });

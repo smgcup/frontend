@@ -1,37 +1,128 @@
 'use client';
 
-import { useState } from 'react';
-import { Trophy, Target, Zap, Clock, Star } from 'lucide-react';
+import { useState, useCallback, useMemo } from 'react';
+import { useQuery } from '@apollo/client/react';
+import { Trophy, Clock } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { predictorTheme } from '@/lib/gamemodeThemes';
 import type { Match } from '@/domains/matches/contracts';
 import type { ScorePrediction } from '@/domains/predictor/contracts';
-import { MatchStatus } from '@/graphql';
+import { MatchStatus, MyPredictionsDocument, type MyPredictionsQuery } from '@/graphql';
+import { useAuth } from '@/contexts/AuthContext';
+import { usePrediction } from './hooks/usePrediction';
 import PredictionCard from './components/PredictionCard';
+import ScoreRulesDialog from './components/ScoreRulesDialog';
 
 type PredictorViewUiProps = {
   matches: Match[];
 };
 
+type ExistingPrediction = {
+  id: string;
+  matchId: string;
+  predictedScore1: number;
+  predictedScore2: number;
+};
+
 const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
-  const [predictions, setPredictions] = useState<Record<string, ScorePrediction>>({});
+  const [localPredictions, setLocalPredictions] = useState<Record<string, ScorePrediction>>({});
+  const [savedPredictionIds, setSavedPredictionIds] = useState<Record<string, string>>({});
+  const [scoreRulesOpen, setScoreRulesOpen] = useState(false);
+  const [matchErrors, setMatchErrors] = useState<Record<string, string | null>>({});
+
+  const { isAuthenticated } = useAuth();
+  const { savePrediction, submittingMatchId, errorMessage, clearError } = usePrediction();
+
+  // Fetch user's existing predictions (only if authenticated)
+  const { data: myPredictionsData } = useQuery<MyPredictionsQuery>(MyPredictionsDocument, {
+    skip: !isAuthenticated,
+    fetchPolicy: 'cache-and-network',
+  });
+
+  // Derive existing predictions from query data
+  const existingPredictions = useMemo<Record<string, ExistingPrediction>>(() => {
+    if (!myPredictionsData?.myPredictions) return {};
+
+    const result: Record<string, ExistingPrediction> = {};
+    myPredictionsData.myPredictions.forEach((pred) => {
+      result[pred.match.id] = {
+        id: pred.id,
+        matchId: pred.match.id,
+        predictedScore1: pred.predictedScore1 ?? 0,
+        predictedScore2: pred.predictedScore2 ?? 0,
+      };
+    });
+    return result;
+  }, [myPredictionsData]);
+
+  // Derive score predictions from server data
+  const serverPredictions = useMemo<Record<string, ScorePrediction>>(() => {
+    if (!myPredictionsData?.myPredictions) return {};
+
+    const result: Record<string, ScorePrediction> = {};
+    myPredictionsData.myPredictions.forEach((pred) => {
+      result[pred.match.id] = {
+        predictedScore1: pred.predictedScore1 ?? 0,
+        predictedScore2: pred.predictedScore2 ?? 0,
+      };
+    });
+    return result;
+  }, [myPredictionsData]);
+
+  // Merge server and local predictions (local takes precedence for edited values)
+  const predictions = useMemo(() => {
+    return { ...serverPredictions, ...localPredictions };
+  }, [serverPredictions, localPredictions]);
+
+  // Merge server IDs with newly saved IDs
+  const allExistingPredictionIds = useMemo(() => {
+    const serverIds: Record<string, string> = {};
+    Object.entries(existingPredictions).forEach(([matchId, pred]) => {
+      serverIds[matchId] = pred.id;
+    });
+    return { ...serverIds, ...savedPredictionIds };
+  }, [existingPredictions, savedPredictionIds]);
 
   // Filter to only show scheduled matches that can be predicted
   const predictableMatches = matches.filter((match) => match.status === MatchStatus.Scheduled);
 
-  const handlePredictionChange = (matchId: string, prediction: ScorePrediction) => {
-    setPredictions((prev) => ({
+  const handlePredictionChange = useCallback((matchId: string, prediction: ScorePrediction) => {
+    setLocalPredictions((prev) => ({
       ...prev,
       [matchId]: prediction,
     }));
-  };
+    // Clear any error for this match when prediction changes
+    setMatchErrors((prev) => ({ ...prev, [matchId]: null }));
+  }, []);
 
+  const handleSave = useCallback(
+    async (matchId: string) => {
+      const prediction = predictions[matchId];
+      if (!prediction) return;
+
+      clearError();
+      const existingId = allExistingPredictionIds[matchId];
+
+      const savedId = await savePrediction(matchId, prediction.predictedScore1, prediction.predictedScore2, existingId);
+
+      if (savedId) {
+        // Store the new prediction ID for updates
+        setSavedPredictionIds((prev) => ({
+          ...prev,
+          [matchId]: savedId,
+        }));
+        // Clear error for this match on success
+        setMatchErrors((prev) => ({ ...prev, [matchId]: null }));
+      } else if (errorMessage) {
+        // Set error for this specific match
+        setMatchErrors((prev) => ({ ...prev, [matchId]: errorMessage }));
+      }
+    },
+    [predictions, allExistingPredictionIds, savePrediction, clearError, errorMessage],
+  );
+
+  // Count predictions (including existing ones from the server)
   const predictedCount = Object.keys(predictions).length;
-
-  const stats = [
-    { icon: <Target className="h-5 w-5" />, label: 'Exact Hits', value: '0' },
-    { icon: <Star className="h-5 w-5" />, label: 'Correct Outcome', value: '0' },
-    { icon: <Zap className="h-5 w-5" />, label: 'Total Points', value: '0' },
-    { icon: <Trophy className="h-5 w-5" />, label: 'Rank', value: '-' },
-  ];
 
   return (
     <div className="min-h-[calc(100vh-60px)]">
@@ -49,27 +140,13 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
           <div className="mt-6 flex justify-center">
             <button
               type="button"
+              onClick={() => setScoreRulesOpen(true)}
               className="inline-flex items-center gap-2 rounded-full bg-muted/50 backdrop-blur-sm px-6 py-2 border border-border text-sm font-medium transition hover:bg-muted/80"
             >
               View Score Rules
             </button>
           </div>
-
-          {/* Stats Row */}
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 rounded-xl bg-muted/50 backdrop-blur-sm px-5 py-3 border border-border"
-              >
-                <div className="text-muted-foreground">{stat.icon}</div>
-                <div>
-                  <div className="text-xs text-muted-foreground font-medium">{stat.label}</div>
-                  <div className="text-lg font-bold">{stat.value}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ScoreRulesDialog open={scoreRulesOpen} onOpenChange={setScoreRulesOpen} />
         </div>
       </div>
 
@@ -78,14 +155,14 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Clock className="h-5 w-5 text-orange-500" />
+              <Clock className={cn('h-5 w-5', predictorTheme.iconAccent)} />
               <h2 className="text-2xl font-bold">Upcoming Matches</h2>
             </div>
             <p className="text-muted-foreground">Predict the exact final score for each match before kickoff.</p>
           </div>
           {predictableMatches.length > 0 && (
             <div className="text-sm text-muted-foreground">
-              <span className="font-semibold text-orange-500">{predictedCount}</span> of{' '}
+              <span className={cn('font-semibold', predictorTheme.text)}>{predictedCount}</span> of{' '}
               <span className="font-semibold">{predictableMatches.length}</span> predicted
             </div>
           )}
@@ -104,7 +181,13 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
                 key={match.id}
                 match={match}
                 prediction={predictions[match.id] ?? null}
+                savedPrediction={serverPredictions[match.id] ?? null}
+                existingPredictionId={allExistingPredictionIds[match.id]}
                 onPredictionChange={(prediction) => handlePredictionChange(match.id, prediction)}
+                onSave={isAuthenticated ? () => handleSave(match.id) : undefined}
+                isSaving={submittingMatchId === match.id}
+                error={matchErrors[match.id]}
+                isAuthenticated={isAuthenticated}
               />
             ))}
           </div>

@@ -1,0 +1,27 @@
+mutation UpdatePrediction($id: String!, $input: UpdatePredictionDto!) {
+  updatePrediction(id: $id, input: $input) {
+    id
+    predictedScore1
+    predictedScore2
+    createdAt
+    updatedAt
+    pointsEarned
+    match {
+      id
+      date
+      status
+      score1
+      score2
+      round
+      location
+      firstOpponent {
+        id
+        name
+      }
+      secondOpponent {
+        id
+        name
+      }
+    }
+  }
+}

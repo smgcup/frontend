@@ -5,6 +5,8 @@ mutation UpdateMatch($id: String!, $dto: UpdateMatchDto!) {
     status
     score1
     score2
+    round
+    location
     firstOpponent {
       id
       name

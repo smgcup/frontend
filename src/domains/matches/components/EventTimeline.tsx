@@ -93,7 +93,40 @@ const getMarker = (type: MatchEventType) => {
 };
 
 const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEventId }: EventTimelineProps) => {
-  if (events.length === 0) {
+  // Filter saves for non-admin users: show only every 3rd save (3rd, 6th, 9th, etc.)
+  const isAdmin = Boolean(onDeleteEvent);
+  let filteredEvents = events;
+  
+  if (!isAdmin) {
+    // Get all saves in chronological order (ascending)
+    const saves = [...events]
+      .filter((e) => e.type === MatchEventType.GoalkeeperSave)
+      .sort((a, b) => {
+        const aTime = typeof a.minute === 'number' ? a.minute : 0;
+        const bTime = typeof b.minute === 'number' ? b.minute : 0;
+        if (aTime !== bTime) {
+          return aTime - bTime;
+        }
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      });
+
+    // Create a set of save IDs that should be shown (every 3rd save: 3rd, 6th, 9th, etc.)
+    const savesToShow = new Set<string>();
+    saves.forEach((save, index) => {
+      // index is 0-based, so index 2 is the 3rd save, index 5 is the 6th, etc.
+      if ((index + 1) % 3 === 0) {
+        savesToShow.add(save.id);
+      }
+    });
+
+    // Filter events: keep all non-save events, and only saves that are in the "every 3rd" set
+    filteredEvents = events.filter(
+      (event) => event.type !== MatchEventType.GoalkeeperSave || savesToShow.has(event.id)
+    );
+  }
+
+  // Check for empty events after filtering
+  if (filteredEvents.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <Clock className="h-12 w-12 text-muted-foreground/50 mb-4" />
@@ -106,7 +139,7 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
   }
 
   // Sort events chronologically (ascending) to determine half-time event order
-  const chronologicalHalfTimes = [...events]
+  const chronologicalHalfTimes = [...filteredEvents]
     .filter((e) => e.type === MatchEventType.HalfTime)
     .sort((a, b) => {
       const aTime = typeof a.minute === 'number' ? a.minute : 0;
@@ -123,7 +156,7 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
     halfTimeIndexMap.set(event.id, index);
   });
 
-  const sorted = [...events].sort((a, b) => {
+  const sorted = [...filteredEvents].sort((a, b) => {
     const aTime = typeof a.minute === 'number' ? a.minute : 0;
     const bTime = typeof b.minute === 'number' ? b.minute : 0;
     // Sort by minute descending (newest first)

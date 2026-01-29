@@ -5,6 +5,8 @@ mutation CreateMatch($dto: CreateMatchDto!) {
     status
     score1
     score2
+    round
+    location
     firstOpponent {
       id
       name

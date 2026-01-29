@@ -2,16 +2,7 @@ import PredictorView from '@/domains/predictor/PredictorView';
 import { getPredictorPageData } from '@/domains/predictor/ssr/getPredictorPageData';
 
 const PredictorPage = async () => {
-  let matches;
-  let error;
-
-  try {
-    const result = await getPredictorPageData();
-    matches = result.matches;
-    error = result.error;
-  } catch (err) {
-    error = err;
-  }
+  const { matches, error } = await getPredictorPageData();
 
   if (error) {
     return (
