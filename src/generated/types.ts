@@ -50,7 +50,7 @@ export type CreateMatchEventDto = {
 export type CreateNewsDto = {
   category: Scalars['String']['input'];
   content: Scalars['String']['input'];
-  imageUrl: Scalars['String']['input'];
+  image: ImageUploadInput;
   title: Scalars['String']['input'];
 };
 
@@ -69,6 +69,11 @@ export type CreatePlayerDto = {
 
 export type CreateTeamDto = {
   name: Scalars['String']['input'];
+};
+
+export type ImageUploadInput = {
+  fileBase64: Scalars['String']['input'];
+  mimeType: Scalars['String']['input'];
 };
 
 export enum LeaderboardSortType {
@@ -152,7 +157,7 @@ export type Mutation = {
   register: AuthResponse;
   startMatch: Match;
   updateMatch: Match;
-  updateNews: News;
+  updateNews: Scalars['Boolean']['output'];
   updatePlayer: Player;
   updateTeam: Team;
   uploadFile: UploadResponse;
@@ -399,7 +404,7 @@ export type UpdateMatchDto = {
 export type UpdateNewsDto = {
   category?: InputMaybe<Scalars['String']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
-  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  image?: InputMaybe<ImageUploadInput>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -408,17 +413,12 @@ export type UpdatePlayerDto = {
   dateOfBirth?: InputMaybe<Scalars['Date']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   height?: InputMaybe<Scalars['Float']['input']>;
-  image?: InputMaybe<UpdatePlayerImageDto>;
+  image?: InputMaybe<ImageUploadInput>;
   lastName?: InputMaybe<Scalars['String']['input']>;
   position?: InputMaybe<PlayerPosition>;
   preferredFoot?: InputMaybe<PreferredFoot>;
   teamId?: InputMaybe<Scalars['String']['input']>;
   weight?: InputMaybe<Scalars['Float']['input']>;
-};
-
-export type UpdatePlayerImageDto = {
-  fileBase64: Scalars['String']['input'];
-  mimeType: Scalars['String']['input'];
 };
 
 export type UpdateTeamDto = {
@@ -449,3 +449,19 @@ export type User = {
   password: Scalars['String']['output'];
   username: Scalars['String']['output'];
 };
+
+
+export enum Queries {
+  __typename = '__typename',
+  health = 'health',
+  matchById = 'matchById',
+  matchEvents = 'matchEvents',
+  matches = 'matches',
+  news = 'news',
+  newsById = 'newsById',
+  playerById = 'playerById',
+  playersLeaderboard = 'playersLeaderboard',
+  teamById = 'teamById',
+  teams = 'teams',
+  user = 'user',
+}
