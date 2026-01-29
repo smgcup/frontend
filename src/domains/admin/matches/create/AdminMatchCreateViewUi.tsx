@@ -11,6 +11,7 @@ import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import { MatchStatus } from '@/graphql';
 import { MatchLocation } from '@/generated/types';
 import { Team } from '@/domains/team/contracts';
+import { formatLocation } from '../utils/formatLocation';
 
 type AdminMatchCreateViewUiProps = {
   teams: Team[];
@@ -42,7 +43,7 @@ const AdminMatchCreateViewUi = ({
     date: '',
     status: MatchStatus.Scheduled,
     round: 1,
-    location: null as MatchLocation | null,
+    location: null,
   });
 
   // Local (client-side) validation errors. External errors come from the server via props.
@@ -53,7 +54,7 @@ const AdminMatchCreateViewUi = ({
   const getError = (field: string): string => {
     return Object.prototype.hasOwnProperty.call(localErrors, field)
       ? localErrors[field]
-      : externalErrors?.[field] ?? '';
+      : (externalErrors?.[field] ?? '');
   };
 
   const errors = {
@@ -304,7 +305,7 @@ const AdminMatchCreateViewUi = ({
                       <SelectItem value="__NONE__">No location</SelectItem>
                       {Object.values(MatchLocation).map((location) => (
                         <SelectItem key={location} value={location}>
-                          {location === MatchLocation.SmgArena ? 'SMG Arena' : 'CK Green Sport'}
+                          {formatLocation(location)}
                         </SelectItem>
                       ))}
                     </SelectContent>

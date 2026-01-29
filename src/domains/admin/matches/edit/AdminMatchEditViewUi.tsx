@@ -14,6 +14,7 @@ import { MatchStatus } from '@/graphql';
 import { MatchLocation } from '@/generated/types';
 import { type AdminMatchEditFormData } from './hooks/useAdminMatchEdit';
 import { Match } from '@/domains/matches/contracts';
+import { formatLocation } from '../utils/formatLocation';
 
 /**
  * Props for the AdminMatchEditViewUi component.
@@ -309,7 +310,7 @@ const AdminMatchEditViewUi = ({
                       <SelectItem value="__NONE__">No location</SelectItem>
                       {Object.values(MatchLocation).map((location) => (
                         <SelectItem key={location} value={location}>
-                          {location === MatchLocation.SmgArena ? 'SMG Arena' : 'CK Green Sport'}
+                          {formatLocation(location)}
                         </SelectItem>
                       ))}
                     </SelectContent>
