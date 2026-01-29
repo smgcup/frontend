@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import type { DeletePlayerMutation, DeletePlayerMutationVariables } from '@/graphql';
 import { DeletePlayerDocument } from '@/graphql';
@@ -8,14 +8,6 @@ import type { Team } from '@/domains/team/contracts';
 import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
 
 export const useAdminPlayersList = (teams: Team[]) => {
-  // SSR: hydrate the list with server-fetched data
-  const [teamsState, setTeamsState] = useState<Team[]>(teams);
-
-  // Keep state in sync if the server-provided teams ever change (navigation / re-render).
-  useEffect(() => {
-    setTeamsState(teams);
-  }, [teams]);
-
   // Convenience: many list UIs want a flat list, but the SSR payload is grouped by team.
   const players = useMemo(() => teams.flatMap((t) => t?.players ?? []), [teams]);
 
@@ -30,14 +22,6 @@ export const useAdminPlayersList = (teams: Team[]) => {
     setDeletingPlayerId(id);
     try {
       await deletePlayerMutation({ variables: { id } });
-      // We don't refetch the whole list here: the page is SSR-hydrated and we want the UI to
-      // reflect the change immediately without a second network roundtrip.
-      setTeamsState((prev) =>
-        prev.map((team) => ({
-          ...team,
-          players: team.players?.filter((p) => p.id !== id),
-        })),
-      );
     } catch (e) {
       setActionError(getErrorMessage(e));
     } finally {
