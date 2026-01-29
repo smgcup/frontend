@@ -1,7 +1,6 @@
+import { AUTH_COOKIE_NAME } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-
-const AUTH_COOKIE_NAME = 'auth_token';
 
 // Routes that require authentication
 const PROTECTED_ROUTES = ['/games/predictor/my-predictions'];
@@ -14,9 +13,7 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
 
   // Redirect logged-in users away from auth pages
-  const isAuthRoute = AUTH_ROUTES.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
-  );
+  const isAuthRoute = AUTH_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
 
   if (isAuthRoute && token) {
     // Redirect to home page if already logged in
@@ -24,9 +21,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Check if the current path matches any protected route
-  const isProtectedRoute = PROTECTED_ROUTES.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
-  );
+  const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
 
   if (isProtectedRoute) {
     if (!token) {
