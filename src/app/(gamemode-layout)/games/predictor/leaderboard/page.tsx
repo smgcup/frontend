@@ -3,6 +3,8 @@ import { getLeaderboardPageData } from '@/domains/predictor/ssr/getLeaderboardPa
 import { BackButton } from '@/components/BackButton';
 import PredictorLeaderboardTable from '@/domains/predictor/components/PredictorLeaderboardTable';
 import { getUserDisplayName } from '@/domains/predictor/utils/getUserDisplayName';
+import { predictorTheme } from '@/lib/gamemodeThemes';
+import { cn } from '@/lib/utils';
 
 const LeaderboardPage = async () => {
   const { leaderboard, error } = await getLeaderboardPageData();
@@ -60,7 +62,7 @@ const LeaderboardPage = async () => {
   return (
     <div className="min-h-[calc(100vh-60px)]">
       {/* Header - orange predictor theme */}
-      <div className="relative overflow-hidden bg-linear-to-b from-orange-500/10 via-background to-orange-500/5">
+      <div className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
         <div className="relative container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">Leaderboard</h1>
@@ -76,7 +78,7 @@ const LeaderboardPage = async () => {
         <BackButton />
         <div className="container mx-auto max-w-7xl">
           <div className="mb-12 text-center">
-            <h2 className="text-2xl font-bold text-orange-600 dark:text-orange-400 sm:text-3xl">Top predictors</h2>
+            <h2 className={cn('text-2xl sm:text-3xl font-bold', predictorTheme.text)}>Top predictors</h2>
             <p className="mt-2 text-muted-foreground">Points, accuracy, and prediction stats</p>
           </div>
 

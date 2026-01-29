@@ -4,6 +4,8 @@ import { MatchStatus } from '@/graphql';
 import { getMyPredictionsPageData } from '@/domains/predictor/ssr/getMyPredictionsPageData';
 import PredictionResultCard from '@/domains/predictor/components/PredictionResultCard';
 import { Button } from '@/components/ui/button';
+import { predictorTheme } from '@/lib/gamemodeThemes';
+import { cn } from '@/lib/utils';
 
 const MyPredictionsPage = async () => {
   const { predictions, stats, error, isAuthError } = await getMyPredictionsPageData();
@@ -126,7 +128,7 @@ const MyPredictionsPage = async () => {
         {upcomingPredictions.length > 0 && (
           <div className="mb-12">
             <div className="flex items-center gap-3 mb-6">
-              <Clock className="h-5 w-5 text-orange-500" />
+              <Clock className={cn('h-5 w-5', predictorTheme.iconAccent)} />
               <h2 className="text-2xl font-bold">Upcoming Predictions</h2>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -141,7 +143,7 @@ const MyPredictionsPage = async () => {
         {pastPredictions.length > 0 && (
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <Trophy className="h-5 w-5 text-orange-500" />
+              <Trophy className={cn('h-5 w-5', predictorTheme.iconAccent)} />
               <h2 className="text-2xl font-bold">Past Predictions</h2>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">

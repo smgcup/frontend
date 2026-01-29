@@ -1,3 +1,5 @@
+import { predictorTheme } from '@/lib/gamemodeThemes';
+import { cn } from '@/lib/utils';
 import { Clock } from 'lucide-react';
 
 const PredictorLoading = () => {
@@ -31,7 +33,7 @@ const PredictorLoading = () => {
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Clock className="h-5 w-5 text-orange-500" />
+              <Clock className={cn('h-5 w-5', predictorTheme.iconAccent)} />
               <h2 className="text-2xl font-bold">Upcoming Matches</h2>
             </div>
             <p className="text-muted-foreground">Predict the exact final score for each match before kickoff.</p>
