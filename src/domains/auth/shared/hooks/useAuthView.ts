@@ -11,7 +11,7 @@ import {
 } from '@/graphql';
 import { setCookie } from '@/lib/cookies';
 import { AUTH_COOKIE_NAME } from '@/lib/auth';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { getTranslationCodeMessage } from '@/errors/getTranslationCode';
 
@@ -25,8 +25,7 @@ export const useAuthView = () => {
     lastName: '',
   });
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirect') || '/inbox';
+  const redirectTo = '/games';
 
   const [loginUserMutation, { loading: loginUserLoading, error: loginUserError }] = useMutation<
     LoginUserMutation,
