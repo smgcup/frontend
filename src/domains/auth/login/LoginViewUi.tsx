@@ -25,7 +25,7 @@ const LoginViewUi = ({ onLogin, onInputChange, loginUserLoading, loginInput, err
       />
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <a href="#" className="text-primary hover:underline font-medium">
+        <a href="/register" className="text-primary hover:underline font-medium">
           Register
         </a>
       </p>

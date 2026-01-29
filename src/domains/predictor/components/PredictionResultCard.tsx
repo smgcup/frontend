@@ -2,6 +2,7 @@
 
 import { Calendar, Clock, Check, X, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { predictorTheme } from '@/lib/gamemodeThemes';
 import type { Prediction } from '../contracts';
 import { MatchStatus } from '@/graphql';
 
@@ -10,7 +11,7 @@ type PredictionResultCardProps = {
 };
 
 const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
-  const { match, predictedHomeScore, predictedAwayScore, isExactCorrect, isOutcomeCorrect, pointsEarned } = prediction;
+  const { match, predictedScore1, predictedScore2, isExactCorrect, isOutcomeCorrect, pointsEarned } = prediction;
 
   const formatDate = (dateString: string) =>
     new Intl.DateTimeFormat('bg-BG', {
@@ -69,37 +70,46 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
 
   // Determine if predicted winner matches actual winner
   const predictedWinner =
-    predictedHomeScore > predictedAwayScore ? 'home' : predictedHomeScore < predictedAwayScore ? 'away' : 'draw';
+    predictedScore1 > predictedScore2 ? 'home' : predictedScore1 < predictedScore2 ? 'away' : 'draw';
 
   return (
-    <div className="group relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/5 hover:-translate-y-1 flex flex-col h-full">
-      <div className="absolute inset-0 bg-linear-to-br from-orange-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    <div className={cn('group relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full', predictorTheme.shadowSubtle)}>
+      <div className={cn('absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300', predictorTheme.gradientOverlay)} />
 
-      {/* Orange accent line at top */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-orange-400 via-orange-500 to-amber-500" />
+      {/* Accent line at top */}
+      <div className={cn('absolute top-0 left-0 right-0 h-1', predictorTheme.gradientLine)} />
 
       <div className="relative p-6 flex flex-col h-full pt-7">
         {/* Header with status and accuracy badge */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="grid grid-cols-3 items-center gap-2 mb-6">
           <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-            <Target className="h-3.5 w-3.5" />
+            <Target className="h-3.5 w-3.5 shrink-0" />
             <span>Prediction</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center">
             {accuracyBadge && (
               <span
                 className={cn(
-                  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border',
+                  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border shrink-0',
                   accuracyBadge.className,
                 )}
               >
                 {accuracyBadge.icon}
-                {accuracyBadge.text}
+                {accuracyBadge.text === 'Correct Outcome' ? (
+                  <span className="flex flex-col sm:flex-row sm:gap-1 items-start sm:items-center leading-tight">
+                    <span>Correct</span>
+                    <span>Outcome</span>
+                  </span>
+                ) : (
+                  <span>{accuracyBadge.text}</span>
+                )}
               </span>
             )}
+          </div>
+          <div className="flex items-center justify-end">
             <span
               className={cn(
-                'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold',
+                'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap shrink-0',
                 statusConfig.className,
               )}
             >
@@ -118,17 +128,17 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
               <div
                 className={cn(
                   'text-3xl font-black mt-2 transition-all',
-                  predictedWinner === 'home' ? 'text-orange-500' : 'text-muted-foreground/50',
+                  predictedWinner === 'home' ? predictorTheme.scoreWinner : predictorTheme.scoreLoser,
                 )}
               >
-                {predictedHomeScore}
+                {predictedScore1}
               </div>
               {/* Actual Score (if completed) */}
               {isCompleted && actualScore1 !== undefined && (
                 <div
                   className={cn(
                     'text-lg font-semibold mt-1',
-                    actualScore1 === predictedHomeScore
+                    actualScore1 === predictedScore1
                       ? 'text-green-600 dark:text-green-400'
                       : 'text-muted-foreground',
                   )}
@@ -146,7 +156,7 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
               <span className="relative text-2xl font-black text-primary">VS</span>
             </div>
             {isCompleted && pointsEarned !== undefined && (
-              <div className="mt-2 text-xs font-semibold text-orange-500">{pointsEarned} pts</div>
+              <div className={cn('mt-2 text-xs font-semibold', predictorTheme.pointsText)}>{pointsEarned} pts</div>
             )}
           </div>
 
@@ -158,17 +168,17 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
               <div
                 className={cn(
                   'text-3xl font-black mt-2 transition-all',
-                  predictedWinner === 'away' ? 'text-orange-500' : 'text-muted-foreground/50',
+                  predictedWinner === 'away' ? predictorTheme.scoreWinner : predictorTheme.scoreLoser,
                 )}
               >
-                {predictedAwayScore}
+                {predictedScore2}
               </div>
               {/* Actual Score (if completed) */}
               {isCompleted && actualScore2 !== undefined && (
                 <div
                   className={cn(
                     'text-lg font-semibold mt-1',
-                    actualScore2 === predictedAwayScore
+                    actualScore2 === predictedScore2
                       ? 'text-green-600 dark:text-green-400'
                       : 'text-muted-foreground',
                   )}
@@ -183,11 +193,11 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
         {/* Date and Time */}
         <div className="pt-4 border-t space-y-2.5 mt-auto mb-4">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <Calendar className="h-4 w-4 text-orange-500/70" />
+            <Calendar className={cn('h-4 w-4', predictorTheme.iconMuted)} />
             <span className="font-medium">{match.date ? formatDate(match.date) : 'TBD'}</span>
           </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <Clock className="h-4 w-4 text-orange-500/70" />
+            <Clock className={cn('h-4 w-4', predictorTheme.iconMuted)} />
             <span className="font-medium">{match.date ? formatTime(match.date) : 'TBD'}</span>
           </div>
         </div>

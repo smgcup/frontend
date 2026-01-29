@@ -23,7 +23,6 @@ import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 type AdminPlayersListViewUiProps = {
   teams: Team[];
   players: Player[];
-  currentYear: number;
   actionError: string | null;
   deletingPlayerId: string | null;
   onDeletePlayer: (id: string) => Promise<void>;
@@ -32,7 +31,6 @@ type AdminPlayersListViewUiProps = {
 const AdminPlayersListViewUi = ({
   teams,
   players,
-  currentYear,
   actionError,
   deletingPlayerId,
   onDeletePlayer,

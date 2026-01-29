@@ -1,20 +1,22 @@
 'use client';
 
-import React from "react"
+import React from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import logoPng from '@/public/favicon.png';
 import { Button } from '../ui/';
-import { ArrowLeft, Menu, X, Trophy, Home, ListChecks } from 'lucide-react';
+import { ArrowLeft, Menu, X, Trophy, Home, ListChecks, User } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { gamemodeThemes, type GamemodeTheme } from '@/lib/gamemodeThemes';
 
 type GamemodeConfig = {
   name: string;
   basePath: string;
-  theme: 'orange' | 'emerald';
+  theme: GamemodeTheme;
   navItems: { title: string; url: string; icon: React.ReactNode }[];
 };
 
@@ -40,21 +42,6 @@ const gamemodeConfigs: Record<string, GamemodeConfig> = {
   },
 };
 
-const themeClasses: Record<GamemodeConfig['theme'], { bg: string; text: string; border: string; hover: string }> = {
-  orange: {
-    bg: 'bg-orange-500',
-    text: 'text-orange-500',
-    border: 'border-orange-500/20',
-    hover: 'hover:bg-orange-500/10',
-  },
-  emerald: {
-    bg: 'bg-emerald-500',
-    text: 'text-emerald-500',
-    border: 'border-emerald-500/20',
-    hover: 'hover:bg-emerald-500/10',
-  },
-};
-
 type GamemodeNavbarProps = {
   gamemode: 'predictor' | 'fantasy';
 };
@@ -62,9 +49,10 @@ type GamemodeNavbarProps = {
 const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { isAuthenticated, user, isLoading } = useAuth();
 
   const config = gamemodeConfigs[gamemode];
-  const theme = themeClasses[config.theme];
+  const theme = gamemodeThemes[config.theme];
 
   const isActive = (url: string) => {
     if (url === config.basePath) {
@@ -74,12 +62,10 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
   };
 
   return (
-    <nav
-      className='sticky top-0 z-50 bg-background/95 backdrop-blur-sm transition-all duration-300 py-2 lg:py-3'
-    >
+    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm transition-all duration-300 py-2 lg:py-3">
       <div className="w-screen px-6">
         {/* Desktop navigation */}
-        <div className="hidden items-center lg:flex">
+        <div className="hidden items-center lg:grid lg:grid-cols-3">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" asChild className="gap-2">
               <Link href="/games">
@@ -90,17 +76,17 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
             <div className="h-6 w-px bg-border" />
             <Link href={config.basePath} className="flex items-center gap-2">
               <Image
-                src={logoPng || "/placeholder.svg"}
+                src={logoPng || '/placeholder.svg'}
                 alt="SMG Cup Championship Logo"
                 width={40}
                 height={40}
                 className="transition-all duration-300"
               />
-              <span className={cn('font-bold tracking-tight text-lg', theme.text)}>{config.name}</span>
+              <span className="font-bold tracking-tight text-lg text-foreground">{config.name}</span>
             </Link>
           </div>
 
-          <div className="flex flex-1 items-center justify-center gap-1">
+          <div className="flex items-center justify-center gap-1">
             {config.navItems.map((item) => (
               <Link
                 key={item.url}
@@ -118,10 +104,21 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button asChild size="sm" className={cn(theme.bg, 'hover:opacity-90 text-white border-0')}>
-              <Link href="/login">Login to Play</Link>
-            </Button>
+          <div className="flex items-center justify-end gap-2">
+            {isLoading ? (
+              <div className={cn('h-9 w-24 rounded-lg animate-pulse', theme.bg, 'opacity-50')} />
+            ) : isAuthenticated && user ? (
+              <div className={cn('flex items-center gap-2 px-4 py-2 rounded-lg border', theme.bgLight, theme.border)}>
+                <User className={cn('h-4 w-4', theme.text)} />
+                <span className={cn('text-sm font-medium', theme.text)}>
+                  {user.username || user.email?.split('@')[0] || 'User'}
+                </span>
+              </div>
+            ) : (
+              <Button asChild size="sm" className={cn(theme.bg, 'hover:opacity-90 text-white border-0')}>
+                <Link href="/login">Login to Play</Link>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -135,8 +132,8 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
                 </Link>
               </Button>
               <Link href={config.basePath} className="flex items-center gap-2">
-                <Image src={logoPng || "/placeholder.svg"} alt="SMG Cup Championship Logo" width={32} height={32} />
-                <span className={cn('font-bold tracking-tight', theme.text)}>{config.name}</span>
+                <Image src={logoPng || '/placeholder.svg'} alt="SMG Cup Championship Logo" width={32} height={32} />
+                <span className="font-bold tracking-tight text-foreground">{config.name}</span>
               </Link>
             </div>
             <Button
@@ -183,9 +180,22 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
                 </Link>
               ))}
               <div className="pt-2 mt-2 border-t">
-                <Button asChild size="sm" className={cn('w-full', theme.bg, 'hover:opacity-90 text-white border-0')}>
-                  <Link href="/login">Login to Play</Link>
-                </Button>
+                {isLoading ? (
+                  <div className={cn('h-9 w-full rounded-lg animate-pulse', theme.bg, 'opacity-50')} />
+                ) : isAuthenticated && user ? (
+                  <div
+                    className={cn('flex items-center gap-2 px-4 py-3 rounded-lg border', theme.bgLight, theme.border)}
+                  >
+                    <User className={cn('h-4 w-4', theme.text)} />
+                    <span className={cn('text-sm font-medium', theme.text)}>
+                      {user.username || user.email?.split('@')[0] || 'User'}
+                    </span>
+                  </div>
+                ) : (
+                  <Button asChild size="sm" className={cn('w-full', theme.bg, 'hover:opacity-90 text-white border-0')}>
+                    <Link href="/login">Login to Play</Link>
+                  </Button>
+                )}
               </div>
             </nav>
           </div>

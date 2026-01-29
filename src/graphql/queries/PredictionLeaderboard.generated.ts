@@ -1,0 +1,10 @@
+import * as Types from '../../generated/types';
+
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
+export type PredictionLeaderboardQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type PredictionLeaderboardQuery = { __typename?: 'Query', predictionLeaderboard: Array<{ __typename?: 'UserPredictionStats', id: string, totalPoints: number, exactMatchesCount: number, correctOutcomesCount: number, totalPredictionsCount: number, lastUpdated: string, user: { __typename?: 'User', id: string, username: string, firstName: string, lastName: string, email: string } }> };
+
+
+export const PredictionLeaderboardDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PredictionLeaderboard"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"predictionLeaderboard"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"totalPoints"}},{"kind":"Field","name":{"kind":"Name","value":"exactMatchesCount"}},{"kind":"Field","name":{"kind":"Name","value":"correctOutcomesCount"}},{"kind":"Field","name":{"kind":"Name","value":"totalPredictionsCount"}},{"kind":"Field","name":{"kind":"Name","value":"lastUpdated"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"email"}}]}}]}}]}}]} as unknown as DocumentNode<PredictionLeaderboardQuery, PredictionLeaderboardQueryVariables>;

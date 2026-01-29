@@ -1,0 +1,17 @@
+query MyPredictionStats {
+  myPredictionStats {
+    id
+    totalPoints
+    exactMatchesCount
+    correctOutcomesCount
+    totalPredictionsCount
+    lastUpdated
+    user {
+      id
+      username
+      firstName
+      lastName
+      email
+    }
+  }
+}
