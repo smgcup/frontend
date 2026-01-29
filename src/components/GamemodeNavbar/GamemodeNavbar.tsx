@@ -11,11 +11,12 @@ import { ArrowLeft, Menu, X, Trophy, Home, ListChecks, User } from 'lucide-react
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { gamemodeThemes, type GamemodeTheme } from '@/lib/gamemodeThemes';
 
 type GamemodeConfig = {
   name: string;
   basePath: string;
-  theme: 'orange' | 'emerald';
+  theme: GamemodeTheme;
   navItems: { title: string; url: string; icon: React.ReactNode }[];
 };
 
@@ -41,26 +42,6 @@ const gamemodeConfigs: Record<string, GamemodeConfig> = {
   },
 };
 
-const themeClasses: Record<
-  GamemodeConfig['theme'],
-  { bg: string; text: string; border: string; hover: string; bgLight: string }
-> = {
-  orange: {
-    bg: 'bg-orange-500',
-    text: 'text-orange-400',
-    border: 'border-orange-500/20',
-    hover: 'hover:bg-orange-500/10',
-    bgLight: 'bg-orange-500/10',
-  },
-  emerald: {
-    bg: 'bg-emerald-500',
-    text: 'text-emerald-500',
-    border: 'border-emerald-500/20',
-    hover: 'hover:bg-emerald-500/10',
-    bgLight: 'bg-emerald-500/10',
-  },
-};
-
 type GamemodeNavbarProps = {
   gamemode: 'predictor' | 'fantasy';
 };
@@ -71,7 +52,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
   const { isAuthenticated, user, isLoading } = useAuth();
 
   const config = gamemodeConfigs[gamemode];
-  const theme = themeClasses[config.theme];
+  const theme = gamemodeThemes[config.theme];
 
   const isActive = (url: string) => {
     if (url === config.basePath) {
@@ -101,7 +82,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
                 height={40}
                 className="transition-all duration-300"
               />
-              <span className={cn('font-bold tracking-tight text-lg', theme.text)}>{config.name}</span>
+              <span className="font-bold tracking-tight text-lg text-foreground">{config.name}</span>
             </Link>
           </div>
 
@@ -152,7 +133,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
               </Button>
               <Link href={config.basePath} className="flex items-center gap-2">
                 <Image src={logoPng || '/placeholder.svg'} alt="SMG Cup Championship Logo" width={32} height={32} />
-                <span className={cn('font-bold tracking-tight', theme.text)}>{config.name}</span>
+                <span className="font-bold tracking-tight text-foreground">{config.name}</span>
               </Link>
             </div>
             <Button

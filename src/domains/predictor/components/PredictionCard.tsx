@@ -2,6 +2,7 @@
 
 import { Calendar, Clock, Minus, Plus, Check, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { predictorTheme } from '@/lib/gamemodeThemes';
 import type { Match } from '@/domains/matches/contracts';
 import type { ScorePrediction } from '@/domains/predictor/contracts';
 import { Button } from '@/components/ui/button';
@@ -77,9 +78,9 @@ const PredictionCard = ({
   const getOutcomeLabel = () => {
     if (!hasPrediction) return null;
     if (predictedScore1 > predictedScore2)
-      return { text: `${match.firstOpponent.name} wins`, color: 'text-orange-500' };
+      return { text: `${match.firstOpponent.name} wins`, color: predictorTheme.text };
     if (predictedScore2 > predictedScore1)
-      return { text: `${match.secondOpponent.name} wins`, color: 'text-orange-500' };
+      return { text: `${match.secondOpponent.name} wins`, color: predictorTheme.text };
     return { text: 'Draw', color: 'text-muted-foreground' };
   };
 
@@ -121,20 +122,20 @@ const PredictionCard = ({
   const showLoginHint = hasPrediction && !isAuthenticated && !onSave;
 
   return (
-    <div className="group relative overflow-hidden rounded-xl border bg-card transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10">
-      {/* Orange accent line at top */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-orange-400 via-orange-500 to-amber-500" />
+    <div className={cn('group relative overflow-hidden rounded-xl border bg-card transition-all duration-300 hover:shadow-lg', predictorTheme.shadow)}>
+      {/* Accent line at top */}
+      <div className={cn('absolute top-0 left-0 right-0 h-1', predictorTheme.gradientLine)} />
 
       <div className="p-5 pt-6">
         {/* Date and Time */}
         <div className="flex items-center justify-center gap-4 mb-6 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <Calendar className="h-4 w-4 text-orange-500/70" />
+            <Calendar className={cn('h-4 w-4', predictorTheme.iconMuted)} />
             <span>{formatDate(match.date)}</span>
           </div>
           <span className="text-muted-foreground/30">|</span>
           <div className="flex items-center gap-1.5">
-            <Clock className="h-4 w-4 text-orange-500/70" />
+            <Clock className={cn('h-4 w-4', predictorTheme.iconMuted)} />
             <span>{formatTime(match.date)}</span>
           </div>
         </div>
@@ -146,7 +147,7 @@ const PredictionCard = ({
             <div
               className={cn(
                 'font-bold text-2xl leading-tight transition-colors',
-                hasPrediction && predictedScore1 > predictedScore2 && 'text-orange-500',
+                hasPrediction && predictedScore1 > predictedScore2 && predictorTheme.scoreWinner,
               )}
             >
               {match.firstOpponent.name}
@@ -159,7 +160,7 @@ const PredictionCard = ({
               type="button"
               onClick={() => updateScore('home', 1)}
               disabled={isSaving}
-              className="p-1.5 rounded-lg bg-muted hover:bg-orange-500/20 hover:text-orange-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className={cn('p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed', predictorTheme.hoverBg, predictorTheme.hoverText)}
               aria-label="Increase home score"
             >
               <Plus className="h-4 w-4" />
@@ -168,7 +169,7 @@ const PredictionCard = ({
               className={cn(
                 'w-12 h-12 flex items-center justify-center rounded-xl text-2xl font-bold transition-all',
                 hasPrediction && predictedScore1 > predictedScore2
-                  ? 'bg-orange-500 text-white'
+                  ? cn(predictorTheme.bg, 'text-white')
                   : 'bg-muted/50 border-2 border-border',
               )}
             >
@@ -178,7 +179,7 @@ const PredictionCard = ({
               type="button"
               onClick={() => updateScore('home', -1)}
               disabled={isSaving || predictedScore1 <= 0}
-              className="p-1.5 rounded-lg bg-muted hover:bg-orange-500/20 hover:text-orange-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className={cn('p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed', predictorTheme.hoverBg, predictorTheme.hoverText)}
               aria-label="Decrease home score"
             >
               <Minus className="h-4 w-4" />
@@ -196,7 +197,7 @@ const PredictionCard = ({
               type="button"
               onClick={() => updateScore('away', 1)}
               disabled={isSaving}
-              className="p-1.5 rounded-lg bg-muted hover:bg-orange-500/20 hover:text-orange-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className={cn('p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed', predictorTheme.hoverBg, predictorTheme.hoverText)}
               aria-label="Increase away score"
             >
               <Plus className="h-4 w-4" />
@@ -205,7 +206,7 @@ const PredictionCard = ({
               className={cn(
                 'w-12 h-12 flex items-center justify-center rounded-xl text-2xl font-bold transition-all',
                 hasPrediction && predictedScore2 > predictedScore1
-                  ? 'bg-orange-500 text-white'
+                  ? cn(predictorTheme.bg, 'text-white')
                   : 'bg-muted/50 border-2 border-border',
               )}
             >
@@ -215,7 +216,7 @@ const PredictionCard = ({
               type="button"
               onClick={() => updateScore('away', -1)}
               disabled={isSaving || predictedScore2 <= 0}
-              className="p-1.5 rounded-lg bg-muted hover:bg-orange-500/20 hover:text-orange-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className={cn('p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed', predictorTheme.hoverBg, predictorTheme.hoverText)}
               aria-label="Decrease away score"
             >
               <Minus className="h-4 w-4" />
@@ -227,7 +228,7 @@ const PredictionCard = ({
             <div
               className={cn(
                 'font-bold text-2xl leading-tight transition-colors',
-                hasPrediction && predictedScore2 > predictedScore1 && 'text-orange-500',
+                hasPrediction && predictedScore2 > predictedScore1 && predictorTheme.scoreWinner,
               )}
             >
               {match.secondOpponent.name}
@@ -248,7 +249,7 @@ const PredictionCard = ({
             className={cn(
               'w-full transition-all',
               canSave
-                ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                ? cn(predictorTheme.buttonPrimary, predictorTheme.buttonPrimaryHover)
                 : 'bg-muted text-muted-foreground cursor-not-allowed',
             )}
             disabled={!canSave}

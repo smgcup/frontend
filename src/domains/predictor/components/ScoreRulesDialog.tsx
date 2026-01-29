@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { predictorTheme } from '@/lib/gamemodeThemes';
 
 type ScoreRulesDialogProps = {
   open: boolean;
@@ -73,7 +74,7 @@ const ScoreRulesDialog = ({ open, onOpenChange }: ScoreRulesDialogProps) => {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline gap-2">
                     <span className="font-semibold text-foreground">{label}</span>
-                    <span className="text-sm font-bold text-orange-500">{points} pts</span>
+                    <span className={cn('text-sm font-bold', predictorTheme.pointsText)}>{points} pts</span>
                   </div>
                   <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
                 </div>

@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { predictorTheme } from '@/lib/gamemodeThemes';
 import type { LeaderboardEntry } from '../contracts';
 import { getUserDisplayName } from '../utils/getUserDisplayName';
 
@@ -31,7 +32,7 @@ function StatHeader({ short, full }: { short: string; full: string }) {
             <Button
               variant="ghost"
               size="icon-xs"
-              className="h-5 w-5 rounded-full text-muted-foreground hover:text-orange-600 hover:bg-orange-500/10 dark:hover:text-orange-400"
+              className={cn('h-5 w-5 rounded-full text-muted-foreground', predictorTheme.hover, predictorTheme.hoverText)}
               aria-label={`Show full name for ${short}`}
             >
               <CircleHelp className="h-3.5 w-3.5" />
@@ -52,15 +53,15 @@ type PredictorLeaderboardTableProps = {
 
 const PredictorLeaderboardTable = ({ leaderboard }: PredictorLeaderboardTableProps) => {
   return (
-    <div className="rounded-lg border bg-card p-6 shadow-sm ring-1 ring-orange-500/10">
+    <div className={cn('rounded-lg border bg-card p-6 shadow-sm ring-1', predictorTheme.ring)}>
       <div className="mb-6 flex items-center gap-2">
-        <Target className="h-6 w-6 text-orange-500" />
+        <Target className={cn('h-6 w-6', predictorTheme.iconAccent)} />
         <h3 className="text-2xl font-bold">Leaderboard</h3>
       </div>
       <div className="overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-orange-500/20">
+            <tr className={cn('border-b', predictorTheme.headerBorder)}>
               <th className="px-3 py-3 text-center text-sm font-semibold text-muted-foreground">Pos</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">Player</th>
               {STATS.map(({ key, short, full }) => (
@@ -76,7 +77,7 @@ const PredictorLeaderboardTable = ({ leaderboard }: PredictorLeaderboardTablePro
               return (
                 <tr
                   key={player.id}
-                  className={cn('border-b transition-colors hover:bg-orange-500/5', isTop3 && 'bg-orange-500/5')}
+                  className={cn('border-b transition-colors', predictorTheme.rowHover, isTop3 && predictorTheme.rowHighlight)}
                 >
                   <td className="px-3 py-4 text-center">
                     <PositionBadge position={position} />
@@ -85,7 +86,7 @@ const PredictorLeaderboardTable = ({ leaderboard }: PredictorLeaderboardTablePro
                     <p className="font-semibold">{getUserDisplayName(player.user)}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-bold text-orange-600 dark:text-orange-400">{player.totalPoints}</p>
+                    <p className={cn('font-bold', predictorTheme.textDark)}>{player.totalPoints}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
                     <p className="font-medium">{player.exactMatchesCount}</p>

@@ -3,6 +3,8 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useQuery } from '@apollo/client/react';
 import { Trophy, Clock } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { predictorTheme } from '@/lib/gamemodeThemes';
 import type { Match } from '@/domains/matches/contracts';
 import type { ScorePrediction } from '@/domains/predictor/contracts';
 import { MatchStatus, MyPredictionsDocument, type MyPredictionsQuery } from '@/graphql';
@@ -153,14 +155,14 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Clock className="h-5 w-5 text-orange-500" />
+              <Clock className={cn('h-5 w-5', predictorTheme.iconAccent)} />
               <h2 className="text-2xl font-bold">Upcoming Matches</h2>
             </div>
             <p className="text-muted-foreground">Predict the exact final score for each match before kickoff.</p>
           </div>
           {predictableMatches.length > 0 && (
             <div className="text-sm text-muted-foreground">
-              <span className="font-semibold text-orange-500">{predictedCount}</span> of{' '}
+              <span className={cn('font-semibold', predictorTheme.text)}>{predictedCount}</span> of{' '}
               <span className="font-semibold">{predictableMatches.length}</span> predicted
             </div>
           )}
