@@ -68,7 +68,7 @@ export function TeamViewUi({ team }: { team: Team }) {
     <main className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-linear-to-b from-primary/10 to-background border-b">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 max-w-5xl">
           <BackButton />
 
           <div className="flex items-center gap-4">
@@ -93,7 +93,7 @@ export function TeamViewUi({ team }: { team: Team }) {
 
       {/* Tabs */}
       <div className="border-b sticky top-[66px] bg-background/95 backdrop-blur-sm z-10">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-5xl">
           <div className="flex gap-1 justify-center md:justify-start">
             {tabs.map((tab) => (
               <button
@@ -116,9 +116,13 @@ export function TeamViewUi({ team }: { team: Team }) {
 
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
-        {activeTab === 'squad' && (
+        {/* Squad Tab */}
+        <div
+          className={cn('grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto', activeTab !== 'squad' && 'hidden')}
+        >
+          {/* Left column: Goalkeepers & Defenders */}
           <div className="space-y-8">
-            {POSITION_ORDER.map((position) => {
+            {[PlayerPosition.Goalkeeper, PlayerPosition.Defender].map((position) => {
               const players = groupedPlayers[position];
               if (!players || players.length === 0) return null;
 
@@ -133,78 +137,95 @@ export function TeamViewUi({ team }: { team: Team }) {
                 </div>
               );
             })}
-
-            {(team.players || []).length === 0 && (
-              <div className="text-center py-12 text-muted-foreground">
-                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No players in this team yet</p>
-              </div>
-            )}
           </div>
-        )}
 
-        {activeTab === 'matches' && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold mb-4">Recent Matches</h2>
-            {(team.matches ?? []).length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>There are no matches yet</p>
-              </div>
-            ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {(team.matches ?? []).map((match) => {
-                  // Transform match so the viewed team is always on the left (firstOpponent)
-                  const isTeamFirst = match.firstOpponent.id === team.id;
-                  const normalizedMatch: Match = isTeamFirst
-                    ? match
-                    : {
-                        ...match,
-                        firstOpponent: match.secondOpponent,
-                        secondOpponent: match.firstOpponent,
-                        score1: match.score2,
-                        score2: match.score1,
-                      };
-
-                  return <MatchCard key={match.id} match={normalizedMatch} />;
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'stats' && (
+          {/* Right column: Midfielders & Forwards */}
           <div className="space-y-8">
-            <h2 className="text-xl font-semibold mb-4">Team Statistics</h2>
+            {[PlayerPosition.Midfielder, PlayerPosition.Forward].map((position) => {
+              const players = groupedPlayers[position];
+              if (!players || players.length === 0) return null;
 
-            {/* Main Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <StatCard label="Matches Played" value={mockStats.matchesPlayed} />
-              <StatCard label="Wins" value={mockStats.wins} highlight="green" />
-              <StatCard label="Draws" value={mockStats.draws} highlight="yellow" />
-              <StatCard label="Losses" value={mockStats.losses} highlight="red" />
+              return (
+                <div key={position}>
+                  <h2 className="text-xl font-semibold mb-4 text-primary">{POSITION_LABELS[position]}</h2>
+                  <div className="space-y-3">
+                    {players.map((player) => (
+                      <PlayerCard key={player.id} player={player} isCaptain={team.captain?.id === player.id} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {(team.players || []).length === 0 && (
+            <div className="text-center py-12 text-muted-foreground col-span-full">
+              <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No players in this team yet</p>
             </div>
+          )}
+        </div>
 
-            {/* Goals */}
-            <div>
-              <h3 className="text-lg font-medium mb-3">Goals</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <StatCard label="Goals Scored" value={mockStats.goalsScored} />
-                <StatCard label="Goals Conceded" value={mockStats.goalsConceded} />
-                <StatCard label="Clean Sheets" value={mockStats.cleanSheets} />
-              </div>
+        {/* Matches Tab */}
+        <div className={cn('space-y-4 max-w-7xl mx-auto', activeTab !== 'matches' && 'hidden')}>
+          <h2 className="text-xl font-semibold mb-4">Recent Matches</h2>
+          {(team.matches ?? []).length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>There are no matches yet</p>
             </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {(team.matches ?? []).map((match) => {
+                // Transform match so the viewed team is always on the left (firstOpponent)
+                const isTeamFirst = match.firstOpponent.id === team.id;
+                const normalizedMatch: Match = isTeamFirst
+                  ? match
+                  : {
+                      ...match,
+                      firstOpponent: match.secondOpponent,
+                      secondOpponent: match.firstOpponent,
+                      score1: match.score2,
+                      score2: match.score1,
+                    };
 
-            {/* Discipline */}
-            <div>
-              <h3 className="text-lg font-medium mb-3">Discipline</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <StatCard label="Yellow Cards" value={mockStats.yellowCards} highlight="yellow" />
-                <StatCard label="Red Cards" value={mockStats.redCards} highlight="red" />
-              </div>
+                return <MatchCard key={match.id} match={normalizedMatch} />;
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Stats Tab */}
+        <div className={cn('space-y-8 max-w-5xl mx-auto', activeTab !== 'stats' && 'hidden')}>
+          <h2 className="text-xl font-semibold mb-4">Team Statistics</h2>
+
+          {/* Main Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard label="Matches Played" value={mockStats.matchesPlayed} />
+            <StatCard label="Wins" value={mockStats.wins} highlight="green" />
+            <StatCard label="Draws" value={mockStats.draws} highlight="yellow" />
+            <StatCard label="Losses" value={mockStats.losses} highlight="red" />
+          </div>
+
+          {/* Goals */}
+          <div>
+            <h3 className="text-lg font-medium mb-3">Goals</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <StatCard label="Goals Scored" value={mockStats.goalsScored} />
+              <StatCard label="Goals Conceded" value={mockStats.goalsConceded} />
+              <StatCard label="Clean Sheets" value={mockStats.cleanSheets} />
             </div>
           </div>
-        )}
+
+          {/* Discipline */}
+          <div>
+            <h3 className="text-lg font-medium mb-3">Discipline</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <StatCard label="Yellow Cards" value={mockStats.yellowCards} highlight="yellow" />
+              <StatCard label="Red Cards" value={mockStats.redCards} highlight="red" />
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );
