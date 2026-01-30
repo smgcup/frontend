@@ -100,12 +100,12 @@ const AdminMatchLiveViewUi = ({
   }, [events]);
 
   // Calculate the minute for half time event
-  // Defaults: 45', 90', 105', 120' for subsequent half times
+  // Defaults: 25', 50', 58', 64' for subsequent half times
   // If there's an event past the default minute, use the minute of the last event
   const halfTimeMinute = useMemo(() => {
     // Determine the default minute based on how many half times have been triggered
-    // 0: 45' (first half), 1: 90' (second half), 2: 105' (first extra time), 3: 120' (second extra time)
-    const defaultMinute = halfTimeCount === 0 ? 45 : halfTimeCount === 1 ? 90 : halfTimeCount === 2 ? 105 : 120;
+    // 0: 25' (first half), 1: 50' (second half), 2: 58' (first extra time), 3: 64' (second extra time)
+    const defaultMinute = halfTimeCount === 0 ? 25 : halfTimeCount === 1 ? 50 : halfTimeCount === 2 ? 58 : 64;
 
     // Find the last event minute (excluding half time events to get the actual last match event)
     const matchEvents = events.filter((event) => event.type !== MatchEventType.HalfTime);
@@ -115,8 +115,8 @@ const AdminMatchLiveViewUi = ({
     return lastEventMinute > defaultMinute ? lastEventMinute : defaultMinute;
   }, [events, halfTimeCount]);
 
-  // Disable half time button after 120' half time has been added (halfTimeCount >= 4)
-  // halfTimeCount: 0=45', 1=90', 2=105', 3=120', 4+=disabled
+  // Disable half time button after 64' half time has been added (halfTimeCount >= 4)
+  // halfTimeCount: 0=25', 1=50', 2=58', 3=64', 4+=disabled
   const isHalfTimeDisabled = halfTimeCount >= 4;
 
   // Disable full time button if there are no half times, if there are 2 or 3 half time events, or if a full time event already exists
