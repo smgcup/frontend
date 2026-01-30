@@ -39,17 +39,17 @@ const formatMatchTime = (event: MatchEvent, chronologicalHalfTimes: MatchEvent[]
   }
 
   // Determine base time for the current half
-  // Base times: 45' (first half), 90' (second half), 105' (first extra time), 120' (second extra time)
+  // Base times: 25' (first half), 50' (second half), 58' (first extra time), 64' (second extra time)
   let baseTime: number;
   if (mostRecentHalfTimeIndex === -1) {
     // No half-time event before this event, it's in the first half
-    baseTime = 45;
+    baseTime = 25;
   } else {
     // The event is in the half that starts after the most recent half-time
-    // Index 0 (45' half-time) -> second half (base 90')
-    // Index 1 (90' half-time) -> first extra time (base 105')
-    // Index 2 (105' half-time) -> second extra time (base 120')
-    baseTime = mostRecentHalfTimeIndex === 0 ? 90 : mostRecentHalfTimeIndex === 1 ? 105 : 120;
+    // Index 0 (25' half-time) -> second half (base 50')
+    // Index 1 (50' half-time) -> first extra time (base 58')
+    // Index 2 (58' half-time) -> second extra time (base 64')
+    baseTime = mostRecentHalfTimeIndex === 0 ? 50 : mostRecentHalfTimeIndex === 1 ? 58 : 64;
   }
 
   // Check if event is in added time (exceeds base time for its half)
@@ -175,7 +175,7 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
 
   const getHalfTimeLabel = (event: MatchEvent): string => {
     const index = halfTimeIndexMap.get(event.id) ?? 0;
-    // 0: 45' (first half), 1: 90' (second half), 2: 105' (first extra time), 3: 120' (second extra time)
+    // 0: 25' (first half), 1: 50' (second half), 2: 58' (first extra time), 3: 64' (second extra time)
     if (index === 0) {
       return 'Half-time';
     }
