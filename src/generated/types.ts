@@ -127,6 +127,7 @@ export enum MatchEventType {
   Goal = 'GOAL',
   GoalkeeperSave = 'GOALKEEPER_SAVE',
   HalfTime = 'HALF_TIME',
+  OwnGoal = 'OWN_GOAL',
   PenaltyMissed = 'PENALTY_MISSED',
   PenaltyScored = 'PENALTY_SCORED',
   RedCard = 'RED_CARD',
@@ -333,6 +334,7 @@ export type PlayerStats = {
   assists: Scalars['Float']['output'];
   goalkeeperSaves: Scalars['Float']['output'];
   goals: Scalars['Float']['output'];
+  ownGoals: Scalars['Float']['output'];
   penaltiesMissed: Scalars['Float']['output'];
   penaltiesScored: Scalars['Float']['output'];
   playerId: Scalars['ID']['output'];
@@ -517,24 +519,3 @@ export type UserPredictionStats = {
   totalPredictionsCount: Scalars['Int']['output'];
   user: User;
 };
-
-
-export enum Queries {
-  __typename = '__typename',
-  health = 'health',
-  matchById = 'matchById',
-  matchEvents = 'matchEvents',
-  matches = 'matches',
-  myPredictionForMatch = 'myPredictionForMatch',
-  myPredictionStats = 'myPredictionStats',
-  myPredictions = 'myPredictions',
-  news = 'news',
-  newsById = 'newsById',
-  playerById = 'playerById',
-  playersLeaderboard = 'playersLeaderboard',
-  predictionLeaderboard = 'predictionLeaderboard',
-  predictionsByMatch = 'predictionsByMatch',
-  teamById = 'teamById',
-  teams = 'teams',
-  user = 'user',
-}
