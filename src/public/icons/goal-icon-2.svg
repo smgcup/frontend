@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="194" height="194" viewBox="0 0 194 194" fill="none"
+	stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+	<!-- Ball outline (hollow circle) -->
+	<circle cx="97" cy="97" r="87" />
+	<!-- Hollow tiles: soccer ball pentagon/hexagon pattern -->
+	<!-- Top pentagon -->
+	<path d="M97 32 L112 50 L106 74 L88 74 L82 50 Z" />
+	<!-- Hexagon upper-left -->
+	<path d="M82 50 L64 54 L54 74 L64 94 L82 90 L88 74 Z" />
+	<!-- Hexagon upper-right -->
+	<path d="M112 50 L130 54 L140 74 L130 94 L112 90 L106 74 Z" />
+	<!-- Hexagon left -->
+	<path d="M64 94 L54 74 L64 54 L82 50 L88 74 L82 90 Z" />
+	<!-- Hexagon right -->
+	<path d="M130 54 L140 74 L130 94 L112 90 L106 74 L112 50 Z" />
+	<!-- Hexagon lower-left -->
+	<path d="M64 94 L82 90 L88 74 L97 92 L97 120 L82 132 Z" />
+	<!-- Hexagon lower-right -->
+	<path d="M130 94 L112 90 L97 92 L97 120 L112 132 L130 94 Z" />
+	<!-- Hexagon center (between the two above) -->
+	<path d="M82 90 L88 74 L106 74 L112 90 L112 132 L82 132 Z" />
+	<!-- Bottom pentagon -->
+	<path d="M82 132 L97 120 L112 132 L126 156 L97 168 L68 156 Z" />
+</svg>

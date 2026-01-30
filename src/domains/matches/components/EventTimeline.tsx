@@ -83,6 +83,12 @@ const getMarker = (type: MatchEventType) => {
           ⚽
         </span>
       );
+    case MatchEventType.OwnGoal:
+      return (
+        <span className="text-xl leading-none opacity-60" aria-hidden="true">
+          ⚽
+        </span>
+      );
     case MatchEventType.GoalkeeperSave:
       return <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />;
     case MatchEventType.PenaltyMissed:

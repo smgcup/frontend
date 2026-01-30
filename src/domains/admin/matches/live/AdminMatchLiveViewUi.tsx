@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Goal, AlertTriangle, Ban, Shield, Target, X, Clock, Loader2 } from 'lucide-react';
+import { Goal, AlertTriangle, Ban, Shield, Target, X, Clock, Loader2, Undo2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import EventTimeline from '@/domains/matches/components/EventTimeline';
@@ -25,7 +25,8 @@ type AdminMatchLiveViewUiProps = {
 
 // Predefined quick event types that can be added with a single click
 // Each event has a type, display label, icon component, and color styling
-const QUICK_EVENTS = [
+// Split into two rows for better layout
+const QUICK_EVENTS_ROW1 = [
   { type: MatchEventType.Goal, label: 'Goal', icon: Goal, color: 'bg-green-500 hover:bg-green-600' },
   { type: MatchEventType.GoalkeeperSave, label: 'Save', icon: Shield, color: 'bg-blue-500 hover:bg-blue-600' },
   {
@@ -35,6 +36,9 @@ const QUICK_EVENTS = [
     color: 'bg-yellow-500 hover:bg-yellow-600',
   },
   { type: MatchEventType.RedCard, label: 'Red Card', icon: Ban, color: 'bg-red-500 hover:bg-red-600' },
+];
+
+const QUICK_EVENTS_ROW2 = [
   {
     type: MatchEventType.PenaltyScored,
     label: 'Penalty Goal',
@@ -42,6 +46,7 @@ const QUICK_EVENTS = [
     color: 'bg-green-500 hover:bg-green-600',
   },
   { type: MatchEventType.PenaltyMissed, label: 'Penalty Miss', icon: X, color: 'bg-gray-500 hover:bg-gray-600' },
+  { type: MatchEventType.OwnGoal, label: 'Own Goal', icon: Undo2, color: 'bg-orange-500 hover:bg-orange-600' },
 ];
 
 const AdminMatchLiveViewUi = ({
@@ -199,8 +204,35 @@ const AdminMatchLiveViewUi = ({
           )}
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {QUICK_EVENTS.map((event) => {
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {QUICK_EVENTS_ROW1.map((event) => {
+              const Icon = event.icon;
+              return (
+                <AddEventDialog
+                  key={event.type}
+                  matchId={match.id}
+                  teams={teams}
+                  currentMinute={currentMinute}
+                  events={events}
+                  onAddEvent={onAddEvent}
+                  mode="quick"
+                  presetType={event.type}
+                  trigger={
+                    <Button
+                      variant="outline"
+                      className={cn('h-auto flex-col gap-2 py-4', event.color)}
+                      disabled={!isMatchLive}
+                    >
+                      <Icon className="h-5 w-5" />
+                      <span className="text-xs">{event.label}</span>
+                    </Button>
+                  }
+                />
+              );
+            })}
+          </div>
+          <div className="grid grid-cols-3 gap-3 mt-3">
+            {QUICK_EVENTS_ROW2.map((event) => {
               const Icon = event.icon;
               return (
                 <AddEventDialog
