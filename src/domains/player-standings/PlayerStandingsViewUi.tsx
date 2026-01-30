@@ -60,7 +60,7 @@ const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8">
       <div className="container mx-auto">
-        <h1 className="text-2xl md:text-3xl font-bold mb-6">Premier League 2025/26 Player Stats</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center">Player Standings</h1>
 
         <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-2 xl:grid-cols-5 md:gap-6 snap-x snap-mandatory md:snap-none pb-4 hide-scrollbar">
           {standings.map((category) => (
