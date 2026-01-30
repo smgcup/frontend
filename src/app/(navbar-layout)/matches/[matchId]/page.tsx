@@ -69,18 +69,18 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
             <CardTitle className="text-xl">Events</CardTitle>
           </CardHeader>
           <CardContent>
-            {isLive ? (
-              <EventTimeline
-                events={events}
-                firstOpponentName={match.firstOpponent.name}
-                secondOpponentName={match.secondOpponent.name}
-              />
-            ) : (
-              <div className="rounded-lg border p-4 text-muted-foreground">
-                Events are shown for live matches. This match is currently:{' '}
-                <span className="font-medium">{match.status}</span>.
-              </div>
-            )}
+            {/* {isLive ? ( */}
+            <EventTimeline
+              events={events}
+              firstOpponentName={match.firstOpponent.name}
+              secondOpponentName={match.secondOpponent.name}
+            />
+            {/* // ) : ( */}
+            {/* // <div className="rounded-lg border p-4 text-muted-foreground"> */}
+            {/* // Events are shown for live matches. This match is currently:{' '} */}
+            {/* // <span className="font-medium">{match.status}</span>. */}
+            {/* // </div> */}
+            {/* // )} */}
           </CardContent>
         </Card>
       </div>
