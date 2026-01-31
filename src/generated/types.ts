@@ -375,6 +375,7 @@ export type Query = {
   playersLeaderboard: PaginatedPlayersResponse;
   predictionLeaderboard: Array<UserPredictionStats>;
   predictionsByMatch: Array<Prediction>;
+  statistics: StatisticsOutput;
   teamById: Team;
   teams: Array<Team>;
   user: User;
@@ -433,6 +434,13 @@ export type RegisterUserInput = {
   password: Scalars['String']['input'];
   /** Username */
   username: Scalars['String']['input'];
+};
+
+export type StatisticsOutput = {
+  __typename?: 'StatisticsOutput';
+  matchesPlayedCount: Scalars['Int']['output'];
+  teamsCount: Scalars['Int']['output'];
+  totalGoals: Scalars['Int']['output'];
 };
 
 export type Team = {
@@ -519,3 +527,25 @@ export type UserPredictionStats = {
   totalPredictionsCount: Scalars['Int']['output'];
   user: User;
 };
+
+
+export enum Queries {
+  __typename = '__typename',
+  health = 'health',
+  matchById = 'matchById',
+  matchEvents = 'matchEvents',
+  matches = 'matches',
+  myPredictionForMatch = 'myPredictionForMatch',
+  myPredictionStats = 'myPredictionStats',
+  myPredictions = 'myPredictions',
+  news = 'news',
+  newsById = 'newsById',
+  playerById = 'playerById',
+  playersLeaderboard = 'playersLeaderboard',
+  predictionLeaderboard = 'predictionLeaderboard',
+  predictionsByMatch = 'predictionsByMatch',
+  statistics = 'statistics',
+  teamById = 'teamById',
+  teams = 'teams',
+  user = 'user',
+}
