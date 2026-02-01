@@ -13,12 +13,40 @@ type PlayerStandingsViewUiProps = {
 const getCategoryIcon = (title: string) => {
   const iconMap: Record<string, string> = {
     Goals: '/icons/goal-icon.svg',
-    Assists: '/icons/assist-icon.svg',
+    Assists: '🤝',
     'Red Cards': '/icons/red-card-icon.svg',
     'Yellow Cards': '/icons/yellow-card-icon.svg',
-    'Clean Sheets': '/icons/clean-sheet-icon.svg',
+    'Clean Sheets': '🧤',
   };
-  return iconMap[title] || '/icons/goal-icon.svg';
+  return iconMap[title] ?? '/icons/goal-icon.svg';
+};
+
+const isImagePath = (icon: string) => icon.startsWith('/');
+
+const CategoryIcon = ({
+  title,
+  alt,
+}: {
+  title: string;
+  alt: string;
+}) => {
+  const icon = getCategoryIcon(title);
+  if (isImagePath(icon)) {
+    return (
+      <Image
+        src={icon}
+        alt={alt}
+        width={24}
+        height={24}
+        className="shrink-0 w-6 h-6"
+      />
+    );
+  }
+  return (
+    <span className="shrink-0 w-6 h-6 flex items-center justify-center text-xl leading-none" aria-hidden>
+      {icon}
+    </span>
+  );
 };
 
 const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
@@ -109,12 +137,9 @@ const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
           <div className="sticky top-[66px] lg:top-[86px] z-10 bg-background pb-2">
             {/* Mobile: show only active category */}
             <div className="md:hidden flex items-center gap-2 px-2 py-2">
-              <Image
-                src={getCategoryIcon(standings[activeIndex]?.title || 'Goals')}
+              <CategoryIcon
+                title={standings[activeIndex]?.title ?? 'Goals'}
                 alt={standings[activeIndex]?.title ?? ''}
-                width={24}
-                height={24}
-                className="shrink-0 w-6 h-6"
               />
               <span className="text-xl font-bold">{standings[activeIndex]?.title}</span>
             </div>
@@ -123,13 +148,7 @@ const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
             <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-5 md:gap-6">
               {standings.map((category) => (
                 <div key={category.title} className="flex items-center gap-2 px-2 py-2">
-                  <Image
-                    src={getCategoryIcon(category.title)}
-                    alt={category.title}
-                    width={24}
-                    height={24}
-                    className="shrink-0 w-6 h-6"
-                  />
+                  <CategoryIcon title={category.title} alt={category.title} />
                   <span className="text-xl font-bold">{category.title}</span>
                 </div>
               ))}
