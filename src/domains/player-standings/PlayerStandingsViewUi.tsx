@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 import type { PlayersPageData } from './contracts';
 import StandingsColumn from './components/StandingsColumn';
 import { Loader2 } from 'lucide-react';
@@ -9,15 +10,56 @@ type PlayerStandingsViewUiProps = {
   data: PlayersPageData;
 };
 
+const getCategoryIcon = (title: string) => {
+  const iconMap: Record<string, string> = {
+    Goals: '/icons/goal-icon.svg',
+    Assists: '/icons/assist-icon.svg',
+    'Red Cards': '/icons/red-card-icon.svg',
+    'Yellow Cards': '/icons/yellow-card-icon.svg',
+    'Clean Sheets': '/icons/clean-sheet-icon.svg',
+  };
+  return iconMap[title] || '/icons/goal-icon.svg';
+};
+
 const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
   const { standings, loading, loadingMore, loadMore, hasMore } = data;
   const sentinelRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
+  const contentScrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   // Keep ref in sync with loading state
   useEffect(() => {
     isLoadingRef.current = loadingMore || loading;
   }, [loadingMore, loading]);
+
+  // Track which column is visible using IntersectionObserver
+  useEffect(() => {
+    const contentEl = contentScrollRef.current;
+    if (!contentEl) return;
+
+    const columns = contentEl.querySelectorAll('[data-column-index]');
+    if (columns.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            const index = parseInt((entry.target as HTMLElement).dataset.columnIndex || '0', 10);
+            setActiveIndex(index);
+          }
+        });
+      },
+      {
+        root: contentEl,
+        threshold: 0.5,
+      },
+    );
+
+    columns.forEach((col) => observer.observe(col));
+
+    return () => observer.disconnect();
+  }, [standings.length]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -62,10 +104,53 @@ const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
       <div className="container mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center">Player Standings</h1>
 
-        <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-2 xl:grid-cols-5 md:gap-6 snap-x snap-mandatory md:snap-none pb-4 hide-scrollbar">
-          {standings.map((category) => (
-            <StandingsColumn key={category.title} category={category} />
-          ))}
+        <div className="relative">
+          {/* Sticky header - single header on mobile, all headers on desktop */}
+          <div className="sticky top-[66px] lg:top-[86px] z-10 bg-background pb-2">
+            {/* Mobile: show only active category */}
+            <div className="md:hidden flex items-center gap-2 px-2 py-2">
+              <Image
+                src={getCategoryIcon(standings[activeIndex]?.title || 'Goals')}
+                alt={standings[activeIndex]?.title ?? ''}
+                width={24}
+                height={24}
+                className="shrink-0 w-6 h-6"
+              />
+              <span className="text-xl font-bold">{standings[activeIndex]?.title}</span>
+            </div>
+
+            {/* Desktop: show all headers */}
+            <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-5 md:gap-6">
+              {standings.map((category) => (
+                <div key={category.title} className="flex items-center gap-2 px-2 py-2">
+                  <Image
+                    src={getCategoryIcon(category.title)}
+                    alt={category.title}
+                    width={24}
+                    height={24}
+                    className="shrink-0 w-6 h-6"
+                  />
+                  <span className="text-xl font-bold">{category.title}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Scrollable content */}
+          <div
+            ref={contentScrollRef}
+            className="flex overflow-x-auto gap-4 md:grid md:grid-cols-2 xl:grid-cols-5 md:gap-6 snap-x snap-mandatory md:snap-none pb-4 hide-scrollbar"
+          >
+            {standings.map((category, index) => (
+              <div
+                key={category.title}
+                data-column-index={index}
+                className="min-w-[80vw] md:min-w-0 snap-center shrink-0 md:shrink"
+              >
+                <StandingsColumn category={category} />
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Sentinel element for infinite scroll */}

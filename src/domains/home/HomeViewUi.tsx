@@ -3,7 +3,7 @@ import { HeroSection, UpcomingMatchesSection, TournamentStatistics, NewsSection 
 import { Team } from '@/domains/team/contracts';
 import { News as NewsType } from '../news/contracts';
 import type { Match } from '@/domains/matches/contracts';
-import type { HeroStatistics } from './contracts';
+import type { HeroStatistics, TopPlayer } from './contracts';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui';
@@ -13,6 +13,7 @@ type HomeViewUiProps = {
   news: NewsType[];
   matches: Match[];
   heroStatistics: HeroStatistics;
+  topPlayers: TopPlayer[];
 };
 
 const LiveMatchBanner = ({ match }: { match: Match }) => {
@@ -52,7 +53,7 @@ const LiveMatchBanner = ({ match }: { match: Match }) => {
   );
 };
 
-const HomeViewUi = ({ teams, news, matches, heroStatistics }: HomeViewUiProps) => {
+const HomeViewUi = ({ teams, news, matches, heroStatistics, topPlayers }: HomeViewUiProps) => {
   const liveMatches = matches.filter((m) => m.status === 'LIVE').slice(0, 2);
 
   return (
@@ -62,7 +63,7 @@ const HomeViewUi = ({ teams, news, matches, heroStatistics }: HomeViewUiProps) =
       ))}
       <HeroSection statistics={heroStatistics} />
       <UpcomingMatchesSection matches={matches} />
-      <TournamentStatistics teams={teams} />
+      <TournamentStatistics teams={teams} topPlayers={topPlayers} />
       <NewsSection news={news} />
     </>
   );

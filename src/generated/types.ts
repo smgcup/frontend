@@ -378,6 +378,7 @@ export type Query = {
   statistics: StatisticsOutput;
   teamById: Team;
   teams: Array<Team>;
+  topPlayers: Array<TopPlayerOutput>;
   user: User;
 };
 
@@ -450,6 +451,20 @@ export type Team = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   players: Array<Player>;
+};
+
+export type TopPlayerOutput = {
+  __typename?: 'TopPlayerOutput';
+  assists: Scalars['Int']['output'];
+  goals: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  ownGoals: Scalars['Int']['output'];
+  position: PlayerPosition;
+  redCards: Scalars['Int']['output'];
+  teamId: Scalars['ID']['output'];
+  teamName: Scalars['String']['output'];
+  yellowCards: Scalars['Int']['output'];
 };
 
 export type UpdateMatchDto = {
@@ -547,5 +562,6 @@ export enum Queries {
   statistics = 'statistics',
   teamById = 'teamById',
   teams = 'teams',
+  topPlayers = 'topPlayers',
   user = 'user',
 }
