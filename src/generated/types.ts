@@ -439,7 +439,10 @@ export type RegisterUserInput = {
 
 export type StatisticsOutput = {
   __typename?: 'StatisticsOutput';
+  matchesCount: Scalars['Int']['output'];
   matchesPlayedCount: Scalars['Int']['output'];
+  newsCount: Scalars['Int']['output'];
+  playersCount: Scalars['Int']['output'];
   teamsCount: Scalars['Int']['output'];
   totalGoals: Scalars['Int']['output'];
 };
