@@ -6,7 +6,7 @@ const PredictorLoading = () => {
   return (
     <div className="min-h-[calc(100vh-60px)]">
       {/* Hero Section - mirrors PredictorViewUi */}
-      <div className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
+      <div className="relative overflow-hidden bg-linear-to-b from-primary/10 to-background">
         <div className="relative container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">Score Predictor</h1>
@@ -42,7 +42,7 @@ const PredictorLoading = () => {
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-80 rounded-xl bg-muted/50 border border-border animate-pulse" />
+            <div key={i} className="h-68 rounded-xl bg-muted/50 border border-border animate-pulse" />
           ))}
         </div>
       </div>
