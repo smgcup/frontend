@@ -14,5 +14,15 @@ query PlayerById($id: String!) {
       id
       name
     }
+    stats {
+      goals
+      assists
+      yellowCards
+      redCards
+      ownGoals
+      penaltiesMissed
+      penaltiesScored
+      goalkeeperSaves
+    }
   }
 }
