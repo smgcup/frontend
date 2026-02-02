@@ -80,7 +80,7 @@ const PredictorLeaderboardTable = ({ leaderboard }: PredictorLeaderboardTablePro
                   className={cn('border-b transition-colors', predictorTheme.rowHover, isTop3 && predictorTheme.rowHighlight)}
                 >
                   <td className="px-3 py-4 text-center">
-                    <PositionBadge position={position} />
+                    <PositionBadge position={position} showIcon={isTop3} />
                   </td>
                   <td className="px-4 py-4">
                     <p className="font-semibold">{getUserDisplayName(player.user)}</p>

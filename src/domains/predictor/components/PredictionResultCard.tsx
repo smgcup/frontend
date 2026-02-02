@@ -1,6 +1,7 @@
 'use client';
 
 import { Calendar, Clock, Check, X, Target } from 'lucide-react';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { predictorTheme } from '@/lib/gamemodeThemes';
 import type { Prediction } from '../contracts';
@@ -123,7 +124,9 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
           {/* Home Team */}
           <div className="flex-1">
             <div className="block text-center">
-              <div className="text-2xl font-bold tracking-tight">{match.firstOpponent.name}</div>
+              <Link href={`/teams/${match.firstOpponent.id}`} className="text-2xl font-bold tracking-tight hover:underline">
+                {match.firstOpponent.name}
+              </Link>
               {/* Predicted Score */}
               <div
                 className={cn(
@@ -163,7 +166,9 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
           {/* Away Team */}
           <div className="flex-1">
             <div className="block text-center">
-              <div className="text-2xl font-bold tracking-tight">{match.secondOpponent.name}</div>
+              <Link href={`/teams/${match.secondOpponent.id}`} className="text-2xl font-bold tracking-tight hover:underline">
+                {match.secondOpponent.name}
+              </Link>
               {/* Predicted Score */}
               <div
                 className={cn(

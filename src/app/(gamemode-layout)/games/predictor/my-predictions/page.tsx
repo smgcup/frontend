@@ -14,7 +14,7 @@ const MyPredictionsPage = async () => {
   if (isAuthError) {
     return (
       <div className="min-h-[calc(100vh-60px)]">
-        <div className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
+        <div className="relative overflow-hidden bg-linear-to-b from-primary/10 to-background">
           <div className="relative container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             <div className="text-center">
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">My Predictions</h1>
@@ -43,7 +43,7 @@ const MyPredictionsPage = async () => {
   if (error) {
     return (
       <div className="min-h-[calc(100vh-60px)]">
-        <div className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
+        <div className="relative overflow-hidden bg-linear-to-b from-primary/10 to-background">
           <div className="relative container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             <div className="text-center">
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">My Predictions</h1>
@@ -93,7 +93,7 @@ const MyPredictionsPage = async () => {
   return (
     <div className="min-h-[calc(100vh-60px)]">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
+      <div className="relative overflow-hidden bg-linear-to-b from-primary/10 to-background">
         <div className="relative container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">My Predictions</h1>

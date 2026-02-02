@@ -1,6 +1,7 @@
 'use client';
 
 import { Calendar, Clock, Minus, Plus, Check, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { predictorTheme } from '@/lib/gamemodeThemes';
 import type { Match } from '@/domains/matches/contracts';
@@ -17,6 +18,7 @@ type PredictionCardProps = {
   isSaving?: boolean;
   error?: string | null;
   isAuthenticated?: boolean;
+  loginRedirectPath?: string;
 };
 
 const PredictionCard = ({
@@ -29,6 +31,7 @@ const PredictionCard = ({
   isSaving,
   error,
   isAuthenticated,
+  loginRedirectPath = '/games/predictor',
 }: PredictionCardProps) => {
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) {
@@ -144,14 +147,15 @@ const PredictionCard = ({
         <div className="flex items-center justify-between gap-2">
           {/* Home Team */}
           <div className="flex-1 text-center">
-            <div
+            <Link
+              href={`/teams/${match.firstOpponent.id}`}
               className={cn(
-                'font-bold text-2xl leading-tight transition-colors',
+                'font-bold text-2xl leading-tight transition-colors hover:underline',
                 hasPrediction && predictedScore1 > predictedScore2 && predictorTheme.scoreWinner,
               )}
             >
               {match.firstOpponent.name}
-            </div>
+            </Link>
           </div>
 
           {/* Home Score Control */}
@@ -225,14 +229,15 @@ const PredictionCard = ({
 
           {/* Away Team */}
           <div className="flex-1 text-center">
-            <div
+            <Link
+              href={`/teams/${match.secondOpponent.id}`}
               className={cn(
-                'font-bold text-2xl leading-tight transition-colors',
+                'font-bold text-2xl leading-tight transition-colors hover:underline',
                 hasPrediction && predictedScore2 > predictedScore1 && predictorTheme.scoreWinner,
               )}
             >
               {match.secondOpponent.name}
-            </div>
+            </Link>
           </div>
         </div>
 
@@ -257,7 +262,14 @@ const PredictionCard = ({
           >
             {hasPrediction ? getButtonText() : 'Set Your Score'}
           </Button>
-          {showLoginHint && <p className="text-xs text-center text-muted-foreground mt-2">Login required to save</p>}
+          {showLoginHint && (
+            <p className="text-xs text-center text-muted-foreground mt-2">
+              <Link href={`/login?redirect=${encodeURIComponent(loginRedirectPath)}`} className={cn('underline underline-offset-2', predictorTheme.hoverText)}>
+                Log in
+              </Link>{' '}
+              to save your prediction
+            </p>
+          )}
           {error && <p className="text-sm text-center text-destructive mt-2">{error}</p>}
         </div>
       </div>
