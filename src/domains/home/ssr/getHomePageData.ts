@@ -19,7 +19,7 @@ import {
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
 import { mapNews } from '@/domains/news/mappers/mapNews';
 import { mapMatch } from '@/domains/matches/mappers/mapMatch';
-import { TopPlayer } from '@/domains/home/contracts';
+import { mapTopPlayer } from '@/domains/home/mappers/mapTopPlayer';
 
 export const getHomePageData = async () => {
   const client = await getClient();
@@ -53,29 +53,7 @@ export const getHomePageData = async () => {
   const teams = teamsData?.teams.map(mapTeam) ?? [];
   const news = newsData?.news.map(mapNews) ?? [];
   const matches = matchesData?.matches.map(mapMatch) ?? [];
-  const shortenPosition = (position: string): string => {
-    const map: Record<string, string> = {
-      GOALKEEPER: 'GK',
-      DEFENDER: 'DEF',
-      MIDFIELDER: 'MID',
-      FORWARD: 'FWD',
-    };
-    return map[position] ?? position;
-  };
-
-  const topPlayers: TopPlayer[] =
-    topPlayersData?.topPlayers.map((p) => ({
-      id: p.id,
-      name: p.name,
-      teamId: p.teamId,
-      teamName: p.teamName,
-      position: shortenPosition(p.position),
-      goals: p.goals,
-      assists: p.assists,
-      yellowCards: p.yellowCards,
-      redCards: p.redCards,
-      ownGoals: p.ownGoals,
-    })) ?? [];
+  const topPlayers = topPlayersData?.topPlayers.map(mapTopPlayer) ?? [];
 
   const heroStatistics = statsData?.statistics
     ? {
