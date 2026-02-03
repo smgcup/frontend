@@ -20,6 +20,7 @@ import { mapTeam } from '@/domains/team/mappers/mapTeam';
 import { mapNews } from '@/domains/news/mappers/mapNews';
 import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 import { mapTopPlayer } from '@/domains/home/mappers/mapTopPlayer';
+import { mapHeroStatistics } from '@/domains/home/mappers/mapHeroStatistics';
 
 export const getHomePageData = async () => {
   const client = await getClient();
@@ -55,17 +56,7 @@ export const getHomePageData = async () => {
   const matches = matchesData?.matches.map(mapMatch) ?? [];
   const topPlayers = topPlayersData?.topPlayers.map(mapTopPlayer) ?? [];
 
-  const heroStatistics = statsData?.statistics
-    ? {
-        teamsCount: statsData.statistics.teamsCount,
-        matchesPlayedCount: statsData.statistics.matchesPlayedCount,
-        totalGoals: statsData.statistics.totalGoals,
-        avgGoalsPerMatch:
-          statsData.statistics.matchesPlayedCount > 0
-            ? Number((statsData.statistics.totalGoals / statsData.statistics.matchesPlayedCount).toFixed(2))
-            : 0,
-      }
-    : { teamsCount: 0, matchesPlayedCount: 0, totalGoals: 0, avgGoalsPerMatch: 0 };
+  const heroStatistics = mapHeroStatistics(statsData?.statistics);
 
   const error = teamsError || newsError || matchesError || statsError || topPlayersError;
 
