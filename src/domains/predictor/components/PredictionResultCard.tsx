@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Clock, Check, X, Target } from 'lucide-react';
+import { Calendar, Clock, Check, X, CheckCheck, TrendingUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { predictorTheme } from '@/lib/gamemodeThemes';
@@ -49,7 +49,7 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
     if (isExactCorrect) {
       return {
         text: 'Exact Match',
-        icon: <Target className="h-4 w-4" />,
+        icon: <CheckCheck className="h-4 w-4" />,
         className: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20',
       };
     }
@@ -74,8 +74,18 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
     predictedScore1 > predictedScore2 ? 'home' : predictedScore1 < predictedScore2 ? 'away' : 'draw';
 
   return (
-    <div className={cn('group relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full', predictorTheme.shadowSubtle)}>
-      <div className={cn('absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300', predictorTheme.gradientOverlay)} />
+    <div
+      className={cn(
+        'group relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full',
+        predictorTheme.shadowSubtle,
+      )}
+    >
+      <div
+        className={cn(
+          'absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300',
+          predictorTheme.gradientOverlay,
+        )}
+      />
 
       {/* Accent line at top */}
       <div className={cn('absolute top-0 left-0 right-0 h-1', predictorTheme.gradientLine)} />
@@ -84,7 +94,7 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
         {/* Header with status and accuracy badge */}
         <div className="grid grid-cols-3 items-center gap-2 mb-6">
           <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-            <Target className="h-3.5 w-3.5 shrink-0" />
+            <TrendingUpDown className="h-3.5 w-3.5 shrink-0" />
             <span>Prediction</span>
           </div>
           <div className="flex items-center justify-center">
@@ -124,7 +134,10 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
           {/* Home Team */}
           <div className="flex-1">
             <div className="block text-center">
-              <Link href={`/teams/${match.firstOpponent.id}`} className="text-2xl font-bold tracking-tight hover:underline">
+              <Link
+                href={`/teams/${match.firstOpponent.id}`}
+                className="text-2xl font-bold tracking-tight hover:underline"
+              >
                 {match.firstOpponent.name}
               </Link>
               {/* Predicted Score */}
@@ -141,9 +154,7 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
                 <div
                   className={cn(
                     'text-lg font-semibold mt-1',
-                    actualScore1 === predictedScore1
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-muted-foreground',
+                    actualScore1 === predictedScore1 ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground',
                   )}
                 >
                   Actual: {actualScore1}
@@ -166,7 +177,10 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
           {/* Away Team */}
           <div className="flex-1">
             <div className="block text-center">
-              <Link href={`/teams/${match.secondOpponent.id}`} className="text-2xl font-bold tracking-tight hover:underline">
+              <Link
+                href={`/teams/${match.secondOpponent.id}`}
+                className="text-2xl font-bold tracking-tight hover:underline"
+              >
                 {match.secondOpponent.name}
               </Link>
               {/* Predicted Score */}
@@ -183,9 +197,7 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
                 <div
                   className={cn(
                     'text-lg font-semibold mt-1',
-                    actualScore2 === predictedScore2
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-muted-foreground',
+                    actualScore2 === predictedScore2 ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground',
                   )}
                 >
                   Actual: {actualScore2}

@@ -40,10 +40,18 @@ const MyPredictionsLoading = () => {
             <Clock className={cn('h-5 w-5', predictorTheme.iconAccent)} />
             <h2 className="text-2xl font-bold">Upcoming Predictions</h2>
           </div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-68 rounded-xl bg-muted/50 border border-border animate-pulse" />
-            ))}
+          <div className="space-y-10">
+            {/* Round Skeleton */}
+            <section>
+              <div className={cn('text-lg font-semibold mb-4 flex items-center gap-2', predictorTheme.text)}>
+                <div className="h-5 w-20 bg-muted rounded animate-pulse" />
+              </div>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-68 rounded-xl bg-muted/50 border border-border animate-pulse" />
+                ))}
+              </div>
+            </section>
           </div>
         </div>
 
@@ -53,10 +61,18 @@ const MyPredictionsLoading = () => {
             <Trophy className={cn('h-5 w-5', predictorTheme.iconAccent)} />
             <h2 className="text-2xl font-bold">Past Predictions</h2>
           </div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-68 rounded-xl bg-muted/50 border border-border animate-pulse" />
-            ))}
+          <div className="space-y-10">
+            {/* Round 1 Skeleton */}
+            <section>
+              <div className={cn('text-lg font-semibold mb-4 flex items-center gap-2', predictorTheme.text)}>
+                <div className="h-5 w-20 bg-muted rounded animate-pulse" />
+              </div>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-68 rounded-xl bg-muted/50 border border-border animate-pulse" />
+                ))}
+              </div>
+            </section>
           </div>
         </div>
       </div>
