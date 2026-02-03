@@ -11,8 +11,11 @@ type PlayerStandingsViewUiProps = {
   data: PlayersPageData;
 };
 
-const getCategoryIcon = (title: string) => {
-  const iconMap: Record<string, string> = {
+/** SVG imports from Next.js can be StaticImageData { src, ... }; emoji are strings. */
+type CategoryIconValue = string | { src: string };
+
+const getCategoryIcon = (title: string): CategoryIconValue => {
+  const iconMap: Record<string, CategoryIconValue> = {
     Goals: goalIcon,
     Assists: '🤝',
     'Red Cards': redCardIcon,
@@ -22,16 +25,21 @@ const getCategoryIcon = (title: string) => {
   return iconMap[title] ?? goalIcon;
 };
 
-const isImagePath = (icon: string) => icon.startsWith('/');
+const getImageSrc = (icon: CategoryIconValue): string => (typeof icon === 'string' ? icon : icon.src);
+
+const isImagePath = (icon: CategoryIconValue): boolean => {
+  const src = getImageSrc(icon);
+  return typeof src === 'string' && src.startsWith('/');
+};
 
 const CategoryIcon = ({ title, alt }: { title: string; alt: string }) => {
   const icon = getCategoryIcon(title);
   if (isImagePath(icon)) {
-    return <Image src={icon} alt={alt} width={24} height={24} className="shrink-0 w-6 h-6" />;
+    return <Image src={getImageSrc(icon)} alt={alt} width={24} height={24} className="shrink-0 w-6 h-6" />;
   }
   return (
     <span className="shrink-0 w-6 h-6 flex items-center justify-center text-xl leading-none" aria-hidden>
-      {icon}
+      {typeof icon === 'string' ? icon : null}
     </span>
   );
 };
