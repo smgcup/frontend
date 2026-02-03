@@ -5,7 +5,6 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { createAuthLink, AUTH_COOKIE_NAME } from './auth';
 import { getCookie } from './cookies';
-import { apolloLoggingLink } from './apolloLoggingLink';
 
 export const makeClient = (): ApolloClient => {
   // Get the GraphQL endpoint, using current hostname if it's localhost
@@ -124,7 +123,7 @@ export const makeClient = (): ApolloClient => {
 
   return new ApolloClient({
     cache: new InMemoryCache(),
-    link: apolloLoggingLink.concat(splitLink),
+    link: splitLink,
     defaultOptions: {
       watchQuery: {
         fetchPolicy: 'cache-and-network',
