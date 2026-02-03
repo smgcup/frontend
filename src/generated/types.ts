@@ -29,6 +29,11 @@ export type AuthResponse = {
   user: User;
 };
 
+export type CreateAllPlayerAppearancesDto = {
+  appearances: Array<PlayerAppearanceInput>;
+  matchId: Scalars['String']['input'];
+};
+
 export type CreateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
   firstOpponentId: Scalars['String']['input'];
@@ -150,6 +155,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   adminLogin: AdminLoginResult;
   adminLogout: AdminLoginResult;
+  createAllPlayerAppearances: Array<PlayerAppearance>;
   createMatch: Match;
   createMatchEvent: MatchEvent;
   createNews: News;
@@ -160,6 +166,7 @@ export type Mutation = {
   deleteMatchEvent: MatchEvent;
   deleteNews: News;
   deletePlayer: Player;
+  deletePlayerAppearance: Scalars['Boolean']['output'];
   deletePrediction: Prediction;
   deleteTeam: Team;
   login: AuthResponse;
@@ -168,6 +175,7 @@ export type Mutation = {
   updateMatch: Match;
   updateNews: Scalars['Boolean']['output'];
   updatePlayer: Player;
+  updatePlayerAppearance: PlayerAppearance;
   updatePrediction: Prediction;
   updateTeam: Team;
   uploadFile: UploadResponse;
@@ -176,6 +184,11 @@ export type Mutation = {
 
 export type MutationAdminLoginArgs = {
   passkey: Scalars['String']['input'];
+};
+
+
+export type MutationCreateAllPlayerAppearancesArgs = {
+  input: CreateAllPlayerAppearancesDto;
 };
 
 
@@ -229,6 +242,12 @@ export type MutationDeletePlayerArgs = {
 };
 
 
+export type MutationDeletePlayerAppearanceArgs = {
+  matchId: Scalars['String']['input'];
+  playerId: Scalars['String']['input'];
+};
+
+
 export type MutationDeletePredictionArgs = {
   id: Scalars['String']['input'];
 };
@@ -269,6 +288,11 @@ export type MutationUpdateNewsArgs = {
 export type MutationUpdatePlayerArgs = {
   id: Scalars['String']['input'];
   updatePlayerDto: UpdatePlayerDto;
+};
+
+
+export type MutationUpdatePlayerAppearanceArgs = {
+  input: UpdatePlayerAppearanceDto;
 };
 
 
@@ -322,6 +346,21 @@ export type Player = {
   weight: Scalars['Float']['output'];
 };
 
+export type PlayerAppearance = {
+  __typename?: 'PlayerAppearance';
+  createdAt: Scalars['Date']['output'];
+  level: Scalars['Int']['output'];
+  match: Match;
+  matchId: Scalars['String']['output'];
+  player: Player;
+  playerId: Scalars['String']['output'];
+};
+
+export type PlayerAppearanceInput = {
+  level: Scalars['Int']['input'];
+  playerId: Scalars['String']['input'];
+};
+
 export enum PlayerPosition {
   Defender = 'DEFENDER',
   Forward = 'FORWARD',
@@ -371,6 +410,8 @@ export type Query = {
   myPredictions: Array<Prediction>;
   news: Array<News>;
   newsById: News;
+  playerAppearancesByMatch: Array<PlayerAppearance>;
+  playerAppearancesByPlayer: Array<PlayerAppearance>;
   playerById: Player;
   playersLeaderboard: PaginatedPlayersResponse;
   predictionLeaderboard: Array<UserPredictionStats>;
@@ -400,6 +441,16 @@ export type QueryMyPredictionForMatchArgs = {
 
 export type QueryNewsByIdArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryPlayerAppearancesByMatchArgs = {
+  matchId: Scalars['String']['input'];
+};
+
+
+export type QueryPlayerAppearancesByPlayerArgs = {
+  playerId: Scalars['String']['input'];
 };
 
 
@@ -488,6 +539,12 @@ export type UpdateNewsDto = {
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdatePlayerAppearanceDto = {
+  level: Scalars['Int']['input'];
+  matchId: Scalars['String']['input'];
+  playerId: Scalars['String']['input'];
+};
+
 export type UpdatePlayerDto = {
   class?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['Date']['input']>;
@@ -558,6 +615,8 @@ export enum Queries {
   myPredictions = 'myPredictions',
   news = 'news',
   newsById = 'newsById',
+  playerAppearancesByMatch = 'playerAppearancesByMatch',
+  playerAppearancesByPlayer = 'playerAppearancesByPlayer',
   playerById = 'playerById',
   playersLeaderboard = 'playersLeaderboard',
   predictionLeaderboard = 'predictionLeaderboard',
