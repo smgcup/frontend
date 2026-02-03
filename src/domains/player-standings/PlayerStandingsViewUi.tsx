@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { goalIcon, redCardIcon, yellowCardIcon } from '@/public/icons';
 import type { PlayersPageData } from './contracts';
 import StandingsColumn from './components/StandingsColumn';
 import { Loader2 } from 'lucide-react';
@@ -12,35 +13,21 @@ type PlayerStandingsViewUiProps = {
 
 const getCategoryIcon = (title: string) => {
   const iconMap: Record<string, string> = {
-    Goals: '/icons/goal-icon.svg',
+    Goals: goalIcon,
     Assists: '🤝',
-    'Red Cards': '/icons/red-card-icon.svg',
-    'Yellow Cards': '/icons/yellow-card-icon.svg',
+    'Red Cards': redCardIcon,
+    'Yellow Cards': yellowCardIcon,
     'Clean Sheets': '🧤',
   };
-  return iconMap[title] ?? '/icons/goal-icon.svg';
+  return iconMap[title] ?? goalIcon;
 };
 
 const isImagePath = (icon: string) => icon.startsWith('/');
 
-const CategoryIcon = ({
-  title,
-  alt,
-}: {
-  title: string;
-  alt: string;
-}) => {
+const CategoryIcon = ({ title, alt }: { title: string; alt: string }) => {
   const icon = getCategoryIcon(title);
   if (isImagePath(icon)) {
-    return (
-      <Image
-        src={icon}
-        alt={alt}
-        width={24}
-        height={24}
-        className="shrink-0 w-6 h-6"
-      />
-    );
+    return <Image src={icon} alt={alt} width={24} height={24} className="shrink-0 w-6 h-6" />;
   }
   return (
     <span className="shrink-0 w-6 h-6 flex items-center justify-center text-xl leading-none" aria-hidden>

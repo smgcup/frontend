@@ -1,4 +1,14 @@
-export { default as playerIcon } from './player-icon.svg';
-export { default as matchIcon } from './match-icon.svg';
-export { default as teamIcon } from './team-icon.svg';
+export { default as assistIcon } from './assist-icon.svg';
+export { default as assistIcon2 } from './assist-icon-2.svg';
+export { default as assistIcon3 } from './assist-icon-3.svg';
+export { default as cleanSheetIcon } from './clean-sheet-icon.svg';
 export { default as goalIcon } from './goal-icon.svg';
+export { default as goalIcon2 } from './goal-icon-2.svg';
+export { default as goalIconOld } from './goal-icon-old.svg';
+export { default as matchIcon } from './match-icon.svg';
+export { default as nextIcon } from './next.svg';
+export { default as playerIcon } from './player-icon.svg';
+export { default as playerIconOld } from './player-icon-old.svg';
+export { default as redCardIcon } from './red-card-icon.svg';
+export { default as teamIcon } from './team-icon.svg';
+export { default as yellowCardIcon } from './yellow-card-icon.svg';
