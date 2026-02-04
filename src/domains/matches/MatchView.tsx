@@ -7,7 +7,7 @@ import type { Match } from './contracts';
 
 type MatchViewProps = {
   matches: Match[];
-  error?: unknown;
+  error?: string | null;
 };
 
 const MatchView = ({ matches, error }: MatchViewProps) => {
