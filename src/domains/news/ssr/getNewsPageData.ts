@@ -1,15 +1,11 @@
-import { getClient } from '@/lib/initializeApollo';
-import { GetNewsDocument, GetNewsQuery, GetNewsQueryVariables } from '@/graphql';
-import { mapNews } from '../mappers/mapNews';
+import { getNewsData } from '@/lib/cachedQueries';
 
 export const getNewsPageData = async () => {
-  const client = await getClient();
-
-  const { data, error: newsError } = await client.query<GetNewsQuery, GetNewsQueryVariables>({
-    query: GetNewsDocument,
-  });
-  const news = data?.news.map(mapNews) ?? [];
-
-  const error = newsError;
-  return { news, error };
+  try {
+    const news = await getNewsData();
+    return { news, error: null };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Failed to load news';
+    return { news: [], error: errorMessage };
+  }
 };

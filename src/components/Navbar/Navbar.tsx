@@ -157,15 +157,17 @@ const Navbar = () => {
     }
     return (
       <NavigationMenuItem key={item.title}>
-        <NavigationMenuLink
-          href={item.url}
-          aria-current={isActive ? 'page' : undefined}
-          className={cn(
-            'bg-background hover:bg-muted hover:text-accent-foreground group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors',
-            isActive && 'underline underline-offset-4 decoration-primary decoration-2',
-          )}
-        >
-          {item.title}
+        <NavigationMenuLink asChild>
+          <Link
+            href={item.url}
+            aria-current={isActive ? 'page' : undefined}
+            className={cn(
+              'bg-background hover:bg-muted hover:text-accent-foreground group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors',
+              isActive && 'underline underline-offset-4 decoration-primary decoration-2',
+            )}
+          >
+            {item.title}
+          </Link>
         </NavigationMenuLink>
       </NavigationMenuItem>
     );
