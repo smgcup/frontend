@@ -1,10 +1,4 @@
-import { getClient } from '@/lib/initializeApollo';
-import {
-  GetTeamsDocument,
-  GetTeamsQuery,
-  GetTeamsQueryVariables,
-} from '@/graphql';
-import { mapTeam } from '@/domains/team/mappers/mapTeam';
+import { getTeamsData } from '@/lib/cachedQueries';
 import { Team } from '@/domains/team/contracts';
 
 const removeEmptyPlayers = (team: Team) => {
@@ -14,13 +8,7 @@ const removeEmptyPlayers = (team: Team) => {
 };
 
 export const getTeamStandingsPageData = async () => {
-  const client = await getClient();
+  const teams = await getTeamsData();
 
-  const { data: teamsData } = await client.query<GetTeamsQuery, GetTeamsQueryVariables>({
-    query: GetTeamsDocument,
-  });
-
-  const teams = teamsData?.teams.map(team => removeEmptyPlayers(mapTeam(team))) ?? [];
-
-  return { teams };
+  return { teams: teams.map(removeEmptyPlayers) };
 };

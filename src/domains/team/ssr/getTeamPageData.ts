@@ -1,15 +1,5 @@
-import { getClient } from '@/lib/initializeApollo';
-import {
-  TeamByIdDocument,
-  TeamByIdQuery,
-  TeamByIdQueryVariables,
-  GetMatchesDocument,
-  GetMatchesQuery,
-  GetMatchesQueryVariables,
-  MatchStatus,
-} from '@/graphql';
-import { mapTeam } from '@/domains/team/mappers/mapTeam';
-import { mapMatch } from '@/domains/matches/mappers/mapMatch';
+import { getTeamByIdData, getMatchesData } from '@/lib/cachedQueries';
+import { MatchStatus } from '@/graphql';
 import type { Player } from '@/domains/player/contracts';
 import type { Team, TeamStats } from '@/domains/team/contracts';
 import type { Match } from '@/domains/matches/contracts';
@@ -58,31 +48,12 @@ function calculateTeamStats(teamId: string, matches: Match[]): TeamStats {
 }
 
 export async function getTeamPageData(teamId: string): Promise<{ team: Team | null; error: string | null }> {
-  const client = await getClient();
-
   try {
-    // Fetch team and matches in parallel
-    const [teamResult, matchesResult] = await Promise.all([
-      client.query<TeamByIdQuery, TeamByIdQueryVariables>({
-        query: TeamByIdDocument,
-        variables: { id: teamId },
-      }),
-      client.query<GetMatchesQuery, GetMatchesQueryVariables>({
-        query: GetMatchesDocument,
-      }),
-    ]);
+    const [team, allMatches] = await Promise.all([getTeamByIdData(teamId), getMatchesData()]);
 
-    const { data, error } = teamResult;
-
-    if (error || !data?.teamById) {
-      const errorMessage = error
-        ? 'Failed to load team information. Please try again later.'
-        : 'Team not found. The team you are looking for does not exist.';
-      return { team: null, error: errorMessage };
+    if (!team) {
+      return { team: null, error: 'Team not found. The team you are looking for does not exist.' };
     }
-
-    // Map GraphQL response to domain Team model
-    const team = mapTeam(data.teamById);
 
     // Transform domain Team - ensure players is always an array
     const players: Player[] = (team.players || []).map((player) => ({
@@ -98,10 +69,8 @@ export async function getTeamPageData(teamId: string): Promise<{ team: Team | nu
       : undefined;
 
     // Filter matches for this team (where team is either first or second opponent)
-    const allMatches = matchesResult.data?.matches ?? [];
     const teamMatches = allMatches
       .filter((match) => match.firstOpponent.id === teamId || match.secondOpponent.id === teamId)
-      .map(mapMatch)
       // Sort by date, most recent first
       .sort((a, b) => (b.date ? new Date(b.date).getTime() - new Date(a.date ?? '').getTime() : 0));
 

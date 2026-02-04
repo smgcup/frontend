@@ -46,9 +46,9 @@ const getStatValue = (
 };
 
 export const usePlayerStandings = (): PlayersPageData => {
-  const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const fetchMoreRefs = useRef<Map<LeaderboardSortType, LeaderboardResult['fetchMore']>>(new Map());
+  const skipFirstAutoLoadMoreRef = useRef(true);
 
   // Query for Goals
   const goalsQuery = useQuery<GetLeaderboardQuery, GetLeaderboardQueryVariables>(GetLeaderboardDocument, {
@@ -153,7 +153,6 @@ export const usePlayerStandings = (): PlayersPageData => {
     if (loadingMore || !hasMore) return;
 
     setLoadingMore(true);
-    const nextPage = page + 1;
 
     const dataByType: Record<LeaderboardSortType, GetLeaderboardQuery | undefined> = {
       [LeaderboardSortType.Goals]: goalsQuery.data,
@@ -171,27 +170,19 @@ export const usePlayerStandings = (): PlayersPageData => {
 
           if (!fetchMore || !currentHasMore) return Promise.resolve();
 
-          return fetchMore({
-            variables: { page: nextPage },
-            updateQuery: (prev, { fetchMoreResult }) => {
-              if (!fetchMoreResult) return prev;
+          const currentCount = dataByType[sortType]?.playersLeaderboard.players.length ?? 0;
+          const nextPage = Math.floor(currentCount / LIMIT) + 1;
 
-              return {
-                playersLeaderboard: {
-                  ...fetchMoreResult.playersLeaderboard,
-                  players: [...prev.playersLeaderboard.players, ...fetchMoreResult.playersLeaderboard.players],
-                },
-              };
-            },
+          return fetchMore({
+            // Apollo cache typePolicy handles merging pages; we only request the next page.
+            variables: { page: nextPage },
           });
         }),
       );
-      setPage(nextPage);
     } finally {
       setLoadingMore(false);
     }
   }, [
-    page,
     loadingMore,
     hasMore,
     goalsQuery.data,
@@ -205,7 +196,15 @@ export const usePlayerStandings = (): PlayersPageData => {
     standings,
     loading,
     loadingMore,
-    loadMore,
+    loadMore: async () => {
+      // Prevent an immediate network request when navigating back to the page
+      // (IntersectionObserver can fire right away if the sentinel is visible).
+      if (skipFirstAutoLoadMoreRef.current) {
+        skipFirstAutoLoadMoreRef.current = false;
+        return;
+      }
+      return loadMore();
+    },
     hasMore,
   };
 };
