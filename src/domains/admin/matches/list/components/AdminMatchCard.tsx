@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Pencil, Trash2, Calendar, Clock, Loader2, Radio, Trophy, MapPin, MoreVertical, Play } from 'lucide-react';
+import { Pencil, Trash2, Calendar, Clock, Loader2, Radio, Trophy, MapPin, MoreVertical, Play, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -224,6 +224,15 @@ const AdminMatchCard = ({
               <Link href={`/admin/matches/${match.id}/live`}>
                 <Radio className="h-4 w-4" />
                 Manage Live
+              </Link>
+            </Button>
+          )}
+          {/* Show "Appearances" button for FINISHED matches */}
+          {match.status === MatchStatus.Finished && (
+            <Button variant="outline" size="sm" asChild className="gap-2">
+              <Link href={`/admin/matches/${match.id}/appearances`}>
+                <Users className="h-4 w-4" />
+                Appearances
               </Link>
             </Button>
           )}

@@ -1,0 +1,14 @@
+query GetTopPlayers {
+  topPlayers {
+    id
+    name
+    teamId
+    teamName
+    position
+    goals
+    assists
+    yellowCards
+    redCards
+    ownGoals
+  }
+}

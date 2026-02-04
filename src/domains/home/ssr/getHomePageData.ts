@@ -9,10 +9,18 @@ import {
   GetMatchesDocument,
   GetMatchesQuery,
   GetMatchesQueryVariables,
+  GetHeroStatisticsDocument,
+  GetHeroStatisticsQuery,
+  GetHeroStatisticsQueryVariables,
+  GetTopPlayersDocument,
+  GetTopPlayersQuery,
+  GetTopPlayersQueryVariables,
 } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
 import { mapNews } from '@/domains/news/mappers/mapNews';
 import { mapMatch } from '@/domains/matches/mappers/mapMatch';
+import { mapTopPlayer } from '@/domains/home/mappers/mapTopPlayer';
+import { mapHeroStatistics } from '@/domains/home/mappers/mapHeroStatistics';
 
 export const getHomePageData = async () => {
   const client = await getClient();
@@ -28,11 +36,29 @@ export const getHomePageData = async () => {
   const { data: matchesData, error: matchesError } = await client.query<GetMatchesQuery, GetMatchesQueryVariables>({
     query: GetMatchesDocument,
   });
+
+  const { data: statsData, error: statsError } = await client.query<
+    GetHeroStatisticsQuery,
+    GetHeroStatisticsQueryVariables
+  >({
+    query: GetHeroStatisticsDocument,
+  });
+
+  const { data: topPlayersData, error: topPlayersError } = await client.query<
+    GetTopPlayersQuery,
+    GetTopPlayersQueryVariables
+  >({
+    query: GetTopPlayersDocument,
+  });
+
   const teams = teamsData?.teams.map(mapTeam) ?? [];
   const news = newsData?.news.map(mapNews) ?? [];
   const matches = matchesData?.matches.map(mapMatch) ?? [];
+  const topPlayers = topPlayersData?.topPlayers.map(mapTopPlayer) ?? [];
 
-  const error = teamsError || newsError || matchesError;
+  const heroStatistics = mapHeroStatistics(statsData?.statistics);
 
-  return { teams, news, matches, error };
+  const error = teamsError || newsError || matchesError || statsError || topPlayersError;
+
+  return { teams, news, matches, heroStatistics, topPlayers, error };
 };

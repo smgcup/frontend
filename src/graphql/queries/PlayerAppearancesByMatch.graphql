@@ -1,0 +1,13 @@
+query PlayerAppearancesByMatch($matchId: String!) {
+  playerAppearancesByMatch(matchId: $matchId) {
+    playerId
+    matchId
+    level
+    player {
+      id
+      firstName
+      lastName
+      position
+    }
+  }
+}

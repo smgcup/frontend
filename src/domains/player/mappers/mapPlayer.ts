@@ -1,4 +1,4 @@
-import { Player } from '../contracts';
+import { Player, PlayerStats } from '../contracts';
 import {
   MatchByIdQuery,
   PlayerByIdQuery,
@@ -30,6 +30,22 @@ export const mapPlayer = (
   const playerClass = 'class' in player ? player.class : undefined;
   const dateOfBirth = 'dateOfBirth' in player ? player.dateOfBirth : undefined;
 
+  let stats: PlayerStats | undefined;
+  if ('stats' in player && player.stats) {
+    const rawStats = player.stats as { appearances?: number };
+    stats = {
+      appearances: rawStats.appearances ?? 0,
+      goals: player.stats.goals,
+      assists: player.stats.assists,
+      yellowCards: player.stats.yellowCards,
+      redCards: player.stats.redCards,
+      ownGoals: player.stats.ownGoals,
+      penaltiesMissed: player.stats.penaltiesMissed,
+      penaltiesScored: player.stats.penaltiesScored,
+      goalkeeperSaves: player.stats.goalkeeperSaves,
+    };
+  }
+
   return {
     id: player.id,
     firstName: player.firstName,
@@ -43,5 +59,6 @@ export const mapPlayer = (
     imageUrl,
     class: playerClass,
     dateOfBirth,
+    stats,
   };
 };

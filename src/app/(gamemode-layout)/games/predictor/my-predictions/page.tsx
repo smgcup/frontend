@@ -1,4 +1,4 @@
-import { Target, Star, Zap, Trophy, Clock, AlertCircle, LogIn } from 'lucide-react';
+import { CheckCheck, Star, Zap, Trophy, Clock, AlertCircle, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { MatchStatus } from '@/graphql';
 import { getMyPredictionsPageData } from '@/domains/predictor/ssr/getMyPredictionsPageData';
@@ -6,6 +6,30 @@ import PredictionResultCard from '@/domains/predictor/components/PredictionResul
 import { Button } from '@/components/ui/button';
 import { predictorTheme } from '@/lib/gamemodeThemes';
 import { cn } from '@/lib/utils';
+import type { Prediction } from '@/domains/predictor/contracts';
+
+function groupPredictionsByRound(predictions: Prediction[]): [number, Prediction[]][] {
+  const grouped = new Map<number, Prediction[]>();
+  for (const pred of predictions) {
+    const round = pred.match.round ?? 0;
+    const list = grouped.get(round) ?? [];
+    list.push(pred);
+    grouped.set(round, list);
+  }
+  return Array.from(grouped.entries())
+    .sort(([a], [b]) => a - b)
+    .map(
+      ([round, roundPreds]) =>
+        [
+          round,
+          [...roundPreds].sort((a, b) => {
+            const dateA = a.match.date ? new Date(a.match.date).getTime() : 0;
+            const dateB = b.match.date ? new Date(b.match.date).getTime() : 0;
+            return dateA - dateB;
+          }),
+        ] as [number, Prediction[]],
+    );
+}
 
 const MyPredictionsPage = async () => {
   const { predictions, stats, error, isAuthError } = await getMyPredictionsPageData();
@@ -14,7 +38,7 @@ const MyPredictionsPage = async () => {
   if (isAuthError) {
     return (
       <div className="min-h-[calc(100vh-60px)]">
-        <div className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
+        <div className="relative overflow-hidden bg-linear-to-b from-primary/10 to-background">
           <div className="relative container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             <div className="text-center">
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">My Predictions</h1>
@@ -43,7 +67,7 @@ const MyPredictionsPage = async () => {
   if (error) {
     return (
       <div className="min-h-[calc(100vh-60px)]">
-        <div className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
+        <div className="relative overflow-hidden bg-linear-to-b from-primary/10 to-background">
           <div className="relative container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             <div className="text-center">
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">My Predictions</h1>
@@ -76,7 +100,7 @@ const MyPredictionsPage = async () => {
   }
 
   const statsDisplay = [
-    { icon: <Target className="h-5 w-5" />, label: 'Exact Hits', value: stats.exactMatchesCount.toString() },
+    { icon: <CheckCheck className="h-5 w-5" />, label: 'Exact Hits', value: stats.exactMatchesCount.toString() },
     {
       icon: <Star className="h-5 w-5" />,
       label: 'Correct Outcome',
@@ -93,7 +117,7 @@ const MyPredictionsPage = async () => {
   return (
     <div className="min-h-[calc(100vh-60px)]">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
+      <div className="relative overflow-hidden bg-linear-to-b from-primary/10 to-background">
         <div className="relative container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">My Predictions</h1>
@@ -131,9 +155,18 @@ const MyPredictionsPage = async () => {
               <Clock className={cn('h-5 w-5', predictorTheme.iconAccent)} />
               <h2 className="text-2xl font-bold">Upcoming Predictions</h2>
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {upcomingPredictions.map((prediction) => (
-                <PredictionResultCard key={prediction.id} prediction={prediction} />
+            <div className="space-y-10">
+              {groupPredictionsByRound(upcomingPredictions).map(([round, roundPredictions]) => (
+                <section key={`upcoming-round-${round}`}>
+                  <h3 className={cn('text-lg font-semibold mb-4 flex items-center gap-2', predictorTheme.text)}>
+                    Round {round}
+                  </h3>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {roundPredictions.map((prediction) => (
+                      <PredictionResultCard key={prediction.id} prediction={prediction} />
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           </div>
@@ -146,9 +179,18 @@ const MyPredictionsPage = async () => {
               <Trophy className={cn('h-5 w-5', predictorTheme.iconAccent)} />
               <h2 className="text-2xl font-bold">Past Predictions</h2>
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {pastPredictions.map((prediction) => (
-                <PredictionResultCard key={prediction.id} prediction={prediction} />
+            <div className="space-y-10">
+              {groupPredictionsByRound(pastPredictions).map(([round, roundPredictions]) => (
+                <section key={`past-round-${round}`}>
+                  <h3 className={cn('text-lg font-semibold mb-4 flex items-center gap-2', predictorTheme.text)}>
+                    Round {round}
+                  </h3>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {roundPredictions.map((prediction) => (
+                      <PredictionResultCard key={prediction.id} prediction={prediction} />
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           </div>
@@ -157,7 +199,7 @@ const MyPredictionsPage = async () => {
         {/* Empty State */}
         {upcomingPredictions.length === 0 && pastPredictions.length === 0 && (
           <div className="text-center py-16 bg-muted/30 rounded-xl border border-dashed">
-            <Target className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+            <CheckCheck className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Predictions Yet</h3>
             <p className="text-muted-foreground mb-6">Start making predictions to see them here.</p>
             <Button asChild>

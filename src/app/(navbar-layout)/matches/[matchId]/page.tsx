@@ -24,7 +24,7 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
 
   return (
     <section className="py-10 px-4 sm:px-6 lg:px-8">
-      <div className="container mx-auto max-w-4xl space-y-6">
+      <div className="container mx-auto max-w-2xl space-y-6">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">

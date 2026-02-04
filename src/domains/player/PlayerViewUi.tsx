@@ -13,17 +13,6 @@ import MatchCard from '@/domains/matches/components/MatchCard';
 
 type Tab = 'overview' | 'matches' | 'stats';
 
-// Mock data for player stats
-const mockStats = {
-  appearances: 0,
-  goals: 0,
-  assists: 0,
-  cleanSheets: 0,
-  savesMade: 0,
-  yellowCards: 0,
-  redCards: 0,
-};
-
 const PREFERRED_FOOT_LABELS: Record<PreferredFoot, string> = {
   [PreferredFoot.Left]: 'Left',
   [PreferredFoot.Right]: 'Right',
@@ -173,16 +162,16 @@ export function PlayerViewUi({ player }: { player: Player }) {
 
             {/* Compact Grid Layout - Row 2 */}
             <div className="grid grid-cols-3 gap-4">
-              <InfoCard label="Appearances" value={mockStats.appearances} />
+              <InfoCard label="Appearances" value={player.stats?.appearances ?? 0} />
               {isGoalkeeper ? (
                 <>
-                  <InfoCard label="Clean Sheets" value={mockStats.cleanSheets} />
-                  <InfoCard label="Saves Made" value={mockStats.savesMade} />
+                  <InfoCard label="Saves" value={player.stats?.goalkeeperSaves ?? 0} />
+                  <InfoCard label="Goals" value={player.stats?.goals ?? 0} />
                 </>
               ) : (
                 <>
-                  <InfoCard label="Goals" value={mockStats.goals} />
-                  <InfoCard label="Assists" value={mockStats.assists} />
+                  <InfoCard label="Goals" value={player.stats?.goals ?? 0} />
+                  <InfoCard label="Assists" value={player.stats?.assists ?? 0} />
                 </>
               )}
             </div>
@@ -237,26 +226,44 @@ export function PlayerViewUi({ player }: { player: Player }) {
 
             {/* Main Stats Grid */}
             <div className="grid grid-cols-3 gap-3 md:gap-4">
-              <StatCard label="Appearances" value={mockStats.appearances} />
-              {isGoalkeeper ? (
-                <>
-                  <StatCard label="Clean Sheets" value={mockStats.cleanSheets} highlight="green" />
-                  <StatCard label="Saves Made" value={mockStats.savesMade} highlight="blue" />
-                </>
-              ) : (
-                <>
-                  <StatCard label="Goals" value={mockStats.goals} highlight="green" />
-                  <StatCard label="Assists" value={mockStats.assists} highlight="blue" />
-                </>
-              )}
+              <StatCard label="Appearances" value={player.stats?.appearances ?? 0} />
+              <StatCard label="Goals" value={player.stats?.goals ?? 0} highlight="green" />
+              <StatCard label="Assists" value={player.stats?.assists ?? 0} highlight="blue" />
+            </div>
+
+            {/* Penalties */}
+            <div>
+              <h3 className="text-base md:text-lg font-medium mb-3">Penalties</h3>
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
+                <StatCard label="Penalties Scored" value={player.stats?.penaltiesScored ?? 0} highlight="green" />
+                <StatCard label="Penalties Missed" value={player.stats?.penaltiesMissed ?? 0} highlight="red" />
+              </div>
+            </div>
+
+            {/* Goalkeeper Stats - only for goalkeepers */}
+            {isGoalkeeper && (
+              <div>
+                <h3 className="text-base md:text-lg font-medium mb-3">Goalkeeper</h3>
+                <div className="grid grid-cols-1 gap-3 md:gap-4">
+                  <StatCard label="Saves" value={player.stats?.goalkeeperSaves ?? 0} highlight="blue" />
+                </div>
+              </div>
+            )}
+
+            {/* Other */}
+            <div>
+              <h3 className="text-base md:text-lg font-medium mb-3">Other</h3>
+              <div className="grid grid-cols-1 gap-3 md:gap-4">
+                <StatCard label="Own Goals" value={player.stats?.ownGoals ?? 0} />
+              </div>
             </div>
 
             {/* Discipline */}
             <div>
               <h3 className="text-base md:text-lg font-medium mb-3">Discipline</h3>
               <div className="grid grid-cols-2 gap-3 md:gap-4">
-                <StatCard label="Yellow Cards" value={mockStats.yellowCards} highlight="yellow" />
-                <StatCard label="Red Cards" value={mockStats.redCards} highlight="red" />
+                <StatCard label="Yellow Cards" value={player.stats?.yellowCards ?? 0} highlight="yellow" />
+                <StatCard label="Red Cards" value={player.stats?.redCards ?? 0} highlight="red" />
               </div>
             </div>
           </div>

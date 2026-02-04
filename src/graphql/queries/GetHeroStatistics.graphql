@@ -1,0 +1,7 @@
+query GetHeroStatistics {
+  statistics {
+    teamsCount
+    matchesPlayedCount
+    totalGoals
+  }
+}

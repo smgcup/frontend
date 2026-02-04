@@ -1,0 +1,7 @@
+mutation CreateAllPlayerAppearances($input: CreateAllPlayerAppearancesDto!) {
+  createAllPlayerAppearances(input: $input) {
+    playerId
+    matchId
+    level
+  }
+}
