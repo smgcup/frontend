@@ -1,141 +1,160 @@
-import { Zap, Timer, Users, ShieldCheck, LayoutGrid, Trophy, Target, TrendingUp, Award, Gamepad2 } from 'lucide-react';
-import GameCard from './components/GameCard';
-import type { Gamemode } from './contracts';
+import React from 'react';
+import Link from 'next/link';
+import { ArrowRight, Target, Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { type ThemeClasses, predictorTheme, fantasyTheme } from '@/lib/gamemodeThemes';
 
-const games: Gamemode[] = [
-  {
-    title: 'Predictor',
-    subtitle: 'Match Prophecy',
-    badge: {
-      text: 'Popular',
-      variant: 'popular',
-    },
-    backgroundImage: 'https://images.unsplash.com/photo-1553778263-73a83bab9b0c?q=80&w=871&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    href: '/games/predictor',
-    stats: [
-      {
-        icon: <Zap className="h-5 w-5" />,
-        label: '500 Pts',
-      },
-      {
-        icon: <Timer className="h-5 w-5" />,
-        label: '14:02:44',
-      },
-      {
-        icon: <Users className="h-5 w-5" />,
-        label: '12.4k',
-      },
-    ],
-  },
-  {
-    title: 'Fantasy',
-    subtitle: 'Dream Team Builder',
-    badge: {
-      text: 'New Season',
-      variant: 'new-season',
-    },
-    backgroundImage: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=2093&auto=format&fit=crop',
-    href: '/games/fantasy',
-    stats: [
-      {
-        icon: <ShieldCheck className="h-5 w-5" />,
-        label: 'Elite',
-      },
-      {
-        icon: <LayoutGrid className="h-5 w-5" />,
-        label: 'Gameweek 1',
-      },
-      {
-        icon: <Trophy className="h-5 w-5" />,
-        label: '$10k',
-      },
-    ],
-  },
-];
+type GameCardProps = {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  badge?: string;
+  href: string;
+  theme: ThemeClasses;
+  disabled?: boolean;
+  backgroundImage?: string;
+};
 
-const features = [
-  {
-    icon: <Target className="h-6 w-6" />,
-    title: 'Predict & Win',
-    description: 'Forecast match outcomes and earn points for correct predictions.',
-  },
-  {
-    icon: <TrendingUp className="h-6 w-6" />,
-    title: 'Climb the Ranks',
-    description: 'Compete on global leaderboards and track your progress over time.',
-  },
-  {
-    icon: <Award className="h-6 w-6" />,
-    title: 'Earn Rewards',
-    description: 'Win prizes and unlock achievements as you play.',
-  },
-];
+const GameCard = ({ title, description, icon, badge, href, theme, disabled, backgroundImage }: GameCardProps) => {
+  const CardContent = (
+    <div
+      className={cn(
+        'group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card/50 backdrop-blur-sm transition-all duration-300',
+        !disabled && 'hover:shadow-2xl hover:scale-102',
+        !disabled && theme.shadow,
+        disabled && 'opacity-50 grayscale',
+      )}
+    >
+      {/* Background image with hover zoom (enlarges beyond card) */}
+      {backgroundImage && (
+        <div className="absolute inset-0 overflow-hidden">
+          <div
+            className="h-full w-full bg-cover bg-center grayscale transition-transform duration-500 ease-out group-hover:scale-125"
+            style={{ backgroundImage: `url(${backgroundImage})` }}
+          />
+          <div className="absolute inset-0 bg-card/70 backdrop-blur-[2px]" />
+        </div>
+      )}
+
+      {/* Animated gradient background */}
+      <div
+        className={cn(
+          'absolute inset-0 opacity-0 transition-opacity duration-500',
+          !disabled && 'group-hover:opacity-100',
+          theme.gradientOverlay,
+        )}
+      />
+
+      {/* Top accent line */}
+      <div className={cn('relative z-1 h-1 w-full', theme.gradientLine)} />
+
+      <div className="relative z-1 flex flex-col h-full p-6 sm:p-8">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-6">
+          <div
+            className={cn(
+              'flex h-14 w-14 items-center justify-center rounded-xl transition-transform duration-300',
+              theme.bgLight,
+              !disabled && 'group-hover:scale-110',
+            )}
+          >
+            <div className={theme.text}>{icon}</div>
+          </div>
+          {badge && (
+            <span
+              className={cn(
+                'inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold',
+                theme.bgLight,
+                theme.text,
+              )}
+            >
+              {badge}
+            </span>
+          )}
+        </div>
+
+        {/* Title & Description */}
+        <div className="mb-8 flex-1">
+          <h2
+            className={cn(
+              'text-2xl sm:text-3xl font-bold tracking-tight mb-3 transition-colors duration-300',
+              !disabled && `group-hover:${theme.text}`,
+            )}
+          >
+            {title}
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{description}</p>
+        </div>
+
+        {/* Coming Soon Overlay */}
+        {disabled && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center">
+            <div className={cn('rounded-xl border-2 px-6 py-3 shadow-lg backdrop-blur-sm', theme.border, 'bg-card/90')}>
+              <span className={cn('text-sm font-bold uppercase tracking-wider', theme.text)}>Coming Soon</span>
+            </div>
+          </div>
+        )}
+
+        {/* CTA */}
+        <div className="mt-auto">
+          <div
+            className={cn(
+              'flex h-12 w-full items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-300',
+              disabled
+                ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                : cn(theme.buttonPrimary, theme.buttonPrimaryHover, 'group-hover:gap-3'),
+            )}
+          >
+            <span>{disabled ? 'Coming Soon' : 'Play Now'}</span>
+            {!disabled && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (disabled) {
+    return <div className="h-full">{CardContent}</div>;
+  }
+
+  return (
+    <Link href={href} className="block h-full">
+      {CardContent}
+    </Link>
+  );
+};
 
 const GamesViewUi = () => {
   return (
-    <div className="relative min-h-[calc(100vh-64px)] overflow-hidden">
-      {/* Background Elements */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
+    <div className="container mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
+      {/* Header Section */}
+      <div className="mb-12 text-center">
+        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground mb-4">Choose Your Game</h1>
+        <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+          Test your football knowledge and compete against fans worldwide
+        </p>
       </div>
 
-      <div className="relative">
-        {/* Hero Section */}
-        <section className="bg-linear-to-b from-muted/30 to-transparent">
-          <div className="container mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-            <div className="mx-auto max-w-3xl text-center">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-1.5 text-sm font-medium text-muted-foreground backdrop-blur-sm">
-                <Gamepad2 className="h-4 w-4" />
-                <span>Game Hub</span>
-              </div>
-              <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-                Choose Your <span className="text-primary">Game</span>
-              </h1>
-              <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
-                Put your football knowledge to the test. Predict match outcomes or build your dream team and compete against players worldwide.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Games Grid */}
-        <section className="py-12 sm:py-16 lg:py-20">
-          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-2 lg:gap-10">
-              {games.map((game, index) => (
-                <GameCard key={index} {...game} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section className="border-t border-border/50 bg-muted/30 py-12 sm:py-16">
-          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-5xl">
-              <h2 className="mb-10 text-center text-2xl font-semibold tracking-tight sm:text-3xl">
-                How It Works
-              </h2>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
-                {features.map((feature, index) => (
-                  <div
-                    key={index}
-                    className="group flex flex-col items-center rounded-2xl border border-border/50 bg-background/50 p-6 text-center backdrop-blur-sm transition-colors hover:border-border hover:bg-background"
-                  >
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-110">
-                      {feature.icon}
-                    </div>
-                    <h3 className="mb-2 font-semibold">{feature.title}</h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {feature.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
+      {/* Games Grid */}
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <GameCard
+          title="Predictor"
+          description="Predict match scores and outcomes."
+          icon={<Target className="h-7 w-7" />}
+          badge="Most Popular"
+          theme={predictorTheme}
+          href="/games/predictor"
+          backgroundImage="https://storage.googleapis.com/pod_public/750/169545.jpg"
+        />
+        <GameCard
+          title="Fantasy"
+          description="Build your dream team and compete with friends."
+          icon={<Star className="h-7 w-7" />}
+          badge="New Season"
+          theme={fantasyTheme}
+          href="/games/fantasy"
+          disabled
+        />
       </div>
     </div>
   );

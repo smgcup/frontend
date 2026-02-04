@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { PlayerStanding } from '../contracts';
 import PositionBadge from '@/components/PositionBadge';
@@ -10,7 +11,8 @@ type PlayerRowProps = {
 
 const PlayerRow = ({ player, isLast }: PlayerRowProps) => {
   return (
-    <div
+    <Link
+      href={`/players/${player.id}`}
       className={cn(
         'flex items-center p-3 hover:bg-muted transition-colors h-[72px]',
         !isLast && 'border-b border-border',
@@ -45,7 +47,7 @@ const PlayerRow = ({ player, isLast }: PlayerRowProps) => {
       </div>
 
       <div className="font-bold text-xl shrink-0">{player.statValue}</div>
-    </div>
+    </Link>
   );
 };
 

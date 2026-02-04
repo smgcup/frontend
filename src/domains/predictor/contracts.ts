@@ -32,9 +32,3 @@ export type LeaderboardEntry = UserPredictionStats & {
   rank: number;
   accuracy: number;
 };
-
-export type PredictableMatch = Match & {
-  canPredict: boolean;
-  userPrediction?: Prediction;
-  deadline: string;
-};

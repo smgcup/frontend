@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Clock, Shield, X, Trash2 } from 'lucide-react';
+import { Clock, X, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { MatchEvent } from '@/domains/matches/contracts';
 import { MatchEventType } from '@/generated/types';
@@ -77,22 +77,31 @@ const getMarker = (type: MatchEventType) => {
     case MatchEventType.RedCard:
       return <span className="block h-6 w-4 rounded-sm bg-red-500" aria-hidden="true" />;
     case MatchEventType.Goal:
-    case MatchEventType.PenaltyScored:
       return (
         <span className="text-xl leading-none" aria-hidden="true">
           ⚽
         </span>
       );
+    case MatchEventType.PenaltyScored:
+      return (
+        <span className="text-xl leading-none" aria-hidden="true">
+          🎯
+        </span>
+      );
     case MatchEventType.OwnGoal:
       return (
-        <span className="text-xl leading-none opacity-60" aria-hidden="true">
-          ⚽
+        <span className="text-xl leading-none" aria-hidden="true">
+          🤦
         </span>
       );
     case MatchEventType.GoalkeeperSave:
-      return <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />;
+      return (
+        <span className="text-xl leading-none" aria-hidden="true">
+          🧤
+        </span>
+      );
     case MatchEventType.PenaltyMissed:
-      return <X className="h-5 w-5 text-muted-foreground" aria-hidden="true" />;
+      return <X className="h-5 w-5 text-red-500" aria-hidden="true" />;
     default:
       return <span className="block h-2 w-2 rounded-full bg-muted-foreground/40" aria-hidden="true" />;
   }
@@ -130,6 +139,9 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
       (event) => event.type !== MatchEventType.GoalkeeperSave || savesToShow.has(event.id)
     );
   }
+
+  // When not admin, each displayed save represents this many saves (for aria-label and label)
+  const savesPerDisplayedEvent = !Boolean(onDeleteEvent) ? 3 : null;
 
   // Check for empty events after filtering
   if (filteredEvents.length === 0) {
@@ -279,11 +291,29 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
             </div>
 
             <div
-              className="relative z-10 flex h-9 w-9 items-center justify-center"
-              aria-label={event.type}
-              title={event.type}
+              className={cn(
+                'relative z-10 flex items-center justify-center gap-0.5',
+                event.type === MatchEventType.GoalkeeperSave && savesPerDisplayedEvent
+                  ? 'h-9 min-w-9'
+                  : 'h-9 w-9'
+              )}
+              aria-label={
+                event.type === MatchEventType.GoalkeeperSave && savesPerDisplayedEvent
+                  ? `${savesPerDisplayedEvent} saves`
+                  : event.type
+              }
+              title={
+                event.type === MatchEventType.GoalkeeperSave && savesPerDisplayedEvent
+                  ? `${savesPerDisplayedEvent} saves`
+                  : event.type
+              }
             >
               {getMarker(event.type)}
+              {event.type === MatchEventType.GoalkeeperSave && savesPerDisplayedEvent && (
+                <span className="text-xs font-medium text-muted-foreground tabular-nums" aria-hidden="true">
+                  ×{savesPerDisplayedEvent}
+                </span>
+              )}
             </div>
 
             <div

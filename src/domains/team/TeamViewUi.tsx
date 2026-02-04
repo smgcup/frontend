@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, Calendar, BarChart3, Shield } from 'lucide-react';
+import { Users, Calendar, BarChart3 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BackButton } from '@/components/BackButton';
@@ -28,22 +28,6 @@ const POSITION_LABELS: Record<PlayerPosition, string> = {
   [PlayerPosition.Forward]: 'Forwards',
 };
 
-// Mock data for stats
-const mockStats = {
-  matchesPlayed: 0,
-  wins: 0,
-  draws: 0,
-  losses: 0,
-  goalsScored: 0,
-  goalsConceded: 0,
-  cleanSheets: 0,
-  yellowCards: 0,
-  redCards: 0,
-  averagePossession: 0,
-  shotsPerGame: 0,
-  passAccuracy: 0,
-};
-
 export function TeamViewUi({ team }: { team: Team }) {
   const [activeTab, setActiveTab] = useState<Tab>('squad');
 
@@ -68,32 +52,29 @@ export function TeamViewUi({ team }: { team: Team }) {
     <main className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-linear-to-b from-primary/10 to-background border-b">
-        <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <div className="container mx-auto px-4 py-8 max-w-3xl">
           <BackButton />
 
-          <div className="flex items-center gap-4">
-            <div className="h-20 w-20 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Shield className="h-10 w-10 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{team.name}</h1>
-              <p className="text-muted-foreground mt-1">
-                {(team.players || []).length} players
-                {team.captain && (
-                  <>
-                    <br />
-                    Captain: {team.captain.firstName} {team.captain.lastName}
-                  </>
-                )}
-              </p>
-            </div>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{team.name}</h1>
+            <p className="text-muted-foreground mt-1">
+              {(team.players || []).length} players
+              {team.captain && (
+                <>
+                  {' · Captain: '}
+                  <Link href={`/players/${team.captain.id}`} className="text-primary hover:underline font-medium">
+                    {team.captain.firstName} {team.captain.lastName}
+                  </Link>
+                </>
+              )}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="border-b sticky top-[66px] bg-background/95 backdrop-blur-sm z-10">
-        <div className="container mx-auto px-4 max-w-5xl">
+        <div className="container mx-auto px-4 max-w-3xl">
           <div className="flex gap-1 justify-center md:justify-start">
             {tabs.map((tab) => (
               <button
@@ -118,7 +99,7 @@ export function TeamViewUi({ team }: { team: Team }) {
       <div className="container mx-auto px-4 py-8">
         {/* Squad Tab */}
         <div
-          className={cn('grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto', activeTab !== 'squad' && 'hidden')}
+          className={cn('grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto', activeTab !== 'squad' && 'hidden')}
         >
           {/* Left column: Goalkeepers & Defenders */}
           <div className="space-y-8">
@@ -196,33 +177,24 @@ export function TeamViewUi({ team }: { team: Team }) {
         </div>
 
         {/* Stats Tab */}
-        <div className={cn('space-y-8 max-w-5xl mx-auto', activeTab !== 'stats' && 'hidden')}>
-          <h2 className="text-xl font-semibold mb-4">Team Statistics</h2>
+        <div className={cn('space-y-6 md:space-y-8 max-w-3xl mx-auto', activeTab !== 'stats' && 'hidden')}>
+          <h2 className="text-lg md:text-xl font-semibold mb-4">Team Statistics</h2>
 
           {/* Main Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="Matches Played" value={mockStats.matchesPlayed} />
-            <StatCard label="Wins" value={mockStats.wins} highlight="green" />
-            <StatCard label="Draws" value={mockStats.draws} highlight="yellow" />
-            <StatCard label="Losses" value={mockStats.losses} highlight="red" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <StatCard label="Matches Played" value={team.stats?.matchesPlayed ?? 0} />
+            <StatCard label="Wins" value={team.stats?.wins ?? 0} highlight="green" />
+            <StatCard label="Draws" value={team.stats?.draws ?? 0} highlight="yellow" />
+            <StatCard label="Losses" value={team.stats?.losses ?? 0} highlight="red" />
           </div>
 
           {/* Goals */}
           <div>
-            <h3 className="text-lg font-medium mb-3">Goals</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <StatCard label="Goals Scored" value={mockStats.goalsScored} />
-              <StatCard label="Goals Conceded" value={mockStats.goalsConceded} />
-              <StatCard label="Clean Sheets" value={mockStats.cleanSheets} />
-            </div>
-          </div>
-
-          {/* Discipline */}
-          <div>
-            <h3 className="text-lg font-medium mb-3">Discipline</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <StatCard label="Yellow Cards" value={mockStats.yellowCards} highlight="yellow" />
-              <StatCard label="Red Cards" value={mockStats.redCards} highlight="red" />
+            <h3 className="text-base md:text-lg font-medium mb-3">Goals</h3>
+            <div className="grid grid-cols-3 gap-3 md:gap-4">
+              <StatCard label="Goals Scored" value={team.stats?.goalsScored ?? 0} />
+              <StatCard label="Goals Conceded" value={team.stats?.goalsConceded ?? 0} />
+              <StatCard label="Clean Sheets" value={team.stats?.cleanSheets ?? 0} />
             </div>
           </div>
         </div>
@@ -274,11 +246,11 @@ function StatCard({
   highlight?: 'green' | 'yellow' | 'red';
 }) {
   return (
-    <div className="p-4 rounded-xl border bg-card/50">
-      <p className="text-sm text-muted-foreground mb-1">{label}</p>
+    <div className="p-3 md:p-4 rounded-xl border bg-card/50">
+      <p className="text-xs md:text-sm text-muted-foreground mb-1">{label}</p>
       <p
         className={cn(
-          'text-2xl font-bold',
+          'text-xl md:text-2xl font-bold',
           highlight === 'green' && 'text-green-600',
           highlight === 'yellow' && 'text-yellow-600',
           highlight === 'red' && 'text-red-600',

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui';
 import { FileText, Plus, UsersIcon, UserPlus, CalendarIcon, Users, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
+import { AdminStatistics } from './ssr/getAdminHomePageData';
 
 type Statistic = {
   id: string;
@@ -24,13 +25,16 @@ type QuickAction = {
   color: string;
 };
 
-const AdminHomeViewUi = () => {
-  // Hardcoded overview numbers for now (replace with API later)
-  const statistics: Statistic[] = [
+type AdminHomeViewUiProps = {
+  statistics: AdminStatistics;
+};
+
+const AdminHomeViewUi = ({ statistics }: AdminHomeViewUiProps) => {
+  const statCards: Statistic[] = [
     {
       id: '1',
       label: 'Teams',
-      value: 3,
+      value: statistics.teamsCount,
       icon: <Users className="h-6 w-6" />,
       color: 'text-green-500',
       href: '/admin/teams',
@@ -39,7 +43,7 @@ const AdminHomeViewUi = () => {
     {
       id: '2',
       label: 'Players',
-      value: 24,
+      value: statistics.playersCount,
       icon: <User className="h-6 w-6" />,
       color: 'text-blue-500',
       href: '/admin/players',
@@ -48,7 +52,7 @@ const AdminHomeViewUi = () => {
     {
       id: '3',
       label: 'Matches',
-      value: 0,
+      value: statistics.matchesCount,
       icon: <CalendarIcon className="h-6 w-6" />,
       color: 'text-purple-500',
       href: '/admin/matches',
@@ -57,7 +61,7 @@ const AdminHomeViewUi = () => {
     {
       id: '4',
       label: 'News',
-      value: 5,
+      value: statistics.newsCount,
       icon: <FileText className="h-6 w-6" />,
       color: 'text-orange-500',
       href: '/admin/news',
@@ -98,7 +102,7 @@ const AdminHomeViewUi = () => {
 
       {/* Navigation Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statistics.map((stat) => (
+        {statCards.map((stat) => (
           <Link key={stat.id} href={stat.href} className="group">
             <div className="rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:border-primary/30 h-full">
               <div className="flex items-start justify-between gap-4">

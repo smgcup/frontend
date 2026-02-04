@@ -2,6 +2,18 @@ import type { Team } from '../team/contracts';
 import type { Match } from '../matches/contracts';
 import type { PlayerPosition, PreferredFoot } from '@/graphql';
 
+export type PlayerStats = {
+  appearances: number;
+  goals: number;
+  assists: number;
+  yellowCards: number;
+  redCards: number;
+  ownGoals: number;
+  penaltiesMissed: number;
+  penaltiesScored: number;
+  goalkeeperSaves: number;
+};
+
 export type Player = {
   id: string;
   team?: Team;
@@ -16,4 +28,5 @@ export type Player = {
   imageUrl?: string | null;
   class?: string | null;
   matches?: Match[];
+  stats?: PlayerStats;
 };
