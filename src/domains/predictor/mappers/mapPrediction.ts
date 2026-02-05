@@ -49,6 +49,7 @@ export const mapPrediction = (prediction: PredictionFromQuery): Prediction => {
     },
     predictedScore1: predictedScore1 ?? 0,
     predictedScore2: predictedScore2 ?? 0,
+    isBoosted: prediction.isBoosted,
     createdAt: prediction.createdAt,
     updatedAt: prediction.updatedAt,
     isExactCorrect,

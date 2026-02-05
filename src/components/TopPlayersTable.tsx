@@ -11,6 +11,16 @@ type TopPlayersTableProps = {
   title?: string;
 };
 
+const shortenPosition = (position: string): string => {
+  const map: Record<string, string> = {
+    GOALKEEPER: 'GK',
+    DEFENDER: 'DEF',
+    MIDFIELDER: 'MID',
+    FORWARD: 'FWD',
+  };
+  return map[position] ?? position;
+};
+
 const TableHeader = ({ label, className }: { label: string; className?: string }) => {
   return (
     <th className={`px-3 py-3 text-center text-sm font-semibold text-muted-foreground ${className ?? ''}`}>{label}</th>
@@ -92,31 +102,35 @@ const TopPlayersTable = ({ players, limit, title = 'Top Players' }: TopPlayersTa
                       {player.firstName} {player.lastName}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      <Link
-                        href={`/teams/${player.team?.id}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="hover:underline"
-                      >
-                        {player.team?.name}
-                      </Link>
-                      {' · '}
-                      {player.position}
+                      {player.team && (
+                        <>
+                          <Link
+                            href={`/teams/${player.team.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="hover:underline"
+                          >
+                            {player.team.name}
+                          </Link>
+                          {' · '}
+                        </>
+                      )}
+                      {shortenPosition(player?.position ?? '')}
                     </p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-bold">{player.stats?.goals}</p>
+                    <p className="font-bold">{player.stats?.goals ?? 0}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.stats?.assists}</p>
+                    <p className="font-medium">{player.stats?.assists ?? 0}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.stats?.yellowCards}</p>
+                    <p className="font-medium">{player.stats?.yellowCards ?? 0}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.stats?.redCards}</p>
+                    <p className="font-medium">{player.stats?.redCards ?? 0}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.stats?.ownGoals}</p>
+                    <p className="font-medium">{player.stats?.ownGoals ?? 0}</p>
                   </td>
                 </tr>
               );

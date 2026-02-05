@@ -5,6 +5,7 @@ import {
   TeamsWithPlayersQuery,
   MatchEventsQuery,
   GetPlayerStandingsQuery,
+  GetLeaderboardQuery,
   TeamByIdQuery,
   GetTopPlayersQuery,
 } from '@/graphql';
@@ -17,6 +18,7 @@ export const mapPlayer = (
     | MatchByIdQuery['matchById']['secondOpponent']['players'][number]
     | TeamsWithPlayersQuery['teams'][number]['players'][number]
     | GetPlayerStandingsQuery['teams'][number]['players'][number]
+    | GetLeaderboardQuery['playersLeaderboard']['players'][number]
     | NonNullable<TeamByIdQuery['teamById']['captain']>
     | NonNullable<MatchEventsQuery['matchEvents'][number]['player']>
     | NonNullable<MatchEventsQuery['matchEvents'][number]['assistPlayer']>,
@@ -34,7 +36,7 @@ export const mapPlayer = (
 
   let stats: PlayerStats | undefined;
   if ('stats' in player && player.stats) {
-    const rawStats = player.stats as { appearances?: number };
+    const rawStats = player.stats as Partial<PlayerStats>;
     stats = {
       appearances: rawStats.appearances ?? 0,
       goals: 'goals' in player.stats ? player.stats.goals : 0,

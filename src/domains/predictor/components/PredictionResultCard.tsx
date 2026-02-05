@@ -1,9 +1,9 @@
 'use client';
 
-import { Calendar, Clock, Check, X, CheckCheck, TrendingUpDown } from 'lucide-react';
+import { Calendar, Clock, Check, X, CheckCheck, TrendingUpDown, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { predictorTheme } from '@/lib/gamemodeThemes';
+import { predictorTheme, boosterTheme } from '@/lib/gamemodeThemes';
 import type { Prediction } from '../contracts';
 import { MatchStatus } from '@/graphql';
 
@@ -12,7 +12,11 @@ type PredictionResultCardProps = {
 };
 
 const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
-  const { match, predictedScore1, predictedScore2, isExactCorrect, isOutcomeCorrect, pointsEarned } = prediction;
+  const { match, predictedScore1, predictedScore2, isBoosted, isExactCorrect, isOutcomeCorrect, pointsEarned } =
+    prediction;
+
+  // Use booster theme when boosted
+  const theme = isBoosted ? boosterTheme : predictorTheme;
 
   const formatDate = (dateString: string) =>
     new Intl.DateTimeFormat('bg-BG', {
@@ -77,25 +81,40 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
     <div
       className={cn(
         'group relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full',
-        predictorTheme.shadowSubtle,
+        theme.shadowSubtle,
+        isBoosted && 'border-purple-500/50 shadow-purple-500/20 shadow-lg',
       )}
     >
       <div
         className={cn(
           'absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300',
-          predictorTheme.gradientOverlay,
+          theme.gradientOverlay,
         )}
       />
 
+      {/* Booster glow effect */}
+      {isBoosted && (
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-purple-500/5 pointer-events-none" />
+      )}
+
       {/* Accent line at top */}
-      <div className={cn('absolute top-0 left-0 right-0 h-1', predictorTheme.gradientLine)} />
+      <div className={cn('absolute top-0 left-0 right-0 h-1', theme.gradientLine)} />
 
       <div className="relative p-6 flex flex-col h-full pt-7">
         {/* Header with status and accuracy badge */}
         <div className="grid grid-cols-3 items-center gap-2 mb-6">
           <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-            <TrendingUpDown className="h-3.5 w-3.5 shrink-0" />
-            <span>Prediction</span>
+            {isBoosted ? (
+              <>
+                <Zap className="h-3.5 w-3.5 shrink-0 text-purple-500 fill-purple-500" />
+                <span className="text-purple-500 font-semibold">2x Boosted</span>
+              </>
+            ) : (
+              <>
+                <TrendingUpDown className="h-3.5 w-3.5 shrink-0" />
+                <span>Prediction</span>
+              </>
+            )}
           </div>
           <div className="flex items-center justify-center">
             {accuracyBadge && (
@@ -144,22 +163,11 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
               <div
                 className={cn(
                   'text-3xl font-black mt-2 transition-all',
-                  predictedWinner === 'home' ? predictorTheme.scoreWinner : predictorTheme.scoreLoser,
+                  predictedWinner === 'home' ? theme.scoreWinner : theme.scoreLoser,
                 )}
               >
                 {predictedScore1}
               </div>
-              {/* Actual Score (if completed) */}
-              {isCompleted && actualScore1 !== undefined && (
-                <div
-                  className={cn(
-                    'text-lg font-semibold mt-1',
-                    actualScore1 === predictedScore1 ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground',
-                  )}
-                >
-                  Actual: {actualScore1}
-                </div>
-              )}
             </div>
           </div>
 
@@ -169,8 +177,13 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
               <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
               <span className="relative text-2xl font-black text-primary">VS</span>
             </div>
+            {isCompleted && actualScore1 !== undefined && actualScore2 !== undefined && (
+              <div className="mt-2 text-sm font-semibold text-muted-foreground">
+                FT: {actualScore1} - {actualScore2}
+              </div>
+            )}
             {isCompleted && pointsEarned !== undefined && (
-              <div className={cn('mt-2 text-xs font-semibold', predictorTheme.pointsText)}>{pointsEarned} pts</div>
+              <div className={cn('mt-1 text-xs font-semibold', theme.pointsText)}>{pointsEarned} pts</div>
             )}
           </div>
 
@@ -187,22 +200,11 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
               <div
                 className={cn(
                   'text-3xl font-black mt-2 transition-all',
-                  predictedWinner === 'away' ? predictorTheme.scoreWinner : predictorTheme.scoreLoser,
+                  predictedWinner === 'away' ? theme.scoreWinner : theme.scoreLoser,
                 )}
               >
                 {predictedScore2}
               </div>
-              {/* Actual Score (if completed) */}
-              {isCompleted && actualScore2 !== undefined && (
-                <div
-                  className={cn(
-                    'text-lg font-semibold mt-1',
-                    actualScore2 === predictedScore2 ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground',
-                  )}
-                >
-                  Actual: {actualScore2}
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -210,11 +212,11 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
         {/* Date and Time */}
         <div className="pt-4 border-t space-y-2.5 mt-auto mb-4">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <Calendar className={cn('h-4 w-4', predictorTheme.iconMuted)} />
+            <Calendar className={cn('h-4 w-4', theme.iconMuted)} />
             <span className="font-medium">{match.date ? formatDate(match.date) : 'TBD'}</span>
           </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <Clock className={cn('h-4 w-4', predictorTheme.iconMuted)} />
+            <Clock className={cn('h-4 w-4', theme.iconMuted)} />
             <span className="font-medium">{match.date ? formatTime(match.date) : 'TBD'}</span>
           </div>
         </div>

@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Trophy } from 'lucide-react';
 import EventTimeline from '@/domains/matches/components/EventTimeline';
 import { getMatchDetailPageData } from '@/domains/matches/ssr/getMatchDetailPageData';
 import RefreshButton from '../../../../domains/matches/components/RefreshButton';
@@ -61,6 +63,15 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
                 <p className="text-5xl font-black text-primary">{score2}</p>
               </div>
             </div>
+            {match.mvp && (
+              <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t text-sm text-muted-foreground">
+                <Trophy className="h-4 w-4 text-amber-500" />
+                <span>MVP:</span>
+                <Link href={`/players/${match.mvp.id}`} className="font-medium hover:text-primary transition-colors">
+                  {match.mvp.firstName} {match.mvp.lastName}
+                </Link>
+              </div>
+            )}
           </CardContent>
         </Card>
 

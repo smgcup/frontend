@@ -8,6 +8,7 @@ import {
   GetLeaderboardQueryVariables,
   LeaderboardSortType,
 } from '@/graphql';
+import { mapPlayer } from '@/domains/player/mappers/mapPlayer';
 import { ALL_SORT_TYPES, SORT_TYPE_TO_CATEGORY } from '../constants';
 import type { StandingsCategory, PlayerStanding, PlayersPageData } from '../contracts';
 
@@ -128,13 +129,7 @@ export const usePlayerStandings = (): PlayersPageData => {
 
       const players: PlayerStanding[] =
         leaderboard?.players.map((player, index) => ({
-          id: player.id,
-          firstName: player.firstName,
-          lastName: player.lastName,
-          position: player.position,
-          imageUrl: player.imageUrl ?? null,
-          team: player.team,
-          stats: player.stats,
+          ...mapPlayer(player),
           rank: index + 1,
           statValue: getStatValue(player.stats, sortType),
         })) ?? [];

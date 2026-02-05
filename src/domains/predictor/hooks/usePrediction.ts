@@ -19,6 +19,7 @@ type UsePredictionReturn = {
     predictedScore1: number,
     predictedScore2: number,
     existingPredictionId?: string,
+    isBoosted?: boolean,
   ) => Promise<string | null>;
   loading: boolean;
   submittingMatchId: string | null;
@@ -50,6 +51,7 @@ export const usePrediction = (): UsePredictionReturn => {
       predictedScore1: number,
       predictedScore2: number,
       existingPredictionId?: string,
+      isBoosted?: boolean,
     ): Promise<string | null> => {
       setSubmittingMatchId(matchId);
       setErrorMessage(null);
@@ -59,7 +61,7 @@ export const usePrediction = (): UsePredictionReturn => {
           const result = await updatePrediction({
             variables: {
               id: existingPredictionId,
-              input: { predictedScore1, predictedScore2 },
+              input: { predictedScore1, predictedScore2, isBoosted },
             },
           });
           // TODO: Add toast notification for successful update
@@ -67,7 +69,7 @@ export const usePrediction = (): UsePredictionReturn => {
         } else {
           const result = await createPrediction({
             variables: {
-              input: { matchId, predictedScore1, predictedScore2 },
+              input: { matchId, predictedScore1, predictedScore2, isBoosted },
             },
           });
           // TODO: Add toast notification for successful create

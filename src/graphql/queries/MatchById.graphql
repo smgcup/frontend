@@ -7,6 +7,11 @@ query MatchById($id: String!) {
     score2
     round
     location
+    mvp {
+      id
+      firstName
+      lastName
+    }
     firstOpponent {
       id
       name

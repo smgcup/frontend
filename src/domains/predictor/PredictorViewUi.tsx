@@ -7,6 +7,7 @@ import type { Match } from '@/domains/matches/contracts';
 import { usePredictorView } from './hooks/usePredictorView';
 import PredictionCard from './components/PredictionCard';
 import ScoreRulesDialog from './components/ScoreRulesDialog';
+import { Button } from '@/components/ui/button';
 
 type PredictorViewUiProps = {
   matches: Match[];
@@ -17,15 +18,21 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
     scoreRulesOpen,
     setScoreRulesOpen,
     matchErrors,
+    selectedRound,
+    setSelectedRound,
+    boostedMatchId,
+    serverBoostedMatchId,
     isAuthenticated,
     predictions,
     allSavedPredictions,
     allExistingPredictionIds,
     predictableMatches,
-    matchesByRound,
+    filteredMatches,
+    availableRounds,
     predictedCount,
     handlePredictionChange,
     handleSave,
+    handleToggleBooster,
     submittingMatchId,
   } = usePredictorView({ matches });
 
@@ -73,36 +80,50 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
           )}
         </div>
 
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 -mx-4 sm:mx-0 px-4 sm:px-0">
+          {availableRounds.map((round) => (
+            <Button
+              key={round}
+              variant={selectedRound === round ? 'default' : 'outline'}
+              onClick={() => setSelectedRound(round)}
+              className="rounded-full p-4"
+            >
+              Round {round}
+            </Button>
+          ))}
+        </div>
+
         {predictableMatches.length === 0 ? (
           <div className="text-center py-16 bg-muted/30 rounded-xl border border-dashed">
             <Trophy className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Upcoming Matches</h3>
             <p className="text-muted-foreground">Check back later for new matches to predict.</p>
           </div>
+        ) : filteredMatches.length === 0 ? (
+          <div className="text-center py-16 bg-muted/30 rounded-xl border border-dashed">
+            <Trophy className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Matches in Round {selectedRound}</h3>
+            <p className="text-muted-foreground">No upcoming matches to predict in this round.</p>
+          </div>
         ) : (
-          <div className="space-y-10">
-            {matchesByRound.map(([round, roundMatches]) => (
-              <section key={round}>
-                <h3 className={cn('text-lg font-semibold mb-4 flex items-center gap-2', predictorTheme.text)}>
-                  Round {round}
-                </h3>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                  {roundMatches.map((match) => (
-                    <PredictionCard
-                      key={match.id}
-                      match={match}
-                      prediction={predictions[match.id] ?? null}
-                      savedPrediction={allSavedPredictions[match.id] ?? null}
-                      existingPredictionId={allExistingPredictionIds[match.id]}
-                      onPredictionChange={(prediction) => handlePredictionChange(match.id, prediction)}
-                      onSave={isAuthenticated ? () => handleSave(match.id) : undefined}
-                      isSaving={submittingMatchId === match.id}
-                      error={matchErrors[match.id]}
-                      isAuthenticated={isAuthenticated}
-                    />
-                  ))}
-                </div>
-              </section>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {filteredMatches.map((match) => (
+              <PredictionCard
+                key={match.id}
+                match={match}
+                prediction={predictions[match.id] ?? null}
+                savedPrediction={allSavedPredictions[match.id] ?? null}
+                existingPredictionId={allExistingPredictionIds[match.id]}
+                onPredictionChange={(prediction) => handlePredictionChange(match.id, prediction)}
+                onSave={isAuthenticated ? () => handleSave(match.id) : undefined}
+                isSaving={submittingMatchId === match.id}
+                error={matchErrors[match.id]}
+                isAuthenticated={isAuthenticated}
+                isBoosted={boostedMatchId === match.id}
+                savedIsBoosted={serverBoostedMatchId === match.id}
+                onToggleBooster={() => handleToggleBooster(match.id)}
+                canUseBooster={!boostedMatchId || boostedMatchId === match.id}
+              />
             ))}
           </div>
         )}

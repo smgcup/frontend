@@ -1,4 +1,4 @@
-export type GamemodeTheme = 'orange' | 'emerald';
+export type GamemodeTheme = 'orange' | 'emerald' | 'purple';
 
 export type ThemeClasses = {
   // Base colors
@@ -140,8 +140,55 @@ export const gamemodeThemes: Record<GamemodeTheme, ThemeClasses> = {
     rowHover: 'hover:bg-emerald-500/5',
     headerBorder: 'border-emerald-500/20',
   },
+  purple: {
+    // Base colors
+    bg: 'bg-purple-500',
+    bgHover: 'bg-purple-600',
+    bgLight: 'bg-purple-500/10',
+    bgSubtle: 'bg-purple-500/5',
+    text: 'text-purple-500',
+    textLight: 'text-purple-400',
+    textDark: 'text-purple-600 dark:text-purple-400',
+    border: 'border-purple-500/20',
+    borderSubtle: 'border-purple-500/10',
+
+    // Interactive states
+    hover: 'hover:bg-purple-500/10',
+    hoverText: 'hover:text-purple-500',
+    hoverBg: 'hover:bg-purple-500/20',
+
+    // Shadows & rings
+    shadow: 'hover:shadow-purple-500/10',
+    shadowSubtle: 'hover:shadow-purple-500/5',
+    ring: 'ring-purple-500/10',
+
+    // Gradients
+    gradientLine: 'bg-linear-to-r from-purple-400 via-purple-500 to-violet-500',
+    gradientOverlay: 'bg-linear-to-br from-purple-500/5 via-transparent to-transparent',
+
+    // Button variants
+    buttonPrimary: 'bg-purple-500 text-white',
+    buttonPrimaryHover: 'hover:bg-purple-600',
+
+    // Score display
+    scoreWinner: 'text-purple-500',
+    scoreLoser: 'text-muted-foreground/50',
+
+    // Points display
+    pointsText: 'text-purple-500',
+
+    // Icon colors
+    iconAccent: 'text-purple-500',
+    iconMuted: 'text-purple-500/70',
+
+    // Table/list styling
+    rowHighlight: 'bg-purple-500/5',
+    rowHover: 'hover:bg-purple-500/5',
+    headerBorder: 'border-purple-500/20',
+  },
 };
 
 // Convenience export for direct access to themes
 export const predictorTheme = gamemodeThemes.orange;
 export const fantasyTheme = gamemodeThemes.emerald;
+export const boosterTheme = gamemodeThemes.purple;
