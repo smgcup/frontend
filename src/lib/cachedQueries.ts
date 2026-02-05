@@ -52,7 +52,7 @@ export const getTeamsData = unstable_cache(
     });
     return data?.teams.map(mapTeam) ?? [];
   },
-  ['teams-testing69'],
+  ['teams'],
   { revalidate: FIVE_MINUTES },
 );
 
