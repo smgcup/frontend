@@ -21,7 +21,8 @@ export const mapPlayer = (
     | GetLeaderboardQuery['playersLeaderboard']['players'][number]
     | NonNullable<TeamByIdQuery['teamById']['captain']>
     | NonNullable<MatchEventsQuery['matchEvents'][number]['player']>
-    | NonNullable<MatchEventsQuery['matchEvents'][number]['assistPlayer']>,
+    | NonNullable<MatchEventsQuery['matchEvents'][number]['assistPlayer']>
+    | NonNullable<MatchByIdQuery['matchById']['mvp']>,
 ): Player => {
   // if (!player) return null;
 

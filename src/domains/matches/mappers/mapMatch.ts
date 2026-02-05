@@ -1,18 +1,13 @@
-import type { Match, MatchMvp } from '../contracts';
+import type { Match } from '../contracts';
 import { type MatchByIdQuery, type GetMatchesQuery } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
+import { mapPlayer } from '@/domains/player/mappers/mapPlayer';
 
-type MatchInput = GetMatchesQuery['matches'][number] | NonNullable<MatchByIdQuery['matchById']>;
+type MatchInput = GetMatchesQuery['matches'][number] | MatchByIdQuery['matchById'];
 
 export const mapMatch = (match: MatchInput): Match => {
-  const mvpData = 'mvp' in match ? match.mvp : null;
-  const mvp: MatchMvp | null = mvpData
-    ? {
-        id: mvpData.id,
-        firstName: mvpData.firstName,
-        lastName: mvpData.lastName,
-      }
-    : null;
+  const mvpData = 'mvp' in match && match.mvp ? mapPlayer(match.mvp) : null;
+  const mvp = mvpData ?? null;
 
   return {
     id: match.id,
