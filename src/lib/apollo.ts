@@ -7,6 +7,12 @@ import { createAuthLink, AUTH_COOKIE_NAME } from './auth';
 import { getCookie } from './cookies';
 
 export const makeClient = (): ApolloClient => {
+  // In the browser we want a single ApolloClient instance so the InMemoryCache
+  // survives route navigation (and provider re-renders).
+  if (typeof window !== 'undefined' && browserApolloClient) {
+    return browserApolloClient;
+  }
+
   // Get the GraphQL endpoint, using current hostname if it's localhost
   const getGraphQLEndpoint = () => {
     if (typeof window !== 'undefined') {
@@ -121,12 +127,54 @@ export const makeClient = (): ApolloClient => {
     authLink.concat(httpLink),
   );
 
-  return new ApolloClient({
-    cache: new InMemoryCache(),
+  const client = new ApolloClient({
+    cache: new InMemoryCache({
+      typePolicies: {
+        Query: {
+          fields: {
+            /**
+             * Paginated player leaderboard.
+             *
+             * We want cache entries to be keyed by (sortBy, limit) NOT by page,
+             * and we want subsequent pages to merge into a single growing list.
+             */
+            playersLeaderboard: {
+              keyArgs: ['sortBy', 'limit'],
+              merge(existing, incoming, { args }) {
+                const existingPlayers = existing?.players ?? [];
+                const incomingPlayers = incoming?.players ?? [];
+
+                // Default to page 1 when args are missing.
+                const page = typeof args?.page === 'number' ? args.page : 1;
+                const limit =
+                  typeof args?.limit === 'number'
+                    ? args.limit
+                    : incomingPlayers.length > 0
+                      ? incomingPlayers.length
+                      : 20;
+
+                const start = Math.max(0, (page - 1) * limit);
+                const mergedPlayers = existingPlayers.slice(0);
+
+                for (let i = 0; i < incomingPlayers.length; i += 1) {
+                  mergedPlayers[start + i] = incomingPlayers[i];
+                }
+
+                return {
+                  ...incoming,
+                  // Preserve any already-loaded pages beyond the incoming range.
+                  players: mergedPlayers,
+                };
+              },
+            },
+          },
+        },
+      },
+    }),
     link: splitLink,
     defaultOptions: {
       watchQuery: {
-        fetchPolicy: 'cache-and-network',
+        fetchPolicy: 'cache-first',
         errorPolicy: 'all',
       },
       query: {
@@ -138,4 +186,12 @@ export const makeClient = (): ApolloClient => {
       },
     },
   });
+
+  if (typeof window !== 'undefined') {
+    browserApolloClient = client;
+  }
+
+  return client;
 };
+
+let browserApolloClient: ApolloClient | null = null;

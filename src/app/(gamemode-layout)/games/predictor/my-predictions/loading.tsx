@@ -6,7 +6,7 @@ const MyPredictionsLoading = () => {
   return (
     <div className="min-h-[calc(100vh-60px)]">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
+      <div className="relative overflow-hidden bg-linear-to-b from-primary/10 to-background">
         <div className="relative container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">My Predictions</h1>
@@ -40,10 +40,18 @@ const MyPredictionsLoading = () => {
             <Clock className={cn('h-5 w-5', predictorTheme.iconAccent)} />
             <h2 className="text-2xl font-bold">Upcoming Predictions</h2>
           </div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-80 rounded-xl bg-muted/50 border border-border animate-pulse" />
-            ))}
+          <div className="space-y-10">
+            {/* Round Skeleton */}
+            <section>
+              <div className={cn('text-lg font-semibold mb-4 flex items-center gap-2', predictorTheme.text)}>
+                <div className="h-5 w-20 bg-muted rounded animate-pulse" />
+              </div>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-68 rounded-xl bg-muted/50 border border-border animate-pulse" />
+                ))}
+              </div>
+            </section>
           </div>
         </div>
 
@@ -53,10 +61,18 @@ const MyPredictionsLoading = () => {
             <Trophy className={cn('h-5 w-5', predictorTheme.iconAccent)} />
             <h2 className="text-2xl font-bold">Past Predictions</h2>
           </div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-80 rounded-xl bg-muted/50 border border-border animate-pulse" />
-            ))}
+          <div className="space-y-10">
+            {/* Round 1 Skeleton */}
+            <section>
+              <div className={cn('text-lg font-semibold mb-4 flex items-center gap-2', predictorTheme.text)}>
+                <div className="h-5 w-20 bg-muted rounded animate-pulse" />
+              </div>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-68 rounded-xl bg-muted/50 border border-border animate-pulse" />
+                ))}
+              </div>
+            </section>
           </div>
         </div>
       </div>

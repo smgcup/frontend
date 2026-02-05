@@ -1,14 +1,7 @@
 'use client';
 
-import { Target, Check, X } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-} from '@/components/ui/dialog';
+import { CheckCheck, Check, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { predictorTheme } from '@/lib/gamemodeThemes';
@@ -20,7 +13,7 @@ type ScoreRulesDialogProps = {
 
 const RULES = [
   {
-    icon: Target,
+    icon: CheckCheck,
     label: 'Exact match',
     description: 'You predict the exact final score for both teams.',
     points: 10,

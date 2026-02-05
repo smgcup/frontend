@@ -1,44 +1,59 @@
-import { getClient } from '@/lib/initializeApollo';
-import {
-  TeamByIdDocument,
-  TeamByIdQuery,
-  TeamByIdQueryVariables,
-  GetMatchesDocument,
-  GetMatchesQuery,
-  GetMatchesQueryVariables,
-} from '@/graphql';
-import { mapTeam } from '@/domains/team/mappers/mapTeam';
-import { mapMatch } from '@/domains/matches/mappers/mapMatch';
+import { getTeamByIdData, getMatchesData } from '@/lib/cachedQueries';
+import { MatchStatus } from '@/graphql';
 import type { Player } from '@/domains/player/contracts';
-import type { Team } from '@/domains/team/contracts';
+import type { Team, TeamStats } from '@/domains/team/contracts';
+import type { Match } from '@/domains/matches/contracts';
 import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
 
-export async function getTeamPageData(teamId: string): Promise<{ team: Team | null; error: string | null }> {
-  const client = await getClient();
+function calculateTeamStats(teamId: string, matches: Match[]): TeamStats {
+  const finishedMatches = matches.filter((m) => m.status === MatchStatus.Finished);
 
-  try {
-    // Fetch team and matches in parallel
-    const [teamResult, matchesResult] = await Promise.all([
-      client.query<TeamByIdQuery, TeamByIdQueryVariables>({
-        query: TeamByIdDocument,
-        variables: { id: teamId },
-      }),
-      client.query<GetMatchesQuery, GetMatchesQueryVariables>({
-        query: GetMatchesDocument,
-      }),
-    ]);
+  let wins = 0;
+  let draws = 0;
+  let losses = 0;
+  let goalsScored = 0;
+  let goalsConceded = 0;
+  let cleanSheets = 0;
 
-    const { data, error } = teamResult;
+  for (const match of finishedMatches) {
+    const isFirstOpponent = match.firstOpponent.id === teamId;
+    const teamGoals = isFirstOpponent ? (match.score1 ?? 0) : (match.score2 ?? 0);
+    const opponentGoals = isFirstOpponent ? (match.score2 ?? 0) : (match.score1 ?? 0);
 
-    if (error || !data?.teamById) {
-      const errorMessage = error
-        ? 'Failed to load team information. Please try again later.'
-        : 'Team not found. The team you are looking for does not exist.';
-      return { team: null, error: errorMessage };
+    goalsScored += teamGoals;
+    goalsConceded += opponentGoals;
+
+    if (opponentGoals === 0) {
+      cleanSheets++;
     }
 
-    // Map GraphQL response to domain Team model
-    const team = mapTeam(data.teamById);
+    if (teamGoals > opponentGoals) {
+      wins++;
+    } else if (teamGoals < opponentGoals) {
+      losses++;
+    } else {
+      draws++;
+    }
+  }
+
+  return {
+    matchesPlayed: finishedMatches.length,
+    wins,
+    draws,
+    losses,
+    goalsScored,
+    goalsConceded,
+    cleanSheets,
+  };
+}
+
+export async function getTeamPageData(teamId: string): Promise<{ team: Team | null; error: string | null }> {
+  try {
+    const [team, allMatches] = await Promise.all([getTeamByIdData(teamId), getMatchesData()]);
+
+    if (!team) {
+      return { team: null, error: 'Team not found. The team you are looking for does not exist.' };
+    }
 
     // Transform domain Team - ensure players is always an array
     const players: Player[] = (team.players || []).map((player) => ({
@@ -54,12 +69,12 @@ export async function getTeamPageData(teamId: string): Promise<{ team: Team | nu
       : undefined;
 
     // Filter matches for this team (where team is either first or second opponent)
-    const allMatches = matchesResult.data?.matches ?? [];
     const teamMatches = allMatches
       .filter((match) => match.firstOpponent.id === teamId || match.secondOpponent.id === teamId)
-      .map(mapMatch)
       // Sort by date, most recent first
       .sort((a, b) => (b.date ? new Date(b.date).getTime() - new Date(a.date ?? '').getTime() : 0));
+
+    const stats = calculateTeamStats(teamId, teamMatches);
 
     return {
       team: {
@@ -68,6 +83,7 @@ export async function getTeamPageData(teamId: string): Promise<{ team: Team | nu
         players,
         captain,
         matches: teamMatches,
+        stats,
       },
       error: null,
     };

@@ -5,7 +5,7 @@ import { MatchStatus } from '@/graphql';
 import { Button } from '@/components/ui/button';
 type MatchViewUiProps = {
   matches: Match[];
-  error?: unknown;
+  error?: string | null;
 };
 
 const compareMatches = (a: Match, b: Match) => {

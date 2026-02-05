@@ -1,0 +1,8 @@
+query GetAdminStatistics {
+  statistics {
+    teamsCount
+    playersCount
+    matchesCount
+    newsCount
+  }
+}

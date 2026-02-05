@@ -1,0 +1,3 @@
+mutation DeletePlayerAppearance($matchId: String!, $playerId: String!) {
+  deletePlayerAppearance(matchId: $matchId, playerId: $playerId)
+}

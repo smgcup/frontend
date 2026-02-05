@@ -4,8 +4,13 @@ import HeroStatistic from './HeroStatistic';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { goalIcon, matchIcon, playerIcon, teamIcon } from '@/public/icons';
+import type { HeroStatistics } from '../../contracts';
 
-const HeroSection = () => {
+type HeroSectionProps = {
+  statistics: HeroStatistics;
+};
+
+const HeroSection = ({ statistics }: HeroSectionProps) => {
   return (
     <section className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-primary/5">
       {/* Background Image - Optional */}
@@ -50,16 +55,16 @@ const HeroSection = () => {
           {/* Quick Stats */}
           <div className="mt-16 grid grid-cols-2 gap-8 sm:flex sm:justify-evenly">
             <div className="w-full max-w-[16rem] sm:max-w-none">
-              <HeroStatistic icon={teamIcon} value={16} label="Teams Competing" />
+              <HeroStatistic icon={teamIcon} value={statistics.teamsCount} label="Teams Competing" />
             </div>
             <div className="w-full max-w-[16rem] sm:max-w-none">
-              <HeroStatistic icon={matchIcon} value={0} label="Matches Played" />
+              <HeroStatistic icon={matchIcon} value={statistics.matchesPlayedCount} label="Matches Played" />
             </div>
             <div className="w-full max-w-[16rem] sm:max-w-none">
-              <HeroStatistic icon={goalIcon} value={0} label="Goals Scored" />
+              <HeroStatistic icon={goalIcon} value={statistics.totalGoals} label="Goals Scored" />
             </div>
             <div className="w-full max-w-[16rem] sm:max-w-none">
-              <HeroStatistic icon={playerIcon} value={0} label="Avg Goals/Match" />
+              <HeroStatistic icon={playerIcon} value={statistics.avgGoalsPerMatch} label="Avg Goals/Match" />
             </div>
           </div>
         </div>

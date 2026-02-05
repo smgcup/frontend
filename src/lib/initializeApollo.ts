@@ -9,6 +9,19 @@ function getCookieValue(cookieHeader: string, name: string): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
+// Public client for cached queries - doesn't use headers() so it's safe inside unstable_cache
+export function getPublicClient() {
+  const endpoint = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:4000/graphql';
+
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: new HttpLink({
+      uri: endpoint,
+      fetch,
+    }),
+  });
+}
+
 export const { getClient } = registerApolloClient(async () => {
   const h = await headers();
   const cookieHeader = h.get('cookie') ?? '';

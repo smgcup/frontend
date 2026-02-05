@@ -1,7 +1,12 @@
+import { Suspense } from 'react';
 import LoginView from '@/domains/auth/login/LoginView';
 
 const page = () => {
-  return <LoginView />;
+  return (
+    <Suspense fallback={null}>
+      <LoginView />
+    </Suspense>
+  );
 };
 
 export default page;
