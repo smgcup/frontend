@@ -5,6 +5,7 @@ import {
   TeamsWithPlayersQuery,
   MatchEventsQuery,
   GetPlayerStandingsQuery,
+  GetLeaderboardQuery,
   TeamByIdQuery,
 } from '@/graphql';
 
@@ -15,6 +16,7 @@ export const mapPlayer = (
     | MatchByIdQuery['matchById']['secondOpponent']['players'][number]
     | TeamsWithPlayersQuery['teams'][number]['players'][number]
     | GetPlayerStandingsQuery['teams'][number]['players'][number]
+    | GetLeaderboardQuery['playersLeaderboard']['players'][number]
     | NonNullable<TeamByIdQuery['teamById']['captain']>
     | NonNullable<MatchEventsQuery['matchEvents'][number]['player']>
     | NonNullable<MatchEventsQuery['matchEvents'][number]['assistPlayer']>,
@@ -32,17 +34,17 @@ export const mapPlayer = (
 
   let stats: PlayerStats | undefined;
   if ('stats' in player && player.stats) {
-    const rawStats = player.stats as { appearances?: number };
+    const s = player.stats as Partial<PlayerStats>;
     stats = {
-      appearances: rawStats.appearances ?? 0,
-      goals: player.stats.goals,
-      assists: player.stats.assists,
-      yellowCards: player.stats.yellowCards,
-      redCards: player.stats.redCards,
-      ownGoals: player.stats.ownGoals,
-      penaltiesMissed: player.stats.penaltiesMissed,
-      penaltiesScored: player.stats.penaltiesScored,
-      goalkeeperSaves: player.stats.goalkeeperSaves,
+      appearances: s.appearances ?? 0,
+      goals: s.goals ?? 0,
+      assists: s.assists ?? 0,
+      yellowCards: s.yellowCards ?? 0,
+      redCards: s.redCards ?? 0,
+      ownGoals: s.ownGoals ?? 0,
+      penaltiesMissed: s.penaltiesMissed ?? 0,
+      penaltiesScored: s.penaltiesScored ?? 0,
+      goalkeeperSaves: s.goalkeeperSaves ?? 0,
     };
   }
 
