@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useQuery } from '@apollo/client/react';
 import type { Match } from '@/domains/matches/contracts';
 import type { ScorePrediction } from '@/domains/predictor/contracts';
@@ -29,6 +29,7 @@ export const usePredictorView = ({ matches }: UsePredictorViewProps) => {
   const [scoreRulesOpen, setScoreRulesOpen] = useState(false);
   const [matchErrors, setMatchErrors] = useState<Record<string, string | null>>({});
   const [selectedRound, setSelectedRound] = useState(1);
+  const [boostedMatchId, setBoostedMatchId] = useState<string | null>(null);
 
   const { isAuthenticated } = useAuth();
   const { savePrediction, submittingMatchId, errorMessage, clearError } = usePrediction();
@@ -68,6 +69,20 @@ export const usePredictorView = ({ matches }: UsePredictorViewProps) => {
     });
     return result;
   }, [myPredictionsData]);
+
+  // Derive the boosted match ID from server data
+  const serverBoostedMatchId = useMemo<string | null>(() => {
+    if (!myPredictionsData?.myPredictions) return null;
+    const boostedPrediction = myPredictionsData.myPredictions.find((pred) => pred.isBoosted);
+    return boostedPrediction?.match.id ?? null;
+  }, [myPredictionsData]);
+
+  // Sync local boostedMatchId with server data when it loads
+  useEffect(() => {
+    if (serverBoostedMatchId !== null) {
+      setBoostedMatchId(serverBoostedMatchId);
+    }
+  }, [serverBoostedMatchId]);
 
   // Merge server, locally saved, and edited predictions (local edits take precedence)
   const predictions = useMemo(() => {
@@ -144,8 +159,9 @@ export const usePredictorView = ({ matches }: UsePredictorViewProps) => {
 
       clearError();
       const existingId = allExistingPredictionIds[matchId];
+      const isBoosted = boostedMatchId === matchId;
 
-      const savedId = await savePrediction(matchId, prediction.predictedScore1, prediction.predictedScore2, existingId);
+      const savedId = await savePrediction(matchId, prediction.predictedScore1, prediction.predictedScore2, existingId, isBoosted);
 
       if (savedId) {
         // Store the saved prediction with ID and values
@@ -170,11 +186,16 @@ export const usePredictorView = ({ matches }: UsePredictorViewProps) => {
         setMatchErrors((prev) => ({ ...prev, [matchId]: errorMessage }));
       }
     },
-    [predictions, allExistingPredictionIds, savePrediction, clearError, errorMessage],
+    [predictions, allExistingPredictionIds, savePrediction, clearError, errorMessage, boostedMatchId],
   );
 
   // Count predictions (including existing ones from the server)
   const predictedCount = Object.keys(predictions).length;
+
+  // Toggle booster for a match (only one match can be boosted at a time)
+  const handleToggleBooster = useCallback((matchId: string) => {
+    setBoostedMatchId((prev) => (prev === matchId ? null : matchId));
+  }, []);
 
   return {
     // State
@@ -183,6 +204,8 @@ export const usePredictorView = ({ matches }: UsePredictorViewProps) => {
     matchErrors,
     selectedRound,
     setSelectedRound,
+    boostedMatchId,
+    serverBoostedMatchId,
 
     // Auth
     isAuthenticated,
@@ -199,6 +222,7 @@ export const usePredictorView = ({ matches }: UsePredictorViewProps) => {
     // Handlers
     handlePredictionChange,
     handleSave,
+    handleToggleBooster,
 
     // Loading state
     submittingMatchId,

@@ -73,6 +73,7 @@ export type CreatePlayerDto = {
 };
 
 export type CreatePredictionDto = {
+  isBoosted?: InputMaybe<Scalars['Boolean']['input']>;
   matchId: Scalars['String']['input'];
   predictedScore1: Scalars['Int']['input'];
   predictedScore2: Scalars['Int']['input'];
@@ -373,6 +374,7 @@ export type Prediction = {
   __typename?: 'Prediction';
   createdAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
+  isBoosted: Scalars['Boolean']['output'];
   match: Match;
   pointsEarned?: Maybe<Scalars['Int']['output']>;
   predictedScore1: Scalars['Int']['output'];
@@ -576,6 +578,7 @@ export type UpdatePlayerDto = {
 };
 
 export type UpdatePredictionDto = {
+  isBoosted?: InputMaybe<Scalars['Boolean']['input']>;
   predictedScore1?: InputMaybe<Scalars['Int']['input']>;
   predictedScore2?: InputMaybe<Scalars['Int']['input']>;
 };

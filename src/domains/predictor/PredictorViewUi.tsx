@@ -20,6 +20,8 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
     matchErrors,
     selectedRound,
     setSelectedRound,
+    boostedMatchId,
+    serverBoostedMatchId,
     isAuthenticated,
     predictions,
     allSavedPredictions,
@@ -30,6 +32,7 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
     predictedCount,
     handlePredictionChange,
     handleSave,
+    handleToggleBooster,
     submittingMatchId,
   } = usePredictorView({ matches });
 
@@ -116,6 +119,10 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
                 isSaving={submittingMatchId === match.id}
                 error={matchErrors[match.id]}
                 isAuthenticated={isAuthenticated}
+                isBoosted={boostedMatchId === match.id}
+                savedIsBoosted={serverBoostedMatchId === match.id}
+                onToggleBooster={() => handleToggleBooster(match.id)}
+                canUseBooster={!boostedMatchId || boostedMatchId === match.id}
               />
             ))}
           </div>

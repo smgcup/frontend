@@ -3,6 +3,7 @@ query MyPredictions {
     id
     predictedScore1
     predictedScore2
+    isBoosted
     createdAt
     updatedAt
     pointsEarned
