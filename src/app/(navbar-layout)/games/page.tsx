@@ -1,14 +1,9 @@
-// import GamesView from '@/domains/games/GamesView';
-
-// const GamesPage = () => {
-//   return <GamesView />;
-// };
-
-// export default GamesPage;
-
 import { ComingSoon } from '@/components/ComingSoon';
 
-const page = () => {
+// ISR: Revalidate every 10 minutes
+export const revalidate = 600;
+
+const GamesPage = () => {
   return (
     <ComingSoon
       title="Games"
@@ -17,4 +12,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default GamesPage;

@@ -1,5 +1,7 @@
-import { getTeamByIdData, getMatchesData } from '@/lib/cachedQueries';
-import { MatchStatus } from '@/graphql';
+import { getPublicClient } from '@/lib/initializeApollo';
+import { TeamByIdDocument, GetMatchesDocument, GetTeamsDocument, MatchStatus } from '@/graphql';
+import { mapTeam } from '@/domains/team/mappers/mapTeam';
+import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 import type { Player } from '@/domains/player/contracts';
 import type { Team, TeamStats } from '@/domains/team/contracts';
 import type { Match } from '@/domains/matches/contracts';
@@ -47,13 +49,28 @@ function calculateTeamStats(teamId: string, matches: Match[]): TeamStats {
   };
 }
 
+// Helper for generateStaticParams
+export async function getAllTeamIds(): Promise<string[]> {
+  const client = getPublicClient();
+  const { data } = await client.query({ query: GetTeamsDocument });
+  return data?.teams.map((t) => t.id) ?? [];
+}
+
 export async function getTeamPageData(teamId: string): Promise<{ team: Team | null; error: string | null }> {
   try {
-    const [team, allMatches] = await Promise.all([getTeamByIdData(teamId), getMatchesData()]);
+    const client = getPublicClient();
 
-    if (!team) {
+    const [teamResult, matchesResult] = await Promise.all([
+      client.query({ query: TeamByIdDocument, variables: { id: teamId } }),
+      client.query({ query: GetMatchesDocument }),
+    ]);
+
+    if (!teamResult.data?.teamById) {
       return { team: null, error: 'Team not found. The team you are looking for does not exist.' };
     }
+
+    const team = mapTeam(teamResult.data.teamById);
+    const allMatches = matchesResult.data?.matches.map(mapMatch) ?? [];
 
     // Transform domain Team - ensure players is always an array
     const players: Player[] = (team.players || []).map((player) => ({

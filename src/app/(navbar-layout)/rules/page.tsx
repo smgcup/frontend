@@ -1,6 +1,9 @@
 import React from 'react';
 
-const Page = () => {
+// ISR: Revalidate every 10 minutes (static content, rarely changes)
+export const revalidate = 600;
+
+const RulesPage = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold text-center mb-8">Правилник на SMG Champions League</h1>
@@ -117,4 +120,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default RulesPage;

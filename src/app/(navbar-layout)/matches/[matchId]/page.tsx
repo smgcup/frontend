@@ -6,6 +6,9 @@ import { getMatchDetailPageData } from '@/domains/matches/ssr/getMatchDetailPage
 import RefreshButton from '../../../../domains/matches/components/RefreshButton';
 import { MatchStatus } from '@/generated/types';
 
+// Dynamic: Always fetch fresh data (needed for live match updates)
+export const dynamic = 'force-dynamic';
+
 type MatchDetailPageProps = {
   params: Promise<{ matchId: string }>;
 };

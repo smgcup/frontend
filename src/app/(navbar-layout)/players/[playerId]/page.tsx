@@ -2,6 +2,9 @@ import PlayerView from '@/domains/player/PlayerView';
 import { getPlayerPageData } from '@/domains/player/ssr/getPlayerPageData';
 import { BackButton } from '@/components/BackButton';
 
+// ISR: Revalidate every 10 minutes
+export const revalidate = 600;
+
 type PlayerPageProps = {
   params: Promise<{ playerId: string }>;
 };

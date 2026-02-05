@@ -1,6 +1,15 @@
 import { TeamView } from '@/domains/team/TeamView';
-import { getTeamPageData } from '@/domains/team/ssr/getTeamPageData';
+import { getTeamPageData, getAllTeamIds } from '@/domains/team/ssr/getTeamPageData';
 import { BackButton } from '@/components/BackButton';
+
+// ISR: Revalidate every 10 minutes
+export const revalidate = 600;
+
+// Pre-render team pages at build time for known teams
+export async function generateStaticParams() {
+  const teamIds = await getAllTeamIds();
+  return teamIds.map((id) => ({ teamId: id }));
+}
 
 type TeamPageProps = {
   params: Promise<{ teamId: string }>;

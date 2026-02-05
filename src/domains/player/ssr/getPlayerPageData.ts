@@ -1,15 +1,26 @@
-import { getPlayerByIdData, getMatchesData } from '@/lib/cachedQueries';
+import { getPublicClient } from '@/lib/initializeApollo';
+import { PlayerByIdDocument, GetMatchesDocument } from '@/graphql';
+import { mapPlayer } from '@/domains/player/mappers/mapPlayer';
+import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 import type { Player } from '@/domains/player/contracts';
 import type { Match } from '@/domains/matches/contracts';
 import { getErrorMessage } from '@/domains/admin/utils/getErrorMessage';
 
 export async function getPlayerPageData(playerId: string): Promise<{ player: Player | null; error: string | null }> {
   try {
-    const [player, allMatches] = await Promise.all([getPlayerByIdData(playerId), getMatchesData()]);
+    const client = getPublicClient();
 
-    if (!player) {
+    const [playerResult, matchesResult] = await Promise.all([
+      client.query({ query: PlayerByIdDocument, variables: { id: playerId } }),
+      client.query({ query: GetMatchesDocument }),
+    ]);
+
+    if (!playerResult.data?.playerById) {
       return { player: null, error: 'Player not found. The player you are looking for does not exist.' };
     }
+
+    const player = mapPlayer(playerResult.data.playerById);
+    const allMatches = matchesResult.data?.matches.map(mapMatch) ?? [];
 
     // If player has a team, filter matches for that team
     let teamMatches: Match[] = [];
