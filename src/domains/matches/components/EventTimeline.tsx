@@ -90,8 +90,11 @@ const getMarker = (type: MatchEventType) => {
       );
     case MatchEventType.OwnGoal:
       return (
-        <span className="text-xl leading-none" aria-hidden="true">
-          🤦
+        <span className="relative text-xl leading-none" aria-hidden="true">
+          ⚽
+          <span className="absolute inset-0 flex items-center justify-center text-[12px] font-black text-red-600 [text-shadow:_-1px_-1px_0_#fff,_1px_-1px_0_#fff,_-1px_1px_0_#fff,_1px_1px_0_#fff,_0_-1px_0_#fff,_0_1px_0_#fff,_-1px_0_0_#fff,_1px_0_0_#fff]">
+            OG
+          </span>
         </span>
       );
     case MatchEventType.GoalkeeperSave:
@@ -266,7 +269,9 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
           );
         }
 
-        const isFirstTeam = event.player && event.player.team?.name === firstOpponentName;
+        const playerIsFromFirstTeam = event.player && event.player.team?.name === firstOpponentName;
+        // For own goals, display the player on the opposite side (since the goal benefits the other team)
+        const isFirstTeam = event.type === MatchEventType.OwnGoal ? !playerIsFromFirstTeam : playerIsFromFirstTeam;
         const time = formatMatchTime(event, chronologicalHalfTimes);
         const playerName = event.player ? `${event.player.firstName} ${event.player.lastName}` : undefined;
         const assistPlayerName = event.assistPlayer
