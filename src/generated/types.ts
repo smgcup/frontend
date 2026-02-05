@@ -341,7 +341,7 @@ export type Player = {
   lastName: Scalars['String']['output'];
   position: PlayerPosition;
   preferredFoot: PreferredFoot;
-  stats?: Maybe<PlayerStats>;
+  stats: Stats;
   team: Team;
   weight: Scalars['Float']['output'];
 };
@@ -367,19 +367,6 @@ export enum PlayerPosition {
   Goalkeeper = 'GOALKEEPER',
   Midfielder = 'MIDFIELDER'
 }
-
-export type PlayerStats = {
-  __typename?: 'PlayerStats';
-  assists: Scalars['Float']['output'];
-  goalkeeperSaves: Scalars['Float']['output'];
-  goals: Scalars['Float']['output'];
-  ownGoals: Scalars['Float']['output'];
-  penaltiesMissed: Scalars['Float']['output'];
-  penaltiesScored: Scalars['Float']['output'];
-  playerId: Scalars['ID']['output'];
-  redCards: Scalars['Float']['output'];
-  yellowCards: Scalars['Float']['output'];
-};
 
 export type Prediction = {
   __typename?: 'Prediction';
@@ -419,7 +406,7 @@ export type Query = {
   statistics: StatisticsOutput;
   teamById: Team;
   teams: Array<Team>;
-  topPlayers: Array<TopPlayerOutput>;
+  topPlayers: Array<Player>;
   user: User;
 };
 
@@ -498,6 +485,19 @@ export type StatisticsOutput = {
   totalGoals: Scalars['Int']['output'];
 };
 
+export type Stats = {
+  __typename?: 'Stats';
+  assists: Scalars['Float']['output'];
+  cleanSheets: Scalars['Float']['output'];
+  goalkeeperSaves: Scalars['Float']['output'];
+  goals: Scalars['Float']['output'];
+  ownGoals: Scalars['Float']['output'];
+  penaltiesMissed: Scalars['Float']['output'];
+  penaltiesScored: Scalars['Float']['output'];
+  redCards: Scalars['Float']['output'];
+  yellowCards: Scalars['Float']['output'];
+};
+
 export type Team = {
   __typename?: 'Team';
   captain?: Maybe<Player>;
@@ -505,20 +505,21 @@ export type Team = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   players: Array<Player>;
+  stats: TeamStats;
 };
 
-export type TopPlayerOutput = {
-  __typename?: 'TopPlayerOutput';
-  assists: Scalars['Int']['output'];
-  goals: Scalars['Int']['output'];
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-  ownGoals: Scalars['Int']['output'];
-  position: PlayerPosition;
-  redCards: Scalars['Int']['output'];
-  teamId: Scalars['ID']['output'];
-  teamName: Scalars['String']['output'];
-  yellowCards: Scalars['Int']['output'];
+export type TeamStats = {
+  __typename?: 'TeamStats';
+  assists: Scalars['Float']['output'];
+  cleanSheets: Scalars['Float']['output'];
+  goalkeeperSaves: Scalars['Float']['output'];
+  goals: Scalars['Float']['output'];
+  goalsConceded: Scalars['Float']['output'];
+  ownGoals: Scalars['Float']['output'];
+  penaltiesMissed: Scalars['Float']['output'];
+  penaltiesScored: Scalars['Float']['output'];
+  redCards: Scalars['Float']['output'];
+  yellowCards: Scalars['Float']['output'];
 };
 
 export type UpdateMatchDto = {

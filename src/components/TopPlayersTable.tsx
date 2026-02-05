@@ -3,10 +3,10 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Users, Trophy, Medal, Award } from 'lucide-react';
-import { TopPlayer } from '@/domains/home/contracts';
+import type { Player } from '@/domains/player/contracts';
 
 type TopPlayersTableProps = {
-  players: TopPlayer[];
+  players: Player[];
   limit?: number;
   title?: string;
 };
@@ -88,33 +88,35 @@ const TopPlayersTable = ({ players, limit, title = 'Top Players' }: TopPlayersTa
                     <PositionIcon position={position} />
                   </td>
                   <td className="px-4 py-4">
-                    <p className="font-semibold">{player.name}</p>
+                    <p className="font-semibold">
+                      {player.firstName} {player.lastName}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       <Link
-                        href={`/teams/${player.teamId}`}
+                        href={`/teams/${player.team?.id}`}
                         onClick={(e) => e.stopPropagation()}
                         className="hover:underline"
                       >
-                        {player.teamName}
+                        {player.team?.name}
                       </Link>
                       {' · '}
                       {player.position}
                     </p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-bold">{player.goals}</p>
+                    <p className="font-bold">{player.stats?.goals}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.assists}</p>
+                    <p className="font-medium">{player.stats?.assists}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.yellowCards}</p>
+                    <p className="font-medium">{player.stats?.yellowCards}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.redCards}</p>
+                    <p className="font-medium">{player.stats?.redCards}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.ownGoals}</p>
+                    <p className="font-medium">{player.stats?.ownGoals}</p>
                   </td>
                 </tr>
               );

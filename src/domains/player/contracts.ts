@@ -19,7 +19,7 @@ export type Player = {
   team?: Team;
   firstName: string;
   lastName: string;
-  position: PlayerPosition;
+  position?: PlayerPosition;
   dateOfBirth?: string;
   age?: number;
   height?: number;
