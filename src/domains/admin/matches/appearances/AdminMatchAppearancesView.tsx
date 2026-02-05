@@ -133,7 +133,6 @@ const AdminMatchAppearancesView = ({ match, existingAppearances }: AdminMatchApp
       }
 
       // TODO: Save MVP when backend supports it
-      console.log('MVP:', mvpId);
 
       router.push('/admin/matches');
     } catch (error) {

@@ -12,10 +12,13 @@ export const mapTeam = (
   const players = 'players' in team ? team.players.map(mapPlayer) : undefined;
   const captain = 'captain' in team && team.captain ? mapPlayer(team.captain) : undefined;
 
+  const stats = 'stats' in team && team.stats ? team.stats : undefined;
+
   return {
     id: team.id,
     name: team.name,
     players,
     captain,
+    stats,
   };
 };

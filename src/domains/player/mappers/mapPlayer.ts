@@ -6,10 +6,12 @@ import {
   MatchEventsQuery,
   GetPlayerStandingsQuery,
   TeamByIdQuery,
+  GetTopPlayersQuery,
 } from '@/graphql';
 
 export const mapPlayer = (
   player:
+    | GetTopPlayersQuery['topPlayers'][number]
     | PlayerByIdQuery['playerById']
     | MatchByIdQuery['matchById']['firstOpponent']['players'][number]
     | MatchByIdQuery['matchById']['secondOpponent']['players'][number]
@@ -35,14 +37,14 @@ export const mapPlayer = (
     const rawStats = player.stats as { appearances?: number };
     stats = {
       appearances: rawStats.appearances ?? 0,
-      goals: player.stats.goals,
-      assists: player.stats.assists,
-      yellowCards: player.stats.yellowCards,
-      redCards: player.stats.redCards,
-      ownGoals: player.stats.ownGoals,
-      penaltiesMissed: player.stats.penaltiesMissed,
-      penaltiesScored: player.stats.penaltiesScored,
-      goalkeeperSaves: player.stats.goalkeeperSaves,
+      goals: 'goals' in player.stats ? player.stats.goals : 0,
+      assists: 'assists' in player.stats ? player.stats.assists : 0,
+      yellowCards: 'yellowCards' in player.stats ? player.stats.yellowCards : 0,
+      redCards: 'redCards' in player.stats ? player.stats.redCards : 0,
+      ownGoals: 'ownGoals' in player.stats ? player.stats.ownGoals : 0,
+      penaltiesMissed: 'penaltiesMissed' in player.stats ? player.stats.penaltiesMissed : 0,
+      penaltiesScored: 'penaltiesScored' in player.stats ? player.stats.penaltiesScored : 0,
+      goalkeeperSaves: 'goalkeeperSaves' in player.stats ? player.stats.goalkeeperSaves : 0,
     };
   }
 
@@ -50,7 +52,7 @@ export const mapPlayer = (
     id: player.id,
     firstName: player.firstName,
     lastName: player.lastName,
-    position: player.position,
+    position: 'position' in player ? player.position : undefined,
     height,
     weight,
     preferredFoot,

@@ -192,7 +192,7 @@ export function TeamViewUi({ team }: { team: Team }) {
           <div>
             <h3 className="text-base md:text-lg font-medium mb-3">Goals</h3>
             <div className="grid grid-cols-3 gap-3 md:gap-4">
-              <StatCard label="Goals Scored" value={team.stats?.goalsScored ?? 0} />
+              <StatCard label="Goals Scored" value={team.stats?.goals ?? 0} />
               <StatCard label="Goals Conceded" value={team.stats?.goalsConceded ?? 0} />
               <StatCard label="Clean Sheets" value={team.stats?.cleanSheets ?? 0} />
             </div>

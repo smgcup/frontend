@@ -14,6 +14,5 @@ export const getHomePageData = async () => {
     getHeroStatisticsData(),
     getTopPlayersData(),
   ]);
-
   return { teams, news, matches, heroStatistics, topPlayers };
 };
