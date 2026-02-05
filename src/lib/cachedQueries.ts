@@ -48,6 +48,10 @@ export const getTeamsData = unstable_cache(
     const client = getPublicClient();
     const { data } = await client.query<GetTeamsQuery, GetTeamsQueryVariables>({
       query: GetTeamsDocument,
+      variables: {
+        leaderboardOrder: true,
+        withStats: true,
+      },
     });
     return data?.teams.map(mapTeam) ?? [];
   },

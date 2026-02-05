@@ -462,6 +462,11 @@ export type QueryTeamByIdArgs = {
   id: Scalars['String']['input'];
 };
 
+
+export type QueryTeamsArgs = {
+  leaderboardOrder?: Scalars['Boolean']['input'];
+};
+
 export type RegisterUserInput = {
   /** Email address */
   email: Scalars['String']['input'];
@@ -512,13 +517,18 @@ export type TeamStats = {
   __typename?: 'TeamStats';
   assists: Scalars['Float']['output'];
   cleanSheets: Scalars['Float']['output'];
+  draws: Scalars['Float']['output'];
   goalkeeperSaves: Scalars['Float']['output'];
   goals: Scalars['Float']['output'];
   goalsConceded: Scalars['Float']['output'];
+  losses: Scalars['Float']['output'];
+  matchesPlayed: Scalars['Float']['output'];
   ownGoals: Scalars['Float']['output'];
   penaltiesMissed: Scalars['Float']['output'];
   penaltiesScored: Scalars['Float']['output'];
+  points: Scalars['Float']['output'];
   redCards: Scalars['Float']['output'];
+  wins: Scalars['Float']['output'];
   yellowCards: Scalars['Float']['output'];
 };
 

@@ -20,6 +20,7 @@ const POSITION_ORDER: Record<PlayerPosition, number> = {
 
 const sortPlayersByPosition = (players: Player[]): Player[] => {
   return [...players].sort((a, b) => {
+    if (!a.position || !b.position) return 0;
     const orderA = POSITION_ORDER[a.position] ?? 99;
     const orderB = POSITION_ORDER[b.position] ?? 99;
     return orderA - orderB;

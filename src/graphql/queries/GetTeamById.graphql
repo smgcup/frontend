@@ -19,5 +19,21 @@ query TeamById($id: String!) {
       age
       imageUrl
     }
+    stats {
+      points
+      goals
+      assists
+      yellowCards
+      redCards
+      ownGoals
+      goalsConceded
+      wins
+      draws
+      losses
+      cleanSheets
+      matchesPlayed
+      cleanSheets
+      matchesPlayed
+    }
   }
 }

@@ -312,7 +312,7 @@ export function PlayerViewUi({ player }: { player: Player }) {
                   <BioField label="Last Name" value={player.lastName} />
                   <BioField label="Date of Birth" value={formatDate(player.dateOfBirth)} />
                   <BioField label="Age" value={player.age ? `${player.age} years` : 'N/A'} />
-                  <BioField label="Position" value={player.position} />
+                  <BioField label="Position" value={player.position ?? '-'} />
                 </div>
               </div>
 

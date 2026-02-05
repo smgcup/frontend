@@ -1,6 +1,21 @@
-query GetTeams {
-  teams {
+query GetTeams($leaderboardOrder: Boolean = false, $withStats: Boolean! = false) {
+  teams(leaderboardOrder: $leaderboardOrder) {
     id
     name
+    stats @include(if: $withStats) {
+      points
+      goals
+      assists
+      yellowCards
+      redCards
+      ownGoals
+      goals
+      goalsConceded
+      wins
+      draws
+      losses
+      cleanSheets
+      matchesPlayed
+    }
   }
 }
