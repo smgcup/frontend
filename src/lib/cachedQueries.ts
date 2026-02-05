@@ -53,7 +53,7 @@ export const getTeamsData = unstable_cache(
     return data?.teams.map(mapTeam) ?? [];
   },
   ['teams-testing69'],
-  { revalidate: ONE_HOUR },
+  { revalidate: FIVE_MINUTES },
 );
 
 export const getTeamByIdData = (teamId: string) =>
@@ -67,7 +67,7 @@ export const getTeamByIdData = (teamId: string) =>
       return data?.teamById ? mapTeam(data.teamById) : null;
     },
     ['team', teamId],
-    { revalidate: ONE_HOUR },
+    { revalidate: FIVE_MINUTES },
   )();
 
 export const getNewsData = unstable_cache(
