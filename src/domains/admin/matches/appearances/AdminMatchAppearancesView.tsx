@@ -14,6 +14,9 @@ import {
   DeletePlayerAppearanceDocument,
   type DeletePlayerAppearanceMutation,
   type DeletePlayerAppearanceMutationVariables,
+  UpdateMatchDocument,
+  type UpdateMatchMutation,
+  type UpdateMatchMutationVariables,
 } from '@/graphql';
 
 const levelToNumber = (level: AppearanceLevel): number => {
@@ -31,9 +34,10 @@ const numberToLevel = (num: number): AppearanceLevel => {
 type AdminMatchAppearancesViewProps = {
   match: Match;
   existingAppearances: ExistingAppearance[];
+  initialMvpId: string | null;
 };
 
-const AdminMatchAppearancesView = ({ match, existingAppearances }: AdminMatchAppearancesViewProps) => {
+const AdminMatchAppearancesView = ({ match, existingAppearances, initialMvpId }: AdminMatchAppearancesViewProps) => {
   const router = useRouter();
 
   // Initialize appearances state from existing data
@@ -52,7 +56,7 @@ const AdminMatchAppearancesView = ({ match, existingAppearances }: AdminMatchApp
     return map;
   });
 
-  const [mvpId, setMvpId] = useState<string | null>(null);
+  const [mvpId, setMvpId] = useState<string | null>(initialMvpId);
 
   const [createAppearances, { loading: isCreating }] = useMutation<
     CreateAllPlayerAppearancesMutation,
@@ -64,7 +68,11 @@ const AdminMatchAppearancesView = ({ match, existingAppearances }: AdminMatchApp
     DeletePlayerAppearanceMutationVariables
   >(DeletePlayerAppearanceDocument);
 
-  const isSaving = isCreating || isDeleting;
+  const [updateMatch, { loading: isUpdating }] = useMutation<UpdateMatchMutation, UpdateMatchMutationVariables>(
+    UpdateMatchDocument,
+  );
+
+  const isSaving = isCreating || isDeleting || isUpdating;
 
   // Get list of players who have appeared (for MVP selection)
   const appearedPlayers = useMemo(() => {
@@ -132,8 +140,13 @@ const AdminMatchAppearancesView = ({ match, existingAppearances }: AdminMatchApp
         });
       }
 
-      // TODO: Save MVP when backend supports it
-      console.log('MVP:', mvpId);
+      // Save MVP
+      await updateMatch({
+        variables: {
+          id: match.id,
+          dto: { mvpId },
+        },
+      });
 
       router.push('/admin/matches');
     } catch (error) {

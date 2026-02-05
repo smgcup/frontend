@@ -32,10 +32,11 @@ export const getAdminMatchAppearancesPageData = async (matchId: string) => {
   const { data: appearancesData } = appearancesResult;
 
   if (!matchData || !matchData.matchById) {
-    return { match: null, existingAppearances: [], errorMessage: 'Match not found' };
+    return { match: null, existingAppearances: [], mvpId: null, errorMessage: 'Match not found' };
   }
 
   const match = mapMatch(matchData.matchById);
+  const mvpId = matchData.matchById.mvp?.id ?? null;
 
   const existingAppearances: ExistingAppearance[] = (appearancesData?.playerAppearancesByMatch ?? []).map((a) => ({
     playerId: a.playerId,
@@ -51,5 +52,5 @@ export const getAdminMatchAppearancesPageData = async (matchId: string) => {
       : 'Failed to load match.'
     : null;
 
-  return { match, existingAppearances, errorMessage };
+  return { match, existingAppearances, mvpId, errorMessage };
 };

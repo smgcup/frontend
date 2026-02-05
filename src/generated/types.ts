@@ -108,6 +108,7 @@ export type Match = {
   firstOpponent: Team;
   id: Scalars['ID']['output'];
   location?: Maybe<MatchLocation>;
+  mvp?: Maybe<Player>;
   round: Scalars['Int']['output'];
   score1?: Maybe<Scalars['Int']['output']>;
   score2?: Maybe<Scalars['Int']['output']>;
@@ -540,6 +541,7 @@ export type UpdateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
   firstOpponentId?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<MatchLocation>;
+  mvpId?: InputMaybe<Scalars['String']['input']>;
   round?: InputMaybe<Scalars['Int']['input']>;
   score1?: InputMaybe<Scalars['Int']['input']>;
   score2?: InputMaybe<Scalars['Int']['input']>;

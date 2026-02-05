@@ -7,7 +7,7 @@ type AdminMatchAppearancesPageProps = {
 
 const AdminMatchAppearancesPage = async ({ params }: AdminMatchAppearancesPageProps) => {
   const { id } = await params;
-  const { match, existingAppearances, errorMessage } = await getAdminMatchAppearancesPageData(id);
+  const { match, existingAppearances, mvpId, errorMessage } = await getAdminMatchAppearancesPageData(id);
 
   if (errorMessage) {
     return <div>Error loading match: {errorMessage}</div>;
@@ -17,7 +17,7 @@ const AdminMatchAppearancesPage = async ({ params }: AdminMatchAppearancesPagePr
     return <div>Match not found</div>;
   }
 
-  return <AdminMatchAppearancesView match={match} existingAppearances={existingAppearances} />;
+  return <AdminMatchAppearancesView match={match} existingAppearances={existingAppearances} initialMvpId={mvpId} />;
 };
 
 export default AdminMatchAppearancesPage;
