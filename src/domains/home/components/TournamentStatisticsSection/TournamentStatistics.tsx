@@ -2,13 +2,13 @@
 
 import React from 'react';
 import { Team } from '@/domains/team/contracts';
-import { TopPlayer } from '@/domains/home/contracts';
+import type { Player } from '@/domains/player/contracts';
 import StandingsTable from '@/components/StandingsTable';
 import TopPlayersTable from '@/components/TopPlayersTable';
 
 type TournamentStatisticsProps = {
   teams: Team[];
-  topPlayers: TopPlayer[];
+  topPlayers: Player[];
 };
 
 const TournamentStatistics = ({ teams, topPlayers }: TournamentStatisticsProps) => {

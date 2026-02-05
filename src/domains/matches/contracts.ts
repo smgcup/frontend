@@ -3,6 +3,12 @@ import type { MatchEventType, MatchLocation } from '@/generated/types';
 import type { Player } from '@/domains/player/contracts';
 import type { Team } from '@/domains/team/contracts';
 
+export type MatchMvp = {
+  id: string;
+  firstName: string;
+  lastName: string;
+};
+
 export type Match = {
   id: string;
   firstOpponent: Team;
@@ -13,6 +19,7 @@ export type Match = {
   score2?: number;
   round: number;
   location?: MatchLocation | null;
+  mvp?: MatchMvp | null;
 };
 
 export type MatchEvent = {

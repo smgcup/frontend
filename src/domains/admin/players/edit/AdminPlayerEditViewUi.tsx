@@ -140,7 +140,7 @@ const AdminPlayerEditViewUi = ({
       height: player.height ?? null,
       weight: player.weight ?? null,
       dateOfBirth: player.dateOfBirth ?? null,
-      position: player.position,
+      position: player.position ?? null,
       preferredFoot: player.preferredFoot ?? null,
       class: player?.class ?? null,
     };

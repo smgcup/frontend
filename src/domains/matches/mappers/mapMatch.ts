@@ -1,8 +1,14 @@
 import type { Match } from '../contracts';
 import { type MatchByIdQuery, type GetMatchesQuery } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
+import { mapPlayer } from '@/domains/player/mappers/mapPlayer';
 
-export const mapMatch = (match: GetMatchesQuery['matches'][number] | MatchByIdQuery['matchById']): Match => {
+type MatchInput = GetMatchesQuery['matches'][number] | MatchByIdQuery['matchById'];
+
+export const mapMatch = (match: MatchInput): Match => {
+  const mvpData = 'mvp' in match && match.mvp ? mapPlayer(match.mvp) : null;
+  const mvp = mvpData ?? null;
+
   return {
     id: match.id,
     firstOpponent: mapTeam(match.firstOpponent),
@@ -13,5 +19,6 @@ export const mapMatch = (match: GetMatchesQuery['matches'][number] | MatchByIdQu
     score2: match.score2 ?? undefined,
     round: match.round,
     location: match.location ?? undefined,
+    mvp,
   };
 };

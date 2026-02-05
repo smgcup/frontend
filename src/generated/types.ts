@@ -73,6 +73,7 @@ export type CreatePlayerDto = {
 };
 
 export type CreatePredictionDto = {
+  isBoosted?: InputMaybe<Scalars['Boolean']['input']>;
   matchId: Scalars['String']['input'];
   predictedScore1: Scalars['Int']['input'];
   predictedScore2: Scalars['Int']['input'];
@@ -108,6 +109,7 @@ export type Match = {
   firstOpponent: Team;
   id: Scalars['ID']['output'];
   location?: Maybe<MatchLocation>;
+  mvp?: Maybe<Player>;
   round: Scalars['Int']['output'];
   score1?: Maybe<Scalars['Int']['output']>;
   score2?: Maybe<Scalars['Int']['output']>;
@@ -341,7 +343,7 @@ export type Player = {
   lastName: Scalars['String']['output'];
   position: PlayerPosition;
   preferredFoot: PreferredFoot;
-  stats?: Maybe<PlayerStats>;
+  stats: Stats;
   team: Team;
   weight: Scalars['Float']['output'];
 };
@@ -368,23 +370,11 @@ export enum PlayerPosition {
   Midfielder = 'MIDFIELDER'
 }
 
-export type PlayerStats = {
-  __typename?: 'PlayerStats';
-  assists: Scalars['Float']['output'];
-  goalkeeperSaves: Scalars['Float']['output'];
-  goals: Scalars['Float']['output'];
-  ownGoals: Scalars['Float']['output'];
-  penaltiesMissed: Scalars['Float']['output'];
-  penaltiesScored: Scalars['Float']['output'];
-  playerId: Scalars['ID']['output'];
-  redCards: Scalars['Float']['output'];
-  yellowCards: Scalars['Float']['output'];
-};
-
 export type Prediction = {
   __typename?: 'Prediction';
   createdAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
+  isBoosted: Scalars['Boolean']['output'];
   match: Match;
   pointsEarned?: Maybe<Scalars['Int']['output']>;
   predictedScore1: Scalars['Int']['output'];
@@ -419,7 +409,7 @@ export type Query = {
   statistics: StatisticsOutput;
   teamById: Team;
   teams: Array<Team>;
-  topPlayers: Array<TopPlayerOutput>;
+  topPlayers: Array<Player>;
   user: User;
 };
 
@@ -475,6 +465,11 @@ export type QueryTeamByIdArgs = {
   id: Scalars['String']['input'];
 };
 
+
+export type QueryTeamsArgs = {
+  leaderboardOrder?: Scalars['Boolean']['input'];
+};
+
 export type RegisterUserInput = {
   /** Email address */
   email: Scalars['String']['input'];
@@ -498,6 +493,19 @@ export type StatisticsOutput = {
   totalGoals: Scalars['Int']['output'];
 };
 
+export type Stats = {
+  __typename?: 'Stats';
+  assists: Scalars['Float']['output'];
+  cleanSheets: Scalars['Float']['output'];
+  goalkeeperSaves: Scalars['Float']['output'];
+  goals: Scalars['Float']['output'];
+  ownGoals: Scalars['Float']['output'];
+  penaltiesMissed: Scalars['Float']['output'];
+  penaltiesScored: Scalars['Float']['output'];
+  redCards: Scalars['Float']['output'];
+  yellowCards: Scalars['Float']['output'];
+};
+
 export type Team = {
   __typename?: 'Team';
   captain?: Maybe<Player>;
@@ -505,26 +513,33 @@ export type Team = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   players: Array<Player>;
+  stats: TeamStats;
 };
 
-export type TopPlayerOutput = {
-  __typename?: 'TopPlayerOutput';
-  assists: Scalars['Int']['output'];
-  goals: Scalars['Int']['output'];
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-  ownGoals: Scalars['Int']['output'];
-  position: PlayerPosition;
-  redCards: Scalars['Int']['output'];
-  teamId: Scalars['ID']['output'];
-  teamName: Scalars['String']['output'];
-  yellowCards: Scalars['Int']['output'];
+export type TeamStats = {
+  __typename?: 'TeamStats';
+  assists: Scalars['Float']['output'];
+  cleanSheets: Scalars['Float']['output'];
+  draws: Scalars['Float']['output'];
+  goalkeeperSaves: Scalars['Float']['output'];
+  goals: Scalars['Float']['output'];
+  goalsConceded: Scalars['Float']['output'];
+  losses: Scalars['Float']['output'];
+  matchesPlayed: Scalars['Float']['output'];
+  ownGoals: Scalars['Float']['output'];
+  penaltiesMissed: Scalars['Float']['output'];
+  penaltiesScored: Scalars['Float']['output'];
+  points: Scalars['Float']['output'];
+  redCards: Scalars['Float']['output'];
+  wins: Scalars['Float']['output'];
+  yellowCards: Scalars['Float']['output'];
 };
 
 export type UpdateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
   firstOpponentId?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<MatchLocation>;
+  mvpId?: InputMaybe<Scalars['String']['input']>;
   round?: InputMaybe<Scalars['Int']['input']>;
   score1?: InputMaybe<Scalars['Int']['input']>;
   score2?: InputMaybe<Scalars['Int']['input']>;
@@ -559,6 +574,7 @@ export type UpdatePlayerDto = {
 };
 
 export type UpdatePredictionDto = {
+  isBoosted?: InputMaybe<Scalars['Boolean']['input']>;
   predictedScore1?: InputMaybe<Scalars['Int']['input']>;
   predictedScore2?: InputMaybe<Scalars['Int']['input']>;
 };

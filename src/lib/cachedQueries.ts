@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache';
 import { getPublicClient } from '@/lib/initializeApollo';
+import { mapPlayer } from '@/domains/player/mappers/mapPlayer';
 import {
   GetTeamsDocument,
   GetTeamsQuery,
@@ -36,8 +37,6 @@ import { mapTeam } from '@/domains/team/mappers/mapTeam';
 import { mapNews } from '@/domains/news/mappers/mapNews';
 import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 import { mapMatchEvent } from '@/domains/matches/mappers/mapMatchEvent';
-import { mapPlayer } from '@/domains/player/mappers/mapPlayer';
-import { mapTopPlayer } from '@/domains/home/mappers/mapTopPlayer';
 import { mapHeroStatistics } from '@/domains/home/mappers/mapHeroStatistics';
 
 // Cache duration in seconds
@@ -49,6 +48,10 @@ export const getTeamsData = unstable_cache(
     const client = getPublicClient();
     const { data } = await client.query<GetTeamsQuery, GetTeamsQueryVariables>({
       query: GetTeamsDocument,
+      variables: {
+        leaderboardOrder: true,
+        withStats: true,
+      },
     });
     return data?.teams.map(mapTeam) ?? [];
   },
@@ -168,7 +171,7 @@ export const getTopPlayersData = unstable_cache(
     const { data } = await client.query<GetTopPlayersQuery, GetTopPlayersQueryVariables>({
       query: GetTopPlayersDocument,
     });
-    return data?.topPlayers.map(mapTopPlayer) ?? [];
+    return data?.topPlayers.map(mapPlayer) ?? [];
   },
   ['top-players'],
   { revalidate: FIVE_MINUTES },

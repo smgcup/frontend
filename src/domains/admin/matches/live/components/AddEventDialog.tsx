@@ -66,7 +66,8 @@ const requiresGoalkeeper = (type: MatchEventType): boolean => {
   return [MatchEventType.GoalkeeperSave].includes(type);
 };
 
-const positionShortLabel = (position: PlayerPosition) => {
+const positionShortLabel = (position: PlayerPosition | undefined) => {
+  if (!position) return 'Unknown';
   switch (position) {
     case PlayerPosition.Goalkeeper:
       return 'GK';

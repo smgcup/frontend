@@ -87,28 +87,30 @@ const StandingsTable = ({ teams, limit, title = 'Standings' }: StandingsTablePro
                     <p className="font-semibold">{team.name}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{0}</p>
+                    <p className="font-medium">{team.stats?.points}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{0}</p>
+                    <p className="font-medium">{team.stats?.wins}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{0}</p>
+                    <p className="font-medium">{team.stats?.draws}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{0}</p>
+                    <p className="font-medium">{team.stats?.losses}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{0}</p>
+                    <p className="font-medium">{team.stats?.goals}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{0}</p>
+                    <p className="font-medium">{team.stats?.goalsConceded}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{0}</p>
+                    <p className="font-medium">
+                      {team.stats?.goals ? team.stats?.goals - team.stats?.goalsConceded : 0}
+                    </p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-bold">{0}</p>
+                    <p className="font-bold">{team.stats?.points}</p>
                   </td>
                 </tr>
               );
