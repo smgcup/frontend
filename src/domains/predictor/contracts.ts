@@ -11,6 +11,7 @@ export type Prediction = {
   match: Match;
   predictedScore1: number;
   predictedScore2: number;
+  isBoosted: boolean;
   createdAt: string;
   updatedAt: string;
   isExactCorrect?: boolean;

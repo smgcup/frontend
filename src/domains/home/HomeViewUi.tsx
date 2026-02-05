@@ -3,8 +3,8 @@ import { HeroSection, UpcomingMatchesSection, TournamentStatistics, NewsSection 
 import { Team } from '@/domains/team/contracts';
 import { News as NewsType } from '../news/contracts';
 import type { Match } from '@/domains/matches/contracts';
-import type { HeroStatistics } from './contracts';
 import type { Player } from '@/domains/player/contracts';
+import type { HeroStatistics } from './contracts';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui';

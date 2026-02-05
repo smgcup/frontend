@@ -1,23 +1,7 @@
-import type { PlayerPosition } from '@/graphql';
 import type { CategoryType } from './constants';
-import type { Team } from '@/domains/team/contracts';
+import type { Player } from '@/domains/player/contracts';
 
-export type LeaderboardPlayer = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  position: PlayerPosition;
-  imageUrl: string | null;
-  team?: Team;
-  stats?: {
-    goals: number;
-    assists: number;
-    yellowCards: number;
-    redCards: number;
-  } | null;
-};
-
-export type PlayerStanding = LeaderboardPlayer & {
+export type PlayerStanding = Player & {
   rank: number;
   statValue: number;
 };

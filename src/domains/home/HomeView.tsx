@@ -2,8 +2,8 @@ import HomeViewUi from './HomeViewUi';
 import { Team } from '@/domains/team/contracts';
 import { News } from '../news/contracts';
 import type { Match } from '../matches/contracts';
-import type { HeroStatistics } from './contracts';
 import type { Player } from '@/domains/player/contracts';
+import type { HeroStatistics } from './contracts';
 
 type HomeViewProps = {
   teams: Team[];

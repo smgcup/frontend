@@ -58,7 +58,7 @@ const PredictorLeaderboardTable = ({ leaderboard }: PredictorLeaderboardTablePro
         <Target className={cn('h-6 w-6', predictorTheme.iconAccent)} />
         <h3 className="text-2xl font-bold">Leaderboard</h3>
       </div>
-      <div className="overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className={cn('border-b', predictorTheme.headerBorder)}>
