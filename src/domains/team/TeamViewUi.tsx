@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Users, Calendar, BarChart3 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -47,6 +47,31 @@ export function TeamViewUi({ team }: { team: Team }) {
     },
     {} as Record<PlayerPosition, Player[]>,
   );
+
+  // Group matches by round, sort rounds ascending, and sort matches within each round by date
+  const matchesByRound = useMemo(() => {
+    const matches = team.matches ?? [];
+    const grouped = new Map<number, Match[]>();
+    for (const match of matches) {
+      const round = match.round ?? 0;
+      const list = grouped.get(round) ?? [];
+      list.push(match);
+      grouped.set(round, list);
+    }
+    return Array.from(grouped.entries())
+      .sort(([a], [b]) => a - b)
+      .map(
+        ([round, roundMatches]) =>
+          [
+            round,
+            [...roundMatches].sort((a, b) => {
+              const dateA = a.date ? new Date(a.date).getTime() : 0;
+              const dateB = b.date ? new Date(b.date).getTime() : 0;
+              return dateA - dateB;
+            }),
+          ] as [number, Match[]],
+      );
+  }, [team.matches]);
 
   return (
     <main className="min-h-screen bg-background">
@@ -148,30 +173,36 @@ export function TeamViewUi({ team }: { team: Team }) {
         </div>
 
         {/* Matches Tab */}
-        <div className={cn('space-y-4 max-w-7xl mx-auto', activeTab !== 'matches' && 'hidden')}>
-          <h2 className="text-xl font-semibold mb-4">Recent Matches</h2>
+        <div className={cn('space-y-6 max-w-7xl mx-auto', activeTab !== 'matches' && 'hidden')}>
           {(team.matches ?? []).length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>There are no matches yet</p>
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {(team.matches ?? []).map((match) => {
-                // Transform match so the viewed team is always on the left (firstOpponent)
-                const isTeamFirst = match.firstOpponent.id === team.id;
-                const normalizedMatch: Match = isTeamFirst
-                  ? match
-                  : {
-                      ...match,
-                      firstOpponent: match.secondOpponent,
-                      secondOpponent: match.firstOpponent,
-                      score1: match.score2,
-                      score2: match.score1,
-                    };
+            <div className="space-y-10">
+              {matchesByRound.map(([round, roundMatches]) => (
+                <section key={round}>
+                  <h3 className="text-lg font-semibold mb-4 text-primary">Round {round}</h3>
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {roundMatches.map((match) => {
+                      // Transform match so the viewed team is always on the left (firstOpponent)
+                      const isTeamFirst = match.firstOpponent.id === team.id;
+                      const normalizedMatch: Match = isTeamFirst
+                        ? match
+                        : {
+                            ...match,
+                            firstOpponent: match.secondOpponent,
+                            secondOpponent: match.firstOpponent,
+                            score1: match.score2,
+                            score2: match.score1,
+                          };
 
-                return <MatchCard key={match.id} match={normalizedMatch} />;
-              })}
+                      return <MatchCard key={match.id} match={normalizedMatch} />;
+                    })}
+                  </div>
+                </section>
+              ))}
             </div>
           )}
         </div>
