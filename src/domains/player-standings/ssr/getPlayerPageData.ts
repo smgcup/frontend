@@ -1,34 +1,19 @@
-// import { getClient } from '@/lib/initializeApollo';
-// import { GetPlayerStandingsDocument, GetPlayerStandingsQuery, GetPlayerStandingsQueryVariables } from '@/graphql';
-// import { mapTeam } from '@/domains/team/mappers/mapTeam';
-// import type { PlayersPageData } from '../contracts';
-// import { CATEGORIES } from '../constants';
+import { getLeaderboardData } from '@/lib/cachedQueries';
+import { ALL_SORT_TYPES, SORT_TYPE_TO_CATEGORY } from '../constants';
+import type { StandingsCategory } from '../contracts';
 
-// export const getPlayerPageData = async (): Promise<PlayersPageData> => {
-//   const client = await getClient();
+const emptyStandings: StandingsCategory[] = ALL_SORT_TYPES.map((sortType) => ({
+  title: SORT_TYPE_TO_CATEGORY[sortType],
+  players: [],
+  hasMore: false,
+  totalCount: 0,
+}));
 
-//   const { data } = await client.query<GetPlayerStandingsQuery, GetPlayerStandingsQueryVariables>({
-//     query: GetPlayerStandingsDocument,
-//   });
-
-//   const teams = (data?.teams ?? []).map(mapTeam);
-
-//   const allPlayers = teams.flatMap((team) =>
-//     (team.players ?? []).map((player) => ({
-//       ...player,
-//       team: team,
-//     })),
-//   );
-
-//   const standings = Object.values(CATEGORIES).map((category) => {
-//     return {
-//       title: category,
-//       players: allPlayers.map((player, index) => ({
-//         ...player,
-//         rank: index + 1,
-//       })),
-//     };
-//   });
-
-//   return { standings };
-// };
+export const getPlayerStandingsPageData = async (): Promise<{ standings: StandingsCategory[] }> => {
+  try {
+    const standings = await getLeaderboardData();
+    return { standings };
+  } catch {
+    return { standings: emptyStandings };
+  }
+};
