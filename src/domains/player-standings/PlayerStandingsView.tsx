@@ -2,9 +2,14 @@
 
 import PlayerStandingsViewUi from './PlayerStandingsViewUi';
 import { usePlayerStandings } from './hooks/usePlayerStandings';
+import type { StandingsCategory } from './contracts';
 
-const PlayerStandingsView = () => {
-  const data = usePlayerStandings();
+type Props = {
+  initialStandings: StandingsCategory[];
+};
+
+const PlayerStandingsView = ({ initialStandings }: Props) => {
+  const data = usePlayerStandings(initialStandings);
 
   return <PlayerStandingsViewUi data={data} />;
 };
