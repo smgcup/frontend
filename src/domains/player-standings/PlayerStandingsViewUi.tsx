@@ -57,32 +57,38 @@ const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
     isLoadingRef.current = loadingMore || loading;
   }, [loadingMore, loading]);
 
-  // Track which column is visible using IntersectionObserver
+  // Track which column is visible via scroll position (more reliable than IntersectionObserver with snap scrolling)
   useEffect(() => {
     const contentEl = contentScrollRef.current;
     if (!contentEl) return;
 
-    const columns = contentEl.querySelectorAll('[data-column-index]');
-    if (columns.length === 0) return;
+    const updateActiveIndex = () => {
+      const columns = contentEl.querySelectorAll<HTMLElement>('[data-column-index]');
+      if (columns.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            const index = parseInt((entry.target as HTMLElement).dataset.columnIndex || '0', 10);
-            setActiveIndex(index);
-          }
-        });
-      },
-      {
-        root: contentEl,
-        threshold: 0.5,
-      },
-    );
+      const containerRect = contentEl.getBoundingClientRect();
+      const containerCenter = containerRect.left + containerRect.width / 2;
 
-    columns.forEach((col) => observer.observe(col));
+      let closestIndex = 0;
+      let closestDistance = Infinity;
 
-    return () => observer.disconnect();
+      columns.forEach((col) => {
+        const colRect = col.getBoundingClientRect();
+        const colCenter = colRect.left + colRect.width / 2;
+        const distance = Math.abs(colCenter - containerCenter);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = parseInt(col.dataset.columnIndex || '0', 10);
+        }
+      });
+
+      setActiveIndex(closestIndex);
+    };
+
+    contentEl.addEventListener('scroll', updateActiveIndex, { passive: true });
+    updateActiveIndex();
+
+    return () => contentEl.removeEventListener('scroll', updateActiveIndex);
   }, [standings.length]);
 
   useEffect(() => {
