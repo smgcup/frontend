@@ -3,6 +3,7 @@
 import React from 'react';
 import AdminAuthViewUi from './AdminAuthViewUi';
 import { useAdminAuth } from './useAdminAuth';
+
 const AdminAuthView = () => {
   const { onAdminLogin, adminLoginLoading, adminLoginError } = useAdminAuth();
 
