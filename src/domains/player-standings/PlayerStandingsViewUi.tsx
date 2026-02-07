@@ -46,16 +46,26 @@ const CategoryIcon = ({ title, alt }: { title: string; alt: string }) => {
 };
 
 const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
-  const { standings, loading, loadingMore, loadMore, hasMore } = data;
+  const { standings, loadingMore, loadMore, hasMore } = data;
   const sentinelRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
   const contentScrollRef = useRef<HTMLDivElement>(null);
+  const hasUserScrolledRef = useRef(false);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // Allow load-more only after user has scrolled (avoids triggering on initial paint when sentinel is already in view)
+  useEffect(() => {
+    const onScroll = () => {
+      hasUserScrolledRef.current = true;
+    };
+    window.addEventListener('scroll', onScroll, { once: true, passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Keep ref in sync with loading state
   useEffect(() => {
-    isLoadingRef.current = loadingMore || loading;
-  }, [loadingMore, loading]);
+    isLoadingRef.current = loadingMore;
+  }, [loadingMore]);
 
   // Track which column is visible via scroll position (more reliable than IntersectionObserver with snap scrolling)
   useEffect(() => {
@@ -98,7 +108,12 @@ const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        if (entry.isIntersecting && hasMore && !isLoadingRef.current) {
+        if (
+          entry.isIntersecting &&
+          hasMore &&
+          !isLoadingRef.current &&
+          hasUserScrolledRef.current
+        ) {
           loadMore();
         }
       },
@@ -115,19 +130,6 @@ const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
       observer.disconnect();
     };
   }, [hasMore, loadMore]);
-
-  if (loading) {
-    return (
-      <div className="py-4 lg:p-10">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading players...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <section className="pb-16 pt-8 px-4 sm:px-6 lg:px-8">

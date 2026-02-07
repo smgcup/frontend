@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '@apollo/client/react';
 import {
   GetLeaderboardDocument,
@@ -13,7 +13,6 @@ import { ALL_SORT_TYPES, LEADERBOARD_LIMIT, SORT_TYPE_TO_CATEGORY, getStatValue 
 import type { StandingsCategory, PlayerStanding, PlayersPageData } from '../contracts';
 
 export const usePlayerStandings = (initialStandings: StandingsCategory[]): PlayersPageData => {
-  const skipFirstAutoLoadMoreRef = useRef(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
   const goalsQuery = useQuery<GetLeaderboardQuery, GetLeaderboardQueryVariables>(GetLeaderboardDocument, {
@@ -112,15 +111,8 @@ export const usePlayerStandings = (initialStandings: StandingsCategory[]): Playe
 
   return {
     standings,
-    loading: false,
     loadingMore,
-    loadMore: async () => {
-      if (skipFirstAutoLoadMoreRef.current) {
-        skipFirstAutoLoadMoreRef.current = false;
-        return;
-      }
-      return loadMore();
-    },
+    loadMore,
     hasMore,
   };
 };
