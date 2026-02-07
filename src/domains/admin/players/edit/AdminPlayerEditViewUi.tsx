@@ -218,7 +218,7 @@ const AdminPlayerEditViewUi = ({
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
-  const createCroppedImage = async (imageSrc: string, pixelCrop: Area): Promise<Blob> => {
+  const createCroppedImage = async (imageSrc: string, pixelCrop: Area, outputSize: number, format: 'image/png' | 'image/jpeg' = 'image/png', quality?: number): Promise<Blob> => {
     const image = new window.Image();
     image.src = imageSrc;
     await new Promise((resolve) => {
@@ -229,11 +229,11 @@ const AdminPlayerEditViewUi = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not get canvas context');
 
-    // Set canvas size to the cropped area
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
+    // Set canvas to the desired output size
+    canvas.width = outputSize;
+    canvas.height = outputSize;
 
-    // Draw the cropped portion of the image
+    // Draw the cropped portion scaled to the output size
     ctx.drawImage(
       image,
       pixelCrop.x,
@@ -242,8 +242,8 @@ const AdminPlayerEditViewUi = ({
       pixelCrop.height,
       0,
       0,
-      pixelCrop.width,
-      pixelCrop.height,
+      outputSize,
+      outputSize,
     );
 
     return new Promise((resolve, reject) => {
@@ -253,7 +253,7 @@ const AdminPlayerEditViewUi = ({
         } else {
           reject(new Error('Failed to create blob'));
         }
-      }, 'image/png');
+      }, format, quality);
     });
   };
 
@@ -261,8 +261,12 @@ const AdminPlayerEditViewUi = ({
     if (!imageToCrop || !croppedAreaPixels) return;
 
     try {
-      const croppedBlob = await createCroppedImage(imageToCrop, croppedAreaPixels);
-      const croppedFile = new File([croppedBlob], 'cropped-image.png', { type: 'image/png' });
+      const isCelebration = cropTarget === 'celebrationImage';
+      const outputSize = isCelebration ? 800 : 96;
+      const format = isCelebration ? 'image/jpeg' : 'image/png';
+      const croppedBlob = await createCroppedImage(imageToCrop, croppedAreaPixels, outputSize, format, isCelebration ? 0.8 : undefined);
+      const ext = isCelebration ? 'jpg' : 'png';
+      const croppedFile = new File([croppedBlob], `cropped-image.${ext}`, { type: format });
 
       if (cropTarget === 'celebrationImage') {
         setCelebrationImageFile(croppedFile);
