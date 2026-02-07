@@ -6,6 +6,7 @@ import { Trophy } from 'lucide-react';
 import EventTimeline from '@/domains/matches/components/EventTimeline';
 import { getMatchDetailPageData } from '@/domains/matches/ssr/getMatchDetailPageData';
 import RefreshButton from '../../../../domains/matches/components/RefreshButton';
+import { BackButton } from '@/components/BackButton';
 import { MatchStatus } from '@/generated/types';
 
 export const dynamic = 'force-dynamic';
@@ -27,7 +28,8 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
   const score2 = match.score2 ?? 0;
 
   return (
-    <section className="py-10 px-4 sm:px-6 lg:px-8">
+    <section className="pb-10 pt-8 px-4 sm:px-6 lg:px-8">
+      <BackButton />
       <div className="container mx-auto max-w-2xl space-y-6">
         <div className="flex items-start justify-between gap-4">
           <div>

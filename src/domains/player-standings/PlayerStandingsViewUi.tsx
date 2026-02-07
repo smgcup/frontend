@@ -6,6 +6,7 @@ import { goalIcon, redCardIcon, yellowCardIcon } from '@/public/icons';
 import type { PlayersPageData } from './contracts';
 import StandingsColumn from './components/StandingsColumn';
 import { Loader2 } from 'lucide-react';
+import { BackButton } from '@/components/BackButton';
 
 type PlayerStandingsViewUiProps = {
   data: PlayersPageData;
@@ -123,7 +124,8 @@ const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
   }
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8">
+    <section className="pb-16 pt-8 px-4 sm:px-6 lg:px-8">
+      <BackButton />
       <div className="container mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center">Player Standings</h1>
 
