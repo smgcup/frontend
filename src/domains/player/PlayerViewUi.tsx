@@ -72,7 +72,6 @@ export function PlayerViewUi({ player }: { player: Player }) {
 
   const isGoalkeeper = player.position === PlayerPosition.Goalkeeper;
   const isDefender = player.position === PlayerPosition.Defender;
-  const showCleanSheets = isGoalkeeper || isDefender;
 
   return (
     <main className="min-h-screen bg-background">
