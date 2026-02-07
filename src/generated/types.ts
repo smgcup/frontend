@@ -19,6 +19,7 @@ export type Scalars = {
 export type AdminLoginResult = {
   __typename?: 'AdminLoginResult';
   ok: Scalars['Boolean']['output'];
+  token: Scalars['String']['output'];
 };
 
 export type AuthResponse = {
@@ -156,7 +157,6 @@ export enum MatchStatus {
 export type Mutation = {
   __typename?: 'Mutation';
   adminLogin: AdminLoginResult;
-  adminLogout: AdminLoginResult;
   createAllPlayerAppearances: Array<PlayerAppearance>;
   createMatch: Match;
   createMatchEvent: MatchEvent;
