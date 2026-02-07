@@ -23,6 +23,7 @@ query PlayerById($id: String!) {
       penaltiesMissed
       penaltiesScored
       goalkeeperSaves
+      cleanSheets
     }
   }
 }

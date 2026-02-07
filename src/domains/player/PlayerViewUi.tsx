@@ -71,6 +71,8 @@ export function PlayerViewUi({ player }: { player: Player }) {
   };
 
   const isGoalkeeper = player.position === PlayerPosition.Goalkeeper;
+  const isDefender = player.position === PlayerPosition.Defender;
+  const showCleanSheets = isGoalkeeper || isDefender;
 
   return (
     <main className="min-h-screen bg-background">
@@ -240,12 +242,23 @@ export function PlayerViewUi({ player }: { player: Player }) {
               </div>
             </div>
 
-            {/* Goalkeeper Stats - only for goalkeepers */}
+            {/* Goalkeeper Stats - for goalkeepers */}
             {isGoalkeeper && (
               <div>
                 <h3 className="text-base md:text-lg font-medium mb-3">Goalkeeper</h3>
-                <div className="grid grid-cols-1 gap-3 md:gap-4">
+                <div className="grid grid-cols-2 gap-3 md:gap-4">
                   <StatCard label="Saves" value={player.stats?.goalkeeperSaves ?? 0} highlight="blue" />
+                  <StatCard label="Clean Sheets" value={player.stats?.cleanSheets ?? 0} highlight="green" />
+                </div>
+              </div>
+            )}
+
+            {/* Defensive Stats - for defenders */}
+            {isDefender && (
+              <div>
+                <h3 className="text-base md:text-lg font-medium mb-3">Defensive</h3>
+                <div className="grid grid-cols-1 gap-3 md:gap-4">
+                  <StatCard label="Clean Sheets" value={player.stats?.cleanSheets ?? 0} highlight="green" />
                 </div>
               </div>
             )}

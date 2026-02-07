@@ -12,6 +12,7 @@ export type PlayerStats = {
   penaltiesMissed: number;
   penaltiesScored: number;
   goalkeeperSaves: number;
+  cleanSheets: number;
 };
 
 export type Player = {

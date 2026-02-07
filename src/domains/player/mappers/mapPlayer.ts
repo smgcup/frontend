@@ -48,6 +48,7 @@ export const mapPlayer = (
       penaltiesMissed: 'penaltiesMissed' in player.stats ? player.stats.penaltiesMissed : 0,
       penaltiesScored: 'penaltiesScored' in player.stats ? player.stats.penaltiesScored : 0,
       goalkeeperSaves: 'goalkeeperSaves' in player.stats ? player.stats.goalkeeperSaves : 0,
+      cleanSheets: 'cleanSheets' in player.stats ? player.stats.cleanSheets : 0,
     };
   }
 
