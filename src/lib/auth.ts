@@ -7,11 +7,12 @@ export const ADMIN_AUTH_COOKIE_NAME = 'admin_auth_token';
 export const createAuthLink = () => {
   const authLink = setContext((_, { headers }) => {
     const token = getCookie(AUTH_COOKIE_NAME);
-
+    const adminToken = getCookie(ADMIN_AUTH_COOKIE_NAME);
     return {
       headers: {
         ...headers,
         ...(token && { authorization: `Bearer ${token}` }),
+        ...(adminToken && { adminAuthorization: `Bearer ${adminToken}` }),
       },
     };
   });
