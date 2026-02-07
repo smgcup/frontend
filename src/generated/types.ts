@@ -34,6 +34,12 @@ export type CreateAllPlayerAppearancesDto = {
   matchId: Scalars['String']['input'];
 };
 
+export type CreateFantasyPlayerDto = {
+  displayName: Scalars['String']['input'];
+  playerId: Scalars['String']['input'];
+  price: Scalars['Float']['input'];
+};
+
 export type CreateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
   firstOpponentId: Scalars['String']['input'];
@@ -81,6 +87,14 @@ export type CreatePredictionDto = {
 
 export type CreateTeamDto = {
   name: Scalars['String']['input'];
+};
+
+export type FantasyPlayer = {
+  __typename?: 'FantasyPlayer';
+  displayName: Scalars['String']['output'];
+  player: Player;
+  playerId: Scalars['ID']['output'];
+  price: Scalars['Float']['output'];
 };
 
 export type ImageUploadInput = {
@@ -158,12 +172,14 @@ export type Mutation = {
   adminLogin: AdminLoginResult;
   adminLogout: AdminLoginResult;
   createAllPlayerAppearances: Array<PlayerAppearance>;
+  createFantasyPlayer: FantasyPlayer;
   createMatch: Match;
   createMatchEvent: MatchEvent;
   createNews: News;
   createPlayer: Player;
   createPrediction: Prediction;
   createTeam: Team;
+  deleteFantasyPlayer: FantasyPlayer;
   deleteMatch: Match;
   deleteMatchEvent: MatchEvent;
   deleteNews: News;
@@ -174,6 +190,7 @@ export type Mutation = {
   login: AuthResponse;
   register: AuthResponse;
   startMatch: Match;
+  updateFantasyPlayer: FantasyPlayer;
   updateMatch: Match;
   updateNews: Scalars['Boolean']['output'];
   updatePlayer: Player;
@@ -191,6 +208,11 @@ export type MutationAdminLoginArgs = {
 
 export type MutationCreateAllPlayerAppearancesArgs = {
   input: CreateAllPlayerAppearancesDto;
+};
+
+
+export type MutationCreateFantasyPlayerArgs = {
+  createFantasyPlayerDto: CreateFantasyPlayerDto;
 };
 
 
@@ -221,6 +243,11 @@ export type MutationCreatePredictionArgs = {
 
 export type MutationCreateTeamArgs = {
   createTeamDto: CreateTeamDto;
+};
+
+
+export type MutationDeleteFantasyPlayerArgs = {
+  playerId: Scalars['String']['input'];
 };
 
 
@@ -272,6 +299,12 @@ export type MutationRegisterArgs = {
 
 export type MutationStartMatchArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateFantasyPlayerArgs = {
+  playerId: Scalars['String']['input'];
+  updateFantasyPlayerDto: UpdateFantasyPlayerDto;
 };
 
 
@@ -391,6 +424,8 @@ export enum PreferredFoot {
 
 export type Query = {
   __typename?: 'Query';
+  fantasyPlayerByPlayerId: FantasyPlayer;
+  fantasyPlayers: Array<FantasyPlayer>;
   health: Scalars['String']['output'];
   matchById: Match;
   matchEvents: Array<MatchEvent>;
@@ -411,6 +446,11 @@ export type Query = {
   teams: Array<Team>;
   topPlayers: Array<Player>;
   user: User;
+};
+
+
+export type QueryFantasyPlayerByPlayerIdArgs = {
+  playerId: Scalars['String']['input'];
 };
 
 
@@ -535,6 +575,11 @@ export type TeamStats = {
   yellowCards: Scalars['Float']['output'];
 };
 
+export type UpdateFantasyPlayerDto = {
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  price?: InputMaybe<Scalars['Float']['input']>;
+};
+
 export type UpdateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
   firstOpponentId?: InputMaybe<Scalars['String']['input']>;
@@ -622,6 +667,8 @@ export type UserPredictionStats = {
 
 export enum Queries {
   __typename = '__typename',
+  fantasyPlayerByPlayerId = 'fantasyPlayerByPlayerId',
+  fantasyPlayers = 'fantasyPlayers',
   health = 'health',
   matchById = 'matchById',
   matchEvents = 'matchEvents',

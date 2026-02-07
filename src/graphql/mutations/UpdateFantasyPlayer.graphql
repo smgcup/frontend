@@ -1,0 +1,7 @@
+mutation UpdateFantasyPlayer($playerId: String!, $updateFantasyPlayerDto: UpdateFantasyPlayerDto!) {
+  updateFantasyPlayer(playerId: $playerId, updateFantasyPlayerDto: $updateFantasyPlayerDto) {
+    playerId
+    displayName
+    price
+  }
+}
