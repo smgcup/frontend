@@ -82,15 +82,16 @@ export function PlayerViewUi({ player }: { player: Player }) {
 
           <div className="flex items-center gap-4">
             <button
-              onClick={() => player.imageUrl && setIsImageOpen(true)}
+              onClick={() => player.celebrationImageUrl && setIsImageOpen(true)}
               className={cn(
-                'h-20 w-20 rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden relative',
-                player.imageUrl && 'cursor-pointer hover:ring-2 hover:ring-primary/50 transition-shadow',
+                'h-20 w-20 rounded-xl bg-muted flex items-center justify-center overflow-hidden relative',
+                player.celebrationImageUrl &&
+                  'cursor-pointer hover:ring-2 hover:ring-primary/50 transition-shadow',
               )}
             >
-              {player.imageUrl ? (
+              {player.celebrationImageUrl ? (
                 <Image
-                  src={player.imageUrl ?? '/placeholder.svg'}
+                  src={player.celebrationImageUrl}
                   alt={`${player.firstName} ${player.lastName}`}
                   fill
                   sizes="80px"
@@ -99,7 +100,7 @@ export function PlayerViewUi({ player }: { player: Player }) {
                   priority
                 />
               ) : (
-                <User className="h-10 w-10 text-primary" />
+                <span className="text-2xl text-muted-foreground">?</span>
               )}
             </button>
             <div>
@@ -346,7 +347,7 @@ export function PlayerViewUi({ player }: { player: Player }) {
       )}
 
       {/* Image Modal */}
-      {isImageOpen && player.imageUrl && (
+      {isImageOpen && player.celebrationImageUrl && (
         <>
           {/* Overlay */}
           <div
@@ -361,7 +362,7 @@ export function PlayerViewUi({ player }: { player: Player }) {
           >
             <div className="relative w-full max-w-md aspect-square animate-in zoom-in-75 duration-300">
               <Image
-                src={player.imageUrl}
+                src={player.celebrationImageUrl}
                 alt={`${player.firstName} ${player.lastName}`}
                 fill
                 sizes="(max-width: 768px) 100vw, 400px"

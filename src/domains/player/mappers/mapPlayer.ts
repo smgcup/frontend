@@ -32,6 +32,8 @@ export const mapPlayer = (
   const team = 'team' in player ? { id: player.team.id, name: player.team.name } : undefined;
   const age = 'age' in player ? player.age : undefined;
   const imageUrl = 'imageUrl' in player ? player.imageUrl : undefined;
+  const celebrationImageUrl =
+    'celebrationImageUrl' in player ? player.celebrationImageUrl : undefined;
   const playerClass = 'class' in player ? player.class : undefined;
   const dateOfBirth = 'dateOfBirth' in player ? player.dateOfBirth : undefined;
 
@@ -63,6 +65,7 @@ export const mapPlayer = (
     team,
     age,
     imageUrl,
+    celebrationImageUrl,
     class: playerClass,
     dateOfBirth,
     stats,

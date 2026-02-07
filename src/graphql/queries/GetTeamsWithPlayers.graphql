@@ -13,6 +13,7 @@ query TeamsWithPlayers {
       height
       weight
       imageUrl
+      celebrationImageUrl
       dateOfBirth
       class
     }

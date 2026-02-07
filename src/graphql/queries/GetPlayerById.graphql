@@ -6,6 +6,7 @@ query PlayerById($id: String!) {
     height
     weight
     imageUrl
+    celebrationImageUrl
     preferredFoot
     position
     dateOfBirth

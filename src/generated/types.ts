@@ -66,6 +66,7 @@ export type CreateNewsDto = {
 };
 
 export type CreatePlayerDto = {
+  celebrationImageUrl?: InputMaybe<Scalars['String']['input']>;
   class?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth: Scalars['Date']['input'];
   firstName: Scalars['String']['input'];
@@ -367,6 +368,7 @@ export type PaginatedPlayersResponse = {
 export type Player = {
   __typename?: 'Player';
   age: Scalars['Float']['output'];
+  celebrationImageUrl?: Maybe<Scalars['String']['output']>;
   class?: Maybe<Scalars['String']['output']>;
   dateOfBirth: Scalars['Date']['output'];
   firstName: Scalars['String']['output'];
@@ -606,6 +608,7 @@ export type UpdatePlayerAppearanceDto = {
 };
 
 export type UpdatePlayerDto = {
+  celebrationImage?: InputMaybe<ImageUploadInput>;
   class?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['Date']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;

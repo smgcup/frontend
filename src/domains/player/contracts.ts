@@ -27,6 +27,7 @@ export type Player = {
   weight?: number;
   preferredFoot?: PreferredFoot;
   imageUrl?: string | null;
+  celebrationImageUrl?: string | null;
   class?: string | null;
   matches?: Match[];
   stats?: PlayerStats;
