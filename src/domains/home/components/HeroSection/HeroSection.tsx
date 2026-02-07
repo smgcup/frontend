@@ -42,7 +42,7 @@ const HeroSection = ({ statistics }: HeroSectionProps) => {
           {/* CTA Buttons */}
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button asChild size="lg" className="w-full sm:w-auto">
-              <Link href="/matches">
+              <Link href="/matches" prefetch={false}>
                 View Matches
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>

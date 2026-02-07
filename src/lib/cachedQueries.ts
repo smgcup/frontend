@@ -66,7 +66,7 @@ export const getTeamsData = unstable_cache(
     return data?.teams.map(mapTeam) ?? [];
   },
   ['teams'],
-  { revalidate: FIVE_MINUTES },
+  { revalidate: FIVE_MINUTES, tags: ['teams'] },
 );
 
 export const getTeamByIdData = (teamId: string) =>
@@ -80,7 +80,7 @@ export const getTeamByIdData = (teamId: string) =>
       return data?.teamById ? mapTeam(data.teamById) : null;
     },
     ['team', teamId],
-    { revalidate: FIVE_MINUTES },
+    { revalidate: FIVE_MINUTES, tags: ['teams'] },
   )();
 
 export const getNewsData = unstable_cache(
@@ -92,7 +92,7 @@ export const getNewsData = unstable_cache(
     return data?.news.map(mapNews) ?? [];
   },
   ['news'],
-  { revalidate: FIVE_MINUTES },
+  { revalidate: FIVE_MINUTES, tags: ['news'] },
 );
 
 export const getNewsByIdData = (newsId: string) =>
@@ -106,7 +106,7 @@ export const getNewsByIdData = (newsId: string) =>
       return data?.newsById ? mapNews(data.newsById) : null;
     },
     ['news', newsId],
-    { revalidate: FIVE_MINUTES },
+    { revalidate: FIVE_MINUTES, tags: ['news'] },
   )();
 
 export const getMatchesData = unstable_cache(
@@ -118,7 +118,7 @@ export const getMatchesData = unstable_cache(
     return data?.matches.map(mapMatch) ?? [];
   },
   ['matches'],
-  { revalidate: FIVE_MINUTES },
+  { revalidate: FIVE_MINUTES, tags: ['matches-list'] },
 );
 
 export const getMatchByIdData = (matchId: string) =>
@@ -132,7 +132,7 @@ export const getMatchByIdData = (matchId: string) =>
       return data?.matchById ? mapMatch(data.matchById) : null;
     },
     ['match', matchId],
-    { revalidate: FIVE_MINUTES },
+    { revalidate: FIVE_MINUTES, tags: [`match-${matchId}`] },
   )();
 
 export const getMatchEventsData = (matchId: string) =>
@@ -146,7 +146,7 @@ export const getMatchEventsData = (matchId: string) =>
       return data?.matchEvents.map(mapMatchEvent) ?? [];
     },
     ['match-events', matchId],
-    { revalidate: FIVE_MINUTES },
+    { revalidate: FIVE_MINUTES, tags: [`match-events-${matchId}`] },
   )();
 
 export const getPlayerByIdData = (playerId: string) =>
@@ -160,7 +160,7 @@ export const getPlayerByIdData = (playerId: string) =>
       return data?.playerById ? mapPlayer(data.playerById) : null;
     },
     ['player', playerId],
-    { revalidate: ONE_HOUR },
+    { revalidate: ONE_HOUR, tags: ['players'] },
   )();
 
 export const getHeroStatisticsData = unstable_cache(
@@ -172,7 +172,7 @@ export const getHeroStatisticsData = unstable_cache(
     return mapHeroStatistics(data?.statistics);
   },
   ['hero-statistics'],
-  { revalidate: FIVE_MINUTES },
+  { revalidate: FIVE_MINUTES, tags: ['statistics'] },
 );
 
 export const getTopPlayersData = unstable_cache(
@@ -184,7 +184,7 @@ export const getTopPlayersData = unstable_cache(
     return data?.topPlayers.map(mapPlayer) ?? [];
   },
   ['top-players'],
-  { revalidate: FIVE_MINUTES },
+  { revalidate: FIVE_MINUTES, tags: ['players'] },
 );
 
 export const getLeaderboardData = unstable_cache(
@@ -218,5 +218,5 @@ export const getLeaderboardData = unstable_cache(
     });
   },
   ['leaderboard'],
-  { revalidate: FIVE_MINUTES },
+  { revalidate: FIVE_MINUTES, tags: ['leaderboard'] },
 );

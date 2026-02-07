@@ -41,6 +41,12 @@ const menu: MenuItem[] = [
   { title: 'Rules', url: '/rules' },
 ];
 
+function shouldPrefetch(href: string) {
+  // Matches data can change frequently (e.g. when a match goes live). Disabling prefetch
+  // reduces the chance of serving a prefetched/stale RSC payload from the client router cache.
+  return !href.startsWith('/matches');
+}
+
 function normalizePath(path: string) {
   // Handle empty or null paths
   if (!path) return '/';
@@ -87,6 +93,7 @@ const SubMenuLink = ({
         isActive && 'bg-muted/50 text-accent-foreground',
       )}
       href={item.url}
+      prefetch={shouldPrefetch(item.url)}
       onClick={onNavigate}
       aria-current={isActive ? 'page' : undefined}
     >
@@ -160,6 +167,7 @@ const Navbar = () => {
         <NavigationMenuLink asChild>
           <Link
             href={item.url}
+            prefetch={shouldPrefetch(item.url)}
             aria-current={isActive ? 'page' : undefined}
             className={cn(
               'bg-background hover:bg-muted hover:text-accent-foreground group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors',
@@ -223,6 +231,7 @@ const Navbar = () => {
       <Link
         key={item.title}
         href={item.url}
+        prefetch={shouldPrefetch(item.url)}
         onClick={() => setIsMenuOpen(false)}
         aria-current={isActive ? 'page' : undefined}
         className={cn(

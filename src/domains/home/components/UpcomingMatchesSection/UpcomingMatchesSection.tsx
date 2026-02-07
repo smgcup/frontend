@@ -43,7 +43,7 @@ const UpcomingMatchesSection = ({ matches }: UpcomingMatchesSectionProps) => {
           {hasMoreMatches && (
             <div className="flex justify-center sm:justify-end">
               <Button asChild variant="default" size="lg" className="gap-2 shadow-lg shadow-primary/20">
-                <Link href="/matches">
+                <Link href="/matches" prefetch={false}>
                   View All Matches
                   <ArrowRight className="h-4 w-4" />
                 </Link>
