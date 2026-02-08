@@ -84,8 +84,11 @@ const getMarker = (type: MatchEventType) => {
       );
     case MatchEventType.PenaltyScored:
       return (
-        <span className="text-xl leading-none" aria-hidden="true">
-          🎯
+        <span className="relative text-xl leading-none" aria-hidden="true">
+          ⚽
+          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white [text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000,_0_-1px_0_#000,_0_1px_0_#000,_-1px_0_0_#000,_1px_0_0_#000]">
+            PEN
+          </span>
         </span>
       );
     case MatchEventType.OwnGoal:
@@ -101,6 +104,15 @@ const getMarker = (type: MatchEventType) => {
       return (
         <span className="text-xl leading-none" aria-hidden="true">
           🧤
+        </span>
+      );
+    case MatchEventType.PenaltySave:
+      return (
+        <span className="relative text-xl leading-none" aria-hidden="true">
+          🧤
+          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white [text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000,_0_-1px_0_#000,_0_1px_0_#000,_-1px_0_0_#000,_1px_0_0_#000]">
+            PEN
+          </span>
         </span>
       );
     case MatchEventType.PenaltyMissed:

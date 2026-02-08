@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Check, Loader2, Save, Search, User, X } from 'lucide-react';
+import { SearchInput } from '@/domains/admin/components/search-input';
+import { Check, Loader2, Save, User } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import type { PlayerPriceEntry, SortField } from './contracts';
 
@@ -64,25 +65,12 @@ const AdminPlayerPricesViewUi = ({
             </SelectContent>
           </Select>
         </div>
-        <div className="relative w-full sm:w-[240px]">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search by name or team..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9 pr-9"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => onSearchChange('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-sm p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-              aria-label="Clear search"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+        <SearchInput
+          placeholder="Search by name or team..."
+          value={searchQuery}
+          onChange={onSearchChange}
+          className="w-full sm:w-[240px]"
+        />
       </div>
 
       {players.length === 0 ? (
@@ -165,10 +153,7 @@ const AdminPlayerPricesViewUi = ({
                     size="sm"
                     className="w-full"
                     disabled={
-                      isSaving ||
-                      !form?.displayName?.trim() ||
-                      !form?.price?.trim() ||
-                      !isDirty(player.playerId)
+                      isSaving || !form?.displayName?.trim() || !form?.price?.trim() || !isDirty(player.playerId)
                     }
                     onClick={() => onSave(player.playerId)}
                   >

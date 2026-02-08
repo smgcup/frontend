@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SearchInput } from '@/domains/admin/components/search-input';
 import { Loader2, Pencil, Plus, Trash2, User } from 'lucide-react';
 import type { Player } from '@/domains/player/contracts';
 import type { Team } from '@/domains/team/contracts';
@@ -23,6 +25,11 @@ import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 type AdminPlayersListViewUiProps = {
   teams: Team[];
   players: Player[];
+  totalCount: number;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  selectedTeamId: string | 'all';
+  onTeamChange: (teamId: string | 'all') => void;
   actionError: string | null;
   deletingPlayerId: string | null;
   onDeletePlayer: (id: string) => Promise<void>;
@@ -31,6 +38,11 @@ type AdminPlayersListViewUiProps = {
 const AdminPlayersListViewUi = ({
   teams,
   players,
+  totalCount,
+  searchQuery,
+  onSearchChange,
+  selectedTeamId,
+  onTeamChange,
   actionError,
   deletingPlayerId,
   onDeletePlayer,
@@ -47,11 +59,14 @@ const AdminPlayersListViewUi = ({
     return map;
   }, [teams]);
 
+  const isFiltered = searchQuery.trim() || selectedTeamId !== 'all';
+  const subtitle = isFiltered ? `${players.length} of ${totalCount}` : `${totalCount} total`;
+
   return (
     <div className="space-y-8 py-4 lg:p-10">
       <AdminPageHeader
         title="Players"
-        subtitle={`${players.length} total`}
+        subtitle={subtitle}
         description="Create, edit, or delete players"
         actions={
           <>
@@ -71,6 +86,27 @@ const AdminPlayersListViewUi = ({
         }
       />
 
+      {totalCount > 0 && (
+        <div className="grid grid-cols-[2fr_1fr] gap-3 w-full">
+          <SearchInput placeholder="Search player name" value={searchQuery} onChange={onSearchChange} />
+          <div className="min-w-0 w-full flex justify-end">
+            <Select value={selectedTeamId} onValueChange={(v) => onTeamChange(v as string | 'all')}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Team" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All teams</SelectItem>
+                {teams.map((team) => (
+                  <SelectItem key={team.id} value={team.id}>
+                    {team.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )}
+
       {actionError && (
         <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
           <p className="font-medium">Operation failed</p>
@@ -84,14 +120,27 @@ const AdminPlayersListViewUi = ({
             <div className="rounded-full bg-muted p-4 mb-4">
               <User className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No players yet</h3>
-            <p className="text-muted-foreground text-center mb-6 max-w-sm">Get started by creating your first player</p>
-            <Button asChild>
-              <Link href="/admin/players/create">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Player
-              </Link>
-            </Button>
+            {isFiltered ? (
+              <>
+                <h3 className="text-lg font-semibold mb-2">No players found</h3>
+                <p className="text-muted-foreground text-center max-w-sm">
+                  No players match your filters. Try a different search or team.
+                </p>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-semibold mb-2">No players yet</h3>
+                <p className="text-muted-foreground text-center mb-6 max-w-sm">
+                  Get started by creating your first player
+                </p>
+                <Button asChild>
+                  <Link href="/admin/players/create">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Player
+                  </Link>
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       ) : (

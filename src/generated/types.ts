@@ -151,6 +151,7 @@ export enum MatchEventType {
   HalfTime = 'HALF_TIME',
   OwnGoal = 'OWN_GOAL',
   PenaltyMissed = 'PENALTY_MISSED',
+  PenaltySave = 'PENALTY_SAVE',
   PenaltyScored = 'PENALTY_SCORED',
   RedCard = 'RED_CARD',
   YellowCard = 'YELLOW_CARD'

@@ -9,12 +9,28 @@ type AdminPlayersListViewProps = {
 };
 
 const AdminPlayersListView = ({ initialTeams }: AdminPlayersListViewProps) => {
-  const { teams, players, actionError, deletingPlayerId, onDeletePlayer } = useAdminPlayersList(initialTeams);
+  const {
+    teams,
+    players,
+    totalCount,
+    searchQuery,
+    setSearchQuery,
+    selectedTeamId,
+    setSelectedTeamId,
+    actionError,
+    deletingPlayerId,
+    onDeletePlayer,
+  } = useAdminPlayersList(initialTeams);
 
   return (
     <AdminPlayersListViewUi
       teams={teams}
       players={players}
+      totalCount={totalCount}
+      searchQuery={searchQuery}
+      onSearchChange={setSearchQuery}
+      selectedTeamId={selectedTeamId}
+      onTeamChange={setSelectedTeamId}
       actionError={actionError}
       deletingPlayerId={deletingPlayerId}
       onDeletePlayer={onDeletePlayer}
