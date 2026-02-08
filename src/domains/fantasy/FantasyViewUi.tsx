@@ -1,7 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, RotateCw, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, type LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { fantasyTheme } from '@/lib/gamemodeThemes';
 import pitchSvg from '@/public/icons/pitch.svg';
 import type { FantasyTeamData } from './contracts';
 import PlayerCard from './components/PlayerCard';
@@ -10,7 +12,21 @@ type FantasyViewUiProps = {
   team: FantasyTeamData;
 };
 
-const formatNumber = (value?: number) => (typeof value === 'number' ? value.toLocaleString() : '—');
+type GameweekNavButtonProps = {
+  ariaLabel: string;
+  icon: LucideIcon;
+};
+
+const GameweekNavButton = ({ ariaLabel, icon: Icon }: GameweekNavButtonProps) => {
+  return (
+    <button
+      aria-label={ariaLabel}
+      className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center text-white"
+    >
+      <Icon className="h-4 w-4" />
+    </button>
+  );
+};
 
 const FantasyViewUi = ({ team }: FantasyViewUiProps) => {
   const gk = team.starters.filter((p) => p.position === 'GK');
@@ -21,81 +37,53 @@ const FantasyViewUi = ({ team }: FantasyViewUiProps) => {
   const latestPoints = team.latestPoints ?? 0;
   const averagePoints = team.averagePoints ?? 0;
   const highestPoints = team.highestPoints ?? 0;
-  const gwRank = team.gwRank;
-  const transfers = team.transfers ?? team.freeTransfers;
 
   return (
-    <div className="min-h-screen pb-24 bg-linear-to-b from-[#2b0030] via-[#1d0021] to-[#120014]">
-      <div className="mx-auto w-full max-w-3xl pt-6 mb-[150px]">
-        <div className="overflow-hidden rounded-2xl bg-[#37003c] shadow-[0_20px_60px_rgba(0,0,0,0.55)] ring-1 ring-white/10">
+    <div className="min-h-screen pb-24 bg-black px-2">
+      <div className="mx-auto w-full pt-6 max-w-lg">
+        <div className={cn('overflow-hidden rounded-2xl', fantasyTheme.bg)}>
           {/* Top header (inside same card) */}
           <div className="px-4 pt-4 pb-3">
             <div className="mt-4 flex items-center justify-center gap-4">
-              <button
-                aria-label="Previous gameweek"
-                className="h-8 w-8 rounded-full bg-white/10 ring-1 ring-white/10 flex items-center justify-center text-white hover:bg-white/15 transition-colors"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
+              <GameweekNavButton ariaLabel="Previous gameweek" icon={ChevronLeft} />
               <div className="text-white font-extrabold text-lg">Gameweek {team.gameweek}</div>
-              <button
-                aria-label="Next gameweek"
-                className="h-8 w-8 rounded-full bg-white/10 ring-1 ring-white/10 flex items-center justify-center text-white hover:bg-white/15 transition-colors"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
+              <GameweekNavButton ariaLabel="Next gameweek" icon={ChevronRight} />
             </div>
 
             <div className="mt-4 grid grid-cols-3 items-center gap-3">
               <div className="text-center">
-                <div className="text-white text-3xl font-extrabold leading-none">{formatNumber(averagePoints)}</div>
+                <div className="text-white text-3xl font-extrabold leading-none">{averagePoints}</div>
                 <div className="mt-1 text-xs font-medium text-white/60">Average Points</div>
-
-                <div className="my-3 h-px bg-white/10" />
-
-                <div className="text-white text-3xl font-extrabold leading-none">{formatNumber(highestPoints)}</div>
-                <div className="mt-1 text-xs font-medium text-white/60">
-                  Highest Points <span className="text-white/80">→</span>
-                </div>
               </div>
 
               <div className="flex items-center justify-center">
-                <div className="w-[92px] rounded-xl bg-linear-to-b from-sky-300 to-sky-100 text-[#37003c] shadow-[0_16px_35px_rgba(0,0,0,0.35)] ring-1 ring-white/25 text-center">
-                  <div className="pt-3 text-[44px] font-black leading-none">{latestPoints}</div>
-                  <div className="mt-1 text-[11px] font-semibold text-[#37003c]/70">Latest Points</div>
-                  <div className="mt-2 pb-2 flex items-center justify-center">
-                    <RotateCw className="h-4 w-4 text-[#37003c]/60" />
+                <div className="w-[140px] overflow-hidden rounded-2xl shadow-[0_16px_35px_rgba(0,0,0,0.35)] ring-1 ring-white/25 text-center">
+                  <div className="px-4 pt-4 pb-3 bg-linear-to-br from-cyan-300 to-indigo-500">
+                    <div className="text-[56px] font-black leading-none text-[#2a003d]">{latestPoints}</div>
+                    <div className="mt-1 text-[13px] font-semibold text-[#2a003d]/75">Total Pts</div>
                   </div>
                 </div>
               </div>
 
               <div className="text-center">
-                <div className="text-white text-3xl font-extrabold leading-none">{formatNumber(gwRank)}</div>
-                <div className="mt-1 text-xs font-medium text-white/60">GW Rank</div>
-
-                <div className="my-3 h-px bg-white/10" />
-
-                <div className="text-white text-3xl font-extrabold leading-none">{formatNumber(transfers)}</div>
+                <div className="text-white text-3xl font-extrabold leading-none">{highestPoints}</div>
                 <div className="mt-1 text-xs font-medium text-white/60">
-                  Transfers <span className="text-white/80">→</span>
+                  Highest Points <span className="text-white/80">→</span>
                 </div>
               </div>
             </div>
-
-            <div className="mt-4 flex items-center justify-center">
-              <button className="inline-flex items-center gap-2 text-sm font-semibold text-white/85 hover:text-white transition-colors">
-                <Star className="h-4 w-4" />
-                Team of the Week <span className="text-white/80">→</span>
-              </button>
-            </div>
           </div>
-
           {/* Pitch (same card) */}
-          <div className="px-1 mt-2 w-full flex flex-col items-center">
+          {/* Centers the pitch area within the card */}
+          <div className="w-full flex flex-col items-center mt-4">
+            {/* Fixed-height container that establishes the positioning context for the pitch + player overlays */}
             <div className="relative w-full max-w-lg h-[460px] overflow-hidden">
-              <div className="absolute inset-0 z-0 overflow-hidden bg-red-500">
+              {/* Background layer for the pitch image (kept behind players via z-index) */}
+              <div className="absolute inset-0 z-0 overflow-hidden">
                 {/* Pitch SVG: center top / 625px 460px (no-repeat) */}
+                {/* Pitch image wrapper: pins the SVG to the top-center with a specific render size */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[625px] h-[460px]">
+                  {/* Actual pitch SVG image; non-interactive so clicks go to player cards */}
                   <Image
                     src={pitchSvg}
                     alt="Football pitch"
@@ -104,13 +92,10 @@ const FantasyViewUi = ({ team }: FantasyViewUiProps) => {
                     className="pointer-events-none select-none object-contain object-top"
                   />
                 </div>
-
-                {/* Fade into the card background near bottom (like FPL) */}
-                <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-b from-transparent via-[#37003c]/10 to-[#37003c]/70" />
               </div>
 
               {/* Players on pitch */}
-              <div className="absolute inset-0 z-10 flex flex-col justify-between px-2 pb-36">
+              <div className="absolute inset-0 z-10 flex flex-col justify-between">
                 <div className="flex justify-center">
                   {gk.map((p) => (
                     <PlayerCard key={p.id} player={p} />
@@ -137,14 +122,13 @@ const FantasyViewUi = ({ team }: FantasyViewUiProps) => {
               </div>
             </div>
           </div>
-
           {/* Bench (same card) */}
-          <div className="relative z-20 -mt-24 px-4">
-            <div className="mx-auto max-w-lg rounded-2xl bg-white/18 ring-1 ring-white/15 backdrop-blur-md px-4 py-3">
+          <div className="relative z-20 -mt-12 px-4">
+            <div className={cn('mx-auto max-w-lg rounded-2xl backdrop-blur-md px-4 py-3', fantasyTheme.bgLight)}>
               <div className="grid grid-cols-4 gap-3">
                 {team.bench.map((player, i) => (
                   <div key={player.id} className="flex flex-col items-center">
-                    <p className="text-xs font-extrabold text-[#0b0b0b]/60 mb-2">
+                    <p className="text-xs font-extrabold text-muted-foreground mb-2">
                       {i === 0 ? 'GKP' : `${i}. ${player.position}`}
                     </p>
                     <PlayerCard player={player} />
@@ -153,7 +137,6 @@ const FantasyViewUi = ({ team }: FantasyViewUiProps) => {
               </div>
             </div>
           </div>
-
           {/* Title below bench (like the screenshot) */}
           <div className="px-4 pt-6 pb-8">
             <h2 className="text-white text-2xl font-extrabold text-center">Substitutes</h2>

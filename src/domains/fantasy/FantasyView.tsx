@@ -10,7 +10,7 @@ const mockTeam: FantasyTeamData = {
   latestPoints: 17,
   averagePoints: 37,
   highestPoints: 134,
-  gwRank: 11_515_573,
+  gwRank: 11,
   transfers: 0,
   freeTransfers: 2,
   cost: 0,
