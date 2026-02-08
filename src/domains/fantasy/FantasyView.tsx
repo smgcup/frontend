@@ -1,7 +1,7 @@
 'use client';
 
 import FantasyViewUi from './FantasyViewUi';
-import type { FantasyTeamData } from './contracts';
+import type { FantasyTeamData, FantasyAvailablePlayer } from './contracts';
 
 const mockTeam: FantasyTeamData = {
   teamName: 'Nasko FC',
@@ -21,59 +21,75 @@ const mockTeam: FantasyTeamData = {
       name: 'Neuer',
       position: 'GK',
       points: 12,
-      jersey: { color: '#EAB308', textColor: '#1E1B4B', label: 'А' },
+      jersey: { color: '#EAB308', textColor: '#1E1B4B', label: '1' },
+      nextMatch: 'LEE (H)',
+      price: 5.5,
     },
     {
       id: '2',
       name: 'V. van Dijk',
       position: 'DEF',
       points: 7,
-      jersey: { color: '#166534', textColor: '#FFFFFF', label: 'Е' },
+      jersey: { color: '#166534', textColor: '#FFFFFF', label: '4' },
+      nextMatch: 'MCI (A)',
+      price: 6.5,
     },
     {
       id: '3',
       name: 'Ramos',
       position: 'DEF',
       points: 23,
-      jersey: { color: '#1C1917', textColor: '#FFFFFF', label: '10' },
+      jersey: { color: '#1C1917', textColor: '#FFFFFF', label: '4' },
+      nextMatch: 'BUR (H)',
+      price: 5.0,
     },
     {
       id: '4',
       name: 'De Bruyne',
       position: 'MID',
       points: 31,
-      jersey: { color: '#DBEAFE', textColor: '#1E40AF', label: 'Б' },
+      jersey: { color: '#DBEAFE', textColor: '#1E40AF', label: '17' },
       isCaptain: true,
+      nextMatch: 'LIV (H)',
+      price: 10.2,
     },
     {
       id: '5',
-      name: 'Modrić',
+      name: 'Modric',
       position: 'MID',
       points: 16,
-      jersey: { color: '#DBEAFE', textColor: '#1E40AF', label: 'Б' },
+      jersey: { color: '#DBEAFE', textColor: '#1E40AF', label: '10' },
+      nextMatch: 'ATM (A)',
+      price: 7.8,
     },
     {
       id: '6',
       name: 'Haaland',
       position: 'FWD',
       points: 34,
-      jersey: { color: '#7DD3FC', textColor: '#1E3A5F', label: 'Г' },
+      jersey: { color: '#7DD3FC', textColor: '#1E3A5F', label: '9' },
+      nextMatch: 'LIV (H)',
+      price: 13.5,
     },
   ],
   bench: [
     {
       id: '7',
-      name: 'Vini Jr.',
+      name: 'Sanchez',
       position: 'GK',
       points: 5,
-      jersey: { color: '#EAB308', textColor: '#1E1B4B', label: 'А' },
+      jersey: { color: '#6B7280', textColor: '#FFFFFF', label: '1' },
+      nextMatch: 'LEE (H)',
+      price: 4.9,
     },
     {
       id: '8',
       name: 'Bellingham',
       position: 'MID',
       points: 19,
-      jersey: { color: '#166534', textColor: '#FFFFFF', label: 'Е' },
+      jersey: { color: '#166534', textColor: '#FFFFFF', label: '5' },
+      nextMatch: 'ATM (A)',
+      price: 8.5,
     },
     {
       id: '9',
@@ -81,19 +97,47 @@ const mockTeam: FantasyTeamData = {
       position: 'FWD',
       points: 28,
       jersey: { color: '#1C1917', textColor: '#FFFFFF', label: '10' },
-    },
-    {
-      id: '10',
-      name: 'Son',
-      position: 'DEF',
-      points: 7,
-      jersey: { color: '#DBEAFE', textColor: '#1E40AF', label: 'Б' },
+      nextMatch: 'BRA (H)',
+      price: 11.0,
     },
   ],
 };
 
+const mockAvailablePlayers: FantasyAvailablePlayer[] = [
+  { id: 'p1', name: 'M. Salah', teamShort: 'LIV', position: 'MID', price: 13.0, points: 156, selected: true },
+  { id: 'p2', name: 'Haaland', teamShort: 'MCI', position: 'FWD', price: 13.5, points: 142, selected: true },
+  { id: 'p3', name: 'De Bruyne', teamShort: 'MCI', position: 'MID', price: 10.2, points: 128, selected: true },
+  { id: 'p4', name: 'Son Heung-min', teamShort: 'TOT', position: 'MID', price: 9.8, points: 112 },
+  { id: 'p5', name: 'B. Saka', teamShort: 'ARS', position: 'MID', price: 9.5, points: 108 },
+  { id: 'p6', name: 'Palmer', teamShort: 'CHE', position: 'MID', price: 9.2, points: 134 },
+  { id: 'p7', name: 'V. van Dijk', teamShort: 'LIV', position: 'DEF', price: 6.5, points: 89, selected: true },
+  { id: 'p8', name: 'Dias', teamShort: 'MCI', position: 'DEF', price: 6.0, points: 78 },
+  { id: 'p9', name: 'Alexander-Arnold', teamShort: 'LIV', position: 'DEF', price: 7.5, points: 95 },
+  { id: 'p10', name: 'Watkins', teamShort: 'AVL', position: 'FWD', price: 8.5, points: 98 },
+  { id: 'p11', name: 'Isak', teamShort: 'NEW', position: 'FWD', price: 8.8, points: 105 },
+  { id: 'p12', name: 'Neuer', teamShort: 'BAY', position: 'GK', price: 5.5, points: 82, selected: true },
+  { id: 'p13', name: 'Sanchez', teamShort: 'CHE', position: 'GK', price: 4.9, points: 68 },
+  { id: 'p14', name: 'Raya', teamShort: 'ARS', position: 'GK', price: 5.0, points: 85 },
+  { id: 'p15', name: 'Martinez', teamShort: 'AVL', position: 'GK', price: 4.8, points: 72 },
+  { id: 'p16', name: 'Saliba', teamShort: 'ARS', position: 'DEF', price: 6.2, points: 86 },
+  { id: 'p17', name: 'Stones', teamShort: 'MCI', position: 'DEF', price: 5.5, points: 62 },
+  { id: 'p18', name: 'Gabriel', teamShort: 'ARS', position: 'DEF', price: 6.0, points: 84 },
+  { id: 'p19', name: 'Bellingham', teamShort: 'RMA', position: 'MID', price: 8.5, points: 102 },
+  { id: 'p20', name: 'Odegaard', teamShort: 'ARS', position: 'MID', price: 8.0, points: 88 },
+  { id: 'p21', name: 'Rice', teamShort: 'ARS', position: 'MID', price: 6.5, points: 76 },
+  { id: 'p22', name: 'Maddison', teamShort: 'TOT', position: 'MID', price: 7.0, points: 74 },
+  { id: 'p23', name: 'Alvarez', teamShort: 'ATM', position: 'FWD', price: 7.5, points: 68 },
+  { id: 'p24', name: 'Nunez', teamShort: 'LIV', position: 'FWD', price: 7.2, points: 58 },
+  { id: 'p25', name: 'Havertz', teamShort: 'ARS', position: 'FWD', price: 7.5, points: 82 },
+  { id: 'p26', name: 'Ramos', teamShort: 'PSG', position: 'DEF', price: 5.0, points: 56, selected: true },
+  { id: 'p27', name: 'Modric', teamShort: 'RMA', position: 'MID', price: 7.8, points: 72, selected: true },
+  { id: 'p28', name: 'Messi', teamShort: 'MIA', position: 'FWD', price: 11.0, points: 94 },
+  { id: 'p29', name: 'Mbappa', teamShort: 'RMA', position: 'FWD', price: 12.0, points: 118 },
+  { id: 'p30', name: 'Vinicius Jr', teamShort: 'RMA', position: 'FWD', price: 10.5, points: 110 },
+];
+
 const FantasyView = () => {
-  return <FantasyViewUi team={mockTeam} />;
+  return <FantasyViewUi team={mockTeam} availablePlayers={mockAvailablePlayers} />;
 };
 
 export default FantasyView;

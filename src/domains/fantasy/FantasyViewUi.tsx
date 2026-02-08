@@ -1,15 +1,18 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, type LucideIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, DollarSign, Calendar } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { fantasyTheme } from '@/lib/gamemodeThemes';
 import pitchSvg from '@/public/icons/pitch.svg';
-import type { FantasyTeamData } from './contracts';
+import type { FantasyTeamData, FantasyAvailablePlayer, PlayerCardDisplayMode } from './contracts';
 import PlayerCard from './components/PlayerCard';
+import PlayerListSidebar from './components/PlayerListSidebar';
 
 type FantasyViewUiProps = {
   team: FantasyTeamData;
+  availablePlayers: FantasyAvailablePlayer[];
 };
 
 type GameweekNavButtonProps = {
@@ -20,15 +23,19 @@ type GameweekNavButtonProps = {
 const GameweekNavButton = ({ ariaLabel, icon: Icon }: GameweekNavButtonProps) => {
   return (
     <button
+      type="button"
       aria-label={ariaLabel}
-      className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center text-white"
+      className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
     >
       <Icon className="h-4 w-4" />
     </button>
   );
 };
 
-const FantasyViewUi = ({ team }: FantasyViewUiProps) => {
+const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
+  const [displayMode, setDisplayMode] = useState<PlayerCardDisplayMode>('points');
+  const [showPrice, setShowPrice] = useState(false);
+
   const gk = team.starters.filter((p) => p.position === 'GK');
   const def = team.starters.filter((p) => p.position === 'DEF');
   const mid = team.starters.filter((p) => p.position === 'MID');
@@ -39,110 +46,173 @@ const FantasyViewUi = ({ team }: FantasyViewUiProps) => {
   const highestPoints = team.highestPoints ?? 0;
 
   return (
-    <div className="min-h-screen pb-24 bg-black px-2">
-      <div className="mx-auto w-full pt-6 max-w-lg">
-        <div className={cn('overflow-hidden rounded-2xl', fantasyTheme.bg)}>
-          {/* Top header (inside same card) */}
-          <div className="px-4 pt-4 pb-3">
-            <div className="mt-4 flex items-center justify-center gap-4">
-              <GameweekNavButton ariaLabel="Previous gameweek" icon={ChevronLeft} />
-              <div className="text-white font-extrabold text-lg">Gameweek {team.gameweek}</div>
-              <GameweekNavButton ariaLabel="Next gameweek" icon={ChevronRight} />
-            </div>
+    <div className="min-h-screen bg-[#07000f] flex">
+      {/* Desktop sidebar - 1/3 width */}
+      <aside className="hidden lg:flex lg:w-1/3 xl:w-[380px] lg:shrink-0 h-[calc(100vh-56px)] sticky top-14">
+        <PlayerListSidebar players={availablePlayers} />
+      </aside>
 
-            <div className="mt-4 grid grid-cols-3 items-center gap-3">
-              <div className="text-center">
-                <div className="text-white text-3xl font-extrabold leading-none">{averagePoints}</div>
-                <div className="mt-1 text-xs font-medium text-white/60">Average Points</div>
+      {/* Main content */}
+      <main className="flex-1 min-w-0">
+        <div className="mx-auto w-full max-w-2xl px-2 pt-4 pb-24">
+          {/* Display mode toggles */}
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <button
+              type="button"
+              onClick={() => setDisplayMode('points')}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
+                displayMode === 'points'
+                  ? 'bg-[#2b003c] text-white ring-1 ring-fuchsia-400/30'
+                  : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
+              )}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Points
+            </button>
+            <button
+              type="button"
+              onClick={() => setDisplayMode('nextMatch')}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
+                displayMode === 'nextMatch'
+                  ? 'bg-[#2b003c] text-white ring-1 ring-fuchsia-400/30'
+                  : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
+              )}
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              Fixtures
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowPrice(!showPrice)}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
+                showPrice
+                  ? 'bg-cyan-400/20 text-cyan-300 ring-1 ring-cyan-400/30'
+                  : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
+              )}
+            >
+              <DollarSign className="w-3.5 h-3.5" />
+              Prices
+            </button>
+          </div>
+
+          {/* Main card */}
+          <div className="overflow-hidden rounded-2xl bg-linear-to-b from-[#1a0028] via-[#120020] to-[#07000f] ring-1 ring-white/10">
+            {/* Gameweek header */}
+            <div className="px-4 pt-5 pb-3">
+              <div className="flex items-center justify-center gap-4">
+                <GameweekNavButton ariaLabel="Previous gameweek" icon={ChevronLeft} />
+                <div className="text-white font-extrabold text-lg tracking-tight">Gameweek {team.gameweek}</div>
+                <GameweekNavButton ariaLabel="Next gameweek" icon={ChevronRight} />
               </div>
 
-              <div className="flex items-center justify-center">
-                <div className="w-[140px] overflow-hidden rounded-2xl shadow-[0_16px_35px_rgba(0,0,0,0.35)] ring-1 ring-white/25 text-center">
-                  <div className="px-4 pt-4 pb-3 bg-linear-to-br from-cyan-300 to-indigo-500">
-                    <div className="text-[56px] font-black leading-none text-[#2a003d]">{latestPoints}</div>
-                    <div className="mt-1 text-[13px] font-semibold text-[#2a003d]/75">Total Pts</div>
+              {/* Stats row */}
+              <div className="mt-5 grid grid-cols-3 items-center gap-3">
+                <div className="text-center">
+                  <div className="text-white text-2xl font-extrabold leading-none">{averagePoints}</div>
+                  <div className="mt-1 text-[11px] font-medium text-white/50">Average</div>
+                </div>
+
+                <div className="flex items-center justify-center">
+                  <div className="w-[120px] overflow-hidden rounded-xl shadow-[0_8px_30px_rgba(139,92,246,0.25)] ring-1 ring-white/20 text-center">
+                    <div className="px-3 pt-3 pb-2 bg-linear-to-br from-cyan-400 to-fuchsia-500">
+                      <div className="text-[44px] font-black leading-none text-[#1a0028]">{latestPoints}</div>
+                      <div className="mt-0.5 text-[11px] font-semibold text-[#1a0028]/70">Total Pts</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-white text-2xl font-extrabold leading-none">{highestPoints}</div>
+                  <div className="mt-1 text-[11px] font-medium text-white/50">Highest</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Pitch */}
+            <div className="w-full flex flex-col items-center mt-3">
+              <div className="relative w-full max-w-lg h-[440px] overflow-hidden">
+                {/* Pitch background */}
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[625px] h-[460px]">
+                    <Image
+                      src={pitchSvg || '/placeholder.svg'}
+                      alt="Football pitch"
+                      fill
+                      priority
+                      className="pointer-events-none select-none object-contain object-top"
+                    />
+                  </div>
+                </div>
+
+                {/* Players on pitch */}
+                <div className="absolute inset-0 z-10 flex flex-col justify-between py-2">
+                  <div className="flex justify-center gap-1">
+                    {gk.map((p) => (
+                      <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
+                    ))}
+                  </div>
+
+                  <div className="flex justify-around px-2">
+                    {def.map((p) => (
+                      <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
+                    ))}
+                  </div>
+
+                  <div className="flex justify-around px-2">
+                    {mid.map((p) => (
+                      <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
+                    ))}
+                  </div>
+
+                  <div className="flex justify-center gap-1">
+                    {fwd.map((p) => (
+                      <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
+                    ))}
                   </div>
                 </div>
               </div>
-
-              <div className="text-center">
-                <div className="text-white text-3xl font-extrabold leading-none">{highestPoints}</div>
-                <div className="mt-1 text-xs font-medium text-white/60">
-                  Highest Points <span className="text-white/80">→</span>
-                </div>
-              </div>
             </div>
-          </div>
-          {/* Pitch (same card) */}
-          {/* Centers the pitch area within the card */}
-          <div className="w-full flex flex-col items-center mt-4">
-            {/* Fixed-height container that establishes the positioning context for the pitch + player overlays */}
-            <div className="relative w-full max-w-lg h-[460px] overflow-hidden">
-              {/* Background layer for the pitch image (kept behind players via z-index) */}
-              <div className="absolute inset-0 z-0 overflow-hidden">
-                {/* Pitch SVG: center top / 625px 460px (no-repeat) */}
-                {/* Pitch image wrapper: pins the SVG to the top-center with a specific render size */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[625px] h-[460px]">
-                  {/* Actual pitch SVG image; non-interactive so clicks go to player cards */}
-                  <Image
-                    src={pitchSvg}
-                    alt="Football pitch"
-                    fill
-                    priority
-                    className="pointer-events-none select-none object-contain object-top"
-                  />
-                </div>
-              </div>
 
-              {/* Players on pitch */}
-              <div className="absolute inset-0 z-10 flex flex-col justify-between">
-                <div className="flex justify-center">
-                  {gk.map((p) => (
-                    <PlayerCard key={p.id} player={p} />
-                  ))}
-                </div>
-
-                <div className="flex justify-around px-4">
-                  {def.map((p) => (
-                    <PlayerCard key={p.id} player={p} />
-                  ))}
-                </div>
-
-                <div className="flex justify-around px-4">
-                  {mid.map((p) => (
-                    <PlayerCard key={p.id} player={p} />
-                  ))}
-                </div>
-
-                <div className="flex justify-center">
-                  {fwd.map((p) => (
-                    <PlayerCard key={p.id} player={p} />
+            {/* Bench */}
+            <div className="relative z-20 -mt-6 flex justify-center px-3">
+              <div className="rounded-xl backdrop-blur-[2px] bg-white/15 border border-white/20 px-4 py-3 shadow-lg">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest text-center mb-2">
+                  Substitutes
+                </p>
+                <div className="grid grid-cols-3 gap-2 justify-items-center">
+                  {team.bench.map((player, i) => (
+                    <div key={player.id} className="flex flex-col items-center">
+                      <p className="text-[9px] font-bold text-white/40 mb-1">{i === 0 ? 'GKP' : `${i}.`}</p>
+                      <PlayerCard player={player} displayMode={displayMode} showPrice={showPrice} />
+                    </div>
                   ))}
                 </div>
               </div>
             </div>
-          </div>
-          {/* Bench (same card) */}
-          <div className="relative z-20 -mt-12 px-4">
-            <div className={cn('mx-auto max-w-lg rounded-2xl backdrop-blur-md px-4 py-3', fantasyTheme.bgLight)}>
-              <div className="grid grid-cols-4 gap-3">
-                {team.bench.map((player, i) => (
-                  <div key={player.id} className="flex flex-col items-center">
-                    <p className="text-xs font-extrabold text-muted-foreground mb-2">
-                      {i === 0 ? 'GKP' : `${i}. ${player.position}`}
-                    </p>
-                    <PlayerCard player={player} />
-                  </div>
-                ))}
+
+            {/* Bottom info bar */}
+            <div className="px-4 pt-5 pb-6">
+              <div className="flex items-center justify-center gap-6 text-xs text-white/40">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-medium">Free Transfers:</span>
+                  <span className="font-bold text-white/70">{team.freeTransfers}</span>
+                </div>
+                <div className="w-px h-3 bg-white/15" />
+                <div className="flex items-center gap-1.5">
+                  <span className="font-medium">Budget:</span>
+                  <span className="font-bold text-cyan-300/80">
+                    {'£'}
+                    {team.budget.toFixed(1)}m
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-          {/* Title below bench (like the screenshot) */}
-          <div className="px-4 pt-6 pb-8">
-            <h2 className="text-white text-2xl font-extrabold text-center">Substitutes</h2>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
