@@ -16,8 +16,17 @@ export type FantasyPlayer = {
 };
 
 export type FantasyTeamData = {
+  teamName?: string;
   gameweek: number;
   gameweekDate: string;
+
+  // Header stats (optional for now; UI will fall back if absent)
+  latestPoints?: number;
+  averagePoints?: number;
+  highestPoints?: number;
+  gwRank?: number;
+  transfers?: number;
+
   freeTransfers: number;
   cost: number;
   budget: number;

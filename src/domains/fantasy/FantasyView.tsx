@@ -4,8 +4,14 @@ import FantasyViewUi from './FantasyViewUi';
 import type { FantasyTeamData } from './contracts';
 
 const mockTeam: FantasyTeamData = {
+  teamName: 'Nasko FC',
   gameweek: 1,
   gameweekDate: 'Sat 7 Dec 13:00',
+  latestPoints: 17,
+  averagePoints: 37,
+  highestPoints: 134,
+  gwRank: 11_515_573,
+  transfers: 0,
   freeTransfers: 2,
   cost: 0,
   budget: 2,
@@ -58,7 +64,7 @@ const mockTeam: FantasyTeamData = {
     {
       id: '7',
       name: 'Vini Jr.',
-      position: 'DEF',
+      position: 'GK',
       points: 5,
       jersey: { color: '#EAB308', textColor: '#1E1B4B', label: 'А' },
     },
@@ -75,6 +81,13 @@ const mockTeam: FantasyTeamData = {
       position: 'FWD',
       points: 28,
       jersey: { color: '#1C1917', textColor: '#FFFFFF', label: '10' },
+    },
+    {
+      id: '10',
+      name: 'Son',
+      position: 'DEF',
+      points: 7,
+      jersey: { color: '#DBEAFE', textColor: '#1E40AF', label: 'Б' },
     },
   ],
 };

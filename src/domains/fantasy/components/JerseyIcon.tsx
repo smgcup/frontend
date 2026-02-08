@@ -29,7 +29,7 @@ const JerseyIcon = ({ color, textColor, label, size = 64 }: JerseyIconProps) => 
         textAnchor="middle"
         dominantBaseline="middle"
         fill={textColor}
-        fontSize="16"
+        fontSize="22"
         fontWeight="bold"
         fontFamily="Inter, sans-serif"
       >
