@@ -1,0 +1,7 @@
+mutation CreateFantasyPlayer($createFantasyPlayerDto: CreateFantasyPlayerDto!) {
+  createFantasyPlayer(createFantasyPlayerDto: $createFantasyPlayerDto) {
+    playerId
+    displayName
+    price
+  }
+}

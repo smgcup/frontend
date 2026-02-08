@@ -12,6 +12,7 @@ export type PlayerStats = {
   penaltiesMissed: number;
   penaltiesScored: number;
   goalkeeperSaves: number;
+  cleanSheets: number;
 };
 
 export type Player = {
@@ -26,6 +27,7 @@ export type Player = {
   weight?: number;
   preferredFoot?: PreferredFoot;
   imageUrl?: string | null;
+  celebrationImageUrl?: string | null;
   class?: string | null;
   matches?: Match[];
   stats?: PlayerStats;

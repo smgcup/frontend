@@ -71,73 +71,58 @@ const TopPlayersTable = ({ players, limit, title = 'Top Players' }: TopPlayersTa
         <Users className="h-6 w-6 text-yellow-500" />
         <h3 className="text-2xl font-bold">{title}</h3>
       </div>
-      <div className="overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <TableHeader label="#" />
-              <TableHeader label="Player" className="text-left" />
-              <TableHeader label="G" />
-              <TableHeader label="A" />
-              <TableHeader label="YC" />
-              <TableHeader label="RC" />
-              <TableHeader label="OG" />
-            </tr>
-          </thead>
-          <tbody>
-            {displayedPlayers.map((player, index) => {
-              const position = index + 1;
+      <table className="w-full">
+        <thead>
+          <tr className="border-b">
+            <TableHeader label="#" />
+            <TableHeader label="Player" className="text-left" />
+            <TableHeader label="G" />
+            <TableHeader label="A" />
+          </tr>
+        </thead>
+        <tbody>
+          {displayedPlayers.map((player, index) => {
+            const position = index + 1;
 
-              return (
-                <tr
-                  key={player.id}
-                  onClick={() => handleRowClick(player.id)}
-                  className="border-b transition-colors hover:bg-muted/50 cursor-pointer"
-                >
-                  <td className="px-3 py-4 text-center">
-                    <PositionIcon position={position} />
-                  </td>
-                  <td className="px-4 py-4">
-                    <p className="font-semibold">
-                      {player.firstName} {player.lastName}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {player.team && (
-                        <>
-                          <Link
-                            href={`/teams/${player.team.id}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="hover:underline"
-                          >
-                            {player.team.name}
-                          </Link>
-                          {' · '}
-                        </>
-                      )}
-                      {shortenPosition(player?.position ?? '')}
-                    </p>
-                  </td>
-                  <td className="px-3 py-4 text-center">
-                    <p className="font-bold">{player.stats?.goals ?? 0}</p>
-                  </td>
-                  <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.stats?.assists ?? 0}</p>
-                  </td>
-                  <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.stats?.yellowCards ?? 0}</p>
-                  </td>
-                  <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.stats?.redCards ?? 0}</p>
-                  </td>
-                  <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.stats?.ownGoals ?? 0}</p>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+            return (
+              <tr
+                key={player.id}
+                onClick={() => handleRowClick(player.id)}
+                className="border-b transition-colors hover:bg-muted/50 cursor-pointer"
+              >
+                <td className="px-3 py-4 text-center">
+                  <PositionIcon position={position} />
+                </td>
+                <td className="px-4 py-4">
+                  <p className="font-semibold">
+                    {player.firstName} {player.lastName}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {player.team && (
+                      <>
+                        <Link
+                          href={`/teams/${player.team.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="hover:underline"
+                        >
+                          {player.team.name}
+                        </Link>
+                      </>
+                    )}
+                    {shortenPosition(player?.position ?? '')}
+                  </p>
+                </td>
+                <td className="px-3 py-4 text-center">
+                  <p className="font-bold">{player.stats?.goals ?? 0}</p>
+                </td>
+                <td className="px-3 py-4 text-center">
+                  <p className="font-medium">{player.stats?.assists ?? 0}</p>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 };

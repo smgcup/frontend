@@ -169,11 +169,11 @@ const AdminMatchAppearancesViewUi = ({
       <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded bg-amber-500" />
-          <span>Half Game (&lt;30 min)</span>
+          <span>Half Game (&lt;35 min)</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded bg-green-500" />
-          <span>Full Game (30+ min)</span>
+          <span>Full Game (35+ min)</span>
         </div>
       </div>
 

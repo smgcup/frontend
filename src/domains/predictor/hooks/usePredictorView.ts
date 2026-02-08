@@ -30,6 +30,7 @@ export const usePredictorView = ({ matches }: UsePredictorViewProps) => {
   const [matchErrors, setMatchErrors] = useState<Record<string, string | null>>({});
   const [selectedRound, setSelectedRound] = useState(1);
   const [boostedMatchId, setBoostedMatchId] = useState<string | null>(null);
+  const [savedBoostedMatchId, setSavedBoostedMatchId] = useState<string | null>(null);
 
   const { isAuthenticated } = useAuth();
   const { savePrediction, submittingMatchId, errorMessage, clearError } = usePrediction();
@@ -81,6 +82,7 @@ export const usePredictorView = ({ matches }: UsePredictorViewProps) => {
   useEffect(() => {
     if (serverBoostedMatchId !== null) {
       setBoostedMatchId(serverBoostedMatchId);
+      setSavedBoostedMatchId(serverBoostedMatchId);
     }
   }, [serverBoostedMatchId]);
 
@@ -173,6 +175,8 @@ export const usePredictorView = ({ matches }: UsePredictorViewProps) => {
             predictedScore2: prediction.predictedScore2,
           },
         }));
+        // Track the saved booster state
+        setSavedBoostedMatchId((prev) => (isBoosted ? matchId : prev === matchId ? null : prev));
         // Clear local prediction so it reflects the saved state
         setLocalPredictions((prev) => {
           const updated = { ...prev };
@@ -206,6 +210,7 @@ export const usePredictorView = ({ matches }: UsePredictorViewProps) => {
     setSelectedRound,
     boostedMatchId,
     serverBoostedMatchId,
+    savedBoostedMatchId,
 
     // Auth
     isAuthenticated,

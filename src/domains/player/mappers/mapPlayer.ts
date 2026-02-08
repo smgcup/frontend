@@ -32,6 +32,8 @@ export const mapPlayer = (
   const team = 'team' in player ? { id: player.team.id, name: player.team.name } : undefined;
   const age = 'age' in player ? player.age : undefined;
   const imageUrl = 'imageUrl' in player ? player.imageUrl : undefined;
+  const celebrationImageUrl =
+    'celebrationImageUrl' in player ? player.celebrationImageUrl : undefined;
   const playerClass = 'class' in player ? player.class : undefined;
   const dateOfBirth = 'dateOfBirth' in player ? player.dateOfBirth : undefined;
 
@@ -48,6 +50,7 @@ export const mapPlayer = (
       penaltiesMissed: 'penaltiesMissed' in player.stats ? player.stats.penaltiesMissed : 0,
       penaltiesScored: 'penaltiesScored' in player.stats ? player.stats.penaltiesScored : 0,
       goalkeeperSaves: 'goalkeeperSaves' in player.stats ? player.stats.goalkeeperSaves : 0,
+      cleanSheets: 'cleanSheets' in player.stats ? player.stats.cleanSheets : 0,
     };
   }
 
@@ -62,6 +65,7 @@ export const mapPlayer = (
     team,
     age,
     imageUrl,
+    celebrationImageUrl,
     class: playerClass,
     dateOfBirth,
     stats,

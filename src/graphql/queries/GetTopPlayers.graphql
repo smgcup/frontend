@@ -9,9 +9,7 @@ query GetTopPlayers {
     }
     stats {
       goals
-      yellowCards
-      redCards
-      ownGoals
+      assists
     }
   }
 }

@@ -6,6 +6,7 @@ import { goalIcon, redCardIcon, yellowCardIcon } from '@/public/icons';
 import type { PlayersPageData } from './contracts';
 import StandingsColumn from './components/StandingsColumn';
 import { Loader2 } from 'lucide-react';
+import { BackButton } from '@/components/BackButton';
 
 type PlayerStandingsViewUiProps = {
   data: PlayersPageData;
@@ -45,43 +46,59 @@ const CategoryIcon = ({ title, alt }: { title: string; alt: string }) => {
 };
 
 const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
-  const { standings, loading, loadingMore, loadMore, hasMore } = data;
+  const { standings, loadingMore, loadMore, hasMore } = data;
   const sentinelRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
   const contentScrollRef = useRef<HTMLDivElement>(null);
+  const hasUserScrolledRef = useRef(false);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // Allow load-more only after user has scrolled (avoids triggering on initial paint when sentinel is already in view)
+  useEffect(() => {
+    const onScroll = () => {
+      hasUserScrolledRef.current = true;
+    };
+    window.addEventListener('scroll', onScroll, { once: true, passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Keep ref in sync with loading state
   useEffect(() => {
-    isLoadingRef.current = loadingMore || loading;
-  }, [loadingMore, loading]);
+    isLoadingRef.current = loadingMore;
+  }, [loadingMore]);
 
-  // Track which column is visible using IntersectionObserver
+  // Track which column is visible via scroll position (more reliable than IntersectionObserver with snap scrolling)
   useEffect(() => {
     const contentEl = contentScrollRef.current;
     if (!contentEl) return;
 
-    const columns = contentEl.querySelectorAll('[data-column-index]');
-    if (columns.length === 0) return;
+    const updateActiveIndex = () => {
+      const columns = contentEl.querySelectorAll<HTMLElement>('[data-column-index]');
+      if (columns.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            const index = parseInt((entry.target as HTMLElement).dataset.columnIndex || '0', 10);
-            setActiveIndex(index);
-          }
-        });
-      },
-      {
-        root: contentEl,
-        threshold: 0.5,
-      },
-    );
+      const containerRect = contentEl.getBoundingClientRect();
+      const containerCenter = containerRect.left + containerRect.width / 2;
 
-    columns.forEach((col) => observer.observe(col));
+      let closestIndex = 0;
+      let closestDistance = Infinity;
 
-    return () => observer.disconnect();
+      columns.forEach((col) => {
+        const colRect = col.getBoundingClientRect();
+        const colCenter = colRect.left + colRect.width / 2;
+        const distance = Math.abs(colCenter - containerCenter);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = parseInt(col.dataset.columnIndex || '0', 10);
+        }
+      });
+
+      setActiveIndex(closestIndex);
+    };
+
+    contentEl.addEventListener('scroll', updateActiveIndex, { passive: true });
+    updateActiveIndex();
+
+    return () => contentEl.removeEventListener('scroll', updateActiveIndex);
   }, [standings.length]);
 
   useEffect(() => {
@@ -91,7 +108,12 @@ const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        if (entry.isIntersecting && hasMore && !isLoadingRef.current) {
+        if (
+          entry.isIntersecting &&
+          hasMore &&
+          !isLoadingRef.current &&
+          hasUserScrolledRef.current
+        ) {
           loadMore();
         }
       },
@@ -109,21 +131,9 @@ const PlayerStandingsViewUi = ({ data }: PlayerStandingsViewUiProps) => {
     };
   }, [hasMore, loadMore]);
 
-  if (loading) {
-    return (
-      <div className="py-4 lg:p-10">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading players...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8">
+    <section className="pb-16 pt-8 px-4 sm:px-6 lg:px-8">
+      <BackButton />
       <div className="container mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center">Player Standings</h1>
 

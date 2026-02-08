@@ -35,6 +35,7 @@ export const mapPlayerEdit = (player: Player, team?: Team): Player => {
     height: toNumber(player.height),
     weight: toNumber(player.weight),
     imageUrl: player.imageUrl ?? null,
+    celebrationImageUrl: player.celebrationImageUrl ?? null,
     position,
     preferredFoot,
     class: playerClass,
