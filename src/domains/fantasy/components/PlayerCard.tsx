@@ -14,8 +14,6 @@ type PlayerCardProps = {
   showPrice?: boolean;
   /** Callback when the price badge close button is clicked */
   onPriceClose?: () => void;
-  /** Optional: compact mode used on bench */
-  compact?: boolean;
 };
 
 const PlayerCard = ({
@@ -23,7 +21,6 @@ const PlayerCard = ({
   displayMode = 'points',
   showPrice = false,
   onPriceClose,
-  compact = false,
 }: PlayerCardProps) => {
   const showPointsMode = displayMode === 'points';
   const showNextMatchMode = displayMode === 'nextMatch' && !!player.nextMatch;
@@ -33,7 +30,7 @@ const PlayerCard = ({
       className={cn(
         'relative flex flex-col rounded-lg overflow-hidden shrink-0',
         'backdrop-blur-[2px] border border-white/20 shadow-lg',
-        compact ? 'w-[62px]' : 'w-[72px]',
+        'w-[72px] h-[100px]',
         fantasyTheme.bgLight,
       )}
     >
@@ -72,12 +69,12 @@ const PlayerCard = ({
       )}
 
       {/* Jersey area */}
-      <div className={cn('flex items-center justify-center', compact ? 'py-1' : 'py-1.5', showPrice && 'pt-4')}>
+      <div className={cn('flex-1 flex items-center justify-center', 'py-1.5', showPrice && 'pt-4')}>
         <JerseyIcon
           color={player.jersey.color}
           textColor={player.jersey.textColor}
           label={player.jersey.label}
-          size={showPrice ? 42 : compact ? 44 : 52}
+          size={showPrice ? 42 : 52}
         />
       </div>
 

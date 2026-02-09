@@ -35,8 +35,12 @@ export function isSwapValid(
   aIsStarter: boolean,
   bIsStarter: boolean,
 ): boolean {
-  // Both starters or both bench: formation never changes
-  if (aIsStarter === bIsStarter) return true;
+  // Both on bench: bench order is flexible, always allowed
+  if (!aIsStarter && !bIsStarter) return true;
+
+  // Both starters: only same-position swaps are meaningful
+  // (different positions render in separate pitch rows, so swapping has no visible effect)
+  if (aIsStarter && bIsStarter) return playerA.position === playerB.position;
 
   // One starter, one bench
   const starter = aIsStarter ? playerA : playerB;

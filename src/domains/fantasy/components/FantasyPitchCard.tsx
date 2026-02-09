@@ -3,9 +3,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import pitchSvg from '@/public/icons/pitch.svg';
-import type { FantasyTeamData, FantasyPlayer, PlayerCardDisplayMode } from '../contracts';
+import type { FantasyTeamData, FantasyPlayer, PlayerCardDisplayMode, PlayerPosition } from '../contracts';
 import DraggablePlayerCard from './DraggablePlayerCard';
 import PlayerCard from './PlayerCard';
+import EmptySlotCard from './EmptySlotCard';
 
 type FantasyPitchCardProps = {
   team: FantasyTeamData;
@@ -19,8 +20,12 @@ type FantasyPitchCardProps = {
   /** Disable dnd-kit on initial SSR render to avoid hydration mismatches */
   enableDnd?: boolean;
   onPlayerClick?: (player: FantasyPlayer) => void;
+  onRemovePlayer?: (playerId: string) => void;
+  removedPlayerIds?: Set<string>;
+  onEmptySlotClick?: (position: PlayerPosition, replacingPlayerId: string) => void;
   gameweek: number;
   onGameweekChange?: (gw: number) => void;
+  activeTab?: 'pickTeam' | 'transfers' | 'points';
 };
 
 type GameweekNavButtonProps = {
@@ -58,8 +63,12 @@ const FantasyPitchCard = ({
   substitutePlayerId,
   enableDnd = true,
   onPlayerClick,
+  onRemovePlayer,
+  removedPlayerIds,
+  onEmptySlotClick,
   gameweek,
   onGameweekChange,
+  activeTab = 'pickTeam',
 }: FantasyPitchCardProps) => {
   const gk = starters.filter((p) => p.position === 'GK');
   const def = starters.filter((p) => p.position === 'DEF');
@@ -70,66 +79,99 @@ const FantasyPitchCard = ({
   const averagePoints = team.averagePoints ?? 0;
   const highestPoints = team.highestPoints ?? 0;
 
-  const renderPlayer = (p: FantasyPlayer, compact?: boolean) =>
-    enableDnd ? (
+  const renderPlayer = (p: FantasyPlayer) => {
+    if (removedPlayerIds?.has(p.id)) {
+      return (
+        <div key={p.id} className="cursor-pointer" onClick={() => onEmptySlotClick?.(p.position, p.id)}>
+          <EmptySlotCard position={p.position} />
+        </div>
+      );
+    }
+
+    return enableDnd ? (
       <DraggablePlayerCard
         key={p.id}
         player={p}
         displayMode={displayMode}
         showPrice={showPrice}
-        compact={compact}
         isValidTarget={validTargets.has(p.id)}
         isSelectionActive={isSelectionActive}
         isSubstituteSource={p.id === substitutePlayerId}
         onPlayerClick={onPlayerClick}
+        onPriceClose={onRemovePlayer}
       />
     ) : (
       <div key={p.id} className="cursor-pointer" onClick={() => onPlayerClick?.(p)}>
-        <PlayerCard player={p} displayMode={displayMode} showPrice={showPrice} compact={compact} />
+        <PlayerCard
+          player={p}
+          displayMode={displayMode}
+          showPrice={showPrice}
+          onPriceClose={onRemovePlayer ? () => onRemovePlayer(p.id) : undefined}
+        />
       </div>
     );
+  };
 
   return (
-    <div className=" max-w-lg mx-auto overflow-hidden rounded-2xl bg-linear-to-b from-[#1a0028] via-[#120020] to-[#07000f] ring-1 ring-white/10">
-      {/* Gameweek header */}
+    <div className=" max-w-lg mx-auto overflow-hidden rounded-2xl bg-linear-to-b from-[#1a0028] via-[#120020] to-[#1a0028] ring-1 ring-white/10">
+      {/* Header: gameweek+stats on Points tab, free transfers/budget on other tabs */}
       <div className="px-4 pt-5 pb-3">
-        <div className="flex items-center justify-center gap-4">
-          <GameweekNavButton
-            ariaLabel="Previous gameweek"
-            icon={ChevronLeft}
-            disabled={gameweek <= 1}
-            onClick={() => onGameweekChange?.(gameweek - 1)}
-          />
-          <div className="text-white font-extrabold text-lg tracking-tight">Gameweek {gameweek}</div>
-          <GameweekNavButton
-            ariaLabel="Next gameweek"
-            icon={ChevronRight}
-            disabled={gameweek >= 10}
-            onClick={() => onGameweekChange?.(gameweek + 1)}
-          />
-        </div>
+        {activeTab === 'points' ? (
+          <>
+            <div className="flex items-center justify-center gap-4">
+              <GameweekNavButton
+                ariaLabel="Previous gameweek"
+                icon={ChevronLeft}
+                disabled={gameweek <= 1}
+                onClick={() => onGameweekChange?.(gameweek - 1)}
+              />
+              <div className="text-white font-extrabold text-lg tracking-tight">Gameweek {gameweek}</div>
+              <GameweekNavButton
+                ariaLabel="Next gameweek"
+                icon={ChevronRight}
+                disabled={gameweek >= 10}
+                onClick={() => onGameweekChange?.(gameweek + 1)}
+              />
+            </div>
 
-        {/* Stats row */}
-        <div className="mt-5 grid grid-cols-3 items-center gap-3">
-          <div className="text-center">
-            <div className="text-white text-2xl font-extrabold leading-none">{averagePoints}</div>
-            <div className="mt-1 text-[11px] font-medium text-white/50">Average</div>
-          </div>
+            {/* Stats row */}
+            <div className="mt-5 grid grid-cols-3 items-center gap-3">
+              <div className="text-center">
+                <div className="text-white text-2xl font-extrabold leading-none">{averagePoints}</div>
+                <div className="mt-1 text-[11px] font-medium text-white/50">Average</div>
+              </div>
 
-          <div className="flex items-center justify-center">
-            <div className="w-[120px] overflow-hidden rounded-xl shadow-[0_8px_30px_rgba(139,92,246,0.25)] ring-1 ring-white/20 text-center">
-              <div className="px-3 pt-3 pb-2 bg-linear-to-br from-cyan-400 to-fuchsia-500">
-                <div className="text-[44px] font-black leading-none text-[#1a0028]">{latestPoints}</div>
-                <div className="mt-0.5 text-[11px] font-semibold text-[#1a0028]/70">Total Pts</div>
+              <div className="flex items-center justify-center">
+                <div className="w-[120px] overflow-hidden rounded-xl shadow-[0_8px_30px_rgba(139,92,246,0.25)] ring-1 ring-white/20 text-center">
+                  <div className="px-3 pt-3 pb-2 bg-linear-to-br from-cyan-400 to-fuchsia-500">
+                    <div className="text-[44px] font-black leading-none text-[#1a0028]">{latestPoints}</div>
+                    <div className="mt-0.5 text-[11px] font-semibold text-[#1a0028]/70">Total Pts</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="text-white text-2xl font-extrabold leading-none">{highestPoints}</div>
+                <div className="mt-1 text-[11px] font-medium text-white/50">Highest</div>
               </div>
             </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-center gap-6 text-xs text-white/40">
+            <div className="flex items-center gap-1.5">
+              <span className="font-medium">Free Transfers:</span>
+              <span className="font-bold text-white/70">{team.freeTransfers}</span>
+            </div>
+            <div className="w-px h-3 bg-white/15" />
+            <div className="flex items-center gap-1.5">
+              <span className="font-medium">Budget:</span>
+              <span className="font-bold text-cyan-300/80">
+                {'£'}
+                {team.budget.toFixed(1)}m
+              </span>
+            </div>
           </div>
-
-          <div className="text-center">
-            <div className="text-white text-2xl font-extrabold leading-none">{highestPoints}</div>
-            <div className="mt-1 text-[11px] font-medium text-white/50">Highest</div>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Pitch */}
@@ -149,7 +191,7 @@ const FantasyPitchCard = ({
           </div>
 
           {/* Players on pitch */}
-          <div className="absolute inset-0 z-10 flex flex-col justify-between">
+          <div className="absolute inset-0 z-10 my-2 flex flex-col justify-between">
             <div className="flex justify-center gap-1">{gk.map((p) => renderPlayer(p))}</div>
             <div className="flex justify-around px-2">{def.map((p) => renderPlayer(p))}</div>
             <div className="flex justify-around px-2">{mid.map((p) => renderPlayer(p))}</div>
@@ -165,30 +207,15 @@ const FantasyPitchCard = ({
             {bench.map((player) => (
               <div key={player.id} className="flex flex-col items-center">
                 <p className="text-[9px] font-bold text-white/40 mb-1">{player.position}</p>
-                {renderPlayer(player, true)}
+                {renderPlayer(player)}
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Bottom info bar */}
-      <div className="px-4 pt-5 pb-6">
-        <div className="flex items-center justify-center gap-6 text-xs text-white/40">
-          <div className="flex items-center gap-1.5">
-            <span className="font-medium">Free Transfers:</span>
-            <span className="font-bold text-white/70">{team.freeTransfers}</span>
-          </div>
-          <div className="w-px h-3 bg-white/15" />
-          <div className="flex items-center gap-1.5">
-            <span className="font-medium">Budget:</span>
-            <span className="font-bold text-cyan-300/80">
-              {'£'}
-              {team.budget.toFixed(1)}m
-            </span>
-          </div>
-        </div>
-      </div>
+      {/* Bottom padding */}
+      <div className="pb-4" />
     </div>
   );
 };

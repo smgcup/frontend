@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
-import type { FantasyPlayer } from '../contracts';
+import type { FantasyPlayer, FantasyAvailablePlayer } from '../contracts';
 import { getValidSwapTargets } from '../utils/formations';
 
 type UseFantasyTeamProps = {
@@ -16,6 +16,7 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
   const [activePlayer, setActivePlayer] = useState<FantasyPlayer | null>(null);
   const [activeIsStarter, setActiveIsStarter] = useState(false);
   const [isSubstituting, setIsSubstituting] = useState(false);
+  const [removedPlayerIds, setRemovedPlayerIds] = useState<Set<string>>(new Set());
 
   const validTargets = useMemo(() => {
     if (!activePlayer) return new Set<string>();
@@ -49,14 +50,21 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
         const starterPlayer = starters[starterIdx];
         const benchPlayer = bench[benchIdx];
 
+        // If the captain is being sent to bench, transfer the badge to the incoming player
+        const captainMovingToBench = starterPlayer.isCaptain;
+
         setStarters((prev) => {
           const next = [...prev];
-          next[starterIdx] = benchPlayer;
+          next[starterIdx] = captainMovingToBench
+            ? { ...benchPlayer, isCaptain: true }
+            : benchPlayer;
           return next;
         });
         setBench((prev) => {
           const next = [...prev];
-          next[benchIdx] = starterPlayer;
+          next[benchIdx] = captainMovingToBench
+            ? { ...starterPlayer, isCaptain: false }
+            : starterPlayer;
           return next;
         });
       }
@@ -147,9 +155,50 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
     setBench(update);
   }, []);
 
+  // ── Transfer removal ──────────────────────────────────────────────
+
+  const removePlayer = useCallback((playerId: string) => {
+    setRemovedPlayerIds((prev) => new Set(prev).add(playerId));
+  }, []);
+
+  const replacePlayer = useCallback(
+    (oldPlayerId: string, incoming: FantasyAvailablePlayer) => {
+      const oldInStarters = starters.find((p) => p.id === oldPlayerId);
+      const oldPlayer = oldInStarters ?? bench.find((p) => p.id === oldPlayerId);
+      if (!oldPlayer) return;
+
+      const newPlayer: FantasyPlayer = {
+        id: incoming.id,
+        name: incoming.name,
+        position: incoming.position,
+        points: incoming.points,
+        price: incoming.price,
+        teamShort: incoming.teamShort,
+        jersey: oldPlayer.jersey,
+      };
+
+      const replaceIn = (players: FantasyPlayer[]) =>
+        players.map((p) => (p.id === oldPlayerId ? newPlayer : p));
+
+      if (oldInStarters) {
+        setStarters(replaceIn);
+      } else {
+        setBench(replaceIn);
+      }
+
+      setRemovedPlayerIds((prev) => {
+        const next = new Set(prev);
+        next.delete(oldPlayerId);
+        return next;
+      });
+    },
+    [starters, bench],
+  );
+
   return {
     starters,
     bench,
+    removedPlayerIds,
     activePlayer,
     validTargets,
     isSelectionActive: activePlayer !== null,
@@ -161,5 +210,7 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
     startSubstitution,
     handleSubstitutionClick,
     cancelSubstitution,
+    removePlayer,
+    replacePlayer,
   };
 };

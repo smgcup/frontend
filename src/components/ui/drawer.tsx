@@ -62,7 +62,7 @@ function DrawerContent({
         {...props}
       >
         {side === 'bottom' && (
-          <div className="flex justify-center pt-3 pb-1">
+          <div className="flex justify-center pt-3 pb-1 bg-[#0a0014]">
             <div className="h-1 w-10 rounded-full bg-white/30" />
           </div>
         )}
@@ -73,7 +73,9 @@ function DrawerContent({
 }
 
 function DrawerTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
-  return <DialogPrimitive.Title data-slot="drawer-title" className={cn('text-base font-medium', className)} {...props} />;
+  return (
+    <DialogPrimitive.Title data-slot="drawer-title" className={cn('text-base font-medium', className)} {...props} />
+  );
 }
 
 function DrawerDescription({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Description>) {

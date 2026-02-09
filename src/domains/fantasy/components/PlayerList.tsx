@@ -5,8 +5,12 @@ import { cn } from '@/lib/utils';
 import { Search, ChevronDown } from 'lucide-react';
 import type { FantasyAvailablePlayer, PlayerPosition } from '../contracts';
 
-type PlayerListSidebarProps = {
+type PlayerListProps = {
   players: FantasyAvailablePlayer[];
+  /** Pre-select a position filter when opened from an empty slot */
+  initialPositionFilter?: PlayerPosition | 'ALL';
+  /** Called when a player row is clicked */
+  onPlayerSelect?: (player: FantasyAvailablePlayer) => void;
 };
 
 const positionFilters: { label: string; value: PlayerPosition | 'ALL' }[] = [
@@ -26,9 +30,9 @@ const positionColors: Record<PlayerPosition, string> = {
   FWD: 'bg-red-500/20 text-red-300',
 };
 
-const PlayerListSidebar = ({ players }: PlayerListSidebarProps) => {
+const PlayerList = ({ players, initialPositionFilter = 'ALL', onPlayerSelect }: PlayerListProps) => {
   const [search, setSearch] = useState('');
-  const [positionFilter, setPositionFilter] = useState<PlayerPosition | 'ALL'>('ALL');
+  const [positionFilter, setPositionFilter] = useState<PlayerPosition | 'ALL'>(initialPositionFilter);
   const [sortField, setSortField] = useState<SortField>('price');
   const [sortAsc, setSortAsc] = useState(false);
 
@@ -65,7 +69,7 @@ const PlayerListSidebar = ({ players }: PlayerListSidebarProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0014] border-r border-white/10">
+    <div className="flex flex-col flex-1 min-h-0 bg-[#0a0014]">
       {/* Header */}
       <div className="px-4 pt-5 pb-3">
         <h2 className="text-base font-bold text-white tracking-tight">Player List</h2>
@@ -144,7 +148,11 @@ const PlayerListSidebar = ({ players }: PlayerListSidebarProps) => {
         {filteredPlayers.map((player) => (
           <div
             key={player.id}
-            className="px-4 py-2 grid grid-cols-[1fr_48px_48px] gap-2 items-center border-b border-white/5 transition-colors hover:bg-white/5"
+            onClick={() => onPlayerSelect?.(player)}
+            className={cn(
+              'px-4 py-2 grid grid-cols-[1fr_48px_48px] gap-2 items-center border-b border-white/5 transition-colors hover:bg-white/5',
+              onPlayerSelect && 'cursor-pointer',
+            )}
           >
             <div className="flex items-center gap-2 min-w-0">
               <span
@@ -179,4 +187,4 @@ const PlayerListSidebar = ({ players }: PlayerListSidebarProps) => {
   );
 };
 
-export default PlayerListSidebar;
+export default PlayerList;

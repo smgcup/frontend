@@ -142,7 +142,7 @@ const mockTeam: FantasyTeamData = {
     {
       id: '7',
       name: 'Sanchez',
-      position: 'GK',
+      position: 'DEF',
       points: 5,
       jersey: { color: '#6B7280', textColor: '#FFFFFF', label: '1' },
       nextMatch: 'LEE (H)',
