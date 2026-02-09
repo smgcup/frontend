@@ -19,6 +19,7 @@ export type Scalars = {
 export type AdminLoginResult = {
   __typename?: 'AdminLoginResult';
   ok: Scalars['Boolean']['output'];
+  token: Scalars['String']['output'];
 };
 
 export type AuthResponse = {
@@ -35,7 +36,7 @@ export type CreateAllPlayerAppearancesDto = {
 };
 
 export type CreateFantasyPlayerDto = {
-  displayName: Scalars['String']['input'];
+  displayName?: InputMaybe<Scalars['String']['input']>;
   playerId: Scalars['String']['input'];
   price: Scalars['Float']['input'];
 };
@@ -92,7 +93,7 @@ export type CreateTeamDto = {
 
 export type FantasyPlayer = {
   __typename?: 'FantasyPlayer';
-  displayName: Scalars['String']['output'];
+  displayName?: Maybe<Scalars['String']['output']>;
   player: Player;
   playerId: Scalars['ID']['output'];
   price: Scalars['Float']['output'];
@@ -172,7 +173,6 @@ export enum MatchStatus {
 export type Mutation = {
   __typename?: 'Mutation';
   adminLogin: AdminLoginResult;
-  adminLogout: AdminLoginResult;
   createAllPlayerAppearances: Array<PlayerAppearance>;
   createFantasyPlayer: FantasyPlayer;
   createMatch: Match;

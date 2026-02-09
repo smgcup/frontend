@@ -4,7 +4,7 @@ export type PlayerPriceEntry = {
   lastName: string;
   position?: string;
   teamName: string;
-  displayName: string;
+  displayName: string | null;
   price: string;
   hasFantasyData: boolean;
 };

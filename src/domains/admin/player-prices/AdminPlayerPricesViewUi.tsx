@@ -121,7 +121,7 @@ const AdminPlayerPricesViewUi = ({
                 <CardContent className="space-y-3">
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium" htmlFor={`displayName-${player.playerId}`}>
-                      Display Name *
+                      Display Name
                     </label>
                     <Input
                       id={`displayName-${player.playerId}`}
@@ -152,9 +152,7 @@ const AdminPlayerPricesViewUi = ({
                   <Button
                     size="sm"
                     className="w-full"
-                    disabled={
-                      isSaving || !form?.displayName?.trim() || !form?.price?.trim() || !isDirty(player.playerId)
-                    }
+                    disabled={isSaving || !form?.price?.trim() || !isDirty(player.playerId)}
                     onClick={() => onSave(player.playerId)}
                   >
                     {isSaving ? (

@@ -30,7 +30,7 @@ export const getAdminPlayerPricesPageData = async () => {
       lastName: player.lastName,
       position: player.position ?? undefined,
       teamName: team.name,
-      displayName: fantasyMap.get(player.id)?.displayName ?? '',
+      displayName: fantasyMap.get(player.id)?.displayName ?? null,
       price: fantasyMap.has(player.id) ? String(fantasyMap.get(player.id)!.price) : '',
       hasFantasyData: fantasyMap.has(player.id),
     })),

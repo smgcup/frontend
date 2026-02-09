@@ -24,7 +24,7 @@ export const useAdminPlayerPrices = (initialPlayers: PlayerPriceEntry[]) => {
     const state: Record<string, PlayerFormState> = {};
     for (const p of initialPlayers) {
       state[p.playerId] = {
-        displayName: p.displayName,
+        displayName: p.displayName ?? '',
         price: p.price,
         hasFantasyData: p.hasFantasyData,
       };
@@ -37,7 +37,7 @@ export const useAdminPlayerPrices = (initialPlayers: PlayerPriceEntry[]) => {
     const state: Record<string, { displayName: string; price: string }> = {};
     for (const p of initialPlayers) {
       if (p.hasFantasyData) {
-        state[p.playerId] = { displayName: p.displayName, price: p.price };
+        state[p.playerId] = { displayName: p.displayName ?? '', price: p.price };
       }
     }
     return state;
@@ -106,10 +106,6 @@ export const useAdminPlayerPrices = (initialPlayers: PlayerPriceEntry[]) => {
       const form = formState[playerId];
       if (!form) return;
 
-      if (!form.displayName.trim()) {
-        setErrors((prev) => ({ ...prev, [playerId]: 'Display name is required' }));
-        return;
-      }
       if (!form.price.trim() || isNaN(Number(form.price)) || Number(form.price) <= 0) {
         setErrors((prev) => ({ ...prev, [playerId]: 'Price must be a positive number' }));
         return;
@@ -128,7 +124,7 @@ export const useAdminPlayerPrices = (initialPlayers: PlayerPriceEntry[]) => {
             variables: {
               playerId,
               updateFantasyPlayerDto: {
-                displayName: form.displayName.trim(),
+                displayName: form.displayName.trim() || undefined,
                 price: Number(form.price),
               },
             },
@@ -138,7 +134,7 @@ export const useAdminPlayerPrices = (initialPlayers: PlayerPriceEntry[]) => {
             variables: {
               createFantasyPlayerDto: {
                 playerId,
-                displayName: form.displayName.trim(),
+                displayName: form.displayName.trim() || undefined,
                 price: Number(form.price),
               },
             },
