@@ -11,6 +11,8 @@ query MatchById($id: String!) {
       id
       firstName
       lastName
+      position
+      celebrationImageUrl
     }
     firstOpponent {
       id

@@ -3,6 +3,7 @@ import type { Match } from './contracts';
 import MatchCard from './components/MatchCard';
 import { MatchStatus } from '@/graphql';
 import { Button } from '@/components/ui/button';
+import { BackButton } from '@/components/BackButton';
 type MatchViewUiProps = {
   matches: Match[];
   error?: string | null;
@@ -38,7 +39,8 @@ const MatchViewUi = ({ matches, error }: MatchViewUiProps) => {
   const rounds = [1, 2, 3, 4];
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8">
+    <section className="pb-16 pt-8 px-4 sm:px-6 lg:px-8">
+      <BackButton />
       <div className="container mx-auto max-w-7xl">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
           Matches{' '}

@@ -7,6 +7,8 @@ export type MatchMvp = {
   id: string;
   firstName: string;
   lastName: string;
+  position?: string | null;
+  celebrationImageUrl?: string | null;
 };
 
 export type Match = {

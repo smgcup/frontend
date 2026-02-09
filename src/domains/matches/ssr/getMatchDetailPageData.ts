@@ -1,15 +1,37 @@
-import { getMatchByIdData, getMatchEventsData } from '@/lib/cachedQueries';
+import { getPublicClient } from '@/lib/initializeApollo';
+import {
+  MatchByIdDocument,
+  MatchByIdQuery,
+  MatchByIdQueryVariables,
+  MatchEventsDocument,
+  MatchEventsQuery,
+  MatchEventsQueryVariables,
+} from '@/graphql';
+import { mapMatch } from '@/domains/matches/mappers/mapMatch';
+import { mapMatchEvent } from '@/domains/matches/mappers/mapMatchEvent';
 import type { MatchEvent } from '@/domains/matches/contracts';
 
 export const getMatchDetailPageData = async (matchId: string) => {
   try {
-    const match = await getMatchByIdData(matchId);
+    const client = getPublicClient();
+
+    const { data: matchData } = await client.query<MatchByIdQuery, MatchByIdQueryVariables>({
+      query: MatchByIdDocument,
+      variables: { id: matchId },
+    });
+
+    const match = matchData?.matchById ? mapMatch(matchData.matchById) : null;
 
     if (!match) {
       return { match: null, events: [], error: null };
     }
 
-    const events: MatchEvent[] = await getMatchEventsData(matchId);
+    const { data: eventsData } = await client.query<MatchEventsQuery, MatchEventsQueryVariables>({
+      query: MatchEventsDocument,
+      variables: { matchId },
+    });
+
+    const events: MatchEvent[] = eventsData?.matchEvents.map(mapMatchEvent) ?? [];
 
     return { match, events, error: null };
   } catch (err) {

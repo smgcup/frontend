@@ -32,12 +32,22 @@ import {
   TeamByIdDocument,
   TeamByIdQuery,
   TeamByIdQueryVariables,
+  GetLeaderboardDocument,
+  GetLeaderboardQuery,
+  GetLeaderboardQueryVariables,
 } from '@/graphql';
 import { mapTeam } from '@/domains/team/mappers/mapTeam';
 import { mapNews } from '@/domains/news/mappers/mapNews';
 import { mapMatch } from '@/domains/matches/mappers/mapMatch';
 import { mapMatchEvent } from '@/domains/matches/mappers/mapMatchEvent';
 import { mapHeroStatistics } from '@/domains/home/mappers/mapHeroStatistics';
+import {
+  ALL_SORT_TYPES,
+  SORT_TYPE_TO_CATEGORY,
+  LEADERBOARD_LIMIT,
+  getStatValue,
+} from '@/domains/player-standings/constants';
+import type { StandingsCategory, PlayerStanding } from '@/domains/player-standings/contracts';
 
 // Cache duration in seconds
 const ONE_HOUR = 3600;
@@ -174,5 +184,39 @@ export const getTopPlayersData = unstable_cache(
     return data?.topPlayers.map(mapPlayer) ?? [];
   },
   ['top-players'],
+  { revalidate: FIVE_MINUTES },
+);
+
+export const getLeaderboardData = unstable_cache(
+  async (): Promise<StandingsCategory[]> => {
+    const client = getPublicClient();
+
+    const results = await Promise.all(
+      ALL_SORT_TYPES.map((sortType) =>
+        client.query<GetLeaderboardQuery, GetLeaderboardQueryVariables>({
+          query: GetLeaderboardDocument,
+          variables: { sortBy: sortType, page: 1, limit: LEADERBOARD_LIMIT },
+        }),
+      ),
+    );
+
+    return ALL_SORT_TYPES.map((sortType, index) => {
+      const leaderboard = results[index].data?.playersLeaderboard;
+      const players: PlayerStanding[] =
+        leaderboard?.players.map((player, playerIndex) => ({
+          ...mapPlayer(player),
+          rank: playerIndex + 1,
+          statValue: getStatValue(player.stats, sortType),
+        })) ?? [];
+
+      return {
+        title: SORT_TYPE_TO_CATEGORY[sortType],
+        players,
+        hasMore: leaderboard?.hasMore ?? false,
+        totalCount: leaderboard?.totalCount ?? 0,
+      };
+    });
+  },
+  ['leaderboard'],
   { revalidate: FIVE_MINUTES },
 );

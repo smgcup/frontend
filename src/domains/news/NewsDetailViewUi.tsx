@@ -2,10 +2,10 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Clock, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { Clock } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { News } from './contracts';
+import { BackButton } from '@/components/BackButton';
 
 type NewsDetailViewUiProps = {
   news: News | null;
@@ -15,11 +15,8 @@ const NewsDetailViewUi = ({ news }: NewsDetailViewUiProps) => {
   if (!news) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
+        <BackButton />
         <h1 className="text-2xl font-bold">News article not found</h1>
-        <Link href="/" className="mt-4 inline-flex items-center text-primary hover:underline">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to home
-        </Link>
       </div>
     );
   }
@@ -36,13 +33,7 @@ const NewsDetailViewUi = ({ news }: NewsDetailViewUiProps) => {
 
   return (
     <article className="container mx-auto px-4 py-8">
-      <Link
-        href="/"
-        className="mb-6 inline-flex items-center text-muted-foreground hover:text-primary transition-colors"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to home
-      </Link>
+      <BackButton />
 
       <h1 className="mb-4 text-4xl font-bold">{news.title}</h1>
 

@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Goal, AlertTriangle, Ban, Shield, Target, X, Clock, Loader2, Undo2 } from 'lucide-react';
+import { Goal, AlertTriangle, Ban, Shield, ShieldCheck, Target, X, Clock, Loader2, Undo2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import EventTimeline from '@/domains/matches/components/EventTimeline';
@@ -46,6 +46,12 @@ const QUICK_EVENTS_ROW2 = [
     color: 'bg-green-500 hover:bg-green-600',
   },
   { type: MatchEventType.PenaltyMissed, label: 'Penalty Miss', icon: X, color: 'bg-gray-500 hover:bg-gray-600' },
+  {
+    type: MatchEventType.PenaltySave,
+    label: 'Penalty Save',
+    icon: ShieldCheck,
+    color: 'bg-blue-600 hover:bg-blue-700',
+  },
   { type: MatchEventType.OwnGoal, label: 'Own Goal', icon: Undo2, color: 'bg-orange-500 hover:bg-orange-600' },
 ];
 
@@ -231,7 +237,7 @@ const AdminMatchLiveViewUi = ({
               );
             })}
           </div>
-          <div className="grid grid-cols-3 gap-3 mt-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
             {QUICK_EVENTS_ROW2.map((event) => {
               const Icon = event.icon;
               return (

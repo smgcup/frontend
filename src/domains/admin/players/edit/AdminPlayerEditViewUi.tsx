@@ -91,9 +91,14 @@ const AdminPlayerEditViewUi = ({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
+  // Celebration image state
+  const [celebrationImageFile, setCelebrationImageFile] = useState<File | null>(null);
+  const [celebrationImagePreview, setCelebrationImagePreview] = useState<string | null>(null);
+
   // Cropping state
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [cropTarget, setCropTarget] = useState<'image' | 'celebrationImage'>('image');
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -122,6 +127,7 @@ const AdminPlayerEditViewUi = ({
   );
   const [changedFields, setChangedFields] = useState<Record<FieldName, boolean>>(resetChangedFields);
   const [imageChanged, setImageChanged] = useState(false);
+  const [celebrationImageChanged, setCelebrationImageChanged] = useState(false);
 
   // When the `player` arrives/changes (SSR/CSR hydration, navigation between IDs, refetch),
   // sync it into local controlled form state.
@@ -155,6 +161,9 @@ const AdminPlayerEditViewUi = ({
       setImageChanged(false);
       setImageFile(null);
       setImagePreview(player.imageUrl ?? null);
+      setCelebrationImageChanged(false);
+      setCelebrationImageFile(null);
+      setCelebrationImagePreview(player.celebrationImageUrl ?? null);
     });
 
     return () => {
@@ -192,12 +201,13 @@ const AdminPlayerEditViewUi = ({
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, target: 'image' | 'celebrationImage' = 'image') => {
     const file = e.target.files?.[0];
     if (file) {
       // Open crop dialog with the selected image
       const previewUrl = URL.createObjectURL(file);
       setImageToCrop(previewUrl);
+      setCropTarget(target);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
       setCropDialogOpen(true);
@@ -208,7 +218,7 @@ const AdminPlayerEditViewUi = ({
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
-  const createCroppedImage = async (imageSrc: string, pixelCrop: Area): Promise<Blob> => {
+  const createCroppedImage = async (imageSrc: string, pixelCrop: Area, outputSize: number, format: 'image/png' | 'image/jpeg' = 'image/png', quality?: number): Promise<Blob> => {
     const image = new window.Image();
     image.src = imageSrc;
     await new Promise((resolve) => {
@@ -219,11 +229,11 @@ const AdminPlayerEditViewUi = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not get canvas context');
 
-    // Set canvas size to the cropped area
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
+    // Set canvas to the desired output size
+    canvas.width = outputSize;
+    canvas.height = outputSize;
 
-    // Draw the cropped portion of the image
+    // Draw the cropped portion scaled to the output size
     ctx.drawImage(
       image,
       pixelCrop.x,
@@ -232,8 +242,8 @@ const AdminPlayerEditViewUi = ({
       pixelCrop.height,
       0,
       0,
-      pixelCrop.width,
-      pixelCrop.height,
+      outputSize,
+      outputSize,
     );
 
     return new Promise((resolve, reject) => {
@@ -243,7 +253,7 @@ const AdminPlayerEditViewUi = ({
         } else {
           reject(new Error('Failed to create blob'));
         }
-      }, 'image/png');
+      }, format, quality);
     });
   };
 
@@ -251,12 +261,22 @@ const AdminPlayerEditViewUi = ({
     if (!imageToCrop || !croppedAreaPixels) return;
 
     try {
-      const croppedBlob = await createCroppedImage(imageToCrop, croppedAreaPixels);
-      const croppedFile = new File([croppedBlob], 'cropped-image.png', { type: 'image/png' });
+      const isCelebration = cropTarget === 'celebrationImage';
+      const outputSize = isCelebration ? 800 : 96;
+      const format = isCelebration ? 'image/jpeg' : 'image/png';
+      const croppedBlob = await createCroppedImage(imageToCrop, croppedAreaPixels, outputSize, format, isCelebration ? 0.8 : undefined);
+      const ext = isCelebration ? 'jpg' : 'png';
+      const croppedFile = new File([croppedBlob], `cropped-image.${ext}`, { type: format });
 
-      setImageFile(croppedFile);
-      setImageChanged(true);
-      setImagePreview(URL.createObjectURL(croppedBlob));
+      if (cropTarget === 'celebrationImage') {
+        setCelebrationImageFile(croppedFile);
+        setCelebrationImageChanged(true);
+        setCelebrationImagePreview(URL.createObjectURL(croppedBlob));
+      } else {
+        setImageFile(croppedFile);
+        setImageChanged(true);
+        setImagePreview(URL.createObjectURL(croppedBlob));
+      }
       setCropDialogOpen(false);
       setImageToCrop(null);
     } catch (error) {
@@ -268,7 +288,8 @@ const AdminPlayerEditViewUi = ({
     setCropDialogOpen(false);
     setImageToCrop(null);
     // Reset the file input
-    const fileInput = document.getElementById('image') as HTMLInputElement;
+    const inputId = cropTarget === 'celebrationImage' ? 'celebrationImage' : 'image';
+    const fileInput = document.getElementById(inputId) as HTMLInputElement;
     if (fileInput) fileInput.value = '';
   };
 
@@ -337,6 +358,15 @@ const AdminPlayerEditViewUi = ({
         };
       }
 
+      // Handle celebration image file upload
+      if (celebrationImageChanged && celebrationImageFile) {
+        const fileBase64 = await fileToBase64(celebrationImageFile);
+        dto.celebrationImage = {
+          fileBase64,
+          mimeType: celebrationImageFile.type,
+        };
+      }
+
       // If nothing changed, just go back (no-op update)
       if (Object.keys(dto).length === 0) {
         router.push('/admin/players');
@@ -366,7 +396,7 @@ const AdminPlayerEditViewUi = ({
     }
   };
 
-  const isDirty = Object.values(changedFields).some(Boolean) || imageChanged;
+  const isDirty = Object.values(changedFields).some(Boolean) || imageChanged || celebrationImageChanged;
   const dirtyClass = (field: FieldName) => (changedFields[field] ? 'ring-1 ring-primary bg-primary/5' : '');
 
   const selectedTeamName = useMemo(() => {
@@ -565,6 +595,33 @@ const AdminPlayerEditViewUi = ({
                 </Field>
 
                 <Field>
+                  <FieldLabel htmlFor="celebrationImage">Celebration Image</FieldLabel>
+                  <FieldContent>
+                    {celebrationImagePreview && (
+                      <div className="mb-2">
+                        <Image
+                          src={celebrationImagePreview}
+                          alt="Celebration preview"
+                          width={96}
+                          height={96}
+                          className="rounded-xl object-cover border"
+                          unoptimized
+                        />
+                      </div>
+                    )}
+                    <Input
+                      id="celebrationImage"
+                      name="celebrationImage"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, 'celebrationImage')}
+                      className={celebrationImageChanged ? 'ring-1 ring-primary bg-primary/5' : ''}
+                    />
+                    <FieldDescription>Upload a celebration image (square, rounded corners)</FieldDescription>
+                  </FieldContent>
+                </Field>
+
+                <Field>
                   <FieldLabel>Position *</FieldLabel>
                   <FieldContent>
                     <Select
@@ -685,11 +742,16 @@ const AdminPlayerEditViewUi = ({
                 crop={crop}
                 zoom={zoom}
                 aspect={1}
-                cropShape="round"
+                cropShape={cropTarget === 'celebrationImage' ? 'rect' : 'round'}
                 showGrid={false}
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
                 onCropComplete={onCropComplete}
+                style={
+                  cropTarget === 'celebrationImage'
+                    ? { cropAreaStyle: { borderRadius: '0.75rem' } }
+                    : undefined
+                }
               />
             )}
           </div>

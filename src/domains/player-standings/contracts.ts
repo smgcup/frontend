@@ -15,7 +15,6 @@ export type StandingsCategory = {
 
 export type PlayersPageData = {
   standings: StandingsCategory[];
-  loading: boolean;
   loadingMore: boolean;
   loadMore: () => void;
   hasMore: boolean;

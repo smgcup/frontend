@@ -1,8 +1,10 @@
 import React from 'react';
+import { BackButton } from '@/components/BackButton';
 
 const Page = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <BackButton />
       <h1 className="text-3xl font-bold text-center mb-8">Правилник на SMG Champions League</h1>
 
       <section className="space-y-2">

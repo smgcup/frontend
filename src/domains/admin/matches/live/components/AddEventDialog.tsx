@@ -38,6 +38,7 @@ const EVENT_TYPES = [
   { value: MatchEventType.GoalkeeperSave, label: 'Goalkeeper Save' },
   { value: MatchEventType.PenaltyScored, label: 'Penalty Scored' },
   { value: MatchEventType.PenaltyMissed, label: 'Penalty Missed' },
+  { value: MatchEventType.PenaltySave, label: 'Penalty Save' },
   { value: MatchEventType.OwnGoal, label: 'Own Goal' },
   { value: MatchEventType.HalfTime, label: 'Half Time' },
   { value: MatchEventType.FullTime, label: 'Full Time' },
@@ -55,6 +56,7 @@ const requiresPlayer = (type: MatchEventType): boolean => {
     MatchEventType.RedCard,
     MatchEventType.PenaltyScored,
     MatchEventType.PenaltyMissed,
+    MatchEventType.PenaltySave,
     MatchEventType.OwnGoal,
   ].includes(type);
 };
@@ -63,7 +65,7 @@ const requiresAssistPlayer = (type: MatchEventType): boolean => {
 };
 
 const requiresGoalkeeper = (type: MatchEventType): boolean => {
-  return [MatchEventType.GoalkeeperSave].includes(type);
+  return [MatchEventType.GoalkeeperSave, MatchEventType.PenaltySave].includes(type);
 };
 
 const positionShortLabel = (position: PlayerPosition | undefined) => {

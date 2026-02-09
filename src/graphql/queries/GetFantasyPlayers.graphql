@@ -1,0 +1,7 @@
+query GetFantasyPlayers {
+  fantasyPlayers {
+    playerId
+    displayName
+    price
+  }
+}

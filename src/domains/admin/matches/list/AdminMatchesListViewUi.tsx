@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SearchInput } from '@/domains/admin/components/search-input';
 import { Plus, Calendar } from 'lucide-react';
 import AdminPageHeader from '@/domains/admin/components/AdminPageHeader';
 import { type Match } from '@/domains/matches/contracts';
@@ -11,6 +13,12 @@ import AdminMatchCard from './components/AdminMatchCard';
 
 type AdminMatchesListViewUiProps = {
   matches: Match[];
+  totalCount: number;
+  rounds: number[];
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  selectedRound: number | 'all';
+  onRoundChange: (round: number | 'all') => void;
   deleteLoading: boolean;
   onDeleteMatch: (id: string) => Promise<void>;
   onStartMatch: (id: string) => Promise<void>;
@@ -18,6 +26,12 @@ type AdminMatchesListViewUiProps = {
 
 const AdminMatchesListViewUi = ({
   matches,
+  totalCount,
+  rounds,
+  searchQuery,
+  onSearchChange,
+  selectedRound,
+  onRoundChange,
   deleteLoading,
   onDeleteMatch,
   onStartMatch,
@@ -87,11 +101,14 @@ const AdminMatchesListViewUi = ({
     }
   }, [showMatchId]);
 
+  const isFiltered = searchQuery.trim() || selectedRound !== 'all';
+  const subtitle = isFiltered ? `${matches.length} of ${totalCount} matches` : `${totalCount} total`;
+
   return (
     <div className="space-y-8 py-4 lg:p-10">
       <AdminPageHeader
         title="Matches"
-        subtitle={`${matches.length} total`}
+        subtitle={subtitle}
         description="Create, edit, and manage matches"
         actions={
           <Button asChild className="gap-2 w-full sm:w-auto">
@@ -103,20 +120,57 @@ const AdminMatchesListViewUi = ({
         }
       />
 
+      {totalCount > 0 && (
+        <div className="grid grid-cols-[2fr_1fr] gap-3 w-full">
+          <SearchInput placeholder="Search by team..." value={searchQuery} onChange={onSearchChange} />
+          <div className="min-w-0 w-full flex justify-end">
+            <Select
+              value={selectedRound === 'all' ? 'all' : String(selectedRound)}
+              onValueChange={(v) => onRoundChange(v === 'all' ? 'all' : Number(v))}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Round" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All rounds</SelectItem>
+                {rounds.map((r) => (
+                  <SelectItem key={r} value={String(r)}>
+                    Round {r}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )}
+
       {matches.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <div className="rounded-full bg-muted p-4 mb-4">
               <Calendar className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No matches yet</h3>
-            <p className="text-muted-foreground text-center mb-6 max-w-sm">Get started by creating your first match</p>
-            <Button asChild>
-              <Link href="/admin/matches/create">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Match
-              </Link>
-            </Button>
+            {isFiltered ? (
+              <>
+                <h3 className="text-lg font-semibold mb-2">No matches found</h3>
+                <p className="text-muted-foreground text-center max-w-sm">
+                  No matches match your filters. Try a different search or round.
+                </p>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-semibold mb-2">No matches yet</h3>
+                <p className="text-muted-foreground text-center mb-6 max-w-sm">
+                  Get started by creating your first match
+                </p>
+                <Button asChild>
+                  <Link href="/admin/matches/create">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Match
+                  </Link>
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       ) : (

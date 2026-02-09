@@ -2,12 +2,14 @@ import React from 'react';
 import { News } from './contracts';
 import NewsCard from './components/NewsCard';
 import Link from 'next/link';
+import { BackButton } from '@/components/BackButton';
 type NewsViewUiProps = {
   news: News[];
 };
 const NewsViewUi = ({ news }: NewsViewUiProps) => {
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8">
+    <section className="pb-16 pt-8 px-4 sm:px-6 lg:px-8">
+      <BackButton />
       <div className="container mx-auto max-w-7xl">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
           News{' '}

@@ -19,6 +19,7 @@ export type Scalars = {
 export type AdminLoginResult = {
   __typename?: 'AdminLoginResult';
   ok: Scalars['Boolean']['output'];
+  token: Scalars['String']['output'];
 };
 
 export type AuthResponse = {
@@ -32,6 +33,12 @@ export type AuthResponse = {
 export type CreateAllPlayerAppearancesDto = {
   appearances: Array<PlayerAppearanceInput>;
   matchId: Scalars['String']['input'];
+};
+
+export type CreateFantasyPlayerDto = {
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  playerId: Scalars['String']['input'];
+  price: Scalars['Float']['input'];
 };
 
 export type CreateMatchDto = {
@@ -60,6 +67,7 @@ export type CreateNewsDto = {
 };
 
 export type CreatePlayerDto = {
+  celebrationImageUrl?: InputMaybe<Scalars['String']['input']>;
   class?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth: Scalars['Date']['input'];
   firstName: Scalars['String']['input'];
@@ -81,6 +89,14 @@ export type CreatePredictionDto = {
 
 export type CreateTeamDto = {
   name: Scalars['String']['input'];
+};
+
+export type FantasyPlayer = {
+  __typename?: 'FantasyPlayer';
+  displayName?: Maybe<Scalars['String']['output']>;
+  player: Player;
+  playerId: Scalars['ID']['output'];
+  price: Scalars['Float']['output'];
 };
 
 export type ImageUploadInput = {
@@ -136,6 +152,7 @@ export enum MatchEventType {
   HalfTime = 'HALF_TIME',
   OwnGoal = 'OWN_GOAL',
   PenaltyMissed = 'PENALTY_MISSED',
+  PenaltySave = 'PENALTY_SAVE',
   PenaltyScored = 'PENALTY_SCORED',
   RedCard = 'RED_CARD',
   YellowCard = 'YELLOW_CARD'
@@ -156,14 +173,15 @@ export enum MatchStatus {
 export type Mutation = {
   __typename?: 'Mutation';
   adminLogin: AdminLoginResult;
-  adminLogout: AdminLoginResult;
   createAllPlayerAppearances: Array<PlayerAppearance>;
+  createFantasyPlayer: FantasyPlayer;
   createMatch: Match;
   createMatchEvent: MatchEvent;
   createNews: News;
   createPlayer: Player;
   createPrediction: Prediction;
   createTeam: Team;
+  deleteFantasyPlayer: FantasyPlayer;
   deleteMatch: Match;
   deleteMatchEvent: MatchEvent;
   deleteNews: News;
@@ -174,6 +192,7 @@ export type Mutation = {
   login: AuthResponse;
   register: AuthResponse;
   startMatch: Match;
+  updateFantasyPlayer: FantasyPlayer;
   updateMatch: Match;
   updateNews: Scalars['Boolean']['output'];
   updatePlayer: Player;
@@ -191,6 +210,11 @@ export type MutationAdminLoginArgs = {
 
 export type MutationCreateAllPlayerAppearancesArgs = {
   input: CreateAllPlayerAppearancesDto;
+};
+
+
+export type MutationCreateFantasyPlayerArgs = {
+  createFantasyPlayerDto: CreateFantasyPlayerDto;
 };
 
 
@@ -221,6 +245,11 @@ export type MutationCreatePredictionArgs = {
 
 export type MutationCreateTeamArgs = {
   createTeamDto: CreateTeamDto;
+};
+
+
+export type MutationDeleteFantasyPlayerArgs = {
+  playerId: Scalars['String']['input'];
 };
 
 
@@ -272,6 +301,12 @@ export type MutationRegisterArgs = {
 
 export type MutationStartMatchArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateFantasyPlayerArgs = {
+  playerId: Scalars['String']['input'];
+  updateFantasyPlayerDto: UpdateFantasyPlayerDto;
 };
 
 
@@ -334,6 +369,7 @@ export type PaginatedPlayersResponse = {
 export type Player = {
   __typename?: 'Player';
   age: Scalars['Float']['output'];
+  celebrationImageUrl?: Maybe<Scalars['String']['output']>;
   class?: Maybe<Scalars['String']['output']>;
   dateOfBirth: Scalars['Date']['output'];
   firstName: Scalars['String']['output'];
@@ -391,6 +427,8 @@ export enum PreferredFoot {
 
 export type Query = {
   __typename?: 'Query';
+  fantasyPlayerByPlayerId: FantasyPlayer;
+  fantasyPlayers: Array<FantasyPlayer>;
   health: Scalars['String']['output'];
   matchById: Match;
   matchEvents: Array<MatchEvent>;
@@ -411,6 +449,11 @@ export type Query = {
   teams: Array<Team>;
   topPlayers: Array<Player>;
   user: User;
+};
+
+
+export type QueryFantasyPlayerByPlayerIdArgs = {
+  playerId: Scalars['String']['input'];
 };
 
 
@@ -535,6 +578,11 @@ export type TeamStats = {
   yellowCards: Scalars['Float']['output'];
 };
 
+export type UpdateFantasyPlayerDto = {
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  price?: InputMaybe<Scalars['Float']['input']>;
+};
+
 export type UpdateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
   firstOpponentId?: InputMaybe<Scalars['String']['input']>;
@@ -561,6 +609,7 @@ export type UpdatePlayerAppearanceDto = {
 };
 
 export type UpdatePlayerDto = {
+  celebrationImage?: InputMaybe<ImageUploadInput>;
   class?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['Date']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
@@ -622,6 +671,8 @@ export type UserPredictionStats = {
 
 export enum Queries {
   __typename = '__typename',
+  fantasyPlayerByPlayerId = 'fantasyPlayerByPlayerId',
+  fantasyPlayers = 'fantasyPlayers',
   health = 'health',
   matchById = 'matchById',
   matchEvents = 'matchEvents',
