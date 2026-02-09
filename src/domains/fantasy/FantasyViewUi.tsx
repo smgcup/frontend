@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Calendar, DollarSign, Eye } from 'lucide-react';
 import { DndContext, DragOverlay, PointerSensor, TouchSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
-import type { FantasyTeamData, FantasyAvailablePlayer, PlayerCardDisplayMode } from './contracts';
+import type { FantasyTeamData, FantasyAvailablePlayer, FantasyPlayer, PlayerCardDisplayMode } from './contracts';
 import FantasyPitchCard from './components/FantasyPitchCard';
 import PlayerListSidebar from './components/PlayerListSidebar';
 import PlayerCard from './components/PlayerCard';
+import PlayerDetailDrawer from './components/PlayerDetailDrawer';
 import { useFantasyTeam } from './hooks/useFantasyTeam';
 
 type FantasyViewUiProps = {
@@ -19,10 +20,8 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
   const [displayMode, setDisplayMode] = useState<PlayerCardDisplayMode>('points');
   const [showPrice, setShowPrice] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [gameweek, setGameweek] = useState(team.gameweek);
 
-  // dnd-kit generates dynamic accessibility IDs (e.g. DndDescribedBy-0) that can differ
-  // between server render and client hydration. Enable DnD only after mount to avoid
-  // hydration mismatches in Next.js.
   useEffect(() => {
     const raf = requestAnimationFrame(() => setIsMounted(true));
     return () => cancelAnimationFrame(raf);
@@ -33,15 +32,53 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
     bench,
     activePlayer,
     validTargets,
-    isDragging,
+    isSelectionActive,
+    isSubstituting,
     handleDragStart,
     handleDragEnd,
     handleDragCancel,
+    setCaptain,
+    startSubstitution,
+    handleSubstitutionClick,
   } = useFantasyTeam({ initialStarters: team.starters, initialBench: team.bench });
+
+  const [selectedPlayer, setSelectedPlayer] = useState<FantasyPlayer | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handlePlayerClick = useCallback(
+    (player: FantasyPlayer) => {
+      if (isSubstituting) {
+        handleSubstitutionClick(player);
+        return;
+      }
+      setSelectedPlayer(player);
+      setDrawerOpen(true);
+    },
+    [isSubstituting, handleSubstitutionClick],
+  );
+
+  const handleSetCaptain = useCallback(
+    (playerId: string) => {
+      setCaptain(playerId);
+      setSelectedPlayer((prev) => (prev ? { ...prev, isCaptain: prev.id === playerId } : null));
+      setDrawerOpen(false);
+    },
+    [setCaptain],
+  );
+
+  const handleSubstitute = useCallback(
+    (player: FantasyPlayer) => {
+      setDrawerOpen(false);
+      startSubstitution(player);
+    },
+    [startSubstitution],
+  );
 
   const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
   const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } });
   const sensors = useSensors(pointerSensor, touchSensor);
+
+  const substitutePlayerId = isSubstituting ? activePlayer?.id ?? null : null;
 
   return (
     <div className="min-h-screen bg-[#07000f]">
@@ -112,11 +149,15 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                   displayMode={displayMode}
                   showPrice={showPrice}
                   validTargets={validTargets}
-                  isDragActive={isDragging}
+                  isSelectionActive={isSelectionActive}
+                  substitutePlayerId={substitutePlayerId}
+                  onPlayerClick={handlePlayerClick}
+                  gameweek={gameweek}
+                  onGameweekChange={setGameweek}
                 />
 
                 <DragOverlay dropAnimation={null}>
-                  {activePlayer && (
+                  {activePlayer && !isSubstituting && (
                     <PlayerCard player={activePlayer} displayMode={displayMode} showPrice={showPrice} />
                   )}
                 </DragOverlay>
@@ -129,13 +170,24 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                 displayMode={displayMode}
                 showPrice={showPrice}
                 validTargets={new Set()}
-                isDragActive={false}
+                isSelectionActive={false}
                 enableDnd={false}
+                onPlayerClick={handlePlayerClick}
+                gameweek={gameweek}
+                onGameweekChange={setGameweek}
               />
             )}
           </main>
         </div>
       </div>
+
+      <PlayerDetailDrawer
+        player={selectedPlayer}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        onSetCaptain={handleSetCaptain}
+        onSubstitute={handleSubstitute}
+      />
     </div>
   );
 };

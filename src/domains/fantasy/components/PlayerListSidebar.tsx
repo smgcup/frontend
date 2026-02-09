@@ -144,10 +144,7 @@ const PlayerListSidebar = ({ players }: PlayerListSidebarProps) => {
         {filteredPlayers.map((player) => (
           <div
             key={player.id}
-            className={cn(
-              'px-4 py-2 grid grid-cols-[1fr_48px_48px] gap-2 items-center border-b border-white/5 transition-colors',
-              player.selected ? 'bg-cyan-400/10' : 'hover:bg-white/5',
-            )}
+            className="px-4 py-2 grid grid-cols-[1fr_48px_48px] gap-2 items-center border-b border-white/5 transition-colors hover:bg-white/5"
           >
             <div className="flex items-center gap-2 min-w-0">
               <span

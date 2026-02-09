@@ -9,6 +9,19 @@ export type JerseyStyle = {
 /** What the bottom bar of a PlayerCard should show */
 export type PlayerCardDisplayMode = 'points' | 'nextMatch';
 
+export type MatchResult = {
+  opponent: string;
+  points: number;
+};
+
+export type UpcomingFixture = {
+  opponent: string;
+  /** Difficulty 1-5, higher = harder */
+  difficulty: number;
+  /** Optional date/time string, e.g. "Sat 14 Dec 15:00" */
+  dateTime?: string;
+};
+
 export type FantasyPlayer = {
   id: string;
   name: string;
@@ -20,6 +33,18 @@ export type FantasyPlayer = {
   nextMatch?: string;
   /** Player price in millions, e.g. 4.9 */
   price?: number;
+  /** Team short code, e.g. "MCI" */
+  teamShort?: string;
+  /** Points per match average */
+  ptsPerMatch?: number;
+  /** Percentage of managers who selected this player */
+  selectedBy?: number;
+  /** Last N match results (form) */
+  form?: MatchResult[];
+  /** Upcoming fixtures */
+  fixtures?: UpcomingFixture[];
+  /** Player image URL */
+  imageUrl?: string;
 };
 
 /** A player entry for the sidebar list */
@@ -30,7 +55,6 @@ export type FantasyAvailablePlayer = {
   position: PlayerPosition;
   price: number;
   points: number;
-  selected?: boolean;
 };
 
 export type FantasyTeamData = {

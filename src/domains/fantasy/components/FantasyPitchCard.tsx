@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import pitchSvg from '@/public/icons/pitch.svg';
 import type { FantasyTeamData, FantasyPlayer, PlayerCardDisplayMode } from '../contracts';
 import DraggablePlayerCard from './DraggablePlayerCard';
@@ -13,22 +14,33 @@ type FantasyPitchCardProps = {
   displayMode: PlayerCardDisplayMode;
   showPrice: boolean;
   validTargets: Set<string>;
-  isDragActive: boolean;
+  isSelectionActive: boolean;
+  substitutePlayerId?: string | null;
   /** Disable dnd-kit on initial SSR render to avoid hydration mismatches */
   enableDnd?: boolean;
+  onPlayerClick?: (player: FantasyPlayer) => void;
+  gameweek: number;
+  onGameweekChange?: (gw: number) => void;
 };
 
 type GameweekNavButtonProps = {
   ariaLabel: string;
   icon: LucideIcon;
+  disabled?: boolean;
+  onClick?: () => void;
 };
 
-const GameweekNavButton = ({ ariaLabel, icon: Icon }: GameweekNavButtonProps) => {
+const GameweekNavButton = ({ ariaLabel, icon: Icon, disabled, onClick }: GameweekNavButtonProps) => {
   return (
     <button
       type="button"
       aria-label={ariaLabel}
-      className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        'h-8 w-8 rounded-full flex items-center justify-center transition-colors',
+        disabled ? 'bg-white/5 text-white/20 cursor-not-allowed' : 'bg-white/10 hover:bg-white/20 text-white',
+      )}
     >
       <Icon className="h-4 w-4" />
     </button>
@@ -42,8 +54,12 @@ const FantasyPitchCard = ({
   displayMode,
   showPrice,
   validTargets,
-  isDragActive,
+  isSelectionActive,
+  substitutePlayerId,
   enableDnd = true,
+  onPlayerClick,
+  gameweek,
+  onGameweekChange,
 }: FantasyPitchCardProps) => {
   const gk = starters.filter((p) => p.position === 'GK');
   const def = starters.filter((p) => p.position === 'DEF');
@@ -54,14 +70,43 @@ const FantasyPitchCard = ({
   const averagePoints = team.averagePoints ?? 0;
   const highestPoints = team.highestPoints ?? 0;
 
+  const renderPlayer = (p: FantasyPlayer, compact?: boolean) =>
+    enableDnd ? (
+      <DraggablePlayerCard
+        key={p.id}
+        player={p}
+        displayMode={displayMode}
+        showPrice={showPrice}
+        compact={compact}
+        isValidTarget={validTargets.has(p.id)}
+        isSelectionActive={isSelectionActive}
+        isSubstituteSource={p.id === substitutePlayerId}
+        onPlayerClick={onPlayerClick}
+      />
+    ) : (
+      <div key={p.id} className="cursor-pointer" onClick={() => onPlayerClick?.(p)}>
+        <PlayerCard player={p} displayMode={displayMode} showPrice={showPrice} compact={compact} />
+      </div>
+    );
+
   return (
     <div className=" max-w-lg mx-auto overflow-hidden rounded-2xl bg-linear-to-b from-[#1a0028] via-[#120020] to-[#07000f] ring-1 ring-white/10">
       {/* Gameweek header */}
       <div className="px-4 pt-5 pb-3">
         <div className="flex items-center justify-center gap-4">
-          <GameweekNavButton ariaLabel="Previous gameweek" icon={ChevronLeft} />
-          <div className="text-white font-extrabold text-lg tracking-tight">Gameweek {team.gameweek}</div>
-          <GameweekNavButton ariaLabel="Next gameweek" icon={ChevronRight} />
+          <GameweekNavButton
+            ariaLabel="Previous gameweek"
+            icon={ChevronLeft}
+            disabled={gameweek <= 1}
+            onClick={() => onGameweekChange?.(gameweek - 1)}
+          />
+          <div className="text-white font-extrabold text-lg tracking-tight">Gameweek {gameweek}</div>
+          <GameweekNavButton
+            ariaLabel="Next gameweek"
+            icon={ChevronRight}
+            disabled={gameweek >= 10}
+            onClick={() => onGameweekChange?.(gameweek + 1)}
+          />
         </div>
 
         {/* Stats row */}
@@ -88,7 +133,7 @@ const FantasyPitchCard = ({
       </div>
 
       {/* Pitch */}
-      <div className="w-full flex flex-col items-center mt-3 bg-red-500">
+      <div className="w-full flex flex-col items-center mt-3">
         <div className="relative w-full max-w-lg h-[440px] overflow-hidden">
           {/* Pitch background */}
           <div className="absolute inset-0 z-0 overflow-hidden">
@@ -105,95 +150,22 @@ const FantasyPitchCard = ({
 
           {/* Players on pitch */}
           <div className="absolute inset-0 z-10 flex flex-col justify-between">
-            <div className="flex justify-center gap-1">
-              {gk.map((p) =>
-                enableDnd ? (
-                  <DraggablePlayerCard
-                    key={p.id}
-                    player={p}
-                    displayMode={displayMode}
-                    showPrice={showPrice}
-                    isValidTarget={validTargets.has(p.id)}
-                    isDragActive={isDragActive}
-                  />
-                ) : (
-                  <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
-                ),
-              )}
-            </div>
-
-            <div className="flex justify-around px-2">
-              {def.map((p) =>
-                enableDnd ? (
-                  <DraggablePlayerCard
-                    key={p.id}
-                    player={p}
-                    displayMode={displayMode}
-                    showPrice={showPrice}
-                    isValidTarget={validTargets.has(p.id)}
-                    isDragActive={isDragActive}
-                  />
-                ) : (
-                  <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
-                ),
-              )}
-            </div>
-
-            <div className="flex justify-around px-2">
-              {mid.map((p) =>
-                enableDnd ? (
-                  <DraggablePlayerCard
-                    key={p.id}
-                    player={p}
-                    displayMode={displayMode}
-                    showPrice={showPrice}
-                    isValidTarget={validTargets.has(p.id)}
-                    isDragActive={isDragActive}
-                  />
-                ) : (
-                  <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
-                ),
-              )}
-            </div>
-
-            <div className="flex justify-center gap-1">
-              {fwd.map((p) =>
-                enableDnd ? (
-                  <DraggablePlayerCard
-                    key={p.id}
-                    player={p}
-                    displayMode={displayMode}
-                    showPrice={showPrice}
-                    isValidTarget={validTargets.has(p.id)}
-                    isDragActive={isDragActive}
-                  />
-                ) : (
-                  <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
-                ),
-              )}
-            </div>
+            <div className="flex justify-center gap-1">{gk.map((p) => renderPlayer(p))}</div>
+            <div className="flex justify-around px-2">{def.map((p) => renderPlayer(p))}</div>
+            <div className="flex justify-around px-2">{mid.map((p) => renderPlayer(p))}</div>
+            <div className="flex justify-center gap-1">{fwd.map((p) => renderPlayer(p))}</div>
           </div>
         </div>
       </div>
 
       {/* Bench */}
-      <div className="relative z-20 flex justify-center px-3">
+      <div className="mt-2 relative z-20 flex justify-center px-3">
         <div className="rounded-xl backdrop-blur-[2px] bg-white/15 border border-white/20 px-6 sm:px-4 py-3 shadow-lg">
           <div className="grid grid-cols-3 gap-2 justify-items-center">
             {bench.map((player) => (
               <div key={player.id} className="flex flex-col items-center">
                 <p className="text-[9px] font-bold text-white/40 mb-1">{player.position}</p>
-                {enableDnd ? (
-                  <DraggablePlayerCard
-                    player={player}
-                    displayMode={displayMode}
-                    showPrice={showPrice}
-                    isValidTarget={validTargets.has(player.id)}
-                    isDragActive={isDragActive}
-                  />
-                ) : (
-                  <PlayerCard player={player} displayMode={displayMode} showPrice={showPrice} compact />
-                )}
+                {renderPlayer(player, true)}
               </div>
             ))}
           </div>

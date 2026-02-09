@@ -39,18 +39,19 @@ const PlayerCard = ({
     >
       {/* Price badge overlay */}
       {showPrice && player.price != null && (
-        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center gap-1 py-0.5 bg-black/60 backdrop-blur-sm">
-          {onPriceClose && (
-            <button
-              type="button"
-              onClick={onPriceClose}
-              className="flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white/20 hover:bg-white/40 transition-colors"
-              aria-label="Hide price"
-            >
-              <X className="w-2 h-2 text-white" />
-            </button>
-          )}
-          <span className="text-[10px] font-bold text-cyan-300">
+        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center gap-1 py-0.5">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPriceClose?.();
+            }}
+            className="flex items-center justify-center w-4 h-4 rounded-full bg-[#37003c] shrink-0"
+            aria-label="Hide price"
+          >
+            <X className="w-2.5 h-2.5 text-white/80" />
+          </button>
+          <span className="text-[11px] font-bold text-white">
             {'£'}
             {player.price.toFixed(1)}m
           </span>
