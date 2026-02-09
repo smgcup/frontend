@@ -107,6 +107,7 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
                       alt={`${match.mvp.firstName} ${match.mvp.lastName}`}
                       fill
                       className="object-cover object-top"
+                      unoptimized
                     />
                   </div>
                 </div>
