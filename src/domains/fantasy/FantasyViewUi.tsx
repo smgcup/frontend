@@ -22,6 +22,7 @@ import type {
 } from './contracts';
 import FantasyPitchCard from './components/FantasyPitchCard';
 import PlayerList from './components/PlayerList';
+import PlayerCardGrid from './components/PlayerCardGrid';
 import PlayerCard from './components/PlayerCard';
 import PlayerDetailDrawer from './components/PlayerDetailDrawer';
 import { useFantasyTeam } from './hooks/useFantasyTeam';
@@ -74,7 +75,11 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
   const handleEmptySlotClick = useCallback((position: PlayerPosition, oldPlayerId: string) => {
     setPlayerListPosition(position);
     setReplacingPlayerId(oldPlayerId);
-    setPlayerListOpen(true);
+    // On mobile (below lg breakpoint), open the bottom drawer
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+    if (!isDesktop) {
+      setPlayerListOpen(true);
+    }
   }, []);
 
   const handlePlayerListSelect = useCallback(
@@ -83,6 +88,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
         replacePlayer(replacingPlayerId, incoming);
       }
       setPlayerListOpen(false);
+      setPlayerListPosition('ALL');
       setReplacingPlayerId(null);
     },
     [replacingPlayerId, replacePlayer],
@@ -125,15 +131,18 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
 
   return (
     <div className="min-h-screen bg-[#07000f]" onClick={isSubstituting ? cancelSubstitution : undefined}>
-      <div className="mx-auto w-full max-w-6xl px-2 pt-0 pb-24 lg:pt-4">
+      <div className="mx-auto w-full max-w-7xl px-2 pt-0 pb-24 lg:pt-4">
         <div className="lg:flex lg:gap-4">
-          {/* Desktop player list (left) */}
-          <aside className="hidden lg:block lg:w-[280px] xl:w-[320px] lg:shrink-0 h-[calc(100vh-56px)] sticky top-14">
-            <PlayerList players={availablePlayers} />
+          {/* Desktop player card grid (left) */}
+          <aside className="hidden lg:block lg:flex-1 min-w-0 h-[calc(100vh-72px)] sticky top-[72px] overflow-y-auto hide-scrollbar">
+            <PlayerCardGrid
+              players={availablePlayers}
+              initialPositionFilter={playerListPosition}
+              onPlayerSelect={replacingPlayerId ? handlePlayerListSelect : undefined}
+            />
           </aside>
 
-          {/* Team card (right) */}
-          <main className="flex-1 min-w-0">
+          <main className="lg:w-[480px] lg:shrink-0">
             {/* Tabs: Pick Team | Transfers - full width on mobile, sticky when scrolling */}
             <div className="sticky top-[52px] z-30 -mx-2 px-0 pt-0 border-b border-white/10 mb-4 bg-[#07000f] lg:static lg:mx-0 lg:px-0 lg:pt-0 lg:pb-0 lg:bg-transparent lg:flex lg:justify-center">
               <div className="flex w-full bg-white/6 rounded-none lg:rounded-lg overflow-hidden lg:inline-flex lg:w-auto lg:gap-1">
