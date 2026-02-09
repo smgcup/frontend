@@ -61,7 +61,7 @@ const PlayerCard = ({
       {player.isCaptain && (
         <div
           className={cn(
-            'absolute z-20 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black text-white border border-white/50 shadow-md',
+            'absolute z-20 w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black text-white border border-white/50 shadow-md',
             showPrice ? 'top-5 right-0.5' : 'top-0.5 right-0.5',
             fantasyTheme.bg,
           )}
@@ -71,13 +71,7 @@ const PlayerCard = ({
       )}
 
       {/* Jersey area */}
-      <div
-        className={cn(
-          'flex items-center justify-center',
-          compact ? 'py-1' : 'py-1.5',
-          showPrice && 'pt-4',
-        )}
-      >
+      <div className={cn('flex items-center justify-center', compact ? 'py-1' : 'py-1.5', showPrice && 'pt-4')}>
         <JerseyIcon
           color={player.jersey.color}
           textColor={player.jersey.textColor}

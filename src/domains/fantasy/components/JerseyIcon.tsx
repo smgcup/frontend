@@ -32,6 +32,8 @@ const JerseyIcon = ({ color, textColor, label, size = 64 }: JerseyIconProps) => 
         fontSize="22"
         fontWeight="bold"
         fontFamily="Inter, sans-serif"
+        style={{ userSelect: 'none' }}
+        pointerEvents="none"
       >
         {label}
       </text>

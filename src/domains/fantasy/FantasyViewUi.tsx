@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Calendar, DollarSign, Eye } from 'lucide-react';
+import { DndContext, DragOverlay, PointerSensor, TouchSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
 import type { FantasyTeamData, FantasyAvailablePlayer, PlayerCardDisplayMode } from './contracts';
 import FantasyPitchCard from './components/FantasyPitchCard';
 import PlayerListSidebar from './components/PlayerListSidebar';
+import PlayerCard from './components/PlayerCard';
+import { useFantasyTeam } from './hooks/useFantasyTeam';
 
 type FantasyViewUiProps = {
   team: FantasyTeamData;
@@ -15,10 +18,34 @@ type FantasyViewUiProps = {
 const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
   const [displayMode, setDisplayMode] = useState<PlayerCardDisplayMode>('points');
   const [showPrice, setShowPrice] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // dnd-kit generates dynamic accessibility IDs (e.g. DndDescribedBy-0) that can differ
+  // between server render and client hydration. Enable DnD only after mount to avoid
+  // hydration mismatches in Next.js.
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setIsMounted(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const {
+    starters,
+    bench,
+    activePlayer,
+    validTargets,
+    isDragging,
+    handleDragStart,
+    handleDragEnd,
+    handleDragCancel,
+  } = useFantasyTeam({ initialStarters: team.starters, initialBench: team.bench });
+
+  const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
+  const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } });
+  const sensors = useSensors(pointerSensor, touchSensor);
 
   return (
     <div className="min-h-screen bg-[#07000f]">
-      <div className="mx-auto w-full max-w-6xl px-2 pt-4 pb-24 bg-pink-500">
+      <div className="mx-auto w-full max-w-6xl px-2 pt-4 pb-24">
         <div className="lg:flex lg:gap-4">
           {/* Desktop player list (left) */}
           <aside className="hidden lg:block lg:w-[280px] xl:w-[320px] lg:shrink-0 h-[calc(100vh-56px)] sticky top-14">
@@ -70,7 +97,42 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
               </button>
             </div>
 
-            <FantasyPitchCard team={team} displayMode={displayMode} showPrice={showPrice} />
+            {isMounted ? (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onDragCancel={handleDragCancel}
+              >
+                <FantasyPitchCard
+                  team={team}
+                  starters={starters}
+                  bench={bench}
+                  displayMode={displayMode}
+                  showPrice={showPrice}
+                  validTargets={validTargets}
+                  isDragActive={isDragging}
+                />
+
+                <DragOverlay dropAnimation={null}>
+                  {activePlayer && (
+                    <PlayerCard player={activePlayer} displayMode={displayMode} showPrice={showPrice} />
+                  )}
+                </DragOverlay>
+              </DndContext>
+            ) : (
+              <FantasyPitchCard
+                team={team}
+                starters={starters}
+                bench={bench}
+                displayMode={displayMode}
+                showPrice={showPrice}
+                validTargets={new Set()}
+                isDragActive={false}
+                enableDnd={false}
+              />
+            )}
           </main>
         </div>
       </div>

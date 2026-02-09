@@ -2,13 +2,20 @@ import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import pitchSvg from '@/public/icons/pitch.svg';
-import type { FantasyTeamData, PlayerCardDisplayMode } from '../contracts';
+import type { FantasyTeamData, FantasyPlayer, PlayerCardDisplayMode } from '../contracts';
+import DraggablePlayerCard from './DraggablePlayerCard';
 import PlayerCard from './PlayerCard';
 
 type FantasyPitchCardProps = {
   team: FantasyTeamData;
+  starters: FantasyPlayer[];
+  bench: FantasyPlayer[];
   displayMode: PlayerCardDisplayMode;
   showPrice: boolean;
+  validTargets: Set<string>;
+  isDragActive: boolean;
+  /** Disable dnd-kit on initial SSR render to avoid hydration mismatches */
+  enableDnd?: boolean;
 };
 
 type GameweekNavButtonProps = {
@@ -28,18 +35,27 @@ const GameweekNavButton = ({ ariaLabel, icon: Icon }: GameweekNavButtonProps) =>
   );
 };
 
-const FantasyPitchCard = ({ team, displayMode, showPrice }: FantasyPitchCardProps) => {
-  const gk = team.starters.filter((p) => p.position === 'GK');
-  const def = team.starters.filter((p) => p.position === 'DEF');
-  const mid = team.starters.filter((p) => p.position === 'MID');
-  const fwd = team.starters.filter((p) => p.position === 'FWD');
+const FantasyPitchCard = ({
+  team,
+  starters,
+  bench,
+  displayMode,
+  showPrice,
+  validTargets,
+  isDragActive,
+  enableDnd = true,
+}: FantasyPitchCardProps) => {
+  const gk = starters.filter((p) => p.position === 'GK');
+  const def = starters.filter((p) => p.position === 'DEF');
+  const mid = starters.filter((p) => p.position === 'MID');
+  const fwd = starters.filter((p) => p.position === 'FWD');
 
   const latestPoints = team.latestPoints ?? 0;
   const averagePoints = team.averagePoints ?? 0;
   const highestPoints = team.highestPoints ?? 0;
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-linear-to-b from-[#1a0028] via-[#120020] to-[#07000f] ring-1 ring-white/10">
+    <div className=" max-w-lg mx-auto overflow-hidden rounded-2xl bg-linear-to-b from-[#1a0028] via-[#120020] to-[#07000f] ring-1 ring-white/10">
       {/* Gameweek header */}
       <div className="px-4 pt-5 pb-3">
         <div className="flex items-center justify-center gap-4">
@@ -72,11 +88,11 @@ const FantasyPitchCard = ({ team, displayMode, showPrice }: FantasyPitchCardProp
       </div>
 
       {/* Pitch */}
-      <div className="w-full flex flex-col items-center mt-3">
+      <div className="w-full flex flex-col items-center mt-3 bg-red-500">
         <div className="relative w-full max-w-lg h-[440px] overflow-hidden">
           {/* Pitch background */}
           <div className="absolute inset-0 z-0 overflow-hidden">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[625px] h-[460px]">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[625px] h-[440px]">
               <Image
                 src={pitchSvg || '/placeholder.svg'}
                 alt="Football pitch"
@@ -88,45 +104,96 @@ const FantasyPitchCard = ({ team, displayMode, showPrice }: FantasyPitchCardProp
           </div>
 
           {/* Players on pitch */}
-          <div className="absolute inset-0 z-10 flex flex-col justify-between py-2">
+          <div className="absolute inset-0 z-10 flex flex-col justify-between">
             <div className="flex justify-center gap-1">
-              {gk.map((p) => (
-                <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
-              ))}
+              {gk.map((p) =>
+                enableDnd ? (
+                  <DraggablePlayerCard
+                    key={p.id}
+                    player={p}
+                    displayMode={displayMode}
+                    showPrice={showPrice}
+                    isValidTarget={validTargets.has(p.id)}
+                    isDragActive={isDragActive}
+                  />
+                ) : (
+                  <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
+                ),
+              )}
             </div>
 
             <div className="flex justify-around px-2">
-              {def.map((p) => (
-                <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
-              ))}
+              {def.map((p) =>
+                enableDnd ? (
+                  <DraggablePlayerCard
+                    key={p.id}
+                    player={p}
+                    displayMode={displayMode}
+                    showPrice={showPrice}
+                    isValidTarget={validTargets.has(p.id)}
+                    isDragActive={isDragActive}
+                  />
+                ) : (
+                  <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
+                ),
+              )}
             </div>
 
             <div className="flex justify-around px-2">
-              {mid.map((p) => (
-                <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
-              ))}
+              {mid.map((p) =>
+                enableDnd ? (
+                  <DraggablePlayerCard
+                    key={p.id}
+                    player={p}
+                    displayMode={displayMode}
+                    showPrice={showPrice}
+                    isValidTarget={validTargets.has(p.id)}
+                    isDragActive={isDragActive}
+                  />
+                ) : (
+                  <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
+                ),
+              )}
             </div>
 
             <div className="flex justify-center gap-1">
-              {fwd.map((p) => (
-                <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
-              ))}
+              {fwd.map((p) =>
+                enableDnd ? (
+                  <DraggablePlayerCard
+                    key={p.id}
+                    player={p}
+                    displayMode={displayMode}
+                    showPrice={showPrice}
+                    isValidTarget={validTargets.has(p.id)}
+                    isDragActive={isDragActive}
+                  />
+                ) : (
+                  <PlayerCard key={p.id} player={p} displayMode={displayMode} showPrice={showPrice} />
+                ),
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Bench */}
-      <div className="relative z-20 -mt-6 flex justify-center px-3">
-        <div className="rounded-xl backdrop-blur-[2px] bg-white/15 border border-white/20 px-4 py-3 shadow-lg">
-          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest text-center mb-2">
-            Substitutes
-          </p>
+      <div className="relative z-20 flex justify-center px-3">
+        <div className="rounded-xl backdrop-blur-[2px] bg-white/15 border border-white/20 px-6 sm:px-4 py-3 shadow-lg">
           <div className="grid grid-cols-3 gap-2 justify-items-center">
-            {team.bench.map((player, i) => (
+            {bench.map((player) => (
               <div key={player.id} className="flex flex-col items-center">
-                <p className="text-[9px] font-bold text-white/40 mb-1">{i === 0 ? 'GKP' : `${i}.`}</p>
-                <PlayerCard player={player} displayMode={displayMode} showPrice={showPrice} />
+                <p className="text-[9px] font-bold text-white/40 mb-1">{player.position}</p>
+                {enableDnd ? (
+                  <DraggablePlayerCard
+                    player={player}
+                    displayMode={displayMode}
+                    showPrice={showPrice}
+                    isValidTarget={validTargets.has(player.id)}
+                    isDragActive={isDragActive}
+                  />
+                ) : (
+                  <PlayerCard player={player} displayMode={displayMode} showPrice={showPrice} compact />
+                )}
               </div>
             ))}
           </div>
