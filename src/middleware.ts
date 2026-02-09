@@ -1,4 +1,4 @@
-import { AUTH_COOKIE_NAME } from '@/lib/auth';
+import { ADMIN_AUTH_COOKIE_NAME, AUTH_COOKIE_NAME } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -10,12 +10,25 @@ const AUTH_ROUTES = ['/login', '/register'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+  const authCookie = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+  const adminAuthCookie = request.cookies.get(ADMIN_AUTH_COOKIE_NAME)?.value;
 
+  if (pathname.startsWith('/admin')) {
+    if (adminAuthCookie) {
+      if (pathname === '/admin/login') {
+        return NextResponse.redirect(new URL('/admin', request.url));
+      }
+    } else {
+      if (pathname === '/admin/login') {
+        return NextResponse.next();
+      }
+      return NextResponse.redirect(new URL('/404', request.url));
+    }
+  }
   // Redirect logged-in users away from auth pages
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
 
-  if (isAuthRoute && token) {
+  if (isAuthRoute && authCookie) {
     // Redirect to home page if already logged in
     return NextResponse.redirect(new URL('/', request.url));
   }
@@ -24,7 +37,7 @@ export function middleware(request: NextRequest) {
   const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
 
   if (isProtectedRoute) {
-    if (!token) {
+    if (!authCookie) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
@@ -35,5 +48,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/games/predictor/my-predictions/:path*', '/login/:path*', '/register/:path*'],
+  matcher: ['/games/predictor/my-predictions/:path*', '/login/:path*', '/register/:path*', '/admin/:path*'],
 };

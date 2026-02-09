@@ -35,6 +35,9 @@ const Sidebar = ({ items = [], isOpen = false, onOpenChange }: SidebarProps) => 
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [isOpen]);
 
+  if (pathname === '/admin/login') {
+    return null;
+  }
   return (
     <>
       {/* Mobile Overlay */}
