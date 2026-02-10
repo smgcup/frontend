@@ -16,8 +16,8 @@
 // - Tab-specific header content into sub-components
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { Users, ArrowLeftRight, Trophy } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Users, ArrowLeftRight, Trophy, ChevronDown, ChevronUp } from 'lucide-react';
 import type { FantasyTabItem } from './components/FantasyTabs';
 import FantasyTabs from './components/FantasyTabs';
 import {
@@ -169,18 +169,76 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
 
   const substitutePlayerId = isSubstituting ? (activePlayer?.id ?? null) : null;
 
+  // Desktop-only: make the left player list obviously scrollable (gradient + hint)
+  const desktopListRef = useRef<HTMLDivElement | null>(null);
+  const [desktopListScroll, setDesktopListScroll] = useState({
+    canScroll: false,
+    atTop: true,
+    atBottom: true,
+  });
+
+  useEffect(() => {
+    const el = desktopListRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const canScroll = el.scrollHeight > el.clientHeight + 4;
+      const atTop = el.scrollTop <= 2;
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+      setDesktopListScroll({ canScroll, atTop, atBottom });
+    };
+
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      el.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [availablePlayers.length, playerListPosition, lockedPosition]);
+
   return (
     <div className="min-h-screen bg-[#07000f]" onClick={isSubstituting ? cancelSubstitution : undefined}>
       <div className="mx-auto w-full max-w-7xl px-2 pt-0 pb-24 lg:pt-4">
-        <div className="lg:flex lg:gap-4">
+        <div className="lg:flex lg:gap-12">
           {/* Desktop player card grid (left) */}
-          <aside className="hidden lg:block lg:flex-1 min-w-0 h-[calc(100vh-72px)] sticky top-[72px] overflow-y-auto hide-scrollbar">
-            <PlayerCardGrid
-              players={availablePlayers}
-              initialPositionFilter={playerListPosition}
-              lockedPosition={lockedPosition}
-              onPlayerSelect={replacingPlayerId ? handlePlayerListSelect : undefined}
-            />
+          <aside className="hidden lg:block lg:flex-1 min-w-0 h-[calc(100vh-72px)] sticky top-[72px]">
+            <div ref={desktopListRef} className="h-full overflow-y-auto hide-scrollbar pb-14">
+              <PlayerCardGrid
+                players={availablePlayers}
+                initialPositionFilter={playerListPosition}
+                lockedPosition={lockedPosition}
+                onPlayerSelect={replacingPlayerId ? handlePlayerListSelect : undefined}
+              />
+            </div>
+
+            {/* Scroll affordance overlays (desktop only) */}
+            {desktopListScroll.canScroll && !desktopListScroll.atTop && (
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-10 bg-linear-to-b from-[#07000f] to-transparent" />
+            )}
+            {desktopListScroll.canScroll && !desktopListScroll.atBottom && (
+              <>
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-[#07000f] via-[#07000f]/80 to-transparent" />
+                {desktopListScroll.atTop && (
+                  <div className="pointer-events-none absolute inset-x-0 bottom-3 flex items-center justify-center">
+                    <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs text-white/70 backdrop-blur-sm">
+                      <ChevronDown className="h-4 w-4" />
+                      <span>Scroll</span>
+                      <ChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+            {desktopListScroll.canScroll && !desktopListScroll.atTop && (
+              <div className="pointer-events-none absolute inset-x-0 top-3 flex items-center justify-center">
+                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-3 py-1 text-xs text-white/60 backdrop-blur-sm">
+                  <ChevronUp className="h-4 w-4" />
+                  <span>More above</span>
+                  <ChevronUp className="h-4 w-4" />
+                </div>
+              </div>
+            )}
           </aside>
 
           <main className="lg:w-[480px] lg:shrink-0">
@@ -212,9 +270,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                 />
 
                 <DragOverlay dropAnimation={null}>
-                  {activePlayer && !isSubstituting && (
-                    <PlayerCard player={activePlayer} showPrice={showPrice} />
-                  )}
+                  {activePlayer && !isSubstituting && <PlayerCard player={activePlayer} showPrice={showPrice} />}
                 </DragOverlay>
               </DndContext>
             ) : (
@@ -235,7 +291,6 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                 activeTab={activeTab}
               />
             )}
-
           </main>
         </div>
       </div>
