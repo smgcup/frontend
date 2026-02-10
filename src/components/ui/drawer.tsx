@@ -62,7 +62,7 @@ function DrawerContent({
         {...props}
       >
         {side === 'bottom' && (
-          <div className="flex justify-center pt-3 pb-1 bg-[#0a0014]">
+          <div className="flex justify-center pt-3 pb-1 bg-[#1a0028]">
             <div className="h-1 w-10 rounded-full bg-white/30" />
           </div>
         )}

@@ -1,3 +1,21 @@
+// ─── useFantasyTeam Hook ───────────────────────────────────────────────
+// Central state manager for the user's fantasy team.
+// Handles: starters/bench arrays, drag-and-drop swaps, tap-to-substitute,
+// captain assignment, and transfer removal/replacement.
+//
+// STATE OVERVIEW:
+// - starters/bench: the player arrays, initialized from props, mutated locally
+// - activePlayer + activeIsStarter: the player currently being dragged or substituted
+// - isSubstituting: true when in "tap to substitute" mode (vs drag mode)
+// - removedPlayerIds: players marked for removal on the Transfers tab
+//
+// TWO SWAP MODES:
+// 1. Drag-and-drop: handleDragStart → (user drags) → handleDragEnd → performSwap
+// 2. Tap-to-substitute: startSubstitution → (user taps target) → handleSubstitutionClick → performSwap
+//
+// TODO: All mutations are local-only. Add API calls (mutations) for:
+// - Saving team changes (captain, substitutions)
+// - Confirming transfers (remove + replace)
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
@@ -13,9 +31,12 @@ type UseFantasyTeamProps = {
 export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeamProps) => {
   const [starters, setStarters] = useState<FantasyPlayer[]>(initialStarters);
   const [bench, setBench] = useState<FantasyPlayer[]>(initialBench);
+  // activePlayer: the player currently being dragged or chosen for substitution
   const [activePlayer, setActivePlayer] = useState<FantasyPlayer | null>(null);
   const [activeIsStarter, setActiveIsStarter] = useState(false);
   const [isSubstituting, setIsSubstituting] = useState(false);
+  // removedPlayerIds: tracks which players have been "removed" in Transfers tab
+  // (they show as EmptySlotCards on the pitch until replaced)
   const [removedPlayerIds, setRemovedPlayerIds] = useState<Set<string>>(new Set());
 
   const validTargets = useMemo(() => {
@@ -24,6 +45,8 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
   }, [activePlayer, activeIsStarter, starters, bench]);
 
   // ── Shared swap logic ──────────────────────────────────────────────
+  // Handles all three swap cases: starter↔starter, bench↔bench, starter↔bench.
+  // Captain badge transfers to the incoming player if the captain moves to bench.
 
   const performSwap = useCallback(
     (playerAId: string, playerBId: string) => {
@@ -155,7 +178,10 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
     setBench(update);
   }, []);
 
-  // ── Transfer removal ──────────────────────────────────────────────
+  // ── Transfer removal & replacement ────────────────────────────────
+  // Flow: removePlayer marks a player → EmptySlotCard renders → user picks
+  // a replacement → replacePlayer swaps in the new player and un-marks the slot.
+  // TODO: Enforce budget constraints when replacing (check incoming.price <= budget + old.price)
 
   const removePlayer = useCallback((playerId: string) => {
     setRemovedPlayerIds((prev) => new Set(prev).add(playerId));
@@ -166,6 +192,9 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
       const oldInStarters = starters.find((p) => p.id === oldPlayerId);
       const oldPlayer = oldInStarters ?? bench.find((p) => p.id === oldPlayerId);
       if (!oldPlayer) return;
+
+      // Enforce fixed roster composition: replacement must be same position
+      if (incoming.position !== oldPlayer.position) return;
 
       const newPlayer: FantasyPlayer = {
         id: incoming.id,

@@ -1,3 +1,19 @@
+// ─── Fantasy Main UI Orchestrator ──────────────────────────────────────
+// This is the primary UI component for the fantasy team management page.
+// It wires together: tabs, pitch, drag-and-drop, player detail drawer,
+// player list/grid for transfers, and display mode toggling.
+//
+// ARCHITECTURE NOTES:
+// - Team state (starters, bench, captain, swaps) lives in useFantasyTeam hook
+// - This component manages UI-only state (which tab, which drawer is open, etc.)
+// - Player selection for transfers has two UIs:
+//     Desktop (lg+): PlayerCardGrid shown as a persistent left sidebar
+//     Mobile (<lg): PlayerList shown in a bottom Drawer on demand
+//
+// TODO: This component is fairly large. Consider extracting:
+// - The transfer flow (replacement logic, drawer/grid wiring) into a custom hook
+// - The DndContext wrapper into its own component
+// - Tab-specific header content into sub-components
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
@@ -45,11 +61,15 @@ type FantasyViewUiProps = {
 const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
   const [activeTab, setActiveTab] = useState<FantasyTab>('points');
   const [displayMode, setDisplayMode] = useState<PlayerCardDisplayMode>('points');
+  // isMounted: DndContext can't render during SSR (hydration mismatch).
+  // We render a static pitch first, then swap in the DndContext version after mount.
   const [isMounted, setIsMounted] = useState(false);
   const [gameweek, setGameweek] = useState(team.gameweek);
 
+  // Price badges (with X to remove) only show on the Transfers tab
   const showPrice = activeTab === 'transfers';
 
+  // Delay mount flag by one rAF so the initial SSR render is static (no DndContext)
   useEffect(() => {
     const raf = requestAnimationFrame(() => setIsMounted(true));
     return () => cancelAnimationFrame(raf);
@@ -74,22 +94,38 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
     removedPlayerIds,
   } = useFantasyTeam({ initialStarters: team.starters, initialBench: team.bench });
 
+  // ── Player Detail Drawer state ──
   const [selectedPlayer, setSelectedPlayer] = useState<FantasyPlayer | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // ── Transfer Replacement state ──
+  // playerListOpen: controls the mobile bottom Drawer for player selection
+  // playerListPosition: which position filter is active (locked when replacing a specific slot)
+  // replacingPlayerId: the ID of the player being replaced (null when not in replacement flow)
   const [playerListOpen, setPlayerListOpen] = useState(false);
   const [playerListPosition, setPlayerListPosition] = useState<PlayerPosition | 'ALL'>('ALL');
   const [replacingPlayerId, setReplacingPlayerId] = useState<string | null>(null);
 
+  // When replacing, lock the position filter so user can only pick the same position
+  const lockedPosition = replacingPlayerId && playerListPosition !== 'ALL'
+    ? (playerListPosition as PlayerPosition)
+    : undefined;
+
+  // Called when user clicks an EmptySlotCard (a slot where a player was removed).
+  // Opens the player list filtered to the required position so user can pick a replacement.
+  // On desktop, the PlayerCardGrid sidebar reacts to the position filter automatically.
+  // On mobile, we explicitly open the bottom Drawer.
   const handleEmptySlotClick = useCallback((position: PlayerPosition, oldPlayerId: string) => {
     setPlayerListPosition(position);
     setReplacingPlayerId(oldPlayerId);
-    // On mobile (below lg breakpoint), open the bottom drawer
     const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
     if (!isDesktop) {
       setPlayerListOpen(true);
     }
   }, []);
 
+  // Called when user picks a player from PlayerList/PlayerCardGrid to fill a removed slot.
+  // Triggers the actual replacement in useFantasyTeam and resets the replacement UI state.
   const handlePlayerListSelect = useCallback(
     (incoming: FantasyAvailablePlayer) => {
       if (replacingPlayerId) {
@@ -102,6 +138,9 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
     [replacingPlayerId, replacePlayer],
   );
 
+  // Clicking a player has two behaviors:
+  // 1. During substitution mode: complete the swap (or cancel if invalid)
+  // 2. Normal mode: open the PlayerDetailDrawer
   const handlePlayerClick = useCallback(
     (player: FantasyPlayer) => {
       if (isSubstituting) {
@@ -131,6 +170,8 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
     [startSubstitution],
   );
 
+  // dnd-kit sensors: pointer needs 5px distance to distinguish click from drag;
+  // touch needs 150ms delay so scrolling doesn't accidentally start a drag.
   const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
   const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } });
   const sensors = useSensors(pointerSensor, touchSensor);
@@ -146,6 +187,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
             <PlayerCardGrid
               players={availablePlayers}
               initialPositionFilter={playerListPosition}
+              lockedPosition={lockedPosition}
               onPlayerSelect={replacingPlayerId ? handlePlayerListSelect : undefined}
             />
           </aside>
@@ -254,6 +296,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
           <PlayerList
             players={availablePlayers}
             initialPositionFilter={playerListPosition}
+            lockedPosition={lockedPosition}
             onPlayerSelect={handlePlayerListSelect}
           />
         </DrawerContent>

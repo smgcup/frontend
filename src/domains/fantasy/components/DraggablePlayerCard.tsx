@@ -1,6 +1,19 @@
+// ─── DraggablePlayerCard ───────────────────────────────────────────────
+// Wraps PlayerCard with dnd-kit drag AND drop capabilities.
+// Each card is both draggable (you can pick it up) and droppable (you can
+// drop another card onto it to swap).
+//
+// VISUAL FEEDBACK during drag/substitution:
+// - isDragging: card becomes invisible (opacity-0) since DragOverlay shows the ghost
+// - isSubstituteSource: fuchsia ring glow (the player being substituted)
+// - isValidTarget: cyan ring glow (valid swap destinations)
+// - isOver + isValidTarget: scaled up with brighter glow (hovering over a valid target)
+// - !isValidTarget when selection active: dimmed + grayscale (can't swap here)
+//
+// CLICK vs DRAG distinction: uses wasDragging ref to suppress click after a drag ends.
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
 import type { FantasyPlayer, PlayerCardDisplayMode } from '../contracts';
@@ -38,7 +51,11 @@ const DraggablePlayerCard = ({
   };
 
   // Track drag state so we can distinguish click from drag.
-  if (isDragging) wasDragging.current = true;
+  useEffect(() => {
+    if (isDragging) {
+      wasDragging.current = true;
+    }
+  }, [isDragging]);
 
   const handleClick = (e: React.MouseEvent) => {
     if (wasDragging.current) {

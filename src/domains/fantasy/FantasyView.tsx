@@ -1,8 +1,19 @@
+// ─── Fantasy Data Layer ────────────────────────────────────────────────
+// This is the "View" (data-fetching) component for the main fantasy page.
+// Currently uses hardcoded mock data for prototyping.
+//
+// TODO: Replace mock data with real API calls:
+// 1. Fetch the user's team via a GraphQL query (SSR or client-side)
+// 2. Fetch available players for the transfer market
+// 3. Consider creating an SSR function in `ssr/getFantasyPageData.ts`
+//    following the pattern: Page → SSR function → Apollo query → Mapper → View
+// 4. Once connected, the mock data below can be deleted entirely.
 'use client';
 
 import FantasyViewUi from './FantasyViewUi';
 import type { FantasyTeamData, FantasyAvailablePlayer } from './contracts';
 
+// TODO: Replace with real API data. This mock represents the user's current team.
 const mockTeam: FantasyTeamData = {
   teamName: 'Nasko FC',
   gameweek: 1,
@@ -22,7 +33,7 @@ const mockTeam: FantasyTeamData = {
       position: 'GK',
       points: 12,
       jersey: { color: '#EAB308', textColor: '#1E1B4B', label: '1' },
-      nextMatch: 'LEE (H)',
+      nextMatch: 'LEE',
       price: 5.5,
       teamShort: 'BAY',
       ptsPerMatch: 4.0,
@@ -42,7 +53,7 @@ const mockTeam: FantasyTeamData = {
       position: 'DEF',
       points: 7,
       jersey: { color: '#166534', textColor: '#FFFFFF', label: '4' },
-      nextMatch: 'MCI (A)',
+      nextMatch: 'MCI',
       price: 6.5,
       teamShort: 'LIV',
       ptsPerMatch: 5.2,
@@ -62,7 +73,7 @@ const mockTeam: FantasyTeamData = {
       position: 'DEF',
       points: 23,
       jersey: { color: '#1C1917', textColor: '#FFFFFF', label: '4' },
-      nextMatch: 'BUR (H)',
+      nextMatch: 'BUR',
       price: 5.0,
       teamShort: 'PSG',
       ptsPerMatch: 4.6,
@@ -83,7 +94,7 @@ const mockTeam: FantasyTeamData = {
       points: 31,
       jersey: { color: '#DBEAFE', textColor: '#1E40AF', label: '17' },
       isCaptain: true,
-      nextMatch: 'LIV (H)',
+      nextMatch: 'LIV',
       price: 10.2,
       teamShort: 'MCI',
       ptsPerMatch: 7.8,
@@ -103,7 +114,7 @@ const mockTeam: FantasyTeamData = {
       position: 'MID',
       points: 16,
       jersey: { color: '#DBEAFE', textColor: '#1E40AF', label: '10' },
-      nextMatch: 'ATM (A)',
+      nextMatch: 'ATM',
       price: 7.8,
       teamShort: 'RMA',
       ptsPerMatch: 5.3,
@@ -123,7 +134,7 @@ const mockTeam: FantasyTeamData = {
       position: 'FWD',
       points: 34,
       jersey: { color: '#7DD3FC', textColor: '#1E3A5F', label: '9' },
-      nextMatch: 'LIV (H)',
+      nextMatch: 'LIV',
       price: 13.5,
       teamShort: 'MCI',
       ptsPerMatch: 8.5,
@@ -145,7 +156,7 @@ const mockTeam: FantasyTeamData = {
       position: 'DEF',
       points: 5,
       jersey: { color: '#6B7280', textColor: '#FFFFFF', label: '1' },
-      nextMatch: 'LEE (H)',
+      nextMatch: 'LEE',
       price: 4.9,
       teamShort: 'CHE',
       ptsPerMatch: 3.4,
@@ -165,7 +176,7 @@ const mockTeam: FantasyTeamData = {
       position: 'MID',
       points: 19,
       jersey: { color: '#166534', textColor: '#FFFFFF', label: '5' },
-      nextMatch: 'ATM (A)',
+      nextMatch: 'ATM',
       price: 8.5,
       teamShort: 'RMA',
       ptsPerMatch: 6.3,
@@ -185,7 +196,7 @@ const mockTeam: FantasyTeamData = {
       position: 'FWD',
       points: 28,
       jersey: { color: '#1C1917', textColor: '#FFFFFF', label: '10' },
-      nextMatch: 'BRA (H)',
+      nextMatch: 'BRA',
       price: 11.0,
       teamShort: 'MIA',
       ptsPerMatch: 7.0,
@@ -202,6 +213,7 @@ const mockTeam: FantasyTeamData = {
   ],
 };
 
+// TODO: Replace with real API data. This mock represents all players available for transfer.
 const mockAvailablePlayers: FantasyAvailablePlayer[] = [
   { id: 'p1', name: 'M. Salah', teamShort: 'LIV', position: 'MID', price: 13.0, points: 156 },
   { id: 'p2', name: 'Haaland', teamShort: 'MCI', position: 'FWD', price: 13.5, points: 142 },

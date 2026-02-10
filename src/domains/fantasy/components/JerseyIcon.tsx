@@ -1,3 +1,7 @@
+// ─── JerseyIcon ────────────────────────────────────────────────────────
+// Inline SVG of a football shirt. Used in PlayerCard (on the pitch) and
+// PlayerDetailDrawer (as the avatar fallback when no imageUrl is available).
+// Colors and number label are fully customizable via props.
 type JerseyIconProps = {
   color: string;
   textColor: string;

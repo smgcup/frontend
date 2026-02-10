@@ -1,3 +1,12 @@
+// ─── PlayerCard ────────────────────────────────────────────────────────
+// A single player card shown on the pitch. Purely presentational.
+// Layout from top to bottom:
+//   1. Price badge overlay (only on Transfers tab when showPrice=true)
+//      - Has an X button that triggers onPriceClose (removes the player)
+//   2. Captain badge (top-right "C" circle, shifts down when price badge is shown)
+//   3. Jersey area (JerseyIcon SVG with the player's colors and number)
+//   4. Name bar (white background, player name)
+//   5. Bottom bar: either points (purple bg) or next match (gray bg)
 'use client';
 
 import { cn } from '@/lib/utils';
@@ -16,14 +25,9 @@ type PlayerCardProps = {
   onPriceClose?: () => void;
 };
 
-const PlayerCard = ({
-  player,
-  displayMode = 'points',
-  showPrice = false,
-  onPriceClose,
-}: PlayerCardProps) => {
-  const showPointsMode = displayMode === 'points';
-  const showNextMatchMode = displayMode === 'nextMatch' && !!player.nextMatch;
+const PlayerCard = ({ player, displayMode = 'points', showPrice = false, onPriceClose }: PlayerCardProps) => {
+  // Show next match text only if we're in nextMatch mode AND the player has data; otherwise fall back to points
+  const showNextMatch = displayMode === 'nextMatch' && !!player.nextMatch;
 
   return (
     <div
@@ -85,23 +89,19 @@ const PlayerCard = ({
         </span>
       </div>
 
-      {/* Bottom bar: points OR next match */}
-      {showPointsMode && (
-        <div className={cn('flex items-center justify-center py-0.5 min-h-[18px]', 'bg-[#2b003c] text-white')}>
-          <span className="text-[11px] font-bold">{player.points}</span>
-        </div>
-      )}
-
-      {showNextMatchMode && (
+      {/* Bottom bar: next match text OR points (with captain ×2 badge) */}
+      {showNextMatch ? (
         <div className="flex items-center justify-center py-0.5 min-h-[18px] bg-gray-100">
           <span className="text-[10px] font-semibold text-gray-700 truncate px-1">{player.nextMatch}</span>
         </div>
-      )}
-
-      {/* Fallback: if nextMatch mode but no match data, show points */}
-      {displayMode === 'nextMatch' && !player.nextMatch && (
-        <div className={cn('flex items-center justify-center py-0.5 min-h-[18px]', 'bg-[#2b003c] text-white')}>
+      ) : (
+        <div className="flex items-center justify-center gap-1 py-0.5 min-h-[18px] bg-[#2b003c] text-white">
           <span className="text-[11px] font-bold">{player.points}</span>
+          {player.isCaptain && (
+            <span className="text-[9px] font-black bg-linear-to-r from-cyan-400 to-fuchsia-500 bg-clip-text text-transparent leading-none">
+              ×2
+            </span>
+          )}
         </div>
       )}
     </div>

@@ -1,3 +1,8 @@
+// ─── FantasyTabs ───────────────────────────────────────────────────────
+// Generic, reusable tab bar used in both:
+// - Main fantasy view: Points | Pick Team | Transfers
+// - Standings view: Gameweeks | Overall
+// Sticky by default (sticks below the GamemodeNavbar at top-[52px]).
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 

@@ -1,40 +1,32 @@
+// ─── PlayerCardGrid (Desktop) ──────────────────────────────────────────
+// A card-grid layout for available players, shown as a sticky left sidebar on lg+ screens.
+// Has the same filtering/sorting functionality as PlayerList (mobile) but rendered as cards.
+//
+// The grid reacts to position filter changes from FantasyViewUi:
+// - initialPositionFilter syncs via useEffect when user clicks an EmptySlotCard
+// - lockedPosition prevents the user from changing the filter during replacement
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Search, ChevronDown } from 'lucide-react';
 import type { FantasyAvailablePlayer, PlayerPosition } from '../contracts';
+import { usePlayerFilter, positionFilters, positionColors, type SortField } from '../hooks/usePlayerFilter';
 
 type PlayerCardGridProps = {
   players: FantasyAvailablePlayer[];
   /** Pre-select a position filter when opened from an empty slot */
   initialPositionFilter?: PlayerPosition | 'ALL';
+  /** Lock the position filter to a specific position (used during transfers) */
+  lockedPosition?: PlayerPosition;
   /** Called when a player card is clicked */
   onPlayerSelect?: (player: FantasyAvailablePlayer) => void;
 };
-
-const positionFilters: { label: string; value: PlayerPosition | 'ALL' }[] = [
-  { label: 'All', value: 'ALL' },
-  { label: 'GK', value: 'GK' },
-  { label: 'DEF', value: 'DEF' },
-  { label: 'MID', value: 'MID' },
-  { label: 'FWD', value: 'FWD' },
-];
-
-type SortField = 'price' | 'points' | 'name';
 
 const sortOptions: { label: string; value: SortField }[] = [
   { label: 'Price', value: 'price' },
   { label: 'Points', value: 'points' },
   { label: 'Name', value: 'name' },
 ];
-
-const positionColors: Record<PlayerPosition, string> = {
-  GK: 'bg-amber-500/20 text-amber-300',
-  DEF: 'bg-emerald-500/20 text-emerald-300',
-  MID: 'bg-sky-500/20 text-sky-300',
-  FWD: 'bg-red-500/20 text-red-300',
-};
 
 const PlayerCardGridItem = ({
   player,
@@ -70,47 +62,9 @@ const PlayerCardGridItem = ({
   </div>
 );
 
-const PlayerCardGrid = ({ players, initialPositionFilter = 'ALL', onPlayerSelect }: PlayerCardGridProps) => {
-  const [search, setSearch] = useState('');
-  const [positionFilter, setPositionFilter] = useState<PlayerPosition | 'ALL'>(initialPositionFilter);
-  const [sortField, setSortField] = useState<SortField>('price');
-  const [sortAsc, setSortAsc] = useState(false);
-
-  useEffect(() => {
-    setPositionFilter(initialPositionFilter);
-  }, [initialPositionFilter]);
-
-  const filteredPlayers = useMemo(() => {
-    let result = [...players];
-
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter((p) => p.name.toLowerCase().includes(q) || p.teamShort.toLowerCase().includes(q));
-    }
-
-    if (positionFilter !== 'ALL') {
-      result = result.filter((p) => p.position === positionFilter);
-    }
-
-    result.sort((a, b) => {
-      let cmp = 0;
-      if (sortField === 'price') cmp = a.price - b.price;
-      else if (sortField === 'points') cmp = a.points - b.points;
-      else cmp = a.name.localeCompare(b.name);
-      return sortAsc ? cmp : -cmp;
-    });
-
-    return result;
-  }, [players, search, positionFilter, sortField, sortAsc]);
-
-  const handleSortToggle = (field: SortField) => {
-    if (sortField === field) {
-      setSortAsc(!sortAsc);
-    } else {
-      setSortField(field);
-      setSortAsc(false);
-    }
-  };
+const PlayerCardGrid = ({ players, initialPositionFilter = 'ALL', lockedPosition, onPlayerSelect }: PlayerCardGridProps) => {
+  const { filteredPlayers, search, setSearch, effectiveFilter, setPositionFilter, sortField, sortAsc, handleSortToggle } =
+    usePlayerFilter({ players, initialPositionFilter, lockedPosition, syncPositionFilter: true });
 
   return (
     <div>
@@ -137,21 +91,28 @@ const PlayerCardGrid = ({ players, initialPositionFilter = 'ALL', onPlayerSelect
       {/* Position filter pills + Sort pills */}
       <div className="pb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
         <div className="flex gap-1.5">
-          {positionFilters.map((f) => (
-            <button
-              key={f.value}
-              type="button"
-              onClick={() => setPositionFilter(f.value)}
-              className={cn(
-                'px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all',
-                positionFilter === f.value
-                  ? 'bg-cyan-400/20 text-cyan-300 ring-1 ring-cyan-400/30'
-                  : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
+          {positionFilters.map((f) => {
+            const isActive = effectiveFilter === f.value;
+            const isDisabled = !!lockedPosition && f.value !== lockedPosition;
+            return (
+              <button
+                key={f.value}
+                type="button"
+                disabled={isDisabled}
+                onClick={() => !lockedPosition && setPositionFilter(f.value)}
+                className={cn(
+                  'px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all',
+                  isActive
+                    ? 'bg-cyan-400/20 text-cyan-300 ring-1 ring-cyan-400/30'
+                    : isDisabled
+                      ? 'bg-white/3 text-white/20 cursor-not-allowed'
+                      : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
+                )}
+              >
+                {f.label}
+              </button>
+            );
+          })}
         </div>
 
         <div className="flex items-center gap-1.5">

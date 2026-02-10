@@ -1,3 +1,19 @@
+// ─── FantasyPitchCard ──────────────────────────────────────────────────
+// The main visual component: a card containing the pitch with players arranged
+// by position (GK → DEF → MID → FWD) and a bench section below.
+//
+// HEADER: Shows different content based on activeTab:
+//   - "points" tab: gameweek navigation + stats (average, total, highest)
+//   - "pickTeam"/"transfers" tab: free transfers count + budget
+//
+// PLAYER RENDERING: Each player is rendered via renderPlayer() which decides:
+//   - If removed (Transfers tab): show EmptySlotCard (clickable to trigger replacement)
+//   - If DnD enabled (after mount): show DraggablePlayerCard (drag + drop + click)
+//   - If DnD disabled (SSR fallback): show plain PlayerCard with onClick
+//
+// TODO: The renderPlayer function handles a lot of conditional logic.
+// Consider extracting it into a separate component for clarity.
+
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';

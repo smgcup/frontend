@@ -1,75 +1,29 @@
+// ─── PlayerList (Mobile) ───────────────────────────────────────────────
+// A compact row-based player list used inside the mobile bottom Drawer.
+// Shows available players for transfer with search, position filter, and sorting.
 'use client';
 
-import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Search, ChevronDown } from 'lucide-react';
 import type { FantasyAvailablePlayer, PlayerPosition } from '../contracts';
+import { usePlayerFilter, positionFilters, positionColors, type SortField } from '../hooks/usePlayerFilter';
 
 type PlayerListProps = {
   players: FantasyAvailablePlayer[];
   /** Pre-select a position filter when opened from an empty slot */
   initialPositionFilter?: PlayerPosition | 'ALL';
+  /** Lock the position filter to a specific position (used during transfers) */
+  lockedPosition?: PlayerPosition;
   /** Called when a player row is clicked */
   onPlayerSelect?: (player: FantasyAvailablePlayer) => void;
 };
 
-const positionFilters: { label: string; value: PlayerPosition | 'ALL' }[] = [
-  { label: 'All', value: 'ALL' },
-  { label: 'GK', value: 'GK' },
-  { label: 'DEF', value: 'DEF' },
-  { label: 'MID', value: 'MID' },
-  { label: 'FWD', value: 'FWD' },
-];
-
-type SortField = 'price' | 'points' | 'name';
-
-const positionColors: Record<PlayerPosition, string> = {
-  GK: 'bg-amber-500/20 text-amber-300',
-  DEF: 'bg-emerald-500/20 text-emerald-300',
-  MID: 'bg-sky-500/20 text-sky-300',
-  FWD: 'bg-red-500/20 text-red-300',
-};
-
-const PlayerList = ({ players, initialPositionFilter = 'ALL', onPlayerSelect }: PlayerListProps) => {
-  const [search, setSearch] = useState('');
-  const [positionFilter, setPositionFilter] = useState<PlayerPosition | 'ALL'>(initialPositionFilter);
-  const [sortField, setSortField] = useState<SortField>('price');
-  const [sortAsc, setSortAsc] = useState(false);
-
-  const filteredPlayers = useMemo(() => {
-    let result = [...players];
-
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter((p) => p.name.toLowerCase().includes(q) || p.teamShort.toLowerCase().includes(q));
-    }
-
-    if (positionFilter !== 'ALL') {
-      result = result.filter((p) => p.position === positionFilter);
-    }
-
-    result.sort((a, b) => {
-      let cmp = 0;
-      if (sortField === 'price') cmp = a.price - b.price;
-      else if (sortField === 'points') cmp = a.points - b.points;
-      else cmp = a.name.localeCompare(b.name);
-      return sortAsc ? cmp : -cmp;
-    });
-
-    return result;
-  }, [players, search, positionFilter, sortField, sortAsc]);
-
-  const handleSortToggle = (field: SortField) => {
-    if (sortField === field) {
-      setSortAsc(!sortAsc);
-    } else {
-      setSortField(field);
-      setSortAsc(false);
-    }
-  };
+const PlayerList = ({ players, initialPositionFilter = 'ALL', lockedPosition, onPlayerSelect }: PlayerListProps) => {
+  const { filteredPlayers, search, setSearch, effectiveFilter, setPositionFilter, sortField, sortAsc, handleSortToggle } =
+    usePlayerFilter({ players, initialPositionFilter, lockedPosition });
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-[#0a0014]">
+    <div className="flex flex-col flex-1 min-h-0 bg-[#1a0028]">
       {/* Header */}
       <div className="px-4 pt-5 pb-3">
         <h2 className="text-base font-bold text-white tracking-tight">Player List</h2>
@@ -92,21 +46,28 @@ const PlayerList = ({ players, initialPositionFilter = 'ALL', onPlayerSelect }: 
 
       {/* Position filter pills */}
       <div className="px-4 pb-3 flex gap-1.5">
-        {positionFilters.map((f) => (
-          <button
-            key={f.value}
-            type="button"
-            onClick={() => setPositionFilter(f.value)}
-            className={cn(
-              'px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all',
-              positionFilter === f.value
-                ? 'bg-cyan-400/20 text-cyan-300 ring-1 ring-cyan-400/30'
-                : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
-            )}
-          >
-            {f.label}
-          </button>
-        ))}
+        {positionFilters.map((f) => {
+          const isActive = effectiveFilter === f.value;
+          const isDisabled = !!lockedPosition && f.value !== lockedPosition;
+          return (
+            <button
+              key={f.value}
+              type="button"
+              disabled={isDisabled}
+              onClick={() => !lockedPosition && setPositionFilter(f.value)}
+              className={cn(
+                'px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all',
+                isActive
+                  ? 'bg-cyan-400/20 text-cyan-300 ring-1 ring-cyan-400/30'
+                  : isDisabled
+                    ? 'bg-white/3 text-white/20 cursor-not-allowed'
+                    : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
+              )}
+            >
+              {f.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Table header */}

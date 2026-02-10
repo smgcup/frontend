@@ -1,8 +1,18 @@
+// ─── Fantasy Standings Data Layer ──────────────────────────────────────
+// Mock data generator for the leaderboard page.
+// Generates deterministic (seeded by gameweek number) standings for 15 managers.
+//
+// TODO: Replace all of this with a real API call:
+// 1. Fetch gameweek standings from the backend
+// 2. Fetch overall standings
+// 3. Consider SSR (getFantasyStandingsPageData) since this is read-only data
+// 4. Delete all the mock generation code below once connected.
 'use client';
 
 import FantasyStandingsViewUi from './FantasyStandingsViewUi';
 import type { FantasyStandingsEntry } from './contracts';
 
+// TODO: Replace with real API data
 const managers = [
   { managerName: 'Nasko', teamName: 'Nasko FC', isCurrentUser: true },
   { managerName: 'Anton', teamName: 'Anton United' },

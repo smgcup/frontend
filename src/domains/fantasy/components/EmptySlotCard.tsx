@@ -1,3 +1,7 @@
+// ─── EmptySlotCard ─────────────────────────────────────────────────────
+// Placeholder card rendered on the pitch when a player has been removed
+// (Transfers tab). Shows a dashed border with a "+" icon and the position label.
+// Clicking it triggers the replacement flow (opens PlayerList/PlayerCardGrid).
 import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { fantasyTheme } from '@/lib/gamemodeThemes';
