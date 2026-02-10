@@ -1,22 +1,22 @@
-// import GamesView from '@/domains/games/GamesView';
+import GamesView from '@/domains/games/GamesView';
 
-// const GamesPage = () => {
-//   return <GamesView />;
-// };
-
-// export default GamesPage;
-
-import { ComingSoon } from '@/components/ComingSoon';
-
-const page = () => {
-  return (
-    <div>
-      <ComingSoon
-        title="Games"
-        description="Game schedules, live scores, and highlights will be available soon. Don't miss the action!!!"
-      />
-    </div>
-  );
+const GamesPage = () => {
+  return <GamesView />;
 };
 
-export default page;
+export default GamesPage;
+
+// import { ComingSoon } from '@/components/ComingSoon';
+
+// const page = () => {
+//   return (
+//     <div>
+//       <ComingSoon
+//         title="Games"
+//         description="Game schedules, live scores, and highlights will be available soon. Don't miss the action!!!"
+//       />
+//     </div>
+//   );
+// };
+
+// export default page;
