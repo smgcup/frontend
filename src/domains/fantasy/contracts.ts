@@ -57,6 +57,15 @@ export type FantasyAvailablePlayer = {
   points: number;
 };
 
+export type FantasyStandingsEntry = {
+  rank: number;
+  managerName: string;
+  teamName: string;
+  gameweekPoints: number;
+  totalPoints: number;
+  isCurrentUser?: boolean;
+};
+
 export type FantasyTeamData = {
   teamName?: string;
   gameweek: number;

@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { Calendar, Eye, Users, ArrowLeftRight, Trophy } from 'lucide-react';
+import type { FantasyTabItem } from './components/FantasyTabs';
+import FantasyTabs from './components/FantasyTabs';
 import {
   DndContext,
   DragOverlay,
@@ -28,6 +30,12 @@ import PlayerDetailDrawer from './components/PlayerDetailDrawer';
 import { useFantasyTeam } from './hooks/useFantasyTeam';
 
 type FantasyTab = 'pickTeam' | 'transfers' | 'points';
+
+const fantasyTabs: FantasyTabItem<FantasyTab>[] = [
+  { id: 'points', label: 'Points', icon: Trophy },
+  { id: 'pickTeam', label: 'Pick Team', icon: Users },
+  { id: 'transfers', label: 'Transfers', icon: ArrowLeftRight },
+];
 
 type FantasyViewUiProps = {
   team: FantasyTeamData;
@@ -143,51 +151,11 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
           </aside>
 
           <main className="lg:w-[480px] lg:shrink-0">
-            {/* Tabs: Pick Team | Transfers - full width on mobile, sticky when scrolling */}
-            <div className="sticky top-[52px] z-30 -mx-2 px-0 pt-0 border-b border-white/10 mb-4 bg-[#07000f] lg:static lg:mx-0 lg:px-0 lg:pt-0 lg:pb-0 lg:bg-transparent lg:flex lg:justify-center">
-              <div className="flex w-full bg-white/6 rounded-none lg:rounded-lg overflow-hidden lg:inline-flex lg:w-auto lg:gap-1">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('points')}
-                  className={cn(
-                    'flex-1 lg:flex-initial flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-semibold transition-all relative',
-                    activeTab === 'points' ? 'text-fuchsia-400' : 'text-white/50 hover:text-white/70',
-                  )}
-                >
-                  <Trophy className="w-4 h-4 shrink-0" />
-                  Points
-                  {activeTab === 'points' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-fuchsia-400" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('pickTeam')}
-                  className={cn(
-                    'flex-1 lg:flex-initial flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-semibold transition-all relative',
-                    activeTab === 'pickTeam' ? 'text-fuchsia-400' : 'text-white/50 hover:text-white/70',
-                  )}
-                >
-                  <Users className="w-4 h-4 shrink-0" />
-                  Pick Team
-                  {activeTab === 'pickTeam' && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-fuchsia-400" />
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('transfers')}
-                  className={cn(
-                    'flex-1 lg:flex-initial flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-semibold transition-all relative',
-                    activeTab === 'transfers' ? 'text-fuchsia-400' : 'text-white/50 hover:text-white/70',
-                  )}
-                >
-                  <ArrowLeftRight className="w-4 h-4 shrink-0" />
-                  Transfers
-                  {activeTab === 'transfers' && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-fuchsia-400" />
-                  )}
-                </button>
-              </div>
-            </div>
+            <FantasyTabs<FantasyTab>
+              tabs={fantasyTabs}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+            />
 
             {isMounted ? (
               <DndContext
