@@ -1,5 +1,6 @@
 import { ArrowRight, Clock } from 'lucide-react';
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import { News } from '../contracts';
 import Image from 'next/image';
 
@@ -53,7 +54,9 @@ const NewsCard = ({ news }: { news: News }) => {
         </h3>
 
         {/* Excerpt */}
-        <p className="mb-4 flex-1 text-sm text-muted-foreground line-clamp-3">{news.content}</p>
+        <div className="mb-4 flex-1 text-sm text-muted-foreground line-clamp-3 prose prose-sm dark:prose-invert max-w-none">
+          <ReactMarkdown>{news.content}</ReactMarkdown>
+        </div>
 
         {/* Read More */}
         <div className="mt-4 flex items-center text-sm font-medium text-primary group-hover:underline">
