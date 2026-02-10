@@ -6,7 +6,7 @@
 import { cn } from '@/lib/utils';
 import { Search, ChevronDown } from 'lucide-react';
 import type { FantasyAvailablePlayer, PlayerPosition } from '../contracts';
-import { usePlayerFilter, positionFilters, positionColors, type SortField } from '../hooks/usePlayerFilter';
+import { usePlayerFilter, positionFilters, positionColors } from '../hooks/usePlayerFilter';
 
 type PlayerListProps = {
   players: FantasyAvailablePlayer[];
@@ -19,8 +19,16 @@ type PlayerListProps = {
 };
 
 const PlayerList = ({ players, initialPositionFilter = 'ALL', lockedPosition, onPlayerSelect }: PlayerListProps) => {
-  const { filteredPlayers, search, setSearch, effectiveFilter, setPositionFilter, sortField, sortAsc, handleSortToggle } =
-    usePlayerFilter({ players, initialPositionFilter, lockedPosition });
+  const {
+    filteredPlayers,
+    search,
+    setSearch,
+    effectiveFilter,
+    setPositionFilter,
+    sortField,
+    sortAsc,
+    handleSortToggle,
+  } = usePlayerFilter({ players, initialPositionFilter, lockedPosition });
 
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-[#1a0028]">

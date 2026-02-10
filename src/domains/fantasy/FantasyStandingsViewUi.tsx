@@ -27,9 +27,9 @@ type FantasyStandingsViewUiProps = {
 
 const StandingsTable = ({ entries }: { entries: FantasyStandingsEntry[] }) => {
   return (
-    <div className="overflow-hidden rounded-xl ring-1 ring-white/10 bg-white/[0.03]">
+    <div className="overflow-hidden rounded-xl ring-1 ring-white/10 bg-white/3">
       {/* Header */}
-      <div className="grid grid-cols-[40px_1fr_72px_72px] sm:grid-cols-[48px_1fr_88px_88px] items-center gap-0 px-3 sm:px-4 py-2.5 bg-white/[0.06] text-[11px] sm:text-xs font-semibold text-white/40 uppercase tracking-wider">
+      <div className="grid grid-cols-[40px_1fr_72px_72px] sm:grid-cols-[48px_1fr_88px_88px] items-center gap-0 px-3 sm:px-4 py-2.5 bg-white/6 text-[11px] sm:text-xs font-semibold text-white/40 uppercase tracking-wider">
         <div className="text-center">#</div>
         <div>Manager</div>
         <div className="text-center">GW</div>
@@ -41,10 +41,8 @@ const StandingsTable = ({ entries }: { entries: FantasyStandingsEntry[] }) => {
         <div
           key={`${entry.rank}-${entry.managerName}`}
           className={cn(
-            'grid grid-cols-[40px_1fr_72px_72px] sm:grid-cols-[48px_1fr_88px_88px] items-center gap-0 px-3 sm:px-4 py-3 border-t border-white/[0.06] transition-colors',
-            entry.isCurrentUser
-              ? 'bg-fuchsia-500/10 border-l-2 border-l-fuchsia-400'
-              : 'hover:bg-white/[0.03]',
+            'grid grid-cols-[40px_1fr_72px_72px] sm:grid-cols-[48px_1fr_88px_88px] items-center gap-0 px-3 sm:px-4 py-3 border-t border-white/6 transition-colors',
+            entry.isCurrentUser ? 'bg-fuchsia-500/10 border-l-2 border-l-fuchsia-400' : 'hover:bg-white/3',
           )}
         >
           {/* Rank */}
@@ -68,10 +66,7 @@ const StandingsTable = ({ entries }: { entries: FantasyStandingsEntry[] }) => {
           {/* Manager + Team */}
           <div className="min-w-0">
             <div
-              className={cn(
-                'text-sm font-semibold truncate',
-                entry.isCurrentUser ? 'text-fuchsia-300' : 'text-white',
-              )}
+              className={cn('text-sm font-semibold truncate', entry.isCurrentUser ? 'text-fuchsia-300' : 'text-white')}
             >
               {entry.managerName}
               {entry.isCurrentUser && (
@@ -84,17 +79,10 @@ const StandingsTable = ({ entries }: { entries: FantasyStandingsEntry[] }) => {
           </div>
 
           {/* GW Points */}
-          <div className="text-center text-sm font-semibold text-white/70">
-            {entry.gameweekPoints}
-          </div>
+          <div className="text-center text-sm font-semibold text-white/70">{entry.gameweekPoints}</div>
 
           {/* Total Points */}
-          <div
-            className={cn(
-              'text-center text-sm font-bold',
-              entry.isCurrentUser ? 'text-fuchsia-300' : 'text-white',
-            )}
-          >
+          <div className={cn('text-center text-sm font-bold', entry.isCurrentUser ? 'text-fuchsia-300' : 'text-white')}>
             {entry.totalPoints}
           </div>
         </div>
@@ -117,11 +105,7 @@ const FantasyStandingsViewUi = ({
   return (
     <div className="min-h-screen bg-[#07000f]">
       <div className="mx-auto w-full max-w-2xl px-2 pt-0 pb-24 lg:pt-4">
-        <FantasyTabs<StandingsTab>
-          tabs={standingsTabs}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
+        <FantasyTabs<StandingsTab> tabs={standingsTabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
         {activeTab === 'gameweeks' && (
           <div>
@@ -141,9 +125,7 @@ const FantasyStandingsViewUi = ({
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <div className="text-white font-extrabold text-lg tracking-tight">
-                Gameweek {gameweek}
-              </div>
+              <div className="text-white font-extrabold text-lg tracking-tight">Gameweek {gameweek}</div>
               <button
                 type="button"
                 aria-label="Next gameweek"
@@ -167,9 +149,7 @@ const FantasyStandingsViewUi = ({
         {activeTab === 'overall' && (
           <div>
             <div className="text-center mb-5">
-              <div className="text-white font-extrabold text-lg tracking-tight">
-                Overall Standings
-              </div>
+              <div className="text-white font-extrabold text-lg tracking-tight">Overall Standings</div>
             </div>
             <StandingsTable entries={overallStandings} />
           </div>

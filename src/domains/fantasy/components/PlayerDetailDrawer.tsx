@@ -13,6 +13,7 @@
 'use client';
 
 import { Shield, TrendingUp, Users, Crown, ArrowRightLeft, User } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
@@ -28,8 +29,18 @@ type PlayerDetailDrawerProps = {
 };
 
 const monthMap: Record<string, string> = {
-  Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
-  Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12',
+  Jan: '01',
+  Feb: '02',
+  Mar: '03',
+  Apr: '04',
+  May: '05',
+  Jun: '06',
+  Jul: '07',
+  Aug: '08',
+  Sep: '09',
+  Oct: '10',
+  Nov: '11',
+  Dec: '12',
 };
 
 /** Convert "Sat 14 Dec 15:00" → "14.12 15:00" */
@@ -60,7 +71,7 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
       <DrawerContent
         side={side}
         className={cn(
-          'bg-gradient-to-b from-[#1a0028] to-[#07000f] border-white/10',
+          'bg-linear-to-b from-[#1a0028] to-[#07000f] border-white/10',
           side === 'bottom' ? 'border-t pb-safe' : 'border-l overflow-y-auto',
         )}
       >
@@ -75,7 +86,7 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
             <div className="relative shrink-0">
               <div className="w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden">
                 {player.imageUrl ? (
-                  <img src={player.imageUrl} alt={player.name} className="w-full h-full object-cover" />
+                  <Image src={player.imageUrl} alt={player.name} fill className="object-cover" />
                 ) : (
                   <JerseyIcon
                     color={player.jersey.color}
@@ -86,7 +97,7 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
                 )}
               </div>
               {player.isCaptain && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center text-[9px] font-black text-[#1a0028]">
+                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-linear-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center text-[9px] font-black text-[#1a0028]">
                   C
                 </div>
               )}
@@ -187,7 +198,7 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
               className={cn(
                 'w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all',
                 player.isCaptain
-                  ? 'bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-[#1a0028]'
+                  ? 'bg-linear-to-r from-cyan-400 to-fuchsia-500 text-[#1a0028]'
                   : 'bg-white/10 text-white hover:bg-white/15 border border-white/10',
               )}
             >

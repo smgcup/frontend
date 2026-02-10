@@ -13,7 +13,7 @@
 //   initialPositionFilter changes — needed for PlayerCardGrid which stays
 //   mounted as a sidebar, but NOT for PlayerList which remounts per drawer open
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, startTransition } from 'react';
 import type { FantasyAvailablePlayer, PlayerPosition } from '../contracts';
 
 export type SortField = 'price' | 'points' | 'name';
@@ -53,12 +53,16 @@ export const usePlayerFilter = ({
   const [positionFilter, setPositionFilter] = useState<PlayerPosition | 'ALL'>(initialPositionFilter);
   const [sortField, setSortField] = useState<SortField>('price');
   const [sortAsc, setSortAsc] = useState(false);
+  const prevInitialPositionFilterRef = useRef(initialPositionFilter);
 
   // Sync filter state when the parent changes initialPositionFilter externally.
   // Only active for components that stay mounted (PlayerCardGrid sidebar).
   useEffect(() => {
-    if (syncPositionFilter) {
-      setPositionFilter(initialPositionFilter);
+    if (syncPositionFilter && prevInitialPositionFilterRef.current !== initialPositionFilter) {
+      prevInitialPositionFilterRef.current = initialPositionFilter;
+      startTransition(() => {
+        setPositionFilter(initialPositionFilter);
+      });
     }
   }, [syncPositionFilter, initialPositionFilter]);
 
