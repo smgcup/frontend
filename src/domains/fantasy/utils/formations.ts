@@ -32,9 +32,7 @@ export function getFormation(starters: FantasyPlayer[]): Formation {
 }
 
 export function isValidFormation(formation: Formation): boolean {
-  return VALID_FORMATIONS.some(
-    ([d, m, f]) => formation[0] === d && formation[1] === m && formation[2] === f,
-  );
+  return VALID_FORMATIONS.some(([d, m, f]) => formation[0] === d && formation[1] === m && formation[2] === f);
 }
 
 export function isSwapValid(

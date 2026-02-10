@@ -46,7 +46,9 @@ const PlayerCardGridItem = ({
       hasClickHandler && 'cursor-pointer',
     )}
   >
-    <span className={cn('inline-block px-1.5 py-0.5 rounded text-[9px] font-bold mb-1.5', positionColors[player.position])}>
+    <span
+      className={cn('inline-block px-1.5 py-0.5 rounded text-[9px] font-bold mb-1.5', positionColors[player.position])}
+    >
       {player.position}
     </span>
     <p className="text-[12px] font-semibold text-white truncate leading-tight">{player.name}</p>
@@ -62,9 +64,22 @@ const PlayerCardGridItem = ({
   </div>
 );
 
-const PlayerCardGrid = ({ players, initialPositionFilter = 'ALL', lockedPosition, onPlayerSelect }: PlayerCardGridProps) => {
-  const { filteredPlayers, search, setSearch, effectiveFilter, setPositionFilter, sortField, sortAsc, handleSortToggle } =
-    usePlayerFilter({ players, initialPositionFilter, lockedPosition, syncPositionFilter: true });
+const PlayerCardGrid = ({
+  players,
+  initialPositionFilter = 'ALL',
+  lockedPosition,
+  onPlayerSelect,
+}: PlayerCardGridProps) => {
+  const {
+    filteredPlayers,
+    search,
+    setSearch,
+    effectiveFilter,
+    setPositionFilter,
+    sortField,
+    sortAsc,
+    handleSortToggle,
+  } = usePlayerFilter({ players, initialPositionFilter, lockedPosition, syncPositionFilter: true });
 
   return (
     <div>

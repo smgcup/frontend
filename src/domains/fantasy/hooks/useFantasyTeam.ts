@@ -78,16 +78,12 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
 
         setStarters((prev) => {
           const next = [...prev];
-          next[starterIdx] = captainMovingToBench
-            ? { ...benchPlayer, isCaptain: true }
-            : benchPlayer;
+          next[starterIdx] = captainMovingToBench ? { ...benchPlayer, isCaptain: true } : benchPlayer;
           return next;
         });
         setBench((prev) => {
           const next = [...prev];
-          next[benchIdx] = captainMovingToBench
-            ? { ...starterPlayer, isCaptain: false }
-            : starterPlayer;
+          next[benchIdx] = captainMovingToBench ? { ...starterPlayer, isCaptain: false } : starterPlayer;
           return next;
         });
       }
@@ -172,8 +168,7 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
   // ── Captain ────────────────────────────────────────────────────────
 
   const setCaptain = useCallback((playerId: string) => {
-    const update = (players: FantasyPlayer[]) =>
-      players.map((p) => ({ ...p, isCaptain: p.id === playerId }));
+    const update = (players: FantasyPlayer[]) => players.map((p) => ({ ...p, isCaptain: p.id === playerId }));
     setStarters(update);
     setBench(update);
   }, []);
@@ -206,8 +201,7 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
         jersey: oldPlayer.jersey,
       };
 
-      const replaceIn = (players: FantasyPlayer[]) =>
-        players.map((p) => (p.id === oldPlayerId ? newPlayer : p));
+      const replaceIn = (players: FantasyPlayer[]) => players.map((p) => (p.id === oldPlayerId ? newPlayer : p));
 
       if (oldInStarters) {
         setStarters(replaceIn);

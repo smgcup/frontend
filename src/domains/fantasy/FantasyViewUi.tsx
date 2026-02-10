@@ -107,9 +107,8 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
   const [replacingPlayerId, setReplacingPlayerId] = useState<string | null>(null);
 
   // When replacing, lock the position filter so user can only pick the same position
-  const lockedPosition = replacingPlayerId && playerListPosition !== 'ALL'
-    ? (playerListPosition as PlayerPosition)
-    : undefined;
+  const lockedPosition =
+    replacingPlayerId && playerListPosition !== 'ALL' ? (playerListPosition as PlayerPosition) : undefined;
 
   // Called when user clicks an EmptySlotCard (a slot where a player was removed).
   // Opens the player list filtered to the required position so user can pick a replacement.
@@ -193,11 +192,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
           </aside>
 
           <main className="lg:w-[480px] lg:shrink-0">
-            <FantasyTabs<FantasyTab>
-              tabs={fantasyTabs}
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-            />
+            <FantasyTabs<FantasyTab> tabs={fantasyTabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
             {isMounted ? (
               <DndContext

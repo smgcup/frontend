@@ -30,9 +30,7 @@ const EmptySlotCard = ({ position }: EmptySlotCardProps) => {
 
       {/* Position label */}
       <div className="bg-white/10 px-1 py-0.5 flex items-center justify-center min-h-[18px]">
-        <span className="text-[10px] font-bold text-white text-center truncate w-full leading-tight">
-          {position}
-        </span>
+        <span className="text-[10px] font-bold text-white text-center truncate w-full leading-tight">{position}</span>
       </div>
     </div>
   );

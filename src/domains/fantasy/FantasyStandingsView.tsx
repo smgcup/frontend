@@ -46,7 +46,7 @@ const generateGameweekStandings = (gw: number): FantasyStandingsEntry[] => {
 
 const generateOverallStandings = (): FantasyStandingsEntry[] => {
   // Sum up points across all 10 gameweeks
-  const totals: Record<string, { gwTotal: number; manager: typeof managers[number] }> = {};
+  const totals: Record<string, { gwTotal: number; manager: (typeof managers)[number] }> = {};
   for (const m of managers) {
     totals[m.managerName] = { gwTotal: 0, manager: m };
   }
@@ -59,8 +59,8 @@ const generateOverallStandings = (): FantasyStandingsEntry[] => {
   return Object.values(totals)
     .map((t) => ({
       ...t.manager,
-      gameweekPoints: generateGameweekStandings(3).find((e) => e.managerName === t.manager.managerName)
-        ?.gameweekPoints ?? 0,
+      gameweekPoints:
+        generateGameweekStandings(3).find((e) => e.managerName === t.manager.managerName)?.gameweekPoints ?? 0,
       totalPoints: t.gwTotal,
     }))
     .sort((a, b) => b.totalPoints - a.totalPoints)
