@@ -11,9 +11,6 @@ export type JerseyStyle = {
   label: string; // The number displayed on the jersey
 };
 
-/** Controls what the bottom bar of a PlayerCard shows: total points or next fixture */
-export type PlayerCardDisplayMode = 'points' | 'nextMatch';
-
 /** A single past match result – used in the "Form" section of PlayerDetailDrawer */
 export type MatchResult = {
   opponent: string; // Short code, e.g. "DOR"
@@ -40,7 +37,8 @@ export type FantasyPlayer = {
   id: string;
   name: string;
   position: PlayerPosition;
-  points: number;
+  /** Total points – undefined means the player hasn't played yet */
+  points?: number;
   jersey: JerseyStyle;
   isCaptain?: boolean;
   /** Next fixture text, e.g. "MCI (H)" – shown on PlayerCard in nextMatch display mode */

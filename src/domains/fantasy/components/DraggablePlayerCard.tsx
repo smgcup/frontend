@@ -16,12 +16,11 @@
 import { useRef, useEffect } from 'react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
-import type { FantasyPlayer, PlayerCardDisplayMode } from '../contracts';
+import type { FantasyPlayer } from '../contracts';
 import PlayerCard from './PlayerCard';
 
 type DraggablePlayerCardProps = {
   player: FantasyPlayer;
-  displayMode: PlayerCardDisplayMode;
   showPrice: boolean;
   isValidTarget: boolean;
   isSelectionActive: boolean;
@@ -32,7 +31,6 @@ type DraggablePlayerCardProps = {
 
 const DraggablePlayerCard = ({
   player,
-  displayMode,
   showPrice,
   isValidTarget,
   isSelectionActive,
@@ -92,7 +90,6 @@ const DraggablePlayerCard = ({
     >
       <PlayerCard
         player={player}
-        displayMode={displayMode}
         showPrice={showPrice}
         onPriceClose={onPriceClose ? () => onPriceClose(player.id) : undefined}
       />

@@ -19,7 +19,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import pitchSvg from '@/public/icons/pitch.svg';
-import type { FantasyTeamData, FantasyPlayer, PlayerCardDisplayMode, PlayerPosition } from '../contracts';
+import type { FantasyTeamData, FantasyPlayer, PlayerPosition } from '../contracts';
 import DraggablePlayerCard from './DraggablePlayerCard';
 import PlayerCard from './PlayerCard';
 import EmptySlotCard from './EmptySlotCard';
@@ -28,7 +28,6 @@ type FantasyPitchCardProps = {
   team: FantasyTeamData;
   starters: FantasyPlayer[];
   bench: FantasyPlayer[];
-  displayMode: PlayerCardDisplayMode;
   showPrice: boolean;
   validTargets: Set<string>;
   isSelectionActive: boolean;
@@ -72,7 +71,6 @@ const FantasyPitchCard = ({
   team,
   starters,
   bench,
-  displayMode,
   showPrice,
   validTargets,
   isSelectionActive,
@@ -108,7 +106,6 @@ const FantasyPitchCard = ({
       <DraggablePlayerCard
         key={p.id}
         player={p}
-        displayMode={displayMode}
         showPrice={showPrice}
         isValidTarget={validTargets.has(p.id)}
         isSelectionActive={isSelectionActive}
@@ -120,7 +117,6 @@ const FantasyPitchCard = ({
       <div key={p.id} className="cursor-pointer" onClick={() => onPlayerClick?.(p)}>
         <PlayerCard
           player={p}
-          displayMode={displayMode}
           showPrice={showPrice}
           onPriceClose={onRemovePlayer ? () => onRemovePlayer(p.id) : undefined}
         />

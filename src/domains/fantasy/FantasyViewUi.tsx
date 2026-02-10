@@ -17,7 +17,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Calendar, Eye, Users, ArrowLeftRight, Trophy } from 'lucide-react';
+import { Users, ArrowLeftRight, Trophy } from 'lucide-react';
 import type { FantasyTabItem } from './components/FantasyTabs';
 import FantasyTabs from './components/FantasyTabs';
 import {
@@ -29,15 +29,8 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { cn } from '@/lib/utils';
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
-import type {
-  FantasyTeamData,
-  FantasyAvailablePlayer,
-  FantasyPlayer,
-  PlayerCardDisplayMode,
-  PlayerPosition,
-} from './contracts';
+import type { FantasyTeamData, FantasyAvailablePlayer, FantasyPlayer, PlayerPosition } from './contracts';
 import FantasyPitchCard from './components/FantasyPitchCard';
 import PlayerList from './components/PlayerList';
 import PlayerCardGrid from './components/PlayerCardGrid';
@@ -60,7 +53,6 @@ type FantasyViewUiProps = {
 
 const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
   const [activeTab, setActiveTab] = useState<FantasyTab>('points');
-  const [displayMode, setDisplayMode] = useState<PlayerCardDisplayMode>('points');
   // isMounted: DndContext can't render during SSR (hydration mismatch).
   // We render a static pitch first, then swap in the DndContext version after mount.
   const [isMounted, setIsMounted] = useState(false);
@@ -206,7 +198,6 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                   team={team}
                   starters={starters}
                   bench={bench}
-                  displayMode={displayMode}
                   showPrice={showPrice}
                   validTargets={validTargets}
                   isSelectionActive={isSelectionActive}
@@ -222,7 +213,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
 
                 <DragOverlay dropAnimation={null}>
                   {activePlayer && !isSubstituting && (
-                    <PlayerCard player={activePlayer} displayMode={displayMode} showPrice={showPrice} />
+                    <PlayerCard player={activePlayer} showPrice={showPrice} />
                   )}
                 </DragOverlay>
               </DndContext>
@@ -231,7 +222,6 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                 team={team}
                 starters={starters}
                 bench={bench}
-                displayMode={displayMode}
                 showPrice={showPrice}
                 validTargets={new Set()}
                 isSelectionActive={false}
@@ -246,29 +236,6 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
               />
             )}
 
-            {/* Toggle: Points ↔ Fixtures */}
-            <div className="mt-4 flex justify-center">
-              <button
-                type="button"
-                onClick={() => setDisplayMode((m) => (m === 'points' ? 'nextMatch' : 'points'))}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all',
-                  'bg-white/10 text-white hover:bg-white/20',
-                )}
-              >
-                {displayMode === 'points' ? (
-                  <>
-                    <Calendar className="w-4 h-4" />
-                    Show Fixtures
-                  </>
-                ) : (
-                  <>
-                    <Eye className="w-4 h-4" />
-                    Show Points
-                  </>
-                )}
-              </button>
-            </div>
           </main>
         </div>
       </div>

@@ -11,23 +11,22 @@
 
 import { cn } from '@/lib/utils';
 import { fantasyTheme } from '@/lib/gamemodeThemes';
-import type { FantasyPlayer, PlayerCardDisplayMode } from '../contracts';
+import type { FantasyPlayer } from '../contracts';
 import JerseyIcon from './JerseyIcon';
 import { X } from 'lucide-react';
 
 type PlayerCardProps = {
   player: FantasyPlayer;
-  /** Which info to show in the bottom bar – defaults to "points" */
-  displayMode?: PlayerCardDisplayMode;
   /** Whether to show the price badge overlay at the top */
   showPrice?: boolean;
   /** Callback when the price badge close button is clicked */
   onPriceClose?: () => void;
 };
 
-const PlayerCard = ({ player, displayMode = 'points', showPrice = false, onPriceClose }: PlayerCardProps) => {
-  // Show next match text only if we're in nextMatch mode AND the player has data; otherwise fall back to points
-  const showNextMatch = displayMode === 'nextMatch' && !!player.nextMatch;
+const PlayerCard = ({ player, showPrice = false, onPriceClose }: PlayerCardProps) => {
+  // Show next match when the player has no points (hasn't played yet)
+  const hasPoints = player.points != null;
+  const showNextMatch = !hasPoints && !!player.nextMatch;
 
   return (
     <div
@@ -96,7 +95,7 @@ const PlayerCard = ({ player, displayMode = 'points', showPrice = false, onPrice
         </div>
       ) : (
         <div className="flex items-center justify-center gap-1 py-0.5 min-h-[18px] bg-[#2b003c] text-white">
-          <span className="text-[11px] font-bold">{player.points}</span>
+          <span className="text-[11px] font-bold">{player.points ?? '-'}</span>
           {player.isCaptain && (
             <span className="text-[9px] font-black bg-linear-to-r from-cyan-400 to-fuchsia-500 bg-clip-text text-transparent leading-none">
               ×2
