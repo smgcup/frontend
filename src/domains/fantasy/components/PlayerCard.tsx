@@ -28,7 +28,7 @@ const PlayerCard = ({
   return (
     <div
       className={cn(
-        'relative flex flex-col rounded-lg overflow-hidden shrink-0',
+        'relative flex flex-col rounded-lg overflow-hidden shrink-0 select-none',
         'backdrop-blur-[2px] border border-white/20 shadow-lg',
         'w-[72px] h-[100px]',
         fantasyTheme.bgLight,
