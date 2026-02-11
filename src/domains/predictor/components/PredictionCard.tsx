@@ -8,6 +8,54 @@ import type { Match } from '@/domains/matches/contracts';
 import type { ScorePrediction } from '@/domains/predictor/contracts';
 import { Button } from '@/components/ui/button';
 
+type PopularPrediction = {
+  score1: number;
+  score2: number;
+  percentage: number;
+};
+
+const getMockPopularPredictions = (matchId: string): PopularPrediction[] => {
+  // Generate deterministic mock data based on matchId
+  let hash = 0;
+  for (let i = 0; i < matchId.length; i++) {
+    hash = (hash * 31 + matchId.charCodeAt(i)) | 0;
+  }
+  const seed = Math.abs(hash);
+
+  const scoreOptions = [
+    { score1: 1, score2: 0 },
+    { score1: 2, score2: 1 },
+    { score1: 1, score2: 1 },
+    { score1: 0, score2: 1 },
+    { score1: 2, score2: 0 },
+    { score1: 1, score2: 2 },
+    { score1: 0, score2: 0 },
+    { score1: 3, score2: 1 },
+    { score1: 2, score2: 2 },
+    { score1: 3, score2: 0 },
+  ];
+
+  const i1 = seed % scoreOptions.length;
+  const i2 = (seed * 7 + 3) % scoreOptions.length;
+  const i3 = (seed * 13 + 5) % scoreOptions.length;
+
+  const picks = [
+    scoreOptions[i1],
+    scoreOptions[i2 === i1 ? (i2 + 1) % scoreOptions.length : i2],
+    scoreOptions[i3 === i1 || i3 === i2 ? (i3 + 2) % scoreOptions.length : i3],
+  ];
+
+  const p1 = 30 + (seed % 25);
+  const p2 = 10 + ((seed * 3) % 15);
+  const p3 = 5 + ((seed * 7) % 12);
+
+  return picks.map((p, idx) => ({
+    score1: p.score1,
+    score2: p.score2,
+    percentage: [p1, p2, p3][idx],
+  }));
+};
+
 type PredictionCardProps = {
   match: Match;
   prediction: ScorePrediction | null;
@@ -116,10 +164,8 @@ const PredictionCard = ({
 
   const getOutcomeLabel = () => {
     if (!hasPrediction) return null;
-    if (predictedScore1 > predictedScore2)
-      return { text: `${match.firstOpponent.name} wins`, color: theme.text };
-    if (predictedScore2 > predictedScore1)
-      return { text: `${match.secondOpponent.name} wins`, color: theme.text };
+    if (predictedScore1 > predictedScore2) return { text: `${match.firstOpponent.name} wins`, color: theme.text };
+    if (predictedScore2 > predictedScore1) return { text: `${match.secondOpponent.name} wins`, color: theme.text };
     return { text: 'Draw', color: 'text-muted-foreground' };
   };
 
@@ -172,7 +218,9 @@ const PredictionCard = ({
       <div className={cn('absolute top-0 left-0 right-0 h-1', theme.gradientLine)} />
 
       {/* Booster glow effect */}
-      {isBoosted && <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-purple-500/5 pointer-events-none" />}
+      {isBoosted && (
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-purple-500/5 pointer-events-none" />
+      )}
 
       <div className="p-5 pt-6">
         {/* Date and Time */}
@@ -209,7 +257,11 @@ const PredictionCard = ({
               type="button"
               onClick={() => updateScore('home', 1)}
               disabled={isSaving}
-              className={cn('p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed', theme.hoverBg, theme.hoverText)}
+              className={cn(
+                'p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
+                theme.hoverBg,
+                theme.hoverText,
+              )}
               aria-label="Increase home score"
             >
               <Plus className="h-4 w-4" />
@@ -234,7 +286,11 @@ const PredictionCard = ({
               type="button"
               onClick={() => updateScore('home', -1)}
               disabled={isSaving || predictedScore1 <= 0}
-              className={cn('p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed', theme.hoverBg, theme.hoverText)}
+              className={cn(
+                'p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed',
+                theme.hoverBg,
+                theme.hoverText,
+              )}
               aria-label="Decrease home score"
             >
               <Minus className="h-4 w-4" />
@@ -252,7 +308,11 @@ const PredictionCard = ({
               type="button"
               onClick={() => updateScore('away', 1)}
               disabled={isSaving}
-              className={cn('p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed', theme.hoverBg, theme.hoverText)}
+              className={cn(
+                'p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
+                theme.hoverBg,
+                theme.hoverText,
+              )}
               aria-label="Increase away score"
             >
               <Plus className="h-4 w-4" />
@@ -277,7 +337,11 @@ const PredictionCard = ({
               type="button"
               onClick={() => updateScore('away', -1)}
               disabled={isSaving || predictedScore2 <= 0}
-              className={cn('p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed', theme.hoverBg, theme.hoverText)}
+              className={cn(
+                'p-1.5 rounded-lg bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed',
+                theme.hoverBg,
+                theme.hoverText,
+              )}
               aria-label="Decrease away score"
             >
               <Minus className="h-4 w-4" />
@@ -304,6 +368,35 @@ const PredictionCard = ({
             <span className={cn('text-sm font-medium', outcome.color)}>{outcome.text}</span>
           </div>
         )}
+
+        {/* Popular Predictions */}
+        <div className="mt-5 rounded-xl">
+          <p className="text-center text-sm font-semibold mb-3 text-muted-foreground">Popular predictions</p>
+          <div className="flex justify-center gap-3">
+            {getMockPopularPredictions(match.id).map((pop) => (
+              <div key={`${pop.score1}-${pop.score2}`} className="flex flex-col items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() =>
+                    onPredictionChange({
+                      predictedScore1: pop.score1,
+                      predictedScore2: pop.score2,
+                    })
+                  }
+                  disabled={isSaving}
+                  className={cn(
+                    'px-4 py-1.5 rounded-full text-sm font-bold transition-all',
+                    'bg-background/80 hover:bg-background shadow-sm',
+                    'disabled:opacity-50 disabled:cursor-not-allowed',
+                  )}
+                >
+                  {pop.score1} - {pop.score2}
+                </button>
+                <span className="text-xs text-muted-foreground">{pop.percentage}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Booster Toggle & Submit Button */}
         <div className="mt-5 pt-4 border-t space-y-3">
@@ -339,7 +432,10 @@ const PredictionCard = ({
           </Button>
           {showLoginHint && (
             <p className="text-xs text-center text-muted-foreground mt-2">
-              <Link href={`/login?redirect=${encodeURIComponent(loginRedirectPath)}`} className={cn('underline underline-offset-2', theme.hoverText)}>
+              <Link
+                href={`/login?redirect=${encodeURIComponent(loginRedirectPath)}`}
+                className={cn('underline underline-offset-2', theme.hoverText)}
+              >
                 Log in
               </Link>{' '}
               to save your prediction
