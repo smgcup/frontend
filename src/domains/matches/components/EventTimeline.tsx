@@ -1,6 +1,15 @@
 'use client';
 
+import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { Clock, X, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { MatchEvent } from '@/domains/matches/contracts';
@@ -123,6 +132,8 @@ const getMarker = (type: MatchEventType) => {
 };
 
 const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEventId }: EventTimelineProps) => {
+  const [playerPickerEvent, setPlayerPickerEvent] = useState<MatchEvent | null>(null);
+
   // Filter saves for non-admin users: show only every 3rd save (3rd, 6th, 9th, etc.)
   const isAdmin = Boolean(onDeleteEvent);
   let filteredEvents = events;
@@ -292,15 +303,40 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
         const leftText = isFirstTeam ? playerName : time;
         const rightText = isFirstTeam ? time : playerName;
 
+        const hasAssist = Boolean(event.assistPlayer);
+        const playerId = event.player?.id;
+
+        const handlePlayerClick = () => {
+          if (hasAssist) {
+            setPlayerPickerEvent(event);
+          }
+        };
+
+        const playerNameEl = (
+          <span className={cn('inline-block truncate font-semibold', playerId && !hasAssist && 'hover:underline', hasAssist && 'cursor-pointer hover:underline')}>
+            {playerName}
+          </span>
+        );
+
+        const playerNameLink = playerId && !hasAssist ? (
+          <Link href={`/players/${playerId}`}>{playerNameEl}</Link>
+        ) : hasAssist ? (
+          <button type="button" onClick={handlePlayerClick} className="truncate text-left">{playerNameEl}</button>
+        ) : playerNameEl;
+
+        const assistEl = assistPlayerName ? (
+          <button type="button" onClick={handlePlayerClick} className="text-xs text-muted-foreground/60 truncate cursor-pointer hover:underline text-left">
+            {assistPlayerName}
+          </button>
+        ) : null;
+
         return (
           <div key={event.id} className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-4 py-1">
             <div className={cn('min-w-0', isFirstTeam ? 'text-right' : 'text-right text-muted-foreground font-mono')}>
               {isFirstTeam ? (
                 <div className="flex flex-col items-end">
-                  <span className={cn('inline-block truncate font-semibold')}>{leftText}</span>
-                  {assistPlayerName && (
-                    <span className="text-xs text-muted-foreground/60 truncate">{assistPlayerName}</span>
-                  )}
+                  {playerNameLink}
+                  {assistEl}
                 </div>
               ) : (
                 <span className={cn('inline-block truncate text-sm')}>{leftText}</span>
@@ -343,10 +379,8 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
                 <span className={cn('inline-block truncate text-sm')}>{rightText}</span>
               ) : (
                 <div className="flex flex-col min-w-0">
-                  <span className={cn('inline-block truncate font-semibold')}>{rightText}</span>
-                  {assistPlayerName && (
-                    <span className="text-xs text-muted-foreground/60 truncate">{assistPlayerName}</span>
-                  )}
+                  {playerNameLink}
+                  {assistEl}
                 </div>
               )}
               {onDeleteEvent && (
@@ -367,6 +401,31 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
           </div>
         );
       })}
+
+      <Dialog open={playerPickerEvent !== null} onOpenChange={(open) => !open && setPlayerPickerEvent(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Go to player</DialogTitle>
+            <DialogDescription>Which player do you want to view?</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2">
+            {playerPickerEvent?.player && (
+              <Button variant="outline" className="justify-start" asChild>
+                <Link href={`/players/${playerPickerEvent.player.id}`}>
+                  {playerPickerEvent.player.firstName} {playerPickerEvent.player.lastName}
+                </Link>
+              </Button>
+            )}
+            {playerPickerEvent?.assistPlayer && (
+              <Button variant="outline" className="justify-start" asChild>
+                <Link href={`/players/${playerPickerEvent.assistPlayer.id}`}>
+                  {playerPickerEvent.assistPlayer.firstName} {playerPickerEvent.assistPlayer.lastName}
+                </Link>
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
