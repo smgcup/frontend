@@ -1,9 +1,10 @@
 // ─── Fantasy Domain Contracts ──────────────────────────────────────────
 // All TypeScript types for the fantasy gamemode.
-// These define the data shapes flowing between the API/mock layer and the UI.
-// TODO: When connecting to real API, these should match (or be mapped from) GraphQL types.
+// FantasyPlayer and FantasyAvailablePlayer extend the global Player type
+// and use the GraphQL PlayerPosition enum for type-safe position handling.
 
-export type PlayerPosition = 'GK' | 'DEF' | 'MID' | 'FWD';
+import type { Player } from '@/domains/player/contracts';
+import type { PlayerPosition } from '@/graphql';
 
 export type JerseyStyle = {
   color: string;
@@ -29,14 +30,11 @@ export type UpcomingFixture = {
 /**
  * A player on the user's team (starter or bench).
  * Used throughout the pitch, drag-and-drop, and player detail drawer.
- * TODO: Many optional fields (form, fixtures, ptsPerMatch, etc.) are only needed
- * by PlayerDetailDrawer. Consider splitting into a "summary" and "detail" type
- * to reduce payload when fetching from the API.
+ * Extends the global Player type with fantasy-specific fields.
  */
-export type FantasyPlayer = {
-  id: string;
-  name: string;
-  position: PlayerPosition;
+export type FantasyPlayer = Omit<Player, 'position'> & {
+  position: PlayerPosition; // required (not optional like in Player)
+  displayName: string;
   /** Total points – undefined means the player hasn't played yet */
   points?: number;
   jersey: JerseyStyle;
@@ -55,21 +53,17 @@ export type FantasyPlayer = {
   form?: MatchResult[];
   /** Upcoming fixtures – shown in PlayerDetailDrawer */
   fixtures?: UpcomingFixture[];
-  /** Player image URL – shown in PlayerDetailDrawer avatar */
-  imageUrl?: string;
+  // imageUrl inherited from Player — not redeclared
 };
 
 /**
  * A player available for transfer – lighter type used in PlayerList (mobile)
  * and PlayerCardGrid (desktop) for the player selection UI.
- * TODO: This is a subset of FantasyPlayer. Consider whether the API should
- * return this as a separate endpoint or part of a unified player query.
  */
-export type FantasyAvailablePlayer = {
-  id: string;
-  name: string;
-  teamShort: string;
+export type FantasyAvailablePlayer = Omit<Player, 'position'> & {
   position: PlayerPosition;
+  displayName: string;
+  teamShort: string;
   price: number;
   points: number;
 };
@@ -87,23 +81,17 @@ export type FantasyStandingsEntry = {
 /**
  * The full team data passed from the data layer (FantasyView) to the UI (FantasyViewUi).
  * Contains both header/meta info and the actual player arrays.
- * TODO: starters and bench are managed as local state in useFantasyTeam after initial load.
- * Consider whether mutations (captain, swap, transfer) should be optimistic or server-confirmed.
  */
 export type FantasyTeamData = {
   teamName?: string;
   gameweek: number;
-  gameweekDate: string;
 
   // Header stats shown on the "Points" tab (optional – UI falls back to 0)
   latestPoints?: number;
   averagePoints?: number;
   highestPoints?: number;
-  gwRank?: number; // TODO: Currently unused in the UI – wire up or remove
-  transfers?: number; // TODO: Currently unused in the UI – wire up or remove
 
   freeTransfers: number; // Shown on Pick Team / Transfers tab header
-  cost: number; // TODO: Currently unused in the UI – wire up or remove
   budget: number; // Shown on Pick Team / Transfers tab header
   starters: FantasyPlayer[]; // Initial starting XI (passed to useFantasyTeam)
   bench: FantasyPlayer[]; // Initial bench (passed to useFantasyTeam)

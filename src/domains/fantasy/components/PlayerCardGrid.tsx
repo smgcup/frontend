@@ -9,15 +9,16 @@
 
 import { cn } from '@/lib/utils';
 import { Search, ChevronDown } from 'lucide-react';
-import type { FantasyAvailablePlayer, PlayerPosition } from '../contracts';
-import { usePlayerFilter, positionFilters, positionColors, type SortField } from '../hooks/usePlayerFilter';
+import type { FantasyAvailablePlayer } from '../contracts';
+import { usePlayerFilter, positionFilters, positionCodeColors, type SortField, type FantasyPositionCode } from '../hooks/usePlayerFilter';
+import { toPositionCode } from '../utils/positionUtils';
 
 type PlayerCardGridProps = {
   players: FantasyAvailablePlayer[];
   /** Pre-select a position filter when opened from an empty slot */
-  initialPositionFilter?: PlayerPosition | 'ALL';
+  initialPositionFilter?: FantasyPositionCode | 'ALL';
   /** Lock the position filter to a specific position (used during transfers) */
-  lockedPosition?: PlayerPosition;
+  lockedPosition?: FantasyPositionCode;
   /** Called when a player card is clicked */
   onPlayerSelect?: (player: FantasyAvailablePlayer) => void;
 };
@@ -47,11 +48,11 @@ const PlayerCardGridItem = ({
     )}
   >
     <span
-      className={cn('inline-block px-1.5 py-0.5 rounded text-[9px] font-bold mb-1.5', positionColors[player.position])}
+      className={cn('inline-block px-1.5 py-0.5 rounded text-[9px] font-bold mb-1.5', positionCodeColors[toPositionCode(player.position)])}
     >
-      {player.position}
+      {toPositionCode(player.position)}
     </span>
-    <p className="text-[12px] font-semibold text-white truncate leading-tight">{player.name}</p>
+    <p className="text-[12px] font-semibold text-white truncate leading-tight">{player.displayName}</p>
     <p className="text-[10px] text-white/40 mt-0.5">{player.teamShort}</p>
     <div className="h-px bg-white/8 my-2" />
     <div className="flex items-center justify-between">

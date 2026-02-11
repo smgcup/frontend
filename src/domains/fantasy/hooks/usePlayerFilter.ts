@@ -14,31 +14,29 @@
 //   mounted as a sidebar, but NOT for PlayerList which remounts per drawer open
 
 import { useState, useMemo, useEffect, useRef, startTransition } from 'react';
-import type { FantasyAvailablePlayer, PlayerPosition } from '../contracts';
+import type { FantasyAvailablePlayer } from '../contracts';
+import {
+  type FantasyPositionCode,
+  FANTASY_POSITION_CODES,
+  toPositionCode,
+  positionCodeColors,
+} from '../utils/positionUtils';
+
+export { positionCodeColors };
+export type { FantasyPositionCode };
 
 export type SortField = 'price' | 'points' | 'name';
 
 /** Position pill options rendered in both mobile and desktop player lists */
-export const positionFilters: { label: string; value: PlayerPosition | 'ALL' }[] = [
+export const positionFilters: { label: string; value: FantasyPositionCode | 'ALL' }[] = [
   { label: 'All', value: 'ALL' },
-  { label: 'GK', value: 'GK' },
-  { label: 'DEF', value: 'DEF' },
-  { label: 'MID', value: 'MID' },
-  { label: 'FWD', value: 'FWD' },
+  ...FANTASY_POSITION_CODES.map((code) => ({ label: code, value: code })),
 ];
-
-/** Tailwind classes for the position badge in each player row/card */
-export const positionColors: Record<PlayerPosition, string> = {
-  GK: 'bg-amber-500/20 text-amber-300',
-  DEF: 'bg-emerald-500/20 text-emerald-300',
-  MID: 'bg-sky-500/20 text-sky-300',
-  FWD: 'bg-red-500/20 text-red-300',
-};
 
 type UsePlayerFilterParams = {
   players: FantasyAvailablePlayer[];
-  initialPositionFilter?: PlayerPosition | 'ALL';
-  lockedPosition?: PlayerPosition;
+  initialPositionFilter?: FantasyPositionCode | 'ALL';
+  lockedPosition?: FantasyPositionCode;
   /** When true, syncs positionFilter state when initialPositionFilter changes (needed for components that stay mounted) */
   syncPositionFilter?: boolean;
 };
@@ -50,7 +48,7 @@ export const usePlayerFilter = ({
   syncPositionFilter = false,
 }: UsePlayerFilterParams) => {
   const [search, setSearch] = useState('');
-  const [positionFilter, setPositionFilter] = useState<PlayerPosition | 'ALL'>(initialPositionFilter);
+  const [positionFilter, setPositionFilter] = useState<FantasyPositionCode | 'ALL'>(initialPositionFilter);
   const [sortField, setSortField] = useState<SortField>('price');
   const [sortAsc, setSortAsc] = useState(false);
   const prevInitialPositionFilterRef = useRef(initialPositionFilter);
@@ -76,18 +74,20 @@ export const usePlayerFilter = ({
 
     if (search) {
       const q = search.toLowerCase();
-      result = result.filter((p) => p.name.toLowerCase().includes(q) || p.teamShort.toLowerCase().includes(q));
+      result = result.filter(
+        (p) => p.displayName.toLowerCase().includes(q) || p.teamShort.toLowerCase().includes(q),
+      );
     }
 
     if (effectiveFilter !== 'ALL') {
-      result = result.filter((p) => p.position === effectiveFilter);
+      result = result.filter((p) => toPositionCode(p.position) === effectiveFilter);
     }
 
     result.sort((a, b) => {
       let cmp = 0;
       if (sortField === 'price') cmp = a.price - b.price;
       else if (sortField === 'points') cmp = a.points - b.points;
-      else cmp = a.name.localeCompare(b.name);
+      else cmp = a.displayName.localeCompare(b.displayName);
       return sortAsc ? cmp : -cmp;
     });
 

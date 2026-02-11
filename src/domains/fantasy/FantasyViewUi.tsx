@@ -30,7 +30,8 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
-import type { FantasyTeamData, FantasyAvailablePlayer, FantasyPlayer, PlayerPosition } from './contracts';
+import type { FantasyTeamData, FantasyAvailablePlayer, FantasyPlayer } from './contracts';
+import type { FantasyPositionCode } from './utils/positionUtils';
 import FantasyPitchCard from './components/FantasyPitchCard';
 import PlayerList from './components/PlayerList';
 import PlayerCardGrid from './components/PlayerCardGrid';
@@ -95,18 +96,18 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
   // playerListPosition: which position filter is active (locked when replacing a specific slot)
   // replacingPlayerId: the ID of the player being replaced (null when not in replacement flow)
   const [playerListOpen, setPlayerListOpen] = useState(false);
-  const [playerListPosition, setPlayerListPosition] = useState<PlayerPosition | 'ALL'>('ALL');
+  const [playerListPosition, setPlayerListPosition] = useState<FantasyPositionCode | 'ALL'>('ALL');
   const [replacingPlayerId, setReplacingPlayerId] = useState<string | null>(null);
 
   // When replacing, lock the position filter so user can only pick the same position
   const lockedPosition =
-    replacingPlayerId && playerListPosition !== 'ALL' ? (playerListPosition as PlayerPosition) : undefined;
+    replacingPlayerId && playerListPosition !== 'ALL' ? (playerListPosition as FantasyPositionCode) : undefined;
 
   // Called when user clicks an EmptySlotCard (a slot where a player was removed).
   // Opens the player list filtered to the required position so user can pick a replacement.
   // On desktop, the PlayerCardGrid sidebar reacts to the position filter automatically.
   // On mobile, we explicitly open the bottom Drawer.
-  const handleEmptySlotClick = useCallback((position: PlayerPosition, oldPlayerId: string) => {
+  const handleEmptySlotClick = useCallback((position: FantasyPositionCode, oldPlayerId: string) => {
     setPlayerListPosition(position);
     setReplacingPlayerId(oldPlayerId);
     const isDesktop = window.matchMedia('(min-width: 1024px)').matches;

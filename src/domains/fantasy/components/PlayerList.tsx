@@ -5,15 +5,16 @@
 
 import { cn } from '@/lib/utils';
 import { Search, ChevronDown } from 'lucide-react';
-import type { FantasyAvailablePlayer, PlayerPosition } from '../contracts';
-import { usePlayerFilter, positionFilters, positionColors } from '../hooks/usePlayerFilter';
+import type { FantasyAvailablePlayer } from '../contracts';
+import { usePlayerFilter, positionFilters, positionCodeColors, type FantasyPositionCode } from '../hooks/usePlayerFilter';
+import { toPositionCode } from '../utils/positionUtils';
 
 type PlayerListProps = {
   players: FantasyAvailablePlayer[];
   /** Pre-select a position filter when opened from an empty slot */
-  initialPositionFilter?: PlayerPosition | 'ALL';
+  initialPositionFilter?: FantasyPositionCode | 'ALL';
   /** Lock the position filter to a specific position (used during transfers) */
-  lockedPosition?: PlayerPosition;
+  lockedPosition?: FantasyPositionCode;
   /** Called when a player row is clicked */
   onPlayerSelect?: (player: FantasyAvailablePlayer) => void;
 };
@@ -125,12 +126,12 @@ const PlayerList = ({ players, initialPositionFilter = 'ALL', lockedPosition, on
           >
             <div className="flex items-center gap-2 min-w-0">
               <span
-                className={cn('shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold', positionColors[player.position])}
+                className={cn('shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold', positionCodeColors[toPositionCode(player.position)])}
               >
-                {player.position}
+                {toPositionCode(player.position)}
               </span>
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold text-white truncate">{player.name}</p>
+                <p className="text-[11px] font-semibold text-white truncate">{player.displayName}</p>
                 <p className="text-[9px] text-white/40">{player.teamShort}</p>
               </div>
             </div>

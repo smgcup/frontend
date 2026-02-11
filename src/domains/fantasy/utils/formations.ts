@@ -7,6 +7,7 @@
 // Valid outfield formations are: 3-1-1, 2-2-1, 2-1-2 (DEF-MID-FWD).
 // TODO: If the team size changes (e.g., 11 starters), update VALID_FORMATIONS.
 
+import { PlayerPosition } from '@/graphql';
 import type { FantasyPlayer } from '../contracts';
 
 /** A formation is [DEF count, MID count, FWD count]. GK is always 1. */
@@ -24,9 +25,9 @@ export function getFormation(starters: FantasyPlayer[]): Formation {
   let mid = 0;
   let fwd = 0;
   for (const p of starters) {
-    if (p.position === 'DEF') def++;
-    else if (p.position === 'MID') mid++;
-    else if (p.position === 'FWD') fwd++;
+    if (p.position === PlayerPosition.Defender) def++;
+    else if (p.position === PlayerPosition.Midfielder) mid++;
+    else if (p.position === PlayerPosition.Forward) fwd++;
   }
   return [def, mid, fwd];
 }
@@ -54,8 +55,8 @@ export function isSwapValid(
   const bencher = aIsStarter ? playerB : playerA;
 
   // GK can only swap with GK
-  if (starter.position === 'GK' || bencher.position === 'GK') {
-    return starter.position === 'GK' && bencher.position === 'GK';
+  if (starter.position === PlayerPosition.Goalkeeper || bencher.position === PlayerPosition.Goalkeeper) {
+    return starter.position === PlayerPosition.Goalkeeper && bencher.position === PlayerPosition.Goalkeeper;
   }
 
   // Same position: formation never changes

@@ -192,12 +192,8 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
       if (incoming.position !== oldPlayer.position) return;
 
       const newPlayer: FantasyPlayer = {
-        id: incoming.id,
-        name: incoming.name,
-        position: incoming.position,
-        points: incoming.points,
-        price: incoming.price,
-        teamShort: incoming.teamShort,
+        ...incoming,
+        displayName: incoming.displayName,
         jersey: oldPlayer.jersey,
       };
 

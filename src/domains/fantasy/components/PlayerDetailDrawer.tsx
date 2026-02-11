@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
 import type { FantasyPlayer } from '../contracts';
+import { toPositionLabel } from '../utils/positionUtils';
 import JerseyIcon from './JerseyIcon';
 
 type PlayerDetailDrawerProps = {
@@ -53,13 +54,6 @@ const formatFixtureDateTime = (dateTime: string): string => {
   return `${day.padStart(2, '0')}.${mm} at ${time}`;
 };
 
-const positionLabels: Record<string, string> = {
-  GK: 'Goalkeeper',
-  DEF: 'Defender',
-  MID: 'Midfielder',
-  FWD: 'Forward',
-};
-
 const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubstitute }: PlayerDetailDrawerProps) => {
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const side = isDesktop ? 'right' : 'bottom';
@@ -76,7 +70,7 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
         )}
       >
         {/* Visually hidden title for accessibility */}
-        <DrawerTitle className="sr-only">{player.name} Details</DrawerTitle>
+        <DrawerTitle className="sr-only">{player.displayName} Details</DrawerTitle>
         <DrawerDescription className="sr-only">Player details and stats</DrawerDescription>
 
         <div className={cn('px-5 pb-6', side === 'right' ? 'pt-5' : 'pt-1')}>
@@ -86,7 +80,7 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
             <div className="relative shrink-0">
               <div className="w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden">
                 {player.imageUrl ? (
-                  <Image src={player.imageUrl} alt={player.name} fill className="object-cover" />
+                  <Image src={player.imageUrl} alt={player.displayName} fill className="object-cover" />
                 ) : (
                   <JerseyIcon
                     color={player.jersey.color}
@@ -105,11 +99,11 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
 
             {/* Name & position */}
             <div className="flex-1 min-w-0">
-              <h3 className="text-white font-bold text-lg leading-tight truncate">{player.name}</h3>
+              <h3 className="text-white font-bold text-lg leading-tight truncate">{player.displayName}</h3>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-xs font-semibold text-cyan-300">{player.teamShort ?? '—'}</span>
                 <span className="text-white/30 text-xs">|</span>
-                <span className="text-xs text-white/50">{positionLabels[player.position] ?? player.position}</span>
+                <span className="text-xs text-white/50">{toPositionLabel(player.position)}</span>
               </div>
             </div>
           </div>

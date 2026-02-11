@@ -84,7 +84,7 @@ const PlayerCard = ({ player, showPrice = false, onPriceClose }: PlayerCardProps
       {/* Name bar */}
       <div className="bg-white px-1 py-0.5 flex items-center justify-center min-h-[18px]">
         <span className="text-[10px] font-bold text-gray-900 text-center truncate w-full leading-tight">
-          {player.name}
+          {player.displayName}
         </span>
       </div>
 

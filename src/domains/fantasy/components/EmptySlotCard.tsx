@@ -3,9 +3,10 @@
 // (Transfers tab). Shows a dashed border with a "+" icon and the position label.
 // Clicking it triggers the replacement flow (opens PlayerList/PlayerCardGrid).
 import { Plus } from 'lucide-react';
+import type { PlayerPosition } from '@/graphql';
 import { cn } from '@/lib/utils';
 import { fantasyTheme } from '@/lib/gamemodeThemes';
-import type { PlayerPosition } from '../contracts';
+import { toPositionCode } from '../utils/positionUtils';
 
 type EmptySlotCardProps = {
   position: PlayerPosition;
@@ -30,7 +31,7 @@ const EmptySlotCard = ({ position }: EmptySlotCardProps) => {
 
       {/* Position label */}
       <div className="bg-white/10 px-1 py-0.5 flex items-center justify-center min-h-[18px]">
-        <span className="text-[10px] font-bold text-white text-center truncate w-full leading-tight">{position}</span>
+        <span className="text-[10px] font-bold text-white text-center truncate w-full leading-tight">{toPositionCode(position)}</span>
       </div>
     </div>
   );

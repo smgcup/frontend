@@ -19,7 +19,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import pitchSvg from '@/public/icons/pitch.svg';
-import type { FantasyTeamData, FantasyPlayer, PlayerPosition } from '../contracts';
+import { PlayerPosition } from '@/graphql';
+import type { FantasyTeamData, FantasyPlayer } from '../contracts';
+import type { FantasyPositionCode } from '../utils/positionUtils';
+import { toPositionCode } from '../utils/positionUtils';
 import DraggablePlayerCard from './DraggablePlayerCard';
 import PlayerCard from './PlayerCard';
 import EmptySlotCard from './EmptySlotCard';
@@ -37,7 +40,7 @@ type FantasyPitchCardProps = {
   onPlayerClick?: (player: FantasyPlayer) => void;
   onRemovePlayer?: (playerId: string) => void;
   removedPlayerIds?: Set<string>;
-  onEmptySlotClick?: (position: PlayerPosition, replacingPlayerId: string) => void;
+  onEmptySlotClick?: (position: FantasyPositionCode, replacingPlayerId: string) => void;
   gameweek: number;
   onGameweekChange?: (gw: number) => void;
   activeTab?: 'pickTeam' | 'transfers' | 'points';
@@ -84,10 +87,10 @@ const FantasyPitchCard = ({
   onGameweekChange,
   activeTab = 'pickTeam',
 }: FantasyPitchCardProps) => {
-  const gk = starters.filter((p) => p.position === 'GK');
-  const def = starters.filter((p) => p.position === 'DEF');
-  const mid = starters.filter((p) => p.position === 'MID');
-  const fwd = starters.filter((p) => p.position === 'FWD');
+  const gk = starters.filter((p) => p.position === PlayerPosition.Goalkeeper);
+  const def = starters.filter((p) => p.position === PlayerPosition.Defender);
+  const mid = starters.filter((p) => p.position === PlayerPosition.Midfielder);
+  const fwd = starters.filter((p) => p.position === PlayerPosition.Forward);
 
   const latestPoints = team.latestPoints ?? 0;
   const averagePoints = team.averagePoints ?? 0;
@@ -96,7 +99,7 @@ const FantasyPitchCard = ({
   const renderPlayer = (p: FantasyPlayer) => {
     if (removedPlayerIds?.has(p.id)) {
       return (
-        <div key={p.id} className="cursor-pointer" onClick={() => onEmptySlotClick?.(p.position, p.id)}>
+        <div key={p.id} className="cursor-pointer" onClick={() => onEmptySlotClick?.(toPositionCode(p.position), p.id)}>
           <EmptySlotCard position={p.position} />
         </div>
       );
@@ -218,7 +221,7 @@ const FantasyPitchCard = ({
           <div className="grid grid-cols-3 gap-2 justify-items-center">
             {bench.map((player) => (
               <div key={player.id} className="flex flex-col items-center">
-                <p className="text-[9px] font-bold text-white/40 mb-1">{player.position}</p>
+                <p className="text-[9px] font-bold text-white/40 mb-1">{toPositionCode(player.position)}</p>
                 {renderPlayer(player)}
               </div>
             ))}
