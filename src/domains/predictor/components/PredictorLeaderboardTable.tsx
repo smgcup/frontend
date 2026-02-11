@@ -19,7 +19,6 @@ const STATS = [
   { key: 'exact', short: 'Exact', full: 'Exact Matches' },
   { key: 'outcomes', short: 'Outcomes', full: 'Correct Outcomes' },
   { key: 'preds', short: 'Preds', full: 'Total Predictions' },
-  { key: 'acc', short: 'Acc%', full: 'Accuracy (correct outcomes %)' },
 ] as const;
 
 function StatHeader({ short, full }: { short: string; full: string }) {
@@ -96,9 +95,6 @@ const PredictorLeaderboardTable = ({ leaderboard }: PredictorLeaderboardTablePro
                   </td>
                   <td className="px-3 py-4 text-center">
                     <p className="font-medium">{player.totalPredictionsCount}</p>
-                  </td>
-                  <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{player.accuracy}%</p>
                   </td>
                 </tr>
               );

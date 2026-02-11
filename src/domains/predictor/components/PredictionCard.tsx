@@ -90,6 +90,30 @@ const PredictionCard = ({
     }
   };
 
+  const handleScoreInput = (team: 'home' | 'away', value: string) => {
+    const currentScore1 = prediction?.predictedScore1 ?? 0;
+    const currentScore2 = prediction?.predictedScore2 ?? 0;
+
+    if (value === '') {
+      if (team === 'home') {
+        onPredictionChange({ predictedScore1: 0, predictedScore2: currentScore2 });
+      } else {
+        onPredictionChange({ predictedScore1: currentScore1, predictedScore2: 0 });
+      }
+      return;
+    }
+
+    const parsed = parseInt(value, 10);
+    if (isNaN(parsed)) return;
+    const clamped = Math.max(0, Math.min(20, parsed));
+
+    if (team === 'home') {
+      onPredictionChange({ predictedScore1: clamped, predictedScore2: currentScore2 });
+    } else {
+      onPredictionChange({ predictedScore1: currentScore1, predictedScore2: clamped });
+    }
+  };
+
   const getOutcomeLabel = () => {
     if (!hasPrediction) return null;
     if (predictedScore1 > predictedScore2)
@@ -190,16 +214,22 @@ const PredictionCard = ({
             >
               <Plus className="h-4 w-4" />
             </button>
-            <div
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={predictedScore1}
+              onChange={(e) => handleScoreInput('home', e.target.value)}
+              onFocus={(e) => e.target.select()}
+              disabled={isSaving}
               className={cn(
-                'w-12 h-12 flex items-center justify-center rounded-xl text-2xl font-bold transition-all',
+                'w-12 h-12 text-center rounded-xl text-2xl font-bold transition-all outline-none',
                 hasPrediction && predictedScore1 > predictedScore2
                   ? cn(theme.bg, 'text-white')
                   : 'bg-muted/50 border-2 border-border',
               )}
-            >
-              {predictedScore1}
-            </div>
+              aria-label="Home score"
+            />
             <button
               type="button"
               onClick={() => updateScore('home', -1)}
@@ -227,16 +257,22 @@ const PredictionCard = ({
             >
               <Plus className="h-4 w-4" />
             </button>
-            <div
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={predictedScore2}
+              onChange={(e) => handleScoreInput('away', e.target.value)}
+              onFocus={(e) => e.target.select()}
+              disabled={isSaving}
               className={cn(
-                'w-12 h-12 flex items-center justify-center rounded-xl text-2xl font-bold transition-all',
+                'w-12 h-12 text-center rounded-xl text-2xl font-bold transition-all outline-none',
                 hasPrediction && predictedScore2 > predictedScore1
                   ? cn(theme.bg, 'text-white')
                   : 'bg-muted/50 border-2 border-border',
               )}
-            >
-              {predictedScore2}
-            </div>
+              aria-label="Away score"
+            />
             <button
               type="button"
               onClick={() => updateScore('away', -1)}
