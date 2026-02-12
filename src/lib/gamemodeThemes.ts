@@ -75,8 +75,8 @@ export const gamemodeThemes: Record<GamemodeTheme, ThemeClasses> = {
     gradientOverlay: 'bg-linear-to-br from-orange-500/5 via-transparent to-transparent',
 
     // Button variants
-    buttonPrimary: 'bg-orange-500 text-white',
-    buttonPrimaryHover: 'hover:bg-orange-600',
+    buttonPrimary: 'bg-white/10 text-orange-500',
+    buttonPrimaryHover: 'hover:bg-orange-500/15',
 
     // Score display
     scoreWinner: 'text-orange-500',
