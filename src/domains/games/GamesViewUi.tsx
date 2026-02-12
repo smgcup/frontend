@@ -141,7 +141,7 @@ const GamesViewUi = () => {
           title="Predictor"
           description="Predict match scores and outcomes."
           icon={<Target className="h-7 w-7" />}
-          badge="Most Popular"
+          // badge="Most Popular"
           theme={predictorTheme}
           href="/games/predictor"
           backgroundImage="https://storage.googleapis.com/pod_public/750/169545.jpg"
