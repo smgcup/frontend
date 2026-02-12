@@ -58,6 +58,8 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
   // We render a static pitch first, then swap in the DndContext version after mount.
   const [isMounted, setIsMounted] = useState(false);
   const [gameweek, setGameweek] = useState(team.gameweek);
+  const pitchCardRef = useRef<HTMLDivElement | null>(null);
+  const [pitchCardHeight, setPitchCardHeight] = useState<number | null>(null);
 
   // Price badges (with X to remove) only show on the Transfers tab
   const showPrice = activeTab === 'transfers';
@@ -66,6 +68,24 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
   useEffect(() => {
     const raf = requestAnimationFrame(() => setIsMounted(true));
     return () => cancelAnimationFrame(raf);
+  }, []);
+
+  // Desktop-only: keep the left player list the same height as the pitch card.
+  useEffect(() => {
+    const el = pitchCardRef.current;
+    if (!el) return;
+
+    const update = () => setPitchCardHeight(el.getBoundingClientRect().height);
+    update();
+
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+    window.addEventListener('resize', update);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
   }, []);
 
   const {
@@ -196,7 +216,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
       el.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
     };
-  }, [availablePlayers.length, playerListPosition, lockedPosition]);
+  }, [availablePlayers.length, playerListPosition, lockedPosition, pitchCardHeight]);
 
   return (
     <div className="min-h-screen bg-[#07000f]" onClick={isSubstituting ? cancelSubstitution : undefined}>
@@ -245,22 +265,45 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
           <main className="lg:w-[480px] lg:shrink-0">
             <FantasyTabs<FantasyTab> tabs={fantasyTabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
-            {isMounted ? (
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-                onDragCancel={handleDragCancel}
-              >
+            <div ref={pitchCardRef}>
+              {isMounted ? (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                  onDragCancel={handleDragCancel}
+                >
+                  <FantasyPitchCard
+                    team={team}
+                    starters={starters}
+                    bench={bench}
+                    showPrice={showPrice}
+                    validTargets={validTargets}
+                    isSelectionActive={isSelectionActive}
+                    substitutePlayerId={substitutePlayerId}
+                    onPlayerClick={handlePlayerClick}
+                    onRemovePlayer={activeTab === 'transfers' ? removePlayer : undefined}
+                    removedPlayerIds={activeTab === 'transfers' ? removedPlayerIds : undefined}
+                    onEmptySlotClick={handleEmptySlotClick}
+                    gameweek={gameweek}
+                    onGameweekChange={setGameweek}
+                    activeTab={activeTab}
+                  />
+
+                  <DragOverlay dropAnimation={null}>
+                    {activePlayer && !isSubstituting && <PlayerCard player={activePlayer} showPrice={showPrice} />}
+                  </DragOverlay>
+                </DndContext>
+              ) : (
                 <FantasyPitchCard
                   team={team}
                   starters={starters}
                   bench={bench}
                   showPrice={showPrice}
-                  validTargets={validTargets}
-                  isSelectionActive={isSelectionActive}
-                  substitutePlayerId={substitutePlayerId}
+                  validTargets={new Set()}
+                  isSelectionActive={false}
+                  enableDnd={false}
                   onPlayerClick={handlePlayerClick}
                   onRemovePlayer={activeTab === 'transfers' ? removePlayer : undefined}
                   removedPlayerIds={activeTab === 'transfers' ? removedPlayerIds : undefined}
@@ -269,29 +312,8 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                   onGameweekChange={setGameweek}
                   activeTab={activeTab}
                 />
-
-                <DragOverlay dropAnimation={null}>
-                  {activePlayer && !isSubstituting && <PlayerCard player={activePlayer} showPrice={showPrice} />}
-                </DragOverlay>
-              </DndContext>
-            ) : (
-              <FantasyPitchCard
-                team={team}
-                starters={starters}
-                bench={bench}
-                showPrice={showPrice}
-                validTargets={new Set()}
-                isSelectionActive={false}
-                enableDnd={false}
-                onPlayerClick={handlePlayerClick}
-                onRemovePlayer={activeTab === 'transfers' ? removePlayer : undefined}
-                removedPlayerIds={activeTab === 'transfers' ? removedPlayerIds : undefined}
-                onEmptySlotClick={handleEmptySlotClick}
-                gameweek={gameweek}
-                onGameweekChange={setGameweek}
-                activeTab={activeTab}
-              />
-            )}
+              )}
+            </div>
           </main>
         </div>
       </div>

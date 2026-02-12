@@ -83,7 +83,7 @@ const PlayerCardGrid = ({
   } = usePlayerFilter({ players, initialPositionFilter, lockedPosition, syncPositionFilter: true });
 
   return (
-    <div>
+    <div className="h-full">
       {/* Header */}
       <div className="pb-3">
         <h2 className="text-base font-bold text-white tracking-tight">Player List</h2>

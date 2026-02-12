@@ -151,7 +151,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
                   </Button>
                 </>
               ) : (
-                <Button asChild size="sm" className={cn(theme.buttonPrimary, theme.buttonPrimaryHover, 'border-0')}>
+                <Button asChild size="sm" className={cn(theme.buttonPrimary, theme.hover, 'border-0')}>
                   <Link href={`/login?redirect=${encodeURIComponent(pathname)}`}>Login to Play</Link>
                 </Button>
               )}
@@ -243,11 +243,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
                       </Button>
                     </div>
                   ) : (
-                    <Button
-                      asChild
-                      size="sm"
-                      className={cn('w-full', theme.buttonPrimary, theme.buttonPrimaryHover, 'border-0')}
-                    >
+                    <Button asChild size="sm" className={cn('w-full', theme.buttonPrimary, theme.hover, 'border-0')}>
                       <Link href={`/login?redirect=${encodeURIComponent(pathname)}`}>Login to Play</Link>
                     </Button>
                   )}

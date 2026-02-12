@@ -228,9 +228,6 @@ const FantasyPitchCard = ({
           </div>
         </div>
       </div>
-
-      {/* Bottom padding */}
-      <div className="pb-4" />
     </div>
   );
 };
