@@ -14,7 +14,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
-import type { FantasyTeamData, FantasyAvailablePlayer, FantasyPlayer } from './contracts';
+import type { FantasyTeamData, FantasyAvailablePlayer, FantasyPlayer, JerseyStyle } from './contracts';
 import type { FantasyPositionCode } from './utils/positionUtils';
 import FantasyPitchCard from './components/FantasyPitchCard';
 import PlayerList from './components/PlayerList';
@@ -79,6 +79,8 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
     validTargets,
     isSelectionActive,
     isSubstituting,
+    budget,
+    budgetError,
     handleDragStart,
     handleDragEnd,
     handleDragCancel,
@@ -93,6 +95,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
     initialStarters: team.starters,
     initialBench: team.bench,
     initialRemovedPlayerIds: team.initialRemovedPlayerIds,
+    initialBudget: team.budget,
   });
 
   // ── Player Detail Drawer state ──
@@ -106,6 +109,12 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
   const [playerListOpen, setPlayerListOpen] = useState(false);
   const [playerListPosition, setPlayerListPosition] = useState<FantasyPositionCode | 'ALL'>('ALL');
   const [replacingPlayerId, setReplacingPlayerId] = useState<string | null>(null);
+
+  // Inline error shown when user tries to modify team from Points tab
+  const [pitchError, setPitchError] = useState<string | null>(null);
+  const pitchErrorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const effectivePitchError = pitchError ?? budgetError;
 
   // When replacing, lock the position filter so user can only pick the same position
   const lockedPosition =
@@ -122,6 +131,13 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
     if (!isDesktop) {
       setPlayerListOpen(true);
     }
+  }, []);
+
+  // On Points tab, show an inline error instead of the player list
+  const handlePointsTabEmptySlotClick = useCallback(() => {
+    if (pitchErrorTimer.current) clearTimeout(pitchErrorTimer.current);
+    setPitchError('You cannot change your team from this tab. Go to Pick Team or Transfers to make changes.');
+    pitchErrorTimer.current = setTimeout(() => setPitchError(null), 4000);
   }, []);
 
   // Called when user picks a player from PlayerList/PlayerCardGrid to fill a removed slot.
@@ -169,6 +185,19 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
     },
     [startSubstitution],
   );
+
+  // Opens the player detail drawer for a player from the available-player grid.
+  // Converts the lighter FantasyAvailablePlayer to FantasyPlayer with defaults.
+  const defaultJersey: JerseyStyle = { color: '#6b7280', textColor: '#ffffff', label: '?' };
+  const handleAvailablePlayerInfo = useCallback((player: FantasyAvailablePlayer) => {
+    const asFantasyPlayer: FantasyPlayer = {
+      ...player,
+      jersey: defaultJersey,
+      isCaptain: false,
+    };
+    setSelectedPlayer(asFantasyPlayer);
+    setDrawerOpen(true);
+  }, []);
 
   // dnd-kit sensors: pointer needs 5px distance to distinguish click from drag;
   // touch needs 150ms delay so scrolling doesn't accidentally start a drag.
@@ -218,6 +247,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                 initialPositionFilter={playerListPosition}
                 lockedPosition={lockedPosition}
                 onPlayerSelect={replacingPlayerId ? handlePlayerListSelect : undefined}
+                onPlayerInfo={handleAvailablePlayerInfo}
               />
             </div>
 
@@ -270,13 +300,17 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                     validTargets={validTargets}
                     isSelectionActive={isSelectionActive}
                     substitutePlayerId={substitutePlayerId}
+                    enableDnd={activeTab !== 'points'}
                     onPlayerClick={handlePlayerClick}
                     onRemovePlayer={activeTab === 'transfers' ? removePlayer : undefined}
                     removedPlayerIds={removedPlayerIds}
-                    onEmptySlotClick={handleEmptySlotClick}
+                    onEmptySlotClick={activeTab === 'points' ? undefined : handleEmptySlotClick}
+                    onReadOnlyEmptySlotClick={activeTab === 'points' ? handlePointsTabEmptySlotClick : undefined}
+                    pitchError={effectivePitchError}
                     gameweek={gameweek}
                     onGameweekChange={setGameweek}
                     activeTab={activeTab}
+                    budget={budget}
                   />
 
                   <DragOverlay dropAnimation={null}>
@@ -295,10 +329,13 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                   onPlayerClick={handlePlayerClick}
                   onRemovePlayer={activeTab === 'transfers' ? removePlayer : undefined}
                   removedPlayerIds={removedPlayerIds}
-                  onEmptySlotClick={handleEmptySlotClick}
+                  onEmptySlotClick={activeTab === 'points' ? undefined : handleEmptySlotClick}
+                  onReadOnlyEmptySlotClick={activeTab === 'points' ? handlePointsTabEmptySlotClick : undefined}
+                  pitchError={effectivePitchError}
                   gameweek={gameweek}
                   onGameweekChange={setGameweek}
                   activeTab={activeTab}
+                  budget={budget}
                 />
               )}
             </div>
@@ -310,8 +347,9 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
         player={selectedPlayer}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
-        onSetCaptain={handleSetCaptain}
-        onSubstitute={handleSubstitute}
+        onSetCaptain={activeTab !== 'points' ? handleSetCaptain : undefined}
+        onSubstitute={activeTab !== 'points' ? handleSubstitute : undefined}
+        onRemovePlayer={activeTab === 'transfers' ? removePlayer : undefined}
       />
 
       <Drawer open={playerListOpen} onOpenChange={setPlayerListOpen}>

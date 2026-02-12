@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import pitchSvg from '@/public/icons/pitch.svg';
@@ -25,9 +25,14 @@ type FantasyPitchCardProps = {
   onRemovePlayer?: (playerId: string) => void;
   removedPlayerIds?: Set<string>;
   onEmptySlotClick?: (position: FantasyPositionCode, replacingPlayerId: string) => void;
+  /** Fires when an empty slot is tapped on a read-only tab (e.g. Points) */
+  onReadOnlyEmptySlotClick?: () => void;
+  /** Inline error message displayed below the header */
+  pitchError?: string | null;
   gameweek: number;
   onGameweekChange?: (gw: number) => void;
   activeTab?: 'pickTeam' | 'transfers' | 'points';
+  budget?: number;
 };
 
 type GameweekNavButtonProps = {
@@ -67,14 +72,20 @@ const FantasyPitchCard = ({
   onRemovePlayer,
   removedPlayerIds,
   onEmptySlotClick,
+  onReadOnlyEmptySlotClick,
+  pitchError,
   gameweek,
   onGameweekChange,
   activeTab = 'pickTeam',
+  budget,
 }: FantasyPitchCardProps) => {
   const gk = starters.filter((p) => p.position === PlayerPosition.Goalkeeper);
   const def = starters.filter((p) => p.position === PlayerPosition.Defender);
   const mid = starters.filter((p) => p.position === PlayerPosition.Midfielder);
   const fwd = starters.filter((p) => p.position === PlayerPosition.Forward);
+
+  const totalSlots = starters.length + bench.length;
+  const selectedCount = [...starters, ...bench].filter((p) => !removedPlayerIds?.has(p.id)).length;
 
   const latestPoints = team.latestPoints ?? 0;
   const averagePoints = team.averagePoints ?? 0;
@@ -82,8 +93,11 @@ const FantasyPitchCard = ({
 
   const renderPlayer = (p: FantasyPlayer) => {
     if (removedPlayerIds?.has(p.id)) {
+      const handleSlotClick = onEmptySlotClick
+        ? () => onEmptySlotClick(toPositionCode(p.position), p.id)
+        : onReadOnlyEmptySlotClick;
       return (
-        <div key={p.id} className="cursor-pointer" onClick={() => onEmptySlotClick?.(toPositionCode(p.position), p.id)}>
+        <div key={p.id} className="cursor-pointer" onClick={handleSlotClick}>
           <EmptySlotCard position={p.position} />
         </div>
       );
@@ -156,22 +170,52 @@ const FantasyPitchCard = ({
             </div>
           </>
         ) : (
-          <div className="flex items-center justify-center gap-6 text-xs text-white/40">
-            <div className="flex items-center gap-1.5">
-              <span className="font-medium">Free Transfers:</span>
-              <span className="font-bold text-white/70">{team.freeTransfers}</span>
-            </div>
-            <div className="w-px h-3 bg-white/15" />
-            <div className="flex items-center gap-1.5">
-              <span className="font-medium">Budget:</span>
-              <span className="font-bold text-cyan-300/80">
-                {'£'}
-                {team.budget.toFixed(1)}m
-              </span>
+          <div className="flex flex-col items-center gap-3">
+            <h2 className="text-white font-extrabold text-xl tracking-tight">
+              {activeTab === 'pickTeam' ? 'Pick Team' : 'Transfers'}
+            </h2>
+            <div className="grid grid-cols-4 w-full">
+              <div className="flex flex-col items-center px-2">
+                <div className="h-9 flex items-center justify-center">
+                  <span className="rounded-md bg-cyan-400 px-2.5 py-1 text-base font-extrabold text-[#1a0028]">
+                    {selectedCount} / {totalSlots}
+                  </span>
+                </div>
+                <span className="mt-1.5 text-[10px] font-medium text-white/40 text-center">Players Selected</span>
+              </div>
+              <div className="flex flex-col items-center px-2 border-l border-white/10">
+                <div className="h-9 flex items-center justify-center">
+                  <span className="rounded-md bg-cyan-400 px-2.5 py-1 text-base font-extrabold text-[#1a0028]">
+                    {'£'}
+                    {(budget ?? team.budget).toFixed(1)}m
+                  </span>
+                </div>
+                <span className="mt-1.5 text-[10px] font-medium text-white/40 text-center">Budget</span>
+              </div>
+              <div className="flex flex-col items-center px-2 border-l border-white/10">
+                <div className="h-9 flex items-center justify-center">
+                  <span className="text-xl font-extrabold text-white">{team.freeTransfers}</span>
+                </div>
+                <span className="mt-1.5 text-[10px] font-medium text-white/40 text-center">Free Transfers</span>
+              </div>
+              <div className="flex flex-col items-center px-2 border-l border-white/10">
+                <div className="h-9 flex items-center justify-center">
+                  <span className="text-xl font-extrabold text-white">{team.transferCost} pts</span>
+                </div>
+                <span className="mt-1.5 text-[10px] font-medium text-white/40 text-center">Cost</span>
+              </div>
             </div>
           </div>
         )}
       </div>
+
+      {/* Inline error (e.g. tapping empty slot on Points tab) */}
+      {pitchError && (
+        <div className="mx-4 mb-1 flex items-center gap-2 rounded-lg bg-red-500/15 border border-red-500/25 px-3 py-2">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-red-400" />
+          <p className="text-xs font-medium text-red-300">{pitchError}</p>
+        </div>
+      )}
 
       {/* Pitch */}
       <div className="w-full flex flex-col items-center mt-3">

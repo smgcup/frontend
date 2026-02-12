@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { Search, ChevronDown } from 'lucide-react';
+import { Search, ChevronDown, Plus } from 'lucide-react';
 import type { FantasyAvailablePlayer } from '../contracts';
 import {
   usePlayerFilter,
@@ -19,8 +19,10 @@ type PlayerCardGridProps = {
   initialPositionFilter?: FantasyPositionCode | 'ALL';
   /** Lock the position filter to a specific position (used during transfers) */
   lockedPosition?: FantasyPositionCode;
-  /** Called when a player card is clicked */
+  /** Called when a player card is clicked to add to team (replacement flow) */
   onPlayerSelect?: (player: FantasyAvailablePlayer) => void;
+  /** Called when a player card is clicked for info (when not in replacement flow) */
+  onPlayerInfo?: (player: FantasyAvailablePlayer) => void;
 };
 
 const sortOptions: { label: string; value: SortField }[] = [
@@ -33,10 +35,12 @@ const PlayerCardGridItem = ({
   player,
   onClick,
   hasClickHandler,
+  showAddIcon,
 }: {
   player: FantasyAvailablePlayer;
   onClick: () => void;
   hasClickHandler: boolean;
+  showAddIcon?: boolean;
 }) => (
   <div
     onClick={onClick}
@@ -47,6 +51,7 @@ const PlayerCardGridItem = ({
       hasClickHandler && 'cursor-pointer',
     )}
   >
+    {showAddIcon && <Plus className="absolute top-2 right-2 w-5 h-5 text-emerald-400" />}
     <span
       className={cn(
         'inline-block px-1.5 py-0.5 rounded text-[9px] font-bold mb-1.5',
@@ -73,6 +78,7 @@ const PlayerCardGrid = ({
   initialPositionFilter = 'ALL',
   lockedPosition,
   onPlayerSelect,
+  onPlayerInfo,
 }: PlayerCardGridProps) => {
   const {
     filteredPlayers,
@@ -176,14 +182,22 @@ const PlayerCardGrid = ({
       {/* Card grid */}
       {filteredPlayers.length > 0 ? (
         <div className="grid grid-cols-3 xl:grid-cols-4 gap-2.5">
-          {filteredPlayers.map((player) => (
-            <PlayerCardGridItem
-              key={player.id}
-              player={player}
-              onClick={() => onPlayerSelect?.(player)}
-              hasClickHandler={!!onPlayerSelect}
-            />
-          ))}
+          {filteredPlayers.map((player) => {
+            const handleClick = onPlayerSelect
+              ? () => onPlayerSelect(player)
+              : onPlayerInfo
+                ? () => onPlayerInfo(player)
+                : undefined;
+            return (
+              <PlayerCardGridItem
+                key={player.id}
+                player={player}
+                onClick={handleClick ?? (() => {})}
+                hasClickHandler={!!handleClick}
+                showAddIcon={!!onPlayerSelect}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="py-8 text-center">

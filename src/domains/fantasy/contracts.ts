@@ -101,6 +101,7 @@ export type FantasyTeamData = {
 
   freeTransfers: number; // Shown on Pick Team / Transfers tab header
   budget: number; // Shown on Pick Team / Transfers tab header
+  transferCost: number; // Points cost for extra transfers beyond free allowance
   starters: FantasyPlayer[]; // Initial starting XI (passed to useFantasyTeam)
   bench: FantasyPlayer[]; // Initial bench (passed to useFantasyTeam)
   /** Player IDs that start as empty slots (shown as EmptySlotCards on the pitch) */

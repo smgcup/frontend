@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
 import type { FantasyPlayer, FantasyAvailablePlayer, JerseyStyle } from '../contracts';
 import { getValidSwapTargets } from '../utils/formations';
@@ -29,9 +29,10 @@ type UseFantasyTeamProps = {
   initialStarters: FantasyPlayer[];
   initialBench: FantasyPlayer[];
   initialRemovedPlayerIds?: Set<string>;
+  initialBudget: number;
 };
 
-export const useFantasyTeam = ({ initialStarters, initialBench, initialRemovedPlayerIds }: UseFantasyTeamProps) => {
+export const useFantasyTeam = ({ initialStarters, initialBench, initialRemovedPlayerIds, initialBudget }: UseFantasyTeamProps) => {
   const [starters, setStarters] = useState<FantasyPlayer[]>(initialStarters);
   const [bench, setBench] = useState<FantasyPlayer[]>(initialBench);
   // activePlayer: the player currently being dragged or chosen for substitution
@@ -41,6 +42,15 @@ export const useFantasyTeam = ({ initialStarters, initialBench, initialRemovedPl
   // removedPlayerIds: tracks which players have been "removed" in Transfers tab
   // (they show as EmptySlotCards on the pitch until replaced)
   const [removedPlayerIds, setRemovedPlayerIds] = useState<Set<string>>(initialRemovedPlayerIds ?? new Set());
+  const [budget, setBudget] = useState<number>(initialBudget);
+  const [budgetError, setBudgetError] = useState<string | null>(null);
+  const budgetErrorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showBudgetError = useCallback((msg: string) => {
+    if (budgetErrorTimer.current) clearTimeout(budgetErrorTimer.current);
+    setBudgetError(msg);
+    budgetErrorTimer.current = setTimeout(() => setBudgetError(null), 4000);
+  }, []);
 
   const validTargets = useMemo(() => {
     if (!activePlayer) return new Set<string>();
@@ -179,11 +189,14 @@ export const useFantasyTeam = ({ initialStarters, initialBench, initialRemovedPl
   // ── Transfer removal & replacement ────────────────────────────────
   // Flow: removePlayer marks a player → EmptySlotCard renders → user picks
   // a replacement → replacePlayer swaps in the new player and un-marks the slot.
-  // TODO: Enforce budget constraints when replacing (check incoming.price <= budget + old.price)
 
   const removePlayer = useCallback(
     (playerId: string) => {
       const removedPlayer = starters.find((p) => p.id === playerId) ?? bench.find((p) => p.id === playerId);
+
+      if (removedPlayer?.price) {
+        setBudget((prev) => prev + removedPlayer.price!);
+      }
 
       if (removedPlayer?.isCaptain) {
         const newCaptain =
@@ -200,13 +213,23 @@ export const useFantasyTeam = ({ initialStarters, initialBench, initialRemovedPl
   );
 
   const replacePlayer = useCallback(
-    (oldPlayerId: string, incoming: FantasyAvailablePlayer) => {
+    (oldPlayerId: string, incoming: FantasyAvailablePlayer): boolean => {
       const oldInStarters = starters.find((p) => p.id === oldPlayerId);
       const oldPlayer = oldInStarters ?? bench.find((p) => p.id === oldPlayerId);
-      if (!oldPlayer) return;
+      if (!oldPlayer) return false;
 
       // Enforce fixed roster composition: replacement must be same position
-      if (incoming.position !== oldPlayer.position) return;
+      if (incoming.position !== oldPlayer.position) return false;
+
+      // Enforce budget constraint
+      if (incoming.price > budget) {
+        showBudgetError(
+          `Not enough budget. ${incoming.displayName} costs £${incoming.price.toFixed(1)}m but you only have £${budget.toFixed(1)}m remaining.`,
+        );
+        return false;
+      }
+
+      setBudget((prev) => prev - incoming.price);
 
       const hasCaptain = [...starters, ...bench].some((p) => p.isCaptain && !removedPlayerIds.has(p.id));
 
@@ -230,14 +253,18 @@ export const useFantasyTeam = ({ initialStarters, initialBench, initialRemovedPl
         next.delete(oldPlayerId);
         return next;
       });
+
+      return true;
     },
-    [starters, bench, removedPlayerIds],
+    [starters, bench, removedPlayerIds, budget, showBudgetError],
   );
 
   return {
     starters,
     bench,
     removedPlayerIds,
+    budget,
+    budgetError,
     activePlayer,
     validTargets,
     isSelectionActive: activePlayer !== null,

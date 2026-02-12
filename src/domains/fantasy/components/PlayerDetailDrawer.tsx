@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { Dialog as DialogPrimitive } from 'radix-ui';
-import { Shield, TrendingUp, Users, Crown, ArrowRightLeft, User, ChevronRight } from 'lucide-react';
+import { Shield, TrendingUp, Users, Crown, ArrowRightLeft, User, ChevronRight, UserMinus } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -19,6 +19,7 @@ type PlayerDetailDrawerProps = {
   onOpenChange: (open: boolean) => void;
   onSetCaptain?: (playerId: string) => void;
   onSubstitute?: (player: FantasyPlayer) => void;
+  onRemovePlayer?: (playerId: string) => void;
 };
 
 const monthMap: Record<string, string> = {
@@ -46,7 +47,7 @@ const formatFixtureDateTime = (dateTime: string): string => {
   return `${day.padStart(2, '0')}.${mm} at ${time}`;
 };
 
-const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubstitute }: PlayerDetailDrawerProps) => {
+const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubstitute, onRemovePlayer }: PlayerDetailDrawerProps) => {
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const side = isDesktop ? 'right' : 'bottom';
 
@@ -215,44 +216,64 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="mt-5 space-y-2">
-            <button
-              type="button"
-              onClick={() => {
-                if (!player.isCaptain) {
-                  onSetCaptain?.(player.id);
-                }
-              }}
-              className={cn(
-                'w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all',
-                player.isCaptain
-                  ? 'bg-linear-to-r from-cyan-400 to-fuchsia-500 text-[#1a0028]'
-                  : 'bg-white/10 text-white hover:bg-white/15 border border-white/10',
+          {/* Action buttons (hidden on Points tab — view only) */}
+          {(onSetCaptain || onSubstitute || onRemovePlayer) && (
+            <div className="mt-5 space-y-2">
+              {onSetCaptain && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!player.isCaptain) {
+                      onSetCaptain(player.id);
+                    }
+                  }}
+                  className={cn(
+                    'w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all',
+                    player.isCaptain
+                      ? 'bg-linear-to-r from-cyan-400 to-fuchsia-500 text-[#1a0028]'
+                      : 'bg-white/10 text-white hover:bg-white/15 border border-white/10',
+                  )}
+                >
+                  <Crown className="w-4 h-4" />
+                  {player.isCaptain ? 'Captain' : 'Make Captain'}
+                </button>
               )}
-            >
-              <Crown className="w-4 h-4" />
-              {player.isCaptain ? 'Captain' : 'Make Captain'}
-            </button>
 
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 transition-all"
-              >
-                <User className="w-3.5 h-3.5" />
-                Full Profile
-              </button>
-              <button
-                type="button"
-                onClick={() => onSubstitute?.(player)}
-                className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold bg-cyan-400/10 text-cyan-300 hover:bg-cyan-400/20 border border-cyan-400/20 transition-all"
-              >
-                <ArrowRightLeft className="w-3.5 h-3.5" />
-                Substitute
-              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 transition-all"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  Full Profile
+                </button>
+                {onSubstitute && (
+                  <button
+                    type="button"
+                    onClick={() => onSubstitute(player)}
+                    className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold bg-cyan-400/10 text-cyan-300 hover:bg-cyan-400/20 border border-cyan-400/20 transition-all"
+                  >
+                    <ArrowRightLeft className="w-3.5 h-3.5" />
+                    Substitute
+                  </button>
+                )}
+              </div>
+
+              {onRemovePlayer && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onRemovePlayer(player.id);
+                    onOpenChange(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-all"
+                >
+                  <UserMinus className="w-3.5 h-3.5" />
+                  Remove Player
+                </button>
+              )}
             </div>
-          </div>
+          )}
         </div>
       </DrawerContent>
 
