@@ -29,8 +29,6 @@ export type MatchResult = {
 /** An upcoming fixture – used in the "Fixtures" section of PlayerDetailDrawer */
 export type UpcomingFixture = {
   opponent: string;
-  /** Difficulty 1-5, higher = harder */
-  difficulty: number;
   /** Optional date/time string, e.g. "Sat 14 Dec 15:00" */
   dateTime?: string;
 };

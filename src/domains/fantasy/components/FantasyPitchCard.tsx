@@ -171,7 +171,7 @@ const FantasyPitchCard = ({
           </>
         ) : (
           <div className="flex flex-col items-center gap-3">
-            <h2 className="text-white font-extrabold text-xl tracking-tight">
+            <h2 className="text-white font-extrabold text-2xl tracking-tight mb-2">
               {activeTab === 'pickTeam' ? 'Pick Team' : 'Transfers'}
             </h2>
             <div className="grid grid-cols-4 w-full">

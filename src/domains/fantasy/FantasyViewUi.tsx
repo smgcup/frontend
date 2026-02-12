@@ -302,7 +302,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                     substitutePlayerId={substitutePlayerId}
                     enableDnd={activeTab !== 'points'}
                     onPlayerClick={handlePlayerClick}
-                    onRemovePlayer={activeTab === 'transfers' ? removePlayer : undefined}
+                    onRemovePlayer={activeTab !== 'points' ? removePlayer : undefined}
                     removedPlayerIds={removedPlayerIds}
                     onEmptySlotClick={activeTab === 'points' ? undefined : handleEmptySlotClick}
                     onReadOnlyEmptySlotClick={activeTab === 'points' ? handlePointsTabEmptySlotClick : undefined}
@@ -327,7 +327,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                   isSelectionActive={false}
                   enableDnd={false}
                   onPlayerClick={handlePlayerClick}
-                  onRemovePlayer={activeTab === 'transfers' ? removePlayer : undefined}
+                  onRemovePlayer={activeTab !== 'points' ? removePlayer : undefined}
                   removedPlayerIds={removedPlayerIds}
                   onEmptySlotClick={activeTab === 'points' ? undefined : handleEmptySlotClick}
                   onReadOnlyEmptySlotClick={activeTab === 'points' ? handlePointsTabEmptySlotClick : undefined}
@@ -349,7 +349,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
         onOpenChange={setDrawerOpen}
         onSetCaptain={activeTab !== 'points' ? handleSetCaptain : undefined}
         onSubstitute={activeTab !== 'points' ? handleSubstitute : undefined}
-        onRemovePlayer={activeTab === 'transfers' ? removePlayer : undefined}
+        onRemovePlayer={activeTab !== 'points' ? removePlayer : undefined}
       />
 
       <Drawer open={playerListOpen} onOpenChange={setPlayerListOpen}>
