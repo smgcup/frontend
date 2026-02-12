@@ -9,10 +9,15 @@
 // 4. Fixtures: upcoming opponents with formatted date/time
 // 5. Action buttons: Make Captain, Full Profile (TODO: not wired), Substitute
 //
+// Points breakdown:
+// - Mobile:  tapping a form row opens a nested bottom drawer (MatchBreakdownDrawer)
+// - Desktop: tapping a form row opens a Radix Dialog panel anchored next to the Form section
+//
 // TODO: "Full Profile" button has no handler – wire it to a player profile page/modal.
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { Dialog as DialogPrimitive } from 'radix-ui';
 import { Shield, TrendingUp, Users, Crown, ArrowRightLeft, User, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -22,6 +27,7 @@ import type { FantasyPlayer, MatchResult } from '../contracts';
 import { toPositionLabel } from '../utils/positionUtils';
 import JerseyIcon from './JerseyIcon';
 import MatchBreakdownDrawer from './MatchBreakdownDrawer';
+import BreakdownContent from './BreakdownContent';
 
 type PlayerDetailDrawerProps = {
   player: FantasyPlayer | null;
@@ -60,24 +66,47 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const side = isDesktop ? 'right' : 'bottom';
 
-  // State for the nested match breakdown drawer
+  // State for the match breakdown (shared between mobile drawer & desktop dialog)
   const [selectedMatch, setSelectedMatch] = useState<MatchResult | null>(null);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
+
+  // Ref on the Form section — used to position the desktop breakdown panel
+  const formRef = useRef<HTMLDivElement>(null);
+  const [breakdownPos, setBreakdownPos] = useState<{ top: number; right: number } | null>(null);
 
   const handleMatchTap = (match: MatchResult) => {
     setSelectedMatch(match);
     setBreakdownOpen(true);
+
+    // Snapshot the Form section's position for the desktop floating panel
+    if (formRef.current) {
+      const rect = formRef.current.getBoundingClientRect();
+      setBreakdownPos({
+        top: rect.top,
+        // Place the panel's right edge 12px to the left of the Form section
+        right: window.innerWidth - rect.left + 12,
+      });
+    }
   };
 
   if (!player) return null;
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer
+      open={open}
+      onOpenChange={(newOpen) => {
+        // When the breakdown panel is open on desktop, Radix detects interactions
+        // with the breakdown dialog as "outside" this parent and tries to close it.
+        // Ignore close attempts while the breakdown is showing.
+        if (!newOpen && breakdownOpen) return;
+        onOpenChange(newOpen);
+      }}
+    >
       <DrawerContent
         side={side}
         className={cn(
-          'bg-linear-to-b from-[#1a0028] to-[#07000f] border-white/10 pb-12',
-          side === 'bottom' ? 'border-t pb-safe' : 'border-l overflow-y-auto',
+          'bg-linear-to-b from-[#1a0028] to-[#07000f] border-white/10',
+          side === 'bottom' ? 'border-t pb-8' : 'border-l overflow-y-auto',
         )}
       >
         {/* Visually hidden title for accessibility */}
@@ -140,8 +169,8 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
 
           {/* Form & Fixtures */}
           <div className="mt-4 grid grid-cols-2 gap-3">
-            {/* Form — each row is a button that opens the match breakdown drawer */}
-            <div className="rounded-xl bg-white/5 border border-white/10 p-3">
+            {/* Form — each row opens the points breakdown */}
+            <div ref={formRef} className="rounded-xl bg-white/5 border border-white/10 p-3">
               <h4 className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-2">Form</h4>
               {player.form && player.form.length > 0 ? (
                 <div className="space-y-1">
@@ -153,7 +182,6 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
                       className={cn(
                         'w-full flex items-center justify-between gap-1',
                         'rounded-lg px-2 py-1.5',
-                        // Hover/active states make it feel tappable
                         'hover:bg-white/10 active:bg-white/15 transition-colors cursor-pointer',
                       )}
                     >
@@ -171,7 +199,6 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
                         >
                           {m.points}
                         </span>
-                        {/* Chevron signals the row is interactive */}
                         <ChevronRight className="w-3 h-3 text-white/30" />
                       </div>
                     </button>
@@ -206,7 +233,6 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
 
           {/* Action buttons */}
           <div className="mt-5 space-y-2">
-            {/* Make captain */}
             <button
               type="button"
               onClick={() => {
@@ -225,7 +251,6 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
               {player.isCaptain ? 'Captain' : 'Make Captain'}
             </button>
 
-            {/* Bottom row: Full Profile + Substitute */}
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -247,13 +272,45 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
         </div>
       </DrawerContent>
 
-      {/* Nested drawer for match points breakdown */}
-      <MatchBreakdownDrawer
-        match={selectedMatch}
-        playerName={player.displayName}
-        open={breakdownOpen}
-        onOpenChange={setBreakdownOpen}
-      />
+      {/* Mobile: nested bottom drawer for match breakdown */}
+      {!isDesktop && (
+        <MatchBreakdownDrawer
+          match={selectedMatch}
+          playerName={player.displayName}
+          open={breakdownOpen}
+          onOpenChange={setBreakdownOpen}
+        />
+      )}
+
+      {/* Desktop: a proper Radix Dialog for the breakdown panel.
+          Using a separate Dialog instance gives it its own overlay and event
+          handling — clicking its overlay closes only this dialog, not the parent. */}
+      {isDesktop && selectedMatch && breakdownPos && (
+        <DialogPrimitive.Root open={breakdownOpen} onOpenChange={setBreakdownOpen}>
+          <DialogPrimitive.Portal>
+            {/* No overlay — the parent drawer already dims the page background.
+                Radix still closes this dialog on outside clicks without an overlay. */}
+            <DialogPrimitive.Content
+              className="fixed z-60 w-72 rounded-2xl bg-linear-to-b from-[#1a0028] to-[#07000f] border border-white/10 shadow-2xl data-open:animate-in data-open:fade-in-0 data-open:slide-in-from-right-4 data-closed:animate-out data-closed:fade-out-0 duration-200"
+              style={{ top: breakdownPos.top, right: breakdownPos.right }}
+            >
+              <DialogPrimitive.Title className="sr-only">
+                Points Breakdown vs {selectedMatch.opponent}
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="sr-only">
+                Detailed scoring breakdown for {player.displayName}
+              </DialogPrimitive.Description>
+              <div className="p-4">
+                <BreakdownContent
+                  match={selectedMatch}
+                  playerName={player.displayName}
+                  onClose={() => setBreakdownOpen(false)}
+                />
+              </div>
+            </DialogPrimitive.Content>
+          </DialogPrimitive.Portal>
+        </DialogPrimitive.Root>
+      )}
     </Drawer>
   );
 };

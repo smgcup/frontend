@@ -53,7 +53,7 @@ function DrawerContent({
             'data-closed:animate-out data-closed:slide-out-to-bottom data-closed:fade-out-0',
           ],
           side === 'right' && [
-            'right-0 top-0 bottom-0 w-full max-w-md rounded-l-2xl',
+            'right-4 top-4 bottom-4 w-full max-w-md rounded-2xl',
             'data-open:animate-in data-open:slide-in-from-right data-open:fade-in-0',
             'data-closed:animate-out data-closed:slide-out-to-right data-closed:fade-out-0',
           ],
