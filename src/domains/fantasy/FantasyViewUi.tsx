@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Users, ArrowLeftRight, Trophy, ChevronDown, ChevronUp } from 'lucide-react';
 import type { FantasyTabItem } from './components/FantasyTabs';
 import FantasyTabs from './components/FantasyTabs';
@@ -36,8 +37,13 @@ type FantasyViewUiProps = {
   availablePlayers: FantasyAvailablePlayer[];
 };
 
+const validTabs: FantasyTab[] = ['points', 'pickTeam', 'transfers'];
+
 const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
-  const [activeTab, setActiveTab] = useState<FantasyTab>('points');
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab') as FantasyTab | null;
+  const initialTab = tabParam && validTabs.includes(tabParam) ? tabParam : 'points';
+  const [activeTab, setActiveTab] = useState<FantasyTab>(initialTab);
   // isMounted: DndContext can't render during SSR (hydration mismatch).
   // We render a static pitch first, then swap in the DndContext version after mount.
   const [isMounted, setIsMounted] = useState(false);

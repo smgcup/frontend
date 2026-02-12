@@ -84,6 +84,17 @@ export type FantasyStandingsEntry = {
   isCurrentUser?: boolean;
 };
 
+export type FantasyHomeData = {
+  teamName?: string;
+  managerName?: string;
+  currentGameweek: number;
+  currentGameweekPoints?: number;
+  averagePoints?: number;
+  highestPoints?: number;
+  nextGameweek: number;
+  nextDeadline: Date;
+};
+
 /**
  * The full team data passed from the data layer (FantasyView) to the UI (FantasyViewUi).
  * Contains both header/meta info and the actual player arrays.

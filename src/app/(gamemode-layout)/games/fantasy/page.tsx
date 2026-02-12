@@ -1,7 +1,7 @@
-import FantasyView from '@/domains/fantasy/FantasyView';
+import FantasyHomeView from '@/domains/fantasy/FantasyHomeView';
 
 const FantasyPage = () => {
-  return <FantasyView />;
+  return <FantasyHomeView />;
 };
 
 export default FantasyPage;

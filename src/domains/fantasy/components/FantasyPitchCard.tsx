@@ -149,7 +149,7 @@ const FantasyPitchCard = ({
 
             {/* Stats row */}
             <div className="mt-5 grid grid-cols-3 items-center gap-3">
-              <div className="text-center">
+              <div className="self-center text-center">
                 <div className="text-white text-2xl font-extrabold leading-none">{averagePoints}</div>
                 <div className="mt-1 text-[11px] font-medium text-white/50">Average</div>
               </div>
@@ -163,9 +163,9 @@ const FantasyPitchCard = ({
                 </div>
               </div>
 
-              <div className="text-center">
+              <div className="self-center text-center">
                 <div className="text-white text-2xl font-extrabold leading-none">{highestPoints}</div>
-                <div className="mt-1 text-[11px] font-medium text-white/50">Highest</div>
+                <div className="mt-1 text-[11px] font-medium text-white/50">Highest &rarr;</div>
               </div>
             </div>
           </>
