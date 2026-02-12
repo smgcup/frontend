@@ -1,4 +1,4 @@
-import FantasyHomeView from '@/domains/fantasy/FantasyHomeView';
+import FantasyHomeView from '@/domains/fantasy/home/FantasyHomeView';
 
 const FantasyPage = () => {
   return <FantasyHomeView />;

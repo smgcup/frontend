@@ -7,9 +7,9 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
-import type { FantasyPlayer, MatchResult } from '../contracts';
-import { toPositionLabel } from '../utils/positionUtils';
-import JerseyIcon from './JerseyIcon';
+import type { FantasyPlayer, MatchResult } from '../../contracts';
+import { toPositionLabel } from '../../shared/utils/positionUtils';
+import JerseyIcon from '../../shared/components/JerseyIcon';
 import MatchBreakdownDrawer from './MatchBreakdownDrawer';
 import BreakdownContent from './BreakdownContent';
 

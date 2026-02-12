@@ -2,8 +2,8 @@
 
 import { cn } from '@/lib/utils';
 import { fantasyTheme } from '@/lib/gamemodeThemes';
-import type { FantasyPlayer } from '../contracts';
-import JerseyIcon from './JerseyIcon';
+import type { FantasyPlayer } from '../../contracts';
+import JerseyIcon from '../../shared/components/JerseyIcon';
 import { X } from 'lucide-react';
 
 type PlayerCardProps = {

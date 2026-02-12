@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ChevronRight, Users, ArrowLeftRight } from 'lucide-react';
-import type { FantasyHomeData } from './contracts';
+import type { FantasyHomeData } from '../contracts';
 import { useCountdown } from './hooks/useCountdown';
 
 const formatDate = (date: Date) =>
@@ -129,9 +129,9 @@ const FantasyHomeViewUi = ({ data }: FantasyHomeViewUiProps) => {
         {/* ── Quick Links Card ── */}
         <div className="mx-4 mt-5 divide-y divide-white/8 overflow-hidden rounded-2xl bg-white/4 ring-1 ring-white/10">
           {[
-            { label: 'Fixtures', href: '#' },
+            { label: 'Fixtures', href: '/games/fantasy/fixtures' },
             { label: 'Fixture Difficulty Rating', href: '#' },
-            { label: 'Player Statistics', href: '#' },
+            { label: 'Player Statistics', href: '/player-standings' },
           ].map((link) => (
             <Link
               key={link.label}

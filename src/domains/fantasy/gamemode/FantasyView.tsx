@@ -2,7 +2,7 @@
 
 import { PlayerPosition } from '@/graphql';
 import FantasyViewUi from './FantasyViewUi';
-import type { FantasyTeamData, FantasyAvailablePlayer, FantasyPlayer } from './contracts';
+import type { FantasyTeamData, FantasyAvailablePlayer, FantasyPlayer } from '../contracts';
 
 const emptyJersey = { color: '#6B7280', textColor: '#FFFFFF', label: '' };
 

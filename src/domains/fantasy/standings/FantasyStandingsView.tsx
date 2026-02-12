@@ -1,7 +1,7 @@
 'use client';
 
 import FantasyStandingsViewUi from './FantasyStandingsViewUi';
-import type { FantasyStandingsEntry } from './contracts';
+import type { FantasyStandingsEntry } from '../contracts';
 
 // TODO: Replace with real API data
 const managers = [

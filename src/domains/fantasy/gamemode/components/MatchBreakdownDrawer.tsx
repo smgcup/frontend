@@ -1,7 +1,7 @@
 'use client';
 
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
-import type { MatchResult } from '../contracts';
+import type { MatchResult } from '../../contracts';
 import BreakdownContent from './BreakdownContent';
 
 type MatchBreakdownDrawerProps = {

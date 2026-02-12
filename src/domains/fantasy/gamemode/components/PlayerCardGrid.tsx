@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Search, ChevronDown, Plus } from 'lucide-react';
-import type { FantasyAvailablePlayer } from '../contracts';
+import type { FantasyAvailablePlayer } from '../../contracts';
 import {
   usePlayerFilter,
   positionFilters,
@@ -11,7 +11,7 @@ import {
   type SortField,
   type FantasyPositionCode,
 } from '../hooks/usePlayerFilter';
-import { toPositionCode, positionCodeToLabel } from '../utils/positionUtils';
+import { toPositionCode, positionCodeToLabel } from '../../shared/utils/positionUtils';
 
 type PlayerCardGridProps = {
   players: FantasyAvailablePlayer[];

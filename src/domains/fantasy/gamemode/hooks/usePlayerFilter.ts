@@ -1,11 +1,11 @@
 import { useState, useMemo, useEffect, useRef, startTransition } from 'react';
-import type { FantasyAvailablePlayer } from '../contracts';
+import type { FantasyAvailablePlayer } from '../../contracts';
 import {
   type FantasyPositionCode,
   FANTASY_POSITION_CODES,
   toPositionCode,
   positionCodeColors,
-} from '../utils/positionUtils';
+} from '../../shared/utils/positionUtils';
 
 export { positionCodeColors };
 export type { FantasyPositionCode };

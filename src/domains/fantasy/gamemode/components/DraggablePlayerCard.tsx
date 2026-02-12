@@ -3,7 +3,7 @@
 import { useRef, useEffect } from 'react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
-import type { FantasyPlayer } from '../contracts';
+import type { FantasyPlayer } from '../../contracts';
 import PlayerCard from './PlayerCard';
 
 type DraggablePlayerCardProps = {

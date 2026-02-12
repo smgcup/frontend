@@ -2,7 +2,7 @@
 
 import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { MatchResult } from '../contracts';
+import type { MatchResult } from '../../contracts';
 
 type BreakdownContentProps = {
   match: MatchResult;

@@ -2,7 +2,7 @@ import { Plus } from 'lucide-react';
 import type { PlayerPosition } from '@/graphql';
 import { cn } from '@/lib/utils';
 import { fantasyTheme } from '@/lib/gamemodeThemes';
-import { toPositionCode } from '../utils/positionUtils';
+import { toPositionCode } from '../../shared/utils/positionUtils';
 
 type EmptySlotCardProps = {
   position: PlayerPosition;

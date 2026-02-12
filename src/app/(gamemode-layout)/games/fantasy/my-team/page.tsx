@@ -1,4 +1,4 @@
-import FantasyView from '@/domains/fantasy/FantasyView';
+import FantasyView from '@/domains/fantasy/gamemode/FantasyView';
 
 const MyTeamPage = () => {
   return <FantasyView />;

@@ -1,5 +1,5 @@
 import { PlayerPosition } from '@/graphql';
-import type { FantasyPlayer } from '../contracts';
+import type { FantasyPlayer } from '../../contracts';
 
 /** A formation is [DEF count, MID count, FWD count]. GK is always 1. */
 export type Formation = [number, number, number];

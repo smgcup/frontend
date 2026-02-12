@@ -1,4 +1,4 @@
-import FantasyStandingsView from '@/domains/fantasy/FantasyStandingsView';
+import FantasyStandingsView from '@/domains/fantasy/standings/FantasyStandingsView';
 
 const FantasyLeaderboardPage = () => {
   return <FantasyStandingsView />;

@@ -1,7 +1,7 @@
 'use client';
 
 import FantasyHomeViewUi from './FantasyHomeViewUi';
-import type { FantasyHomeData } from './contracts';
+import type { FantasyHomeData } from '../contracts';
 
 // TODO: Replace with real API data
 const mockHomeData: FantasyHomeData = {

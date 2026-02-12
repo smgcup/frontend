@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useRef } from 'react';
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
-import type { FantasyPlayer, FantasyAvailablePlayer, JerseyStyle } from '../contracts';
+import type { FantasyPlayer, FantasyAvailablePlayer, JerseyStyle } from '../../contracts';
 import { getValidSwapTargets } from '../utils/formations';
 
 const teamJerseys: Record<string, JerseyStyle> = {

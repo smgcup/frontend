@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Users, ArrowLeftRight, Trophy, ChevronDown, ChevronUp, Rocket, Loader2 } from 'lucide-react';
-import type { FantasyTabItem } from './components/FantasyTabs';
-import FantasyTabs from './components/FantasyTabs';
+import type { FantasyTabItem } from '../shared/components/FantasyTabs';
+import FantasyTabs from '../shared/components/FantasyTabs';
 import {
   DndContext,
   DragOverlay,
@@ -15,8 +15,8 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
-import type { FantasyTeamData, FantasyAvailablePlayer, FantasyPlayer, JerseyStyle } from './contracts';
-import type { FantasyPositionCode } from './utils/positionUtils';
+import type { FantasyTeamData, FantasyAvailablePlayer, FantasyPlayer, JerseyStyle } from '../contracts';
+import type { FantasyPositionCode } from '../shared/utils/positionUtils';
 import FantasyPitchCard from './components/FantasyPitchCard';
 import PlayerList from './components/PlayerList';
 import PlayerCardGrid from './components/PlayerCardGrid';

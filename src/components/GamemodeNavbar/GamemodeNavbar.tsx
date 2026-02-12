@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import logoPng from '@/public/favicon.png';
 import { Button } from '../ui/';
-import { ArrowLeft, Menu, X, Trophy, Home, ListChecks, User, Users, LogOut } from 'lucide-react';
+import { ArrowLeft, Menu, X, Trophy, Home, ListChecks, User, Users, LogOut, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -38,6 +38,7 @@ const gamemodeConfigs: Record<string, GamemodeConfig> = {
     navItems: [
       { title: 'Home', url: '/games/fantasy', icon: <Home className="h-4 w-4" /> },
       { title: 'My Team', url: '/games/fantasy/my-team', icon: <Users className="h-4 w-4" /> },
+      { title: 'Fixtures', url: '/games/fantasy/fixtures', icon: <Calendar className="h-4 w-4" /> },
       { title: 'Leaderboard', url: '/games/fantasy/leaderboard', icon: <Trophy className="h-4 w-4" /> },
     ],
   },
