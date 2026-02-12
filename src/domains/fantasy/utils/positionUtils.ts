@@ -30,6 +30,14 @@ export function toPositionLabel(position: PlayerPosition): string {
   return positionToLabel[position];
 }
 
+/** Full label for each position code (e.g. 'GK' → 'Goalkeeper') */
+export const positionCodeToLabel: Record<FantasyPositionCode, string> = {
+  GK: 'Goalkeeper',
+  DEF: 'Defender',
+  MID: 'Midfielder',
+  FWD: 'Forward',
+};
+
 /** Tailwind classes for the position badge in player rows/cards */
 export const positionCodeColors: Record<FantasyPositionCode, string> = {
   GK: 'bg-amber-500/20 text-amber-300',

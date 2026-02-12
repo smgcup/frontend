@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Search, ChevronDown } from 'lucide-react';
 import type { FantasyAvailablePlayer } from '../contracts';
@@ -10,7 +11,7 @@ import {
   type SortField,
   type FantasyPositionCode,
 } from '../hooks/usePlayerFilter';
-import { toPositionCode } from '../utils/positionUtils';
+import { toPositionCode, positionCodeToLabel } from '../utils/positionUtils';
 
 type PlayerCardGridProps = {
   players: FantasyAvailablePlayer[];
@@ -84,6 +85,20 @@ const PlayerCardGrid = ({
     handleSortToggle,
   } = usePlayerFilter({ players, initialPositionFilter, lockedPosition, syncPositionFilter: true });
 
+  const [lockedError, setLockedError] = useState<string | null>(null);
+  const lockedErrorTimer = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const handleLockedClick = useCallback(() => {
+    if (!lockedPosition) return;
+    setLockedError(`You're adding a ${positionCodeToLabel[lockedPosition]} player`);
+    if (lockedErrorTimer.current) clearTimeout(lockedErrorTimer.current);
+    lockedErrorTimer.current = setTimeout(() => setLockedError(null), 3000);
+  }, [lockedPosition]);
+
+  useEffect(() => () => {
+    if (lockedErrorTimer.current) clearTimeout(lockedErrorTimer.current);
+  }, []);
+
   return (
     <div className="h-full">
       {/* Header */}
@@ -107,53 +122,55 @@ const PlayerCardGrid = ({
       </div>
 
       {/* Position filter pills + Sort pills */}
-      <div className="pb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-        <div className="flex gap-1.5">
-          {positionFilters.map((f) => {
-            const isActive = effectiveFilter === f.value;
-            const isDisabled = !!lockedPosition && f.value !== lockedPosition;
-            return (
+      <div className="pb-3 flex flex-col gap-1.5">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <div className="flex gap-1.5">
+            {positionFilters.map((f) => {
+              const isActive = effectiveFilter === f.value;
+              const isDisabled = !!lockedPosition && f.value !== lockedPosition;
+              return (
+                <button
+                  key={f.value}
+                  type="button"
+                  onClick={() => (isDisabled ? handleLockedClick() : setPositionFilter(f.value))}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all',
+                    isActive
+                      ? 'bg-cyan-400/20 text-cyan-300 ring-1 ring-cyan-400/30'
+                      : isDisabled
+                        ? 'bg-white/3 text-white/20 cursor-not-allowed'
+                        : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
+                  )}
+                >
+                  {f.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] text-white/40 font-medium">Sort:</span>
+            {sortOptions.map((opt) => (
               <button
-                key={f.value}
+                key={opt.value}
                 type="button"
-                disabled={isDisabled}
-                onClick={() => !lockedPosition && setPositionFilter(f.value)}
+                onClick={() => handleSortToggle(opt.value)}
                 className={cn(
-                  'px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all',
-                  isActive
-                    ? 'bg-cyan-400/20 text-cyan-300 ring-1 ring-cyan-400/30'
-                    : isDisabled
-                      ? 'bg-white/3 text-white/20 cursor-not-allowed'
-                      : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
+                  'flex items-center gap-0.5 px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all',
+                  sortField === opt.value
+                    ? 'bg-fuchsia-400/20 text-fuchsia-300 ring-1 ring-fuchsia-400/30'
+                    : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
                 )}
               >
-                {f.label}
+                {opt.label}
+                {sortField === opt.value && (
+                  <ChevronDown className={cn('w-3 h-3 transition-transform', sortAsc && 'rotate-180')} />
+                )}
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
-
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-white/40 font-medium">Sort:</span>
-          {sortOptions.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => handleSortToggle(opt.value)}
-              className={cn(
-                'flex items-center gap-0.5 px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all',
-                sortField === opt.value
-                  ? 'bg-fuchsia-400/20 text-fuchsia-300 ring-1 ring-fuchsia-400/30'
-                  : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
-              )}
-            >
-              {opt.label}
-              {sortField === opt.value && (
-                <ChevronDown className={cn('w-3 h-3 transition-transform', sortAsc && 'rotate-180')} />
-              )}
-            </button>
-          ))}
-        </div>
+        {lockedError && <p className="text-[10px] text-red-400 font-medium">{lockedError}</p>}
       </div>
 
       {/* Card grid */}

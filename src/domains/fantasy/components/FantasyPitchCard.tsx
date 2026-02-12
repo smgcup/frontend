@@ -194,7 +194,7 @@ const FantasyPitchCard = ({
             <div className="flex justify-center gap-1">{gk.map((p) => renderPlayer(p))}</div>
             <div className="flex justify-around px-2">{def.map((p) => renderPlayer(p))}</div>
             <div className="flex justify-around px-2">{mid.map((p) => renderPlayer(p))}</div>
-            <div className="flex justify-center gap-1">{fwd.map((p) => renderPlayer(p))}</div>
+            <div className="flex justify-around px-2">{fwd.map((p) => renderPlayer(p))}</div>
           </div>
         </div>
       </div>

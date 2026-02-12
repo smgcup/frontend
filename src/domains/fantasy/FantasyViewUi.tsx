@@ -89,7 +89,11 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
     removePlayer,
     replacePlayer,
     removedPlayerIds,
-  } = useFantasyTeam({ initialStarters: team.starters, initialBench: team.bench });
+  } = useFantasyTeam({
+    initialStarters: team.starters,
+    initialBench: team.bench,
+    initialRemovedPlayerIds: team.initialRemovedPlayerIds,
+  });
 
   // ── Player Detail Drawer state ──
   const [selectedPlayer, setSelectedPlayer] = useState<FantasyPlayer | null>(null);
@@ -268,7 +272,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                     substitutePlayerId={substitutePlayerId}
                     onPlayerClick={handlePlayerClick}
                     onRemovePlayer={activeTab === 'transfers' ? removePlayer : undefined}
-                    removedPlayerIds={activeTab === 'transfers' ? removedPlayerIds : undefined}
+                    removedPlayerIds={removedPlayerIds}
                     onEmptySlotClick={handleEmptySlotClick}
                     gameweek={gameweek}
                     onGameweekChange={setGameweek}
@@ -290,7 +294,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                   enableDnd={false}
                   onPlayerClick={handlePlayerClick}
                   onRemovePlayer={activeTab === 'transfers' ? removePlayer : undefined}
-                  removedPlayerIds={activeTab === 'transfers' ? removedPlayerIds : undefined}
+                  removedPlayerIds={removedPlayerIds}
                   onEmptySlotClick={handleEmptySlotClick}
                   gameweek={gameweek}
                   onGameweekChange={setGameweek}

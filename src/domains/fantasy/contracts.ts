@@ -103,4 +103,6 @@ export type FantasyTeamData = {
   budget: number; // Shown on Pick Team / Transfers tab header
   starters: FantasyPlayer[]; // Initial starting XI (passed to useFantasyTeam)
   bench: FantasyPlayer[]; // Initial bench (passed to useFantasyTeam)
+  /** Player IDs that start as empty slots (shown as EmptySlotCards on the pitch) */
+  initialRemovedPlayerIds?: Set<string>;
 };

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Search, ChevronDown } from 'lucide-react';
 import type { FantasyAvailablePlayer } from '../contracts';
@@ -9,7 +10,7 @@ import {
   positionCodeColors,
   type FantasyPositionCode,
 } from '../hooks/usePlayerFilter';
-import { toPositionCode } from '../utils/positionUtils';
+import { toPositionCode, positionCodeToLabel } from '../utils/positionUtils';
 
 type PlayerListProps = {
   players: FantasyAvailablePlayer[];
@@ -32,6 +33,20 @@ const PlayerList = ({ players, initialPositionFilter = 'ALL', lockedPosition, on
     sortAsc,
     handleSortToggle,
   } = usePlayerFilter({ players, initialPositionFilter, lockedPosition });
+
+  const [lockedError, setLockedError] = useState<string | null>(null);
+  const lockedErrorTimer = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const handleLockedClick = useCallback(() => {
+    if (!lockedPosition) return;
+    setLockedError(`You're adding a ${positionCodeToLabel[lockedPosition]} player`);
+    if (lockedErrorTimer.current) clearTimeout(lockedErrorTimer.current);
+    lockedErrorTimer.current = setTimeout(() => setLockedError(null), 3000);
+  }, [lockedPosition]);
+
+  useEffect(() => () => {
+    if (lockedErrorTimer.current) clearTimeout(lockedErrorTimer.current);
+  }, []);
 
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-[#1a0028]">
@@ -56,29 +71,31 @@ const PlayerList = ({ players, initialPositionFilter = 'ALL', lockedPosition, on
       </div>
 
       {/* Position filter pills */}
-      <div className="px-4 pb-3 flex gap-1.5">
-        {positionFilters.map((f) => {
-          const isActive = effectiveFilter === f.value;
-          const isDisabled = !!lockedPosition && f.value !== lockedPosition;
-          return (
-            <button
-              key={f.value}
-              type="button"
-              disabled={isDisabled}
-              onClick={() => !lockedPosition && setPositionFilter(f.value)}
-              className={cn(
-                'px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all',
-                isActive
-                  ? 'bg-cyan-400/20 text-cyan-300 ring-1 ring-cyan-400/30'
-                  : isDisabled
-                    ? 'bg-white/3 text-white/20 cursor-not-allowed'
-                    : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
-              )}
-            >
-              {f.label}
-            </button>
-          );
-        })}
+      <div className="px-4 pb-1 flex flex-col gap-1.5">
+        <div className="flex gap-1.5">
+          {positionFilters.map((f) => {
+            const isActive = effectiveFilter === f.value;
+            const isDisabled = !!lockedPosition && f.value !== lockedPosition;
+            return (
+              <button
+                key={f.value}
+                type="button"
+                onClick={() => (isDisabled ? handleLockedClick() : setPositionFilter(f.value))}
+                className={cn(
+                  'px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all',
+                  isActive
+                    ? 'bg-cyan-400/20 text-cyan-300 ring-1 ring-cyan-400/30'
+                    : isDisabled
+                      ? 'bg-white/3 text-white/20 cursor-not-allowed'
+                      : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70',
+                )}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
+        {lockedError && <p className="text-[10px] text-red-400 font-medium">{lockedError}</p>}
       </div>
 
       {/* Table header */}

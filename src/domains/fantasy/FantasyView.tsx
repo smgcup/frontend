@@ -2,7 +2,33 @@
 
 import { PlayerPosition } from '@/graphql';
 import FantasyViewUi from './FantasyViewUi';
-import type { FantasyTeamData, FantasyAvailablePlayer } from './contracts';
+import type { FantasyTeamData, FantasyAvailablePlayer, FantasyPlayer } from './contracts';
+
+const emptyJersey = { color: '#6B7280', textColor: '#FFFFFF', label: '' };
+
+const emptySlot = (id: string, position: PlayerPosition): FantasyPlayer => ({
+  id,
+  firstName: '',
+  lastName: '',
+  displayName: '',
+  position,
+  jersey: emptyJersey,
+});
+
+const emptyStarters: FantasyPlayer[] = [
+  emptySlot('empty-gk-1', PlayerPosition.Goalkeeper),
+  emptySlot('empty-def-1', PlayerPosition.Defender),
+  emptySlot('empty-def-2', PlayerPosition.Defender),
+  emptySlot('empty-mid-1', PlayerPosition.Midfielder),
+  emptySlot('empty-mid-2', PlayerPosition.Midfielder),
+  emptySlot('empty-fwd-1', PlayerPosition.Forward),
+];
+
+const emptyBench: FantasyPlayer[] = [
+  emptySlot('empty-bench-1', PlayerPosition.Defender),
+  emptySlot('empty-bench-2', PlayerPosition.Midfielder),
+  emptySlot('empty-bench-3', PlayerPosition.Forward),
+];
 
 // TODO: Replace with real API data. This mock represents the user's current team.
 const mockTeam: FantasyTeamData = {
@@ -13,6 +39,9 @@ const mockTeam: FantasyTeamData = {
   freeTransfers: 6,
   gameweek: 1,
   budget: 3,
+  // starters: emptyStarters,
+  // bench: emptyBench,
+  initialRemovedPlayerIds: new Set([...emptyStarters, ...emptyBench].map((p) => p.id)),
   starters: [
     {
       id: '1',

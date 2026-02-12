@@ -2,15 +2,36 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
-import type { FantasyPlayer, FantasyAvailablePlayer } from '../contracts';
+import type { FantasyPlayer, FantasyAvailablePlayer, JerseyStyle } from '../contracts';
 import { getValidSwapTargets } from '../utils/formations';
+
+const teamJerseys: Record<string, JerseyStyle> = {
+  LIV: { color: '#C8102E', textColor: '#FFFFFF', label: '' },
+  MCI: { color: '#6CABDD', textColor: '#1C2C5B', label: '' },
+  ARS: { color: '#EF0107', textColor: '#FFFFFF', label: '' },
+  CHE: { color: '#034694', textColor: '#FFFFFF', label: '' },
+  TOT: { color: '#FFFFFF', textColor: '#132257', label: '' },
+  AVL: { color: '#670E36', textColor: '#95BFE5', label: '' },
+  NEW: { color: '#241F20', textColor: '#FFFFFF', label: '' },
+  BAY: { color: '#DC052D', textColor: '#FFFFFF', label: '' },
+  RMA: { color: '#FEBE10', textColor: '#00529F', label: '' },
+  PSG: { color: '#004170', textColor: '#FFFFFF', label: '' },
+  MIA: { color: '#F7B5CD', textColor: '#231F20', label: '' },
+  ATM: { color: '#CB3524', textColor: '#FFFFFF', label: '' },
+};
+
+const defaultJersey: JerseyStyle = { color: '#4B5563', textColor: '#FFFFFF', label: '' };
+
+const getTeamJersey = (teamShort?: string): JerseyStyle =>
+  teamShort ? (teamJerseys[teamShort] ?? defaultJersey) : defaultJersey;
 
 type UseFantasyTeamProps = {
   initialStarters: FantasyPlayer[];
   initialBench: FantasyPlayer[];
+  initialRemovedPlayerIds?: Set<string>;
 };
 
-export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeamProps) => {
+export const useFantasyTeam = ({ initialStarters, initialBench, initialRemovedPlayerIds }: UseFantasyTeamProps) => {
   const [starters, setStarters] = useState<FantasyPlayer[]>(initialStarters);
   const [bench, setBench] = useState<FantasyPlayer[]>(initialBench);
   // activePlayer: the player currently being dragged or chosen for substitution
@@ -19,7 +40,7 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
   const [isSubstituting, setIsSubstituting] = useState(false);
   // removedPlayerIds: tracks which players have been "removed" in Transfers tab
   // (they show as EmptySlotCards on the pitch until replaced)
-  const [removedPlayerIds, setRemovedPlayerIds] = useState<Set<string>>(new Set());
+  const [removedPlayerIds, setRemovedPlayerIds] = useState<Set<string>>(initialRemovedPlayerIds ?? new Set());
 
   const validTargets = useMemo(() => {
     if (!activePlayer) return new Set<string>();
@@ -160,9 +181,23 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
   // a replacement → replacePlayer swaps in the new player and un-marks the slot.
   // TODO: Enforce budget constraints when replacing (check incoming.price <= budget + old.price)
 
-  const removePlayer = useCallback((playerId: string) => {
-    setRemovedPlayerIds((prev) => new Set(prev).add(playerId));
-  }, []);
+  const removePlayer = useCallback(
+    (playerId: string) => {
+      const removedPlayer = starters.find((p) => p.id === playerId) ?? bench.find((p) => p.id === playerId);
+
+      if (removedPlayer?.isCaptain) {
+        const newCaptain =
+          starters.find((p) => p.id !== playerId && !removedPlayerIds.has(p.id)) ??
+          bench.find((p) => p.id !== playerId && !removedPlayerIds.has(p.id));
+        if (newCaptain) {
+          setCaptain(newCaptain.id);
+        }
+      }
+
+      setRemovedPlayerIds((prev) => new Set(prev).add(playerId));
+    },
+    [starters, bench, removedPlayerIds, setCaptain],
+  );
 
   const replacePlayer = useCallback(
     (oldPlayerId: string, incoming: FantasyAvailablePlayer) => {
@@ -173,10 +208,13 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
       // Enforce fixed roster composition: replacement must be same position
       if (incoming.position !== oldPlayer.position) return;
 
+      const hasCaptain = [...starters, ...bench].some((p) => p.isCaptain && !removedPlayerIds.has(p.id));
+
       const newPlayer: FantasyPlayer = {
         ...incoming,
         displayName: incoming.displayName,
-        jersey: oldPlayer.jersey,
+        jersey: getTeamJersey(incoming.teamShort),
+        isCaptain: !hasCaptain,
       };
 
       const replaceIn = (players: FantasyPlayer[]) => players.map((p) => (p.id === oldPlayerId ? newPlayer : p));
@@ -193,7 +231,7 @@ export const useFantasyTeam = ({ initialStarters, initialBench }: UseFantasyTeam
         return next;
       });
     },
-    [starters, bench],
+    [starters, bench, removedPlayerIds],
   );
 
   return {
