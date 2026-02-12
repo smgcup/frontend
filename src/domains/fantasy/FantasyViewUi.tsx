@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Users, ArrowLeftRight, Trophy, ChevronDown, ChevronUp } from 'lucide-react';
+import { Users, ArrowLeftRight, Trophy, ChevronDown, ChevronUp, Rocket, Loader2 } from 'lucide-react';
 import type { FantasyTabItem } from './components/FantasyTabs';
 import FantasyTabs from './components/FantasyTabs';
 import {
@@ -212,6 +212,7 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
   const sensors = useSensors(pointerSensor, touchSensor);
 
   const substitutePlayerId = isSubstituting ? (activePlayer?.id ?? null) : null;
+  const [isSaving, setIsSaving] = useState(false);
 
   // Desktop-only: make the left player list obviously scrollable (gradient + hint)
   const desktopListRef = useRef<HTMLDivElement | null>(null);
@@ -345,6 +346,24 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                 />
               )}
             </div>
+
+            {activeTab !== 'points' && (
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={() => {
+                  setIsSaving(true);
+                  setTimeout(() => {
+                    console.log('Team saved:', { starters, bench });
+                    setIsSaving(false);
+                  }, 2000);
+                }}
+                className="mt-4 w-full max-w-lg mx-auto flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-cyan-400 to-fuchsia-500 px-6 py-3 text-sm font-bold text-[#1a0028] shadow-[0_4px_20px_rgba(139,92,246,0.3)] transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:brightness-100"
+              >
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Rocket className="h-4 w-4" />}
+                {isSaving ? 'Saving...' : 'Save Team'}
+              </button>
+            )}
           </main>
         </div>
       </div>
