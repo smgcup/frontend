@@ -12,14 +12,16 @@
 // TODO: "Full Profile" button has no handler – wire it to a player profile page/modal.
 'use client';
 
-import { Shield, TrendingUp, Users, Crown, ArrowRightLeft, User } from 'lucide-react';
+import { useState } from 'react';
+import { Shield, TrendingUp, Users, Crown, ArrowRightLeft, User, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
-import type { FantasyPlayer } from '../contracts';
+import type { FantasyPlayer, MatchResult } from '../contracts';
 import { toPositionLabel } from '../utils/positionUtils';
 import JerseyIcon from './JerseyIcon';
+import MatchBreakdownDrawer from './MatchBreakdownDrawer';
 
 type PlayerDetailDrawerProps = {
   player: FantasyPlayer | null;
@@ -58,6 +60,15 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const side = isDesktop ? 'right' : 'bottom';
 
+  // State for the nested match breakdown drawer
+  const [selectedMatch, setSelectedMatch] = useState<MatchResult | null>(null);
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
+
+  const handleMatchTap = (match: MatchResult) => {
+    setSelectedMatch(match);
+    setBreakdownOpen(true);
+  };
+
   if (!player) return null;
 
   return (
@@ -65,7 +76,7 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
       <DrawerContent
         side={side}
         className={cn(
-          'bg-linear-to-b from-[#1a0028] to-[#07000f] border-white/10',
+          'bg-linear-to-b from-[#1a0028] to-[#07000f] border-white/10 pb-12',
           side === 'bottom' ? 'border-t pb-safe' : 'border-l overflow-y-auto',
         )}
       >
@@ -129,27 +140,41 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
 
           {/* Form & Fixtures */}
           <div className="mt-4 grid grid-cols-2 gap-3">
-            {/* Form */}
+            {/* Form — each row is a button that opens the match breakdown drawer */}
             <div className="rounded-xl bg-white/5 border border-white/10 p-3">
               <h4 className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-2">Form</h4>
               {player.form && player.form.length > 0 ? (
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   {player.form.map((m, i) => (
-                    <div key={i} className="flex items-center justify-between">
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => handleMatchTap(m)}
+                      className={cn(
+                        'w-full flex items-center justify-between gap-1',
+                        'rounded-lg px-2 py-1.5',
+                        // Hover/active states make it feel tappable
+                        'hover:bg-white/10 active:bg-white/15 transition-colors cursor-pointer',
+                      )}
+                    >
                       <span className="text-xs font-semibold text-white">{m.opponent}</span>
-                      <span
-                        className={cn(
-                          'text-xs font-bold min-w-[28px] text-center rounded-md px-1.5 py-0.5',
-                          m.points >= 8
-                            ? 'bg-emerald-500/20 text-emerald-300'
-                            : m.points >= 4
-                              ? 'bg-amber-500/20 text-amber-300'
-                              : 'bg-red-500/20 text-red-300',
-                        )}
-                      >
-                        {m.points}
-                      </span>
-                    </div>
+                      <div className="flex items-center gap-1">
+                        <span
+                          className={cn(
+                            'text-xs font-bold min-w-[28px] text-center rounded-md px-1.5 py-0.5',
+                            m.points >= 8
+                              ? 'bg-emerald-500/20 text-emerald-300'
+                              : m.points >= 4
+                                ? 'bg-amber-500/20 text-amber-300'
+                                : 'bg-red-500/20 text-red-300',
+                          )}
+                        >
+                          {m.points}
+                        </span>
+                        {/* Chevron signals the row is interactive */}
+                        <ChevronRight className="w-3 h-3 text-white/30" />
+                      </div>
+                    </button>
                   ))}
                 </div>
               ) : (
@@ -221,6 +246,14 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
           </div>
         </div>
       </DrawerContent>
+
+      {/* Nested drawer for match points breakdown */}
+      <MatchBreakdownDrawer
+        match={selectedMatch}
+        playerName={player.displayName}
+        open={breakdownOpen}
+        onOpenChange={setBreakdownOpen}
+      />
     </Drawer>
   );
 };

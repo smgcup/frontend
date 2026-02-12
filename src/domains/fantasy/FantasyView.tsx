@@ -38,8 +38,23 @@ const mockTeam: FantasyTeamData = {
       ptsPerMatch: 4.0,
       selectedBy: 32.1,
       form: [
-        { opponent: 'DOR', points: 6 },
-        { opponent: 'LEV', points: 2 },
+        {
+          opponent: 'DOR',
+          points: 6,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Clean Sheet', value: 4 },
+          ],
+        },
+        {
+          opponent: 'LEV',
+          points: 2,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Goals Conceded', value: -2 },
+            { label: 'Saves', value: 2 },
+          ],
+        },
       ],
       fixtures: [
         { opponent: 'LEE', difficulty: 2, dateTime: 'Sat 14 Dec 15:00' },
@@ -59,8 +74,27 @@ const mockTeam: FantasyTeamData = {
       ptsPerMatch: 5.2,
       selectedBy: 45.8,
       form: [
-        { opponent: 'WHU', points: 8 },
-        { opponent: 'BRE', points: 1 },
+        {
+          opponent: 'WHU',
+          points: 8,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Clean Sheet', value: 4 },
+            { label: 'Goals Scored', value: 6 },
+            { label: 'Yellow Card', value: -1 },
+            { label: 'Bonus', value: -3 },
+          ],
+        },
+        {
+          opponent: 'BRE',
+          points: 1,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Goals Conceded', value: -2 },
+            { label: 'Yellow Card', value: -1 },
+            { label: 'Bonus', value: 2 },
+          ],
+        },
       ],
       fixtures: [
         { opponent: 'MCI', difficulty: 5, dateTime: 'Sun 15 Dec 16:30' },
@@ -81,8 +115,23 @@ const mockTeam: FantasyTeamData = {
       ptsPerMatch: 4.6,
       selectedBy: 12.4,
       form: [
-        { opponent: 'LYO', points: 12 },
-        { opponent: 'MAR', points: 6 },
+        {
+          opponent: 'LYO',
+          points: 12,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Clean Sheet', value: 4 },
+            { label: 'Goals Scored', value: 6 },
+          ],
+        },
+        {
+          opponent: 'MAR',
+          points: 6,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Clean Sheet', value: 4 },
+          ],
+        },
       ],
       fixtures: [
         { opponent: 'BUR', difficulty: 1 },
@@ -104,8 +153,28 @@ const mockTeam: FantasyTeamData = {
       ptsPerMatch: 7.8,
       selectedBy: 62.3,
       form: [
-        { opponent: 'NEW', points: 15 },
-        { opponent: 'CHE', points: 9 },
+        {
+          opponent: 'NEW',
+          points: 15,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Goals Scored', value: 6 },
+            { label: 'Assists', value: 3 },
+            { label: 'Bonus', value: 3 },
+            { label: 'Yellow Card', value: -1 },
+            { label: 'Chances Created', value: 2 },
+          ],
+        },
+        {
+          opponent: 'CHE',
+          points: 9,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Assists', value: 3 },
+            { label: 'Bonus', value: 2 },
+            { label: 'Chances Created', value: 2 },
+          ],
+        },
       ],
       fixtures: [
         { opponent: 'LIV', difficulty: 4, dateTime: 'Sun 15 Dec 16:30' },
@@ -125,8 +194,25 @@ const mockTeam: FantasyTeamData = {
       ptsPerMatch: 5.3,
       selectedBy: 18.7,
       form: [
-        { opponent: 'SEV', points: 8 },
-        { opponent: 'VIL', points: 3 },
+        {
+          opponent: 'SEV',
+          points: 8,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Goals Scored', value: 6 },
+          ],
+        },
+        {
+          opponent: 'VIL',
+          points: 3,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Assists', value: 3 },
+            { label: 'Yellow Card', value: -1 },
+            { label: 'Red Card', value: -3 },
+            { label: 'Bonus', value: 2 },
+          ],
+        },
       ],
       fixtures: [
         { opponent: 'ATM', difficulty: 4 },
@@ -147,8 +233,27 @@ const mockTeam: FantasyTeamData = {
       ptsPerMatch: 8.5,
       selectedBy: 78.2,
       form: [
-        { opponent: 'NEW', points: 18 },
-        { opponent: 'CHE', points: 12 },
+        {
+          opponent: 'NEW',
+          points: 18,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Goals Scored', value: 12 },
+            { label: 'Bonus', value: 3 },
+            { label: 'Yellow Card', value: -1 },
+            { label: 'Chances Created', value: 2 },
+          ],
+        },
+        {
+          opponent: 'CHE',
+          points: 12,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Goals Scored', value: 6 },
+            { label: 'Assists', value: 3 },
+            { label: 'Bonus', value: 1 },
+          ],
+        },
       ],
       fixtures: [
         { opponent: 'LIV', difficulty: 4, dateTime: 'Sun 15 Dec 16:30' },
@@ -171,8 +276,24 @@ const mockTeam: FantasyTeamData = {
       ptsPerMatch: 3.4,
       selectedBy: 8.1,
       form: [
-        { opponent: 'AVL', points: 2 },
-        { opponent: 'TOT', points: 1 },
+        {
+          opponent: 'AVL',
+          points: 2,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Goals Conceded', value: -2 },
+            { label: 'Saves', value: 2 },
+          ],
+        },
+        {
+          opponent: 'TOT',
+          points: 1,
+          breakdown: [
+            { label: 'Minutes Played', value: 1 },
+            { label: 'Goals Conceded', value: -2 },
+            { label: 'Saves', value: 2 },
+          ],
+        },
       ],
       fixtures: [
         { opponent: 'LEE', difficulty: 2 },
@@ -193,8 +314,23 @@ const mockTeam: FantasyTeamData = {
       ptsPerMatch: 6.3,
       selectedBy: 34.5,
       form: [
-        { opponent: 'SEV', points: 11 },
-        { opponent: 'VIL', points: 5 },
+        {
+          opponent: 'SEV',
+          points: 11,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Goals Scored', value: 6 },
+            { label: 'Bonus', value: 3 },
+          ],
+        },
+        {
+          opponent: 'VIL',
+          points: 5,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Assists', value: 3 },
+          ],
+        },
       ],
       fixtures: [
         { opponent: 'ATM', difficulty: 4, dateTime: 'Sun 15 Dec 21:00' },
@@ -215,8 +351,25 @@ const mockTeam: FantasyTeamData = {
       ptsPerMatch: 7.0,
       selectedBy: 24.9,
       form: [
-        { opponent: 'ATL', points: 14 },
-        { opponent: 'NYC', points: 10 },
+        {
+          opponent: 'ATL',
+          points: 14,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Goals Scored', value: 6 },
+            { label: 'Assists', value: 3 },
+            { label: 'Bonus', value: 3 },
+          ],
+        },
+        {
+          opponent: 'NYC',
+          points: 10,
+          breakdown: [
+            { label: 'Minutes Played', value: 2 },
+            { label: 'Goals Scored', value: 6 },
+            { label: 'Bonus', value: 2 },
+          ],
+        },
       ],
       fixtures: [
         { opponent: 'BRA', difficulty: 2 },

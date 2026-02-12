@@ -12,10 +12,18 @@ export type JerseyStyle = {
   label: string; // The number displayed on the jersey
 };
 
+/** A single scoring line inside a match breakdown (e.g. "Goals scored: +8") */
+export type PointsBreakdownEntry = {
+  label: string; // Human-readable label, e.g. "Goals Scored"
+  value: number; // Signed points contribution (positive or negative)
+};
+
 /** A single past match result – used in the "Form" section of PlayerDetailDrawer */
 export type MatchResult = {
   opponent: string; // Short code, e.g. "DOR"
   points: number;
+  /** Optional breakdown of how the total points were earned */
+  breakdown?: PointsBreakdownEntry[];
 };
 
 /** An upcoming fixture – used in the "Fixtures" section of PlayerDetailDrawer */
