@@ -131,7 +131,7 @@ const GamesViewUi = () => {
       <div className="mb-12 text-center">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground mb-4">Choose Your Game</h1>
         <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-          Test your football knowledge and compete against fans worldwide
+          Test your football knowledge and compete against SMG CL fans
         </p>
       </div>
 
@@ -141,7 +141,7 @@ const GamesViewUi = () => {
           title="Predictor"
           description="Predict match scores and outcomes."
           icon={<Target className="h-7 w-7" />}
-          badge="Most Popular"
+          // badge="Most Popular"
           theme={predictorTheme}
           href="/games/predictor"
           backgroundImage="https://storage.googleapis.com/pod_public/750/169545.jpg"

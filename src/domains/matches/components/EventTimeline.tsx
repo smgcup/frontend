@@ -1,6 +1,9 @@
 'use client';
 
+import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Clock, X, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { MatchEvent } from '@/domains/matches/contracts';
@@ -28,7 +31,7 @@ const formatMatchTime = (event: MatchEvent, chronologicalHalfTimes: MatchEvent[]
     const halfTimeEvent = chronologicalHalfTimes[i];
     const halfTimeMinute = typeof halfTimeEvent.minute === 'number' ? halfTimeEvent.minute : 0;
     const halfTimeCreatedAt = new Date(halfTimeEvent.createdAt).getTime();
-    
+
     // Half-time occurred before this event if:
     // 1. Its minute is less than the event's minute, OR
     // 2. Minutes are equal but half-time was created before the event
@@ -86,7 +89,7 @@ const getMarker = (type: MatchEventType) => {
       return (
         <span className="relative text-xl leading-none" aria-hidden="true">
           ⚽
-          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white [text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000,_0_-1px_0_#000,_0_1px_0_#000,_-1px_0_0_#000,_1px_0_0_#000]">
+          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white [text-shadow:-1px_-1px_0_#000,1px_-1px_0_#000,-1px_1px_0_#000,1px_1px_0_#000,0_-1px_0_#000,0_1px_0_#000,-1px_0_0_#000,1px_0_0_#000]">
             PEN
           </span>
         </span>
@@ -95,7 +98,7 @@ const getMarker = (type: MatchEventType) => {
       return (
         <span className="relative text-xl leading-none" aria-hidden="true">
           ⚽
-          <span className="absolute inset-0 flex items-center justify-center text-[12px] font-black text-red-600 [text-shadow:_-1px_-1px_0_#fff,_1px_-1px_0_#fff,_-1px_1px_0_#fff,_1px_1px_0_#fff,_0_-1px_0_#fff,_0_1px_0_#fff,_-1px_0_0_#fff,_1px_0_0_#fff]">
+          <span className="absolute inset-0 flex items-center justify-center text-[12px] font-black text-red-600 [text-shadow:-1px_-1px_0_#fff,1px_-1px_0_#fff,-1px_1px_0_#fff,1px_1px_0_#fff,0_-1px_0_#fff,0_1px_0_#fff,-1px_0_0_#fff,1px_0_0_#fff]">
             OG
           </span>
         </span>
@@ -110,7 +113,7 @@ const getMarker = (type: MatchEventType) => {
       return (
         <span className="relative text-xl leading-none" aria-hidden="true">
           🧤
-          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white [text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000,_0_-1px_0_#000,_0_1px_0_#000,_-1px_0_0_#000,_1px_0_0_#000]">
+          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white [text-shadow:-1px_-1px_0_#000,1px_-1px_0_#000,-1px_1px_0_#000,1px_1px_0_#000,0_-1px_0_#000,0_1px_0_#000,-1px_0_0_#000,1px_0_0_#000]">
             PEN
           </span>
         </span>
@@ -123,10 +126,12 @@ const getMarker = (type: MatchEventType) => {
 };
 
 const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEventId }: EventTimelineProps) => {
-  // Filter saves for non-admin users: show only every 3rd save (3rd, 6th, 9th, etc.)
+  const [playerPickerEvent, setPlayerPickerEvent] = useState<MatchEvent | null>(null);
+
+  // Filter saves for non-admin users: show only every 3rd GK save per goalkeeper (3rd, 6th, 9th, etc. per player.id)
   const isAdmin = Boolean(onDeleteEvent);
   let filteredEvents = events;
-  
+
   if (!isAdmin) {
     // Get all saves in chronological order (ascending)
     const saves = [...events]
@@ -140,18 +145,23 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       });
 
-    // Create a set of save IDs that should be shown (every 3rd save: 3rd, 6th, 9th, etc.)
+    // Create a set of save IDs that should be shown (every 3rd save per goalkeeper: 3rd, 6th, 9th, etc.)
     const savesToShow = new Set<string>();
-    saves.forEach((save, index) => {
-      // index is 0-based, so index 2 is the 3rd save, index 5 is the 6th, etc.
-      if ((index + 1) % 3 === 0) {
+    const savesCountByGoalkeeperId = new Map<string, number>();
+    saves.forEach((save) => {
+      // Count only saves by the same goalkeeper id (fallback bucket if player is missing)
+      const goalkeeperId = save.player?.id ?? '__unknown_goalkeeper__';
+      const nextCount = (savesCountByGoalkeeperId.get(goalkeeperId) ?? 0) + 1;
+      savesCountByGoalkeeperId.set(goalkeeperId, nextCount);
+
+      if (nextCount % 3 === 0) {
         savesToShow.add(save.id);
       }
     });
 
     // Filter events: keep all non-save events, and only saves that are in the "every 3rd" set
     filteredEvents = events.filter(
-      (event) => event.type !== MatchEventType.GoalkeeperSave || savesToShow.has(event.id)
+      (event) => event.type !== MatchEventType.GoalkeeperSave || savesToShow.has(event.id),
     );
   }
 
@@ -292,15 +302,55 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
         const leftText = isFirstTeam ? playerName : time;
         const rightText = isFirstTeam ? time : playerName;
 
+        const hasAssist = Boolean(event.assistPlayer);
+        const playerId = event.player?.id;
+
+        const handlePlayerClick = () => {
+          if (hasAssist) {
+            setPlayerPickerEvent(event);
+          }
+        };
+
+        const playerNameEl = (
+          <span
+            className={cn(
+              'inline-block truncate font-semibold',
+              playerId && !hasAssist && 'hover:underline',
+              hasAssist && 'cursor-pointer hover:underline',
+            )}
+          >
+            {playerName}
+          </span>
+        );
+
+        const playerNameLink =
+          playerId && !hasAssist ? (
+            <Link href={`/players/${playerId}`}>{playerNameEl}</Link>
+          ) : hasAssist ? (
+            <button type="button" onClick={handlePlayerClick} className="truncate text-left">
+              {playerNameEl}
+            </button>
+          ) : (
+            playerNameEl
+          );
+
+        const assistEl = assistPlayerName ? (
+          <button
+            type="button"
+            onClick={handlePlayerClick}
+            className="text-xs text-muted-foreground/60 truncate cursor-pointer hover:underline text-left"
+          >
+            {assistPlayerName}
+          </button>
+        ) : null;
+
         return (
           <div key={event.id} className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-4 py-1">
             <div className={cn('min-w-0', isFirstTeam ? 'text-right' : 'text-right text-muted-foreground font-mono')}>
               {isFirstTeam ? (
                 <div className="flex flex-col items-end">
-                  <span className={cn('inline-block truncate font-semibold')}>{leftText}</span>
-                  {assistPlayerName && (
-                    <span className="text-xs text-muted-foreground/60 truncate">{assistPlayerName}</span>
-                  )}
+                  {playerNameLink}
+                  {assistEl}
                 </div>
               ) : (
                 <span className={cn('inline-block truncate text-sm')}>{leftText}</span>
@@ -310,9 +360,7 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
             <div
               className={cn(
                 'relative z-10 flex items-center justify-center gap-0.5',
-                event.type === MatchEventType.GoalkeeperSave && savesPerDisplayedEvent
-                  ? 'h-9 min-w-9'
-                  : 'h-9 w-9'
+                event.type === MatchEventType.GoalkeeperSave && savesPerDisplayedEvent ? 'h-9 min-w-9' : 'h-9 w-9',
               )}
               aria-label={
                 event.type === MatchEventType.GoalkeeperSave && savesPerDisplayedEvent
@@ -343,10 +391,8 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
                 <span className={cn('inline-block truncate text-sm')}>{rightText}</span>
               ) : (
                 <div className="flex flex-col min-w-0">
-                  <span className={cn('inline-block truncate font-semibold')}>{rightText}</span>
-                  {assistPlayerName && (
-                    <span className="text-xs text-muted-foreground/60 truncate">{assistPlayerName}</span>
-                  )}
+                  {playerNameLink}
+                  {assistEl}
                 </div>
               )}
               {onDeleteEvent && (
@@ -367,6 +413,31 @@ const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEvent
           </div>
         );
       })}
+
+      <Dialog open={playerPickerEvent !== null} onOpenChange={(open) => !open && setPlayerPickerEvent(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Go to player</DialogTitle>
+            <DialogDescription>Which player do you want to view?</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2">
+            {playerPickerEvent?.player && (
+              <Button variant="outline" className="justify-start" asChild>
+                <Link href={`/players/${playerPickerEvent.player.id}`}>
+                  {playerPickerEvent.player.firstName} {playerPickerEvent.player.lastName}
+                </Link>
+              </Button>
+            )}
+            {playerPickerEvent?.assistPlayer && (
+              <Button variant="outline" className="justify-start" asChild>
+                <Link href={`/players/${playerPickerEvent.assistPlayer.id}`}>
+                  {playerPickerEvent.assistPlayer.firstName} {playerPickerEvent.assistPlayer.lastName}
+                </Link>
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

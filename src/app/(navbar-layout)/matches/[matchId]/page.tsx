@@ -40,7 +40,13 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              {match.firstOpponent.name} vs {match.secondOpponent.name}
+              <Link href={`/teams/${match.firstOpponent.id}`} className="hover:underline">
+                {match.firstOpponent.name}
+              </Link>{' '}
+              vs{' '}
+              <Link href={`/teams/${match.secondOpponent.id}`} className="hover:underline">
+                {match.secondOpponent.name}
+              </Link>
             </h1>
             <p className="text-muted-foreground mt-2">Match details</p>
           </div>
@@ -64,12 +70,22 @@ const MatchDetailPage = async ({ params }: MatchDetailPageProps) => {
           <CardContent>
             <div className="flex items-center justify-between gap-8">
               <div className="flex-1 text-center">
-                <p className="text-lg font-bold mb-2">{match.firstOpponent.name}</p>
+                <Link
+                  href={`/teams/${match.firstOpponent.id}`}
+                  className="text-lg font-bold mb-2 hover:underline inline-block"
+                >
+                  {match.firstOpponent.name}
+                </Link>
                 <p className="text-5xl font-black text-primary">{score1}</p>
               </div>
               <div className="shrink-0 text-3xl font-bold text-muted-foreground">—</div>
               <div className="flex-1 text-center">
-                <p className="text-lg font-bold mb-2">{match.secondOpponent.name}</p>
+                <Link
+                  href={`/teams/${match.secondOpponent.id}`}
+                  className="text-lg font-bold mb-2 hover:underline inline-block"
+                >
+                  {match.secondOpponent.name}
+                </Link>
                 <p className="text-5xl font-black text-primary">{score2}</p>
               </div>
             </div>

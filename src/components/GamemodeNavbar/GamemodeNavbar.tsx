@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import logoPng from '@/public/favicon.png';
 import { Button } from '../ui/';
-import { ArrowLeft, Menu, X, Trophy, Home, ListChecks, User, LogOut } from 'lucide-react';
+import { ArrowLeft, Menu, X, Trophy, Home, ListChecks, User, Users, LogOut, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,9 +34,11 @@ const gamemodeConfigs: Record<string, GamemodeConfig> = {
   fantasy: {
     name: 'Fantasy',
     basePath: '/games/fantasy',
-    theme: 'emerald',
+    theme: 'fantasyNeon',
     navItems: [
-      { title: 'My Team', url: '/games/fantasy', icon: <Home className="h-4 w-4" /> },
+      { title: 'Home', url: '/games/fantasy', icon: <Home className="h-4 w-4" /> },
+      { title: 'My Team', url: '/games/fantasy/my-team', icon: <Users className="h-4 w-4" /> },
+      { title: 'Fixtures', url: '/games/fantasy/fixtures', icon: <Calendar className="h-4 w-4" /> },
       { title: 'Leaderboard', url: '/games/fantasy/leaderboard', icon: <Trophy className="h-4 w-4" /> },
     ],
   },
@@ -116,7 +118,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
                   className={cn(
                     'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                     isActive(item.url)
-                      ? cn(theme.bg, 'text-white')
+                      ? cn(theme.buttonPrimary, theme.buttonPrimaryHover)
                       : cn('text-muted-foreground', theme.hover, 'hover:text-foreground'),
                   )}
                 >
@@ -128,7 +130,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
 
             <div className="flex items-center justify-end gap-2">
               {isLoading ? (
-                <div className={cn('h-9 w-24 rounded-lg animate-pulse', theme.bg, 'opacity-50')} />
+                <div className={cn('h-9 w-24 rounded-lg animate-pulse', theme.buttonPrimary, 'opacity-50')} />
               ) : isAuthenticated && user ? (
                 <>
                   <div
@@ -151,7 +153,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
                   </Button>
                 </>
               ) : (
-                <Button asChild size="sm" className={cn(theme.bg, 'hover:opacity-90 text-white border-0')}>
+                <Button asChild size="sm" className={cn(theme.buttonPrimary, theme.hover, 'border-0')}>
                   <Link href={`/login?redirect=${encodeURIComponent(pathname)}`}>Login to Play</Link>
                 </Button>
               )}
@@ -207,7 +209,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
                     className={cn(
                       'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
                       isActive(item.url)
-                        ? cn(theme.bg, 'text-white')
+                        ? cn(theme.buttonPrimary, theme.buttonPrimaryHover)
                         : cn('text-muted-foreground', theme.hover, 'hover:text-foreground'),
                     )}
                   >
@@ -217,7 +219,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
                 ))}
                 <div className="pt-2 mt-2 border-t">
                   {isLoading ? (
-                    <div className={cn('h-9 w-full rounded-lg animate-pulse', theme.bg, 'opacity-50')} />
+                    <div className={cn('h-9 w-full rounded-lg animate-pulse', theme.buttonPrimary, 'opacity-50')} />
                   ) : isAuthenticated && user ? (
                     <div
                       className={cn(
@@ -243,11 +245,7 @@ const GamemodeNavbar = ({ gamemode }: GamemodeNavbarProps) => {
                       </Button>
                     </div>
                   ) : (
-                    <Button
-                      asChild
-                      size="sm"
-                      className={cn('w-full', theme.bg, 'hover:opacity-90 text-white border-0')}
-                    >
+                    <Button asChild size="sm" className={cn('w-full', theme.buttonPrimary, theme.hover, 'border-0')}>
                       <Link href={`/login?redirect=${encodeURIComponent(pathname)}`}>Login to Play</Link>
                     </Button>
                   )}

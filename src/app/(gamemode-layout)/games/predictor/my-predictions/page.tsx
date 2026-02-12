@@ -8,7 +8,11 @@ import { predictorTheme } from '@/lib/gamemodeThemes';
 import { cn } from '@/lib/utils';
 import type { Prediction } from '@/domains/predictor/contracts';
 
-function groupPredictionsByRound(predictions: Prediction[]): [number, Prediction[]][] {
+function groupPredictionsByRound(
+  predictions: Prediction[],
+  options?: { reverse?: boolean },
+): [number, Prediction[]][] {
+  const dir = options?.reverse ? -1 : 1;
   const grouped = new Map<number, Prediction[]>();
   for (const pred of predictions) {
     const round = pred.match.round ?? 0;
@@ -17,7 +21,7 @@ function groupPredictionsByRound(predictions: Prediction[]): [number, Prediction
     grouped.set(round, list);
   }
   return Array.from(grouped.entries())
-    .sort(([a], [b]) => a - b)
+    .sort(([a], [b]) => (a - b) * dir)
     .map(
       ([round, roundPreds]) =>
         [
@@ -25,7 +29,7 @@ function groupPredictionsByRound(predictions: Prediction[]): [number, Prediction
           [...roundPreds].sort((a, b) => {
             const dateA = a.match.date ? new Date(a.match.date).getTime() : 0;
             const dateB = b.match.date ? new Date(b.match.date).getTime() : 0;
-            return dateA - dateB;
+            return (dateA - dateB) * dir;
           }),
         ] as [number, Prediction[]],
     );
@@ -180,14 +184,14 @@ const MyPredictionsPage = async () => {
               <h2 className="text-2xl font-bold">Past Predictions</h2>
             </div>
             <div className="space-y-10">
-              {groupPredictionsByRound(pastPredictions).map(([round, roundPredictions]) => (
+              {groupPredictionsByRound(pastPredictions, { reverse: true }).map(([round, roundPredictions]) => (
                 <section key={`past-round-${round}`}>
                   <h3 className={cn('text-lg font-semibold mb-4 flex items-center gap-2', predictorTheme.text)}>
                     Round {round}
                   </h3>
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {roundPredictions.map((prediction) => (
-                      <PredictionResultCard key={prediction.id} prediction={prediction} />
+                      <PredictionResultCard key={prediction.id} prediction={prediction} compact />
                     ))}
                   </div>
                 </section>

@@ -5,6 +5,7 @@ import type { ScorePrediction } from '@/domains/predictor/contracts';
 import { MatchStatus, MyPredictionsDocument, type MyPredictionsQuery } from '@/graphql';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePrediction } from './usePrediction';
+import { CURRENT_ROUND } from '@/lib/constants';
 
 type ExistingPrediction = {
   id: string;
@@ -28,7 +29,7 @@ export const usePredictorView = ({ matches }: UsePredictorViewProps) => {
   const [savedPredictions, setSavedPredictions] = useState<Record<string, SavedPrediction>>({});
   const [scoreRulesOpen, setScoreRulesOpen] = useState(false);
   const [matchErrors, setMatchErrors] = useState<Record<string, string | null>>({});
-  const [selectedRound, setSelectedRound] = useState(1);
+  const [selectedRound, setSelectedRound] = useState(CURRENT_ROUND);
   const [boostedMatchId, setBoostedMatchId] = useState<string | null>(null);
   const [savedBoostedMatchId, setSavedBoostedMatchId] = useState<string | null>(null);
 

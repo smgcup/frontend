@@ -1,0 +1,337 @@
+'use client';
+
+import { useState, useRef } from 'react';
+import { Dialog as DialogPrimitive } from 'radix-ui';
+import { Shield, TrendingUp, Users, Crown, ArrowRightLeft, User, ChevronRight, UserMinus } from 'lucide-react';
+import Image from 'next/image';
+import { cn } from '@/lib/utils';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
+import type { FantasyPlayer, MatchResult } from '../../contracts';
+import { toPositionLabel } from '../../shared/utils/positionUtils';
+import JerseyIcon from '../../shared/components/JerseyIcon';
+import MatchBreakdownDrawer from './MatchBreakdownDrawer';
+import BreakdownContent from './BreakdownContent';
+
+type PlayerDetailDrawerProps = {
+  player: FantasyPlayer | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSetCaptain?: (playerId: string) => void;
+  onSubstitute?: (player: FantasyPlayer) => void;
+  onRemovePlayer?: (playerId: string) => void;
+};
+
+const monthMap: Record<string, string> = {
+  Jan: '01',
+  Feb: '02',
+  Mar: '03',
+  Apr: '04',
+  May: '05',
+  Jun: '06',
+  Jul: '07',
+  Aug: '08',
+  Sep: '09',
+  Oct: '10',
+  Nov: '11',
+  Dec: '12',
+};
+
+/** Convert "Sat 14 Dec 15:00" → "14.12 15:00" */
+const formatFixtureDateTime = (dateTime: string): string => {
+  const parts = dateTime.split(' ');
+  if (parts.length < 4) return dateTime;
+  const [, day, month, time] = parts;
+  const mm = monthMap[month];
+  if (!mm) return dateTime;
+  return `${day.padStart(2, '0')}.${mm} at ${time}`;
+};
+
+const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubstitute, onRemovePlayer }: PlayerDetailDrawerProps) => {
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const side = isDesktop ? 'right' : 'bottom';
+
+  // State for the match breakdown (shared between mobile drawer & desktop dialog)
+  const [selectedMatch, setSelectedMatch] = useState<MatchResult | null>(null);
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
+
+  // Ref on the Form section — used to position the desktop breakdown panel
+  const formRef = useRef<HTMLDivElement>(null);
+  const [breakdownPos, setBreakdownPos] = useState<{ top: number; right: number } | null>(null);
+
+  const handleMatchTap = (match: MatchResult) => {
+    setSelectedMatch(match);
+    setBreakdownOpen(true);
+
+    // Snapshot the Form section's position for the desktop floating panel
+    if (formRef.current) {
+      const rect = formRef.current.getBoundingClientRect();
+      setBreakdownPos({
+        top: rect.top,
+        // Place the panel's right edge 12px to the left of the Form section
+        right: window.innerWidth - rect.left + 12,
+      });
+    }
+  };
+
+  if (!player) return null;
+
+  return (
+    <Drawer
+      open={open}
+      onOpenChange={(newOpen) => {
+        // When the breakdown panel is open on desktop, Radix detects interactions
+        // with the breakdown dialog as "outside" this parent and tries to close it.
+        // Ignore close attempts while the breakdown is showing.
+        if (!newOpen && breakdownOpen) return;
+        onOpenChange(newOpen);
+      }}
+    >
+      <DrawerContent
+        side={side}
+        className={cn(
+          'bg-linear-to-b from-[#1a0028] to-[#07000f] border-white/10',
+          side === 'bottom' ? 'border-t pb-8' : 'border-l overflow-y-auto',
+        )}
+      >
+        {/* Visually hidden title for accessibility */}
+        <DrawerTitle className="sr-only">{player.displayName} Details</DrawerTitle>
+        <DrawerDescription className="sr-only">Player details and stats</DrawerDescription>
+
+        <div className={cn('px-5 pb-6', side === 'right' ? 'pt-5' : 'pt-1')}>
+          {/* Player header */}
+          <div className="flex items-center gap-4">
+            {/* Player avatar area */}
+            <div className="relative shrink-0">
+              <div className="w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden">
+                {player.imageUrl ? (
+                  <Image src={player.imageUrl} alt={player.displayName} fill className="object-cover" />
+                ) : (
+                  <JerseyIcon
+                    color={player.jersey.color}
+                    textColor={player.jersey.textColor}
+                    label={player.jersey.label}
+                    size={48}
+                  />
+                )}
+              </div>
+              {player.isCaptain && (
+                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-linear-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center text-[9px] font-black text-[#1a0028]">
+                  C
+                </div>
+              )}
+            </div>
+
+            {/* Name & position */}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-white font-bold text-lg leading-tight truncate">{player.displayName}</h3>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-xs font-semibold text-cyan-300">{player.teamShort ?? '—'}</span>
+                <span className="text-white/30 text-xs">|</span>
+                <span className="text-xs text-white/50">{toPositionLabel(player.position)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats row */}
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <StatPill
+              icon={<TrendingUp className="w-3 h-3 text-cyan-300" />}
+              label="Price"
+              value={player.price != null ? `£${player.price.toFixed(1)}m` : '—'}
+            />
+            <StatPill
+              icon={<Shield className="w-3 h-3 text-fuchsia-300" />}
+              label="Pts/Match"
+              value={player.ptsPerMatch != null ? player.ptsPerMatch.toFixed(1) : '—'}
+            />
+            <StatPill
+              icon={<Users className="w-3 h-3 text-emerald-300" />}
+              label="Selected"
+              value={player.selectedBy != null ? `${player.selectedBy}%` : '—'}
+            />
+          </div>
+
+          {/* Form & Fixtures */}
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {/* Form — each row opens the points breakdown */}
+            <div ref={formRef} className="rounded-xl bg-white/5 border border-white/10 p-3">
+              <h4 className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-2">Form</h4>
+              {player.form && player.form.length > 0 ? (
+                <div className="space-y-1">
+                  {player.form.map((m, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => handleMatchTap(m)}
+                      className={cn(
+                        'w-full flex items-center justify-between gap-1',
+                        'rounded-lg px-2 py-1.5',
+                        'hover:bg-white/10 active:bg-white/15 transition-colors cursor-pointer',
+                      )}
+                    >
+                      <span className="text-xs font-semibold text-white">{m.opponent}</span>
+                      <div className="flex items-center gap-1">
+                        <span
+                          className={cn(
+                            'text-xs font-bold min-w-[28px] text-center rounded-md px-1.5 py-0.5',
+                            m.points >= 8
+                              ? 'bg-emerald-500/20 text-emerald-300'
+                              : m.points >= 4
+                                ? 'bg-amber-500/20 text-amber-300'
+                                : 'bg-red-500/20 text-red-300',
+                          )}
+                        >
+                          {m.points}
+                        </span>
+                        <ChevronRight className="w-3 h-3 text-white/30" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-white/30">No data</p>
+              )}
+            </div>
+
+            {/* Fixtures */}
+            <div className="rounded-xl bg-white/5 border border-white/10 p-3">
+              <h4 className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-2">Fixtures</h4>
+              {player.fixtures && player.fixtures.length > 0 ? (
+                <div className="space-y-1.5">
+                  {player.fixtures.map((f, i) => (
+                    <div key={i}>
+                      <span className="text-xs font-semibold text-white">{f.opponent}</span>
+                      {f.dateTime && (
+                        <span className="ml-1.5 inline-block text-[10px] font-medium text-white/50 bg-white/8 rounded px-1.5 py-0.5">
+                          {formatFixtureDateTime(f.dateTime)}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-white/30">No data</p>
+              )}
+            </div>
+          </div>
+
+          {/* Action buttons (hidden on Points tab — view only) */}
+          {(onSetCaptain || onSubstitute || onRemovePlayer) && (
+            <div className="mt-5 space-y-2">
+              {onSetCaptain && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!player.isCaptain) {
+                      onSetCaptain(player.id);
+                    }
+                  }}
+                  className={cn(
+                    'w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all',
+                    player.isCaptain
+                      ? 'bg-linear-to-r from-cyan-400 to-fuchsia-500 text-[#1a0028]'
+                      : 'bg-white/10 text-white hover:bg-white/15 border border-white/10',
+                  )}
+                >
+                  <Crown className="w-4 h-4" />
+                  {player.isCaptain ? 'Captain' : 'Make Captain'}
+                </button>
+              )}
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 transition-all"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  Full Profile
+                </button>
+                {onSubstitute && (
+                  <button
+                    type="button"
+                    onClick={() => onSubstitute(player)}
+                    className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold bg-cyan-400/10 text-cyan-300 hover:bg-cyan-400/20 border border-cyan-400/20 transition-all"
+                  >
+                    <ArrowRightLeft className="w-3.5 h-3.5" />
+                    Substitute
+                  </button>
+                )}
+              </div>
+
+              {onRemovePlayer && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onRemovePlayer(player.id);
+                    onOpenChange(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-all"
+                >
+                  <UserMinus className="w-3.5 h-3.5" />
+                  Remove Player
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </DrawerContent>
+
+      {/* Mobile: nested bottom drawer for match breakdown */}
+      {!isDesktop && (
+        <MatchBreakdownDrawer
+          match={selectedMatch}
+          playerName={player.displayName}
+          open={breakdownOpen}
+          onOpenChange={setBreakdownOpen}
+        />
+      )}
+
+      {/* Desktop: a proper Radix Dialog for the breakdown panel.
+          Using a separate Dialog instance gives it its own overlay and event
+          handling — clicking its overlay closes only this dialog, not the parent. */}
+      {isDesktop && selectedMatch && breakdownPos && (
+        <DialogPrimitive.Root open={breakdownOpen} onOpenChange={setBreakdownOpen}>
+          <DialogPrimitive.Portal>
+            {/* No overlay — the parent drawer already dims the page background.
+                Radix still closes this dialog on outside clicks without an overlay. */}
+            <DialogPrimitive.Content
+              className="fixed z-60 w-72 rounded-2xl bg-linear-to-b from-[#1a0028] to-[#07000f] border border-white/10 shadow-2xl data-open:animate-in data-open:fade-in-0 data-open:slide-in-from-right-4 data-closed:animate-out data-closed:fade-out-0 duration-200"
+              style={{ top: breakdownPos.top, right: breakdownPos.right }}
+            >
+              <DialogPrimitive.Title className="sr-only">
+                Points Breakdown vs {selectedMatch.opponent}
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="sr-only">
+                Detailed scoring breakdown for {player.displayName}
+              </DialogPrimitive.Description>
+              <div className="p-4">
+                <BreakdownContent
+                  match={selectedMatch}
+                  playerName={player.displayName}
+                  onClose={() => setBreakdownOpen(false)}
+                />
+              </div>
+            </DialogPrimitive.Content>
+          </DialogPrimitive.Portal>
+        </DialogPrimitive.Root>
+      )}
+    </Drawer>
+  );
+};
+
+type StatPillProps = {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+};
+
+const StatPill = ({ icon, label, value }: StatPillProps) => (
+  <div className="flex flex-col items-center gap-1 rounded-xl bg-white/5 border border-white/10 py-2.5 px-2">
+    {icon}
+    <span className="text-sm font-bold text-white">{value}</span>
+    <span className="text-[10px] text-white/40">{label}</span>
+  </div>
+);
+
+export default PlayerDetailDrawer;

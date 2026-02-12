@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCheck, Check, X } from 'lucide-react';
+import { CheckCheck, Check, X, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -32,6 +32,13 @@ const RULES = [
     description: 'Wrong winner or wrong draw.',
     points: 0,
     iconClassName: 'bg-red-500/10 text-red-600 dark:text-red-400',
+  },
+  {
+    icon: Sparkles,
+    label: 'Underdog bonus',
+    description: 'Correctly predict a scoreline that less than 10% of players predicted.',
+    points: 3,
+    iconClassName: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
   },
 ] as const;
 

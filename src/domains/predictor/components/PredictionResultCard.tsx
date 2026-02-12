@@ -9,9 +9,10 @@ import { MatchStatus } from '@/graphql';
 
 type PredictionResultCardProps = {
   prediction: Prediction;
+  compact?: boolean;
 };
 
-const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
+const PredictionResultCard = ({ prediction, compact }: PredictionResultCardProps) => {
   const { match, predictedScore1, predictedScore2, isBoosted, isExactCorrect, isOutcomeCorrect, pointsEarned } =
     prediction;
 
@@ -102,21 +103,14 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
 
       <div className="relative p-6 flex flex-col h-full pt-7">
         {/* Header with status and accuracy badge */}
-        <div className="grid grid-cols-3 items-center gap-2 mb-6">
-          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-            {isBoosted ? (
-              <>
-                <Zap className="h-3.5 w-3.5 shrink-0 text-purple-500 fill-purple-500" />
-                <span className="text-purple-500 font-semibold">2x Boosted</span>
-              </>
-            ) : (
-              <>
-                <TrendingUpDown className="h-3.5 w-3.5 shrink-0" />
-                <span>Prediction</span>
-              </>
+        {compact ? (
+          <div className="flex items-center justify-center gap-2 mb-6">
+            {isBoosted && (
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-500">
+                <Zap className="h-3.5 w-3.5 shrink-0 fill-purple-500" />
+                2x Boosted
+              </span>
             )}
-          </div>
-          <div className="flex items-center justify-center">
             {accuracyBadge && (
               <span
                 className={cn(
@@ -136,17 +130,53 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
               </span>
             )}
           </div>
-          <div className="flex items-center justify-end">
-            <span
-              className={cn(
-                'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap shrink-0',
-                statusConfig.className,
+        ) : (
+          <div className="grid grid-cols-3 items-center gap-2 mb-6">
+            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              {isBoosted ? (
+                <>
+                  <Zap className="h-3.5 w-3.5 shrink-0 text-purple-500 fill-purple-500" />
+                  <span className="text-purple-500 font-semibold">2x Boosted</span>
+                </>
+              ) : (
+                <>
+                  <TrendingUpDown className="h-3.5 w-3.5 shrink-0" />
+                  <span>Prediction</span>
+                </>
               )}
-            >
-              {statusConfig.label}
-            </span>
+            </div>
+            <div className="flex items-center justify-center">
+              {accuracyBadge && (
+                <span
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border shrink-0',
+                    accuracyBadge.className,
+                  )}
+                >
+                  {accuracyBadge.icon}
+                  {accuracyBadge.text === 'Correct Outcome' ? (
+                    <span className="flex flex-col sm:flex-row sm:gap-1 items-start sm:items-center leading-tight">
+                      <span>Correct</span>
+                      <span>Outcome</span>
+                    </span>
+                  ) : (
+                    <span>{accuracyBadge.text}</span>
+                  )}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center justify-end">
+              <span
+                className={cn(
+                  'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap shrink-0',
+                  statusConfig.className,
+                )}
+              >
+                {statusConfig.label}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Teams and Scores */}
         <div className="flex items-center justify-between gap-4 mb-6">
@@ -210,16 +240,18 @@ const PredictionResultCard = ({ prediction }: PredictionResultCardProps) => {
         </div>
 
         {/* Date and Time */}
-        <div className="pt-4 border-t space-y-2.5 mt-auto mb-4">
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <Calendar className={cn('h-4 w-4', theme.iconMuted)} />
-            <span className="font-medium">{match.date ? formatDate(match.date) : 'TBD'}</span>
+        {!compact && (
+          <div className="pt-4 border-t space-y-2.5 mt-auto mb-4">
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <Calendar className={cn('h-4 w-4', theme.iconMuted)} />
+              <span className="font-medium">{match.date ? formatDate(match.date) : 'TBD'}</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <Clock className={cn('h-4 w-4', theme.iconMuted)} />
+              <span className="font-medium">{match.date ? formatTime(match.date) : 'TBD'}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <Clock className={cn('h-4 w-4', theme.iconMuted)} />
-            <span className="font-medium">{match.date ? formatTime(match.date) : 'TBD'}</span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

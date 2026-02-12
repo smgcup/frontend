@@ -4,6 +4,7 @@ import MatchCard from './components/MatchCard';
 import { MatchStatus } from '@/graphql';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/BackButton';
+import { CURRENT_ROUND } from '@/lib/constants';
 type MatchViewUiProps = {
   matches: Match[];
   error?: string | null;
@@ -28,7 +29,7 @@ const compareMatches = (a: Match, b: Match) => {
 };
 
 const MatchViewUi = ({ matches, error }: MatchViewUiProps) => {
-  const [selectedRound, setSelectedRound] = useState(1);
+  const [selectedRound, setSelectedRound] = useState(CURRENT_ROUND);
 
   const filteredMatches = useMemo(() => {
     return matches.filter((match) => match.round === selectedRound);

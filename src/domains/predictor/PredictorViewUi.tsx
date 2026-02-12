@@ -106,7 +106,7 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
             <p className="text-muted-foreground">No upcoming matches to predict in this round.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 items-start">
             {filteredMatches.map((match) => (
               <PredictionCard
                 key={match.id}
