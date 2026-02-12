@@ -204,9 +204,7 @@ const AdminMatchLiveViewUi = ({
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
           {!isMatchLive && (
-            <p className="text-sm text-muted-foreground">
-              Events can only be added when the match is live.
-            </p>
+            <p className="text-sm text-muted-foreground">Events can only be added when the match is live.</p>
           )}
         </CardHeader>
         <CardContent>
