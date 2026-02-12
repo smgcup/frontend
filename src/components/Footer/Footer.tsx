@@ -76,7 +76,7 @@ const Footer = () => {
               <h3 className="font-semibold text-sm text-foreground">Follow Us</h3>
               <div className="flex gap-3">
                 <Link
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/smgfootball2026/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
@@ -133,7 +133,7 @@ const Footer = () => {
             <div className="space-y-4">
               <h3 className="font-semibold text-sm text-foreground">Follow Us</h3>
               <Link
-                href="https://instagram.com"
+                href="https://www.instagram.com/smgfootball2026/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
@@ -166,7 +166,7 @@ const Footer = () => {
               </span>{' '}
               X{' '}
               <span className="font-medium text-foreground">
-                <Link href="https://linkedin.com/in/anton-yankov" target="_blank" rel="noopener noreferrer">
+                <Link href="https://www.instagram.com/tony_yankov/" target="_blank" rel="noopener noreferrer">
                   Anton Yankov
                 </Link>
               </span>
