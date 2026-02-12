@@ -60,28 +60,22 @@ const FantasyHomeViewUi = ({ data }: FantasyHomeViewUiProps) => {
                 </p>
                 <p className="mt-1 text-xs font-medium text-white/50">Average</p>
               </div>
-              <div>
+              <Link href="/games/fantasy/my-team" className="block">
                 <p className="text-6xl font-black text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
                   {data.currentGameweekPoints ?? '-'}
                 </p>
-                <Link
-                  href="/games/fantasy/my-team"
-                  className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-white/60 transition-colors hover:text-white/80"
-                >
+                <p className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-white/60 transition-colors hover:text-white/80">
                   Points <ChevronRight className="h-3 w-3" />
-                </Link>
-              </div>
-              <div>
+                </p>
+              </Link>
+              <Link href="#" className="block">
                 <p className="text-4xl font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
                   {data.highestPoints ?? '-'}
                 </p>
-                <Link
-                  href="#"
-                  className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-white/50 transition-colors hover:text-white/70"
-                >
+                <p className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-white/50 transition-colors hover:text-white/70">
                   Highest <ChevronRight className="h-3 w-3" />
-                </Link>
-              </div>
+                </p>
+              </Link>
             </div>
 
             {/* Divider */}

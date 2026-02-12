@@ -34,6 +34,12 @@ const AuthCard = <T extends AuthInput>({
   loading,
   errorMessage,
 }: AuthCardProps<T>) => {
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (!loading) {
+      onSubmit(e, input);
+    }
+  };
+
   return (
     <Card className="shadow-lg">
       <CardHeader className="items-center text-center pb-2">
@@ -44,7 +50,7 @@ const AuthCard = <T extends AuthInput>({
         <CardDescription className="text-muted-foreground">{description}</CardDescription>
       </CardHeader>
       <CardContent className="pt-4">
-        <form onSubmit={(e) => onSubmit(e, input)}>
+        <form onSubmit={handleFormSubmit}>
           <FieldGroup className="gap-5">
             {isRegisterInput(input) && (
               <>
