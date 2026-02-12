@@ -15,7 +15,6 @@ type EventTimelineProps = {
   secondOpponentName: string;
   onDeleteEvent?: (id: string) => Promise<void>;
   deletingEventId?: string | null;
-  matchId?: string;
 };
 
 const formatMatchTime = (event: MatchEvent, chronologicalHalfTimes: MatchEvent[]) => {
@@ -126,9 +125,7 @@ const getMarker = (type: MatchEventType) => {
   }
 };
 
-const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEventId, matchId }: EventTimelineProps) => {
-  const prefix = matchId === '019b97a7-46a8-70ed-83bc-c61a2613f42f' ? '1-' : matchId === '019bcc34-26af-7696-93e9-e19289f40197' ? '2-' : '';
-  console.log(`${prefix}events`, events);
+const EventTimeline = ({ events, firstOpponentName, onDeleteEvent, deletingEventId }: EventTimelineProps) => {
   const [playerPickerEvent, setPlayerPickerEvent] = useState<MatchEvent | null>(null);
 
   // Filter saves for non-admin users: show only every 3rd GK save per goalkeeper (3rd, 6th, 9th, etc. per player.id)
