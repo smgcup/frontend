@@ -1,12 +1,3 @@
-// ─── Formation Validation ──────────────────────────────────────────────
-// Defines the legal formations and validates player swaps.
-// This ensures that when a starter is swapped with a bench player of a
-// different position, the resulting formation remains legal.
-//
-// Currently the team is 1 GK + 5 outfield starters + 3 bench.
-// Valid outfield formations are: 3-1-1, 2-2-1, 2-1-2 (DEF-MID-FWD).
-// TODO: If the team size changes (e.g., 11 starters), update VALID_FORMATIONS.
-
 import { PlayerPosition } from '@/graphql';
 import type { FantasyPlayer } from '../contracts';
 

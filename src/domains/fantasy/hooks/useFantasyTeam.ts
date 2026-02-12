@@ -1,21 +1,3 @@
-// ─── useFantasyTeam Hook ───────────────────────────────────────────────
-// Central state manager for the user's fantasy team.
-// Handles: starters/bench arrays, drag-and-drop swaps, tap-to-substitute,
-// captain assignment, and transfer removal/replacement.
-//
-// STATE OVERVIEW:
-// - starters/bench: the player arrays, initialized from props, mutated locally
-// - activePlayer + activeIsStarter: the player currently being dragged or substituted
-// - isSubstituting: true when in "tap to substitute" mode (vs drag mode)
-// - removedPlayerIds: players marked for removal on the Transfers tab
-//
-// TWO SWAP MODES:
-// 1. Drag-and-drop: handleDragStart → (user drags) → handleDragEnd → performSwap
-// 2. Tap-to-substitute: startSubstitution → (user taps target) → handleSubstitutionClick → performSwap
-//
-// TODO: All mutations are local-only. Add API calls (mutations) for:
-// - Saving team changes (captain, substitutions)
-// - Confirming transfers (remove + replace)
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';

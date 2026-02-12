@@ -1,18 +1,3 @@
-// ─── usePlayerFilter Hook ─────────────────────────────────────────────
-// Shared filter/sort logic for player selection lists.
-// Used by PlayerList (mobile drawer) and PlayerCardGrid (desktop sidebar).
-//
-// Handles: text search, position-filter pills, sort field + direction toggle.
-//
-// POSITION FILTER BEHAVIOUR:
-// - initialPositionFilter: sets the default pill on mount (e.g. "DEF" when
-//   the user clicks an empty DEF slot)
-// - lockedPosition: overrides the filter entirely and disables the pills
-//   (used during replacement so the user can only pick the correct position)
-// - syncPositionFilter: when true, a useEffect keeps the filter in sync with
-//   initialPositionFilter changes — needed for PlayerCardGrid which stays
-//   mounted as a sidebar, but NOT for PlayerList which remounts per drawer open
-
 import { useState, useMemo, useEffect, useRef, startTransition } from 'react';
 import type { FantasyAvailablePlayer } from '../contracts';
 import {
@@ -74,9 +59,7 @@ export const usePlayerFilter = ({
 
     if (search) {
       const q = search.toLowerCase();
-      result = result.filter(
-        (p) => p.displayName.toLowerCase().includes(q) || p.teamShort.toLowerCase().includes(q),
-      );
+      result = result.filter((p) => p.displayName.toLowerCase().includes(q) || p.teamShort.toLowerCase().includes(q));
     }
 
     if (effectiveFilter !== 'ALL') {

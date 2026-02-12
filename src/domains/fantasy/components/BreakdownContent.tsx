@@ -1,7 +1,3 @@
-// ─── BreakdownContent ──────────────────────────────────────────────────
-// Shared UI for the match points breakdown.
-// Used by both the mobile bottom drawer (MatchBreakdownDrawer)
-// and the desktop floating panel (rendered in PlayerDetailDrawer).
 'use client';
 
 import { ArrowLeft } from 'lucide-react';

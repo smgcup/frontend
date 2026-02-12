@@ -1,8 +1,3 @@
-// ─── Fantasy Standings UI ──────────────────────────────────────────────
-// The leaderboard page UI. Two tabs:
-// - "Gameweeks": shows rankings for a specific gameweek with prev/next navigation
-// - "Overall": shows cumulative standings across all gameweeks
-// Both use the same StandingsTable component. Current user's row is highlighted.
 'use client';
 
 import { useState } from 'react';
@@ -108,9 +103,7 @@ const FantasyStandingsViewUi = ({
             onClick={() => setPage((p) => p - 1)}
             className={cn(
               'h-8 w-8 rounded-full flex items-center justify-center transition-colors',
-              page <= 1
-                ? 'bg-white/5 text-white/20 cursor-not-allowed'
-                : 'bg-white/10 hover:bg-white/20 text-white',
+              page <= 1 ? 'bg-white/5 text-white/20 cursor-not-allowed' : 'bg-white/10 hover:bg-white/20 text-white',
             )}
           >
             <ChevronLeft className="h-4 w-4" />

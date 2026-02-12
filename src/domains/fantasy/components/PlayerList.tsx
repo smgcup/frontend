@@ -1,12 +1,14 @@
-// ─── PlayerList (Mobile) ───────────────────────────────────────────────
-// A compact row-based player list used inside the mobile bottom Drawer.
-// Shows available players for transfer with search, position filter, and sorting.
 'use client';
 
 import { cn } from '@/lib/utils';
 import { Search, ChevronDown } from 'lucide-react';
 import type { FantasyAvailablePlayer } from '../contracts';
-import { usePlayerFilter, positionFilters, positionCodeColors, type FantasyPositionCode } from '../hooks/usePlayerFilter';
+import {
+  usePlayerFilter,
+  positionFilters,
+  positionCodeColors,
+  type FantasyPositionCode,
+} from '../hooks/usePlayerFilter';
 import { toPositionCode } from '../utils/positionUtils';
 
 type PlayerListProps = {
@@ -126,7 +128,10 @@ const PlayerList = ({ players, initialPositionFilter = 'ALL', lockedPosition, on
           >
             <div className="flex items-center gap-2 min-w-0">
               <span
-                className={cn('shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold', positionCodeColors[toPositionCode(player.position)])}
+                className={cn(
+                  'shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold',
+                  positionCodeColors[toPositionCode(player.position)],
+                )}
               >
                 {toPositionCode(player.position)}
               </span>

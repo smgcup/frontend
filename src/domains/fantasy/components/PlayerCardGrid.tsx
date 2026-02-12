@@ -1,16 +1,15 @@
-// ─── PlayerCardGrid (Desktop) ──────────────────────────────────────────
-// A card-grid layout for available players, shown as a sticky left sidebar on lg+ screens.
-// Has the same filtering/sorting functionality as PlayerList (mobile) but rendered as cards.
-//
-// The grid reacts to position filter changes from FantasyViewUi:
-// - initialPositionFilter syncs via useEffect when user clicks an EmptySlotCard
-// - lockedPosition prevents the user from changing the filter during replacement
 'use client';
 
 import { cn } from '@/lib/utils';
 import { Search, ChevronDown } from 'lucide-react';
 import type { FantasyAvailablePlayer } from '../contracts';
-import { usePlayerFilter, positionFilters, positionCodeColors, type SortField, type FantasyPositionCode } from '../hooks/usePlayerFilter';
+import {
+  usePlayerFilter,
+  positionFilters,
+  positionCodeColors,
+  type SortField,
+  type FantasyPositionCode,
+} from '../hooks/usePlayerFilter';
 import { toPositionCode } from '../utils/positionUtils';
 
 type PlayerCardGridProps = {
@@ -48,7 +47,10 @@ const PlayerCardGridItem = ({
     )}
   >
     <span
-      className={cn('inline-block px-1.5 py-0.5 rounded text-[9px] font-bold mb-1.5', positionCodeColors[toPositionCode(player.position)])}
+      className={cn(
+        'inline-block px-1.5 py-0.5 rounded text-[9px] font-bold mb-1.5',
+        positionCodeColors[toPositionCode(player.position)],
+      )}
     >
       {toPositionCode(player.position)}
     </span>

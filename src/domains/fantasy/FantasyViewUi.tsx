@@ -1,19 +1,3 @@
-// ─── Fantasy Main UI Orchestrator ──────────────────────────────────────
-// This is the primary UI component for the fantasy team management page.
-// It wires together: tabs, pitch, drag-and-drop, player detail drawer,
-// player list/grid for transfers, and display mode toggling.
-//
-// ARCHITECTURE NOTES:
-// - Team state (starters, bench, captain, swaps) lives in useFantasyTeam hook
-// - This component manages UI-only state (which tab, which drawer is open, etc.)
-// - Player selection for transfers has two UIs:
-//     Desktop (lg+): PlayerCardGrid shown as a persistent left sidebar
-//     Mobile (<lg): PlayerList shown in a bottom Drawer on demand
-//
-// TODO: This component is fairly large. Consider extracting:
-// - The transfer flow (replacement logic, drawer/grid wiring) into a custom hook
-// - The DndContext wrapper into its own component
-// - Tab-specific header content into sub-components
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';

@@ -1,7 +1,3 @@
-// ─── Position Utilities ───────────────────────────────────────────────
-// Bridge between the GraphQL PlayerPosition enum (GOALKEEPER, DEFENDER, etc.)
-// and the short codes used in the fantasy UI (GK, DEF, MID, FWD).
-
 import { PlayerPosition } from '@/graphql';
 
 /** Short-code used throughout the fantasy UI */

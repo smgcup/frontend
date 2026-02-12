@@ -1,6 +1,3 @@
-// ─── MatchBreakdownDrawer ──────────────────────────────────────────────
-// A bottom-sheet drawer showing a detailed points breakdown for a match.
-// Used on mobile only — desktop uses a floating panel (see PlayerDetailDrawer).
 'use client';
 
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';

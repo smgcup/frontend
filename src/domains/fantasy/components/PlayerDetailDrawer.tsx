@@ -1,19 +1,3 @@
-// ─── PlayerDetailDrawer ────────────────────────────────────────────────
-// A responsive drawer showing detailed player info when a player card is tapped.
-// Opens from the bottom on mobile, from the right on desktop (lg+).
-//
-// SECTIONS:
-// 1. Player header: avatar (image or JerseyIcon fallback), name, team, position, captain badge
-// 2. Stat pills: price, pts/match, selected-by percentage
-// 3. Form: last N match results with color-coded point badges (green/amber/red)
-// 4. Fixtures: upcoming opponents with formatted date/time
-// 5. Action buttons: Make Captain, Full Profile (TODO: not wired), Substitute
-//
-// Points breakdown:
-// - Mobile:  tapping a form row opens a nested bottom drawer (MatchBreakdownDrawer)
-// - Desktop: tapping a form row opens a Radix Dialog panel anchored next to the Form section
-//
-// TODO: "Full Profile" button has no handler – wire it to a player profile page/modal.
 'use client';
 
 import { useState, useRef } from 'react';

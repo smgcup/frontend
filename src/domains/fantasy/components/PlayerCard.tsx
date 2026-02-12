@@ -1,12 +1,3 @@
-// ─── PlayerCard ────────────────────────────────────────────────────────
-// A single player card shown on the pitch. Purely presentational.
-// Layout from top to bottom:
-//   1. Price badge overlay (only on Transfers tab when showPrice=true)
-//      - Has an X button that triggers onPriceClose (removes the player)
-//   2. Captain badge (top-right "C" circle, shifts down when price badge is shown)
-//   3. Jersey area (JerseyIcon SVG with the player's colors and number)
-//   4. Name bar (white background, player name)
-//   5. Bottom bar: either points (purple bg) or next match (gray bg)
 'use client';
 
 import { cn } from '@/lib/utils';
