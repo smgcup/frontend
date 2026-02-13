@@ -6,6 +6,8 @@ query GetMatches {
     score1
     score2
     round
+    fdr1
+    fdr2
     location
     firstOpponent {
       id

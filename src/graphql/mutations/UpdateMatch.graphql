@@ -6,6 +6,8 @@ mutation UpdateMatch($id: String!, $dto: UpdateMatchDto!) {
     score1
     score2
     round
+    fdr1
+    fdr2
     location
     firstOpponent {
       id

@@ -43,6 +43,8 @@ export type CreateFantasyPlayerDto = {
 
 export type CreateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
+  fdr1?: InputMaybe<Scalars['Int']['input']>;
+  fdr2?: InputMaybe<Scalars['Int']['input']>;
   firstOpponentId: Scalars['String']['input'];
   location?: InputMaybe<MatchLocation>;
   round: Scalars['Int']['input'];
@@ -122,6 +124,8 @@ export type LoginInput = {
 export type Match = {
   __typename?: 'Match';
   date?: Maybe<Scalars['Date']['output']>;
+  fdr1?: Maybe<Scalars['Int']['output']>;
+  fdr2?: Maybe<Scalars['Int']['output']>;
   firstOpponent: Team;
   id: Scalars['ID']['output'];
   location?: Maybe<MatchLocation>;
@@ -585,6 +589,8 @@ export type UpdateFantasyPlayerDto = {
 
 export type UpdateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
+  fdr1?: InputMaybe<Scalars['Int']['input']>;
+  fdr2?: InputMaybe<Scalars['Int']['input']>;
   firstOpponentId?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<MatchLocation>;
   mvpId?: InputMaybe<Scalars['String']['input']>;
