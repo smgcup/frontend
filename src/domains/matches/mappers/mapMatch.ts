@@ -18,6 +18,8 @@ export const mapMatch = (match: MatchInput): Match => {
     score1: match.score1 ?? undefined,
     score2: match.score2 ?? undefined,
     round: match.round,
+    fdr1: 'fdr1' in match ? (match.fdr1 ?? null) : null,
+    fdr2: 'fdr2' in match ? (match.fdr2 ?? null) : null,
     location: match.location ?? undefined,
     mvp,
   };

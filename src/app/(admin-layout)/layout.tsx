@@ -1,5 +1,5 @@
 import AdminShell from '@/domains/admin/layout/AdminShell';
-import { HomeIcon, CalendarIcon, UsersIcon, FileText, User, DollarSign } from 'lucide-react';
+import { HomeIcon, CalendarIcon, UsersIcon, FileText, User, DollarSign, Gauge } from 'lucide-react';
 
 export default function AdminLayout({
   children,
@@ -15,6 +15,7 @@ export default function AdminLayout({
         { title: 'Player Prices', url: '/admin/player-prices', icon: <DollarSign /> },
         { title: 'Matches', url: '/admin/matches', icon: <CalendarIcon /> },
         { title: 'News', url: '/admin/news', icon: <FileText /> },
+        { title: 'FDR', url: '/admin/fdr', icon: <Gauge /> },
       ]}
     >
       {children}
