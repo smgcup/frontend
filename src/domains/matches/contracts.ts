@@ -24,6 +24,7 @@ export type Match = {
   fdr2?: number | null;
   location?: MatchLocation | null;
   mvp?: MatchMvp | null;
+  pointsCalculated: boolean;
 };
 
 export type MatchEvent = {

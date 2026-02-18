@@ -22,5 +22,6 @@ export const mapMatch = (match: MatchInput): Match => {
     fdr2: 'fdr2' in match ? (match.fdr2 ?? null) : null,
     location: match.location ?? undefined,
     mvp,
+    pointsCalculated: 'pointsCalculated' in match ? match.pointsCalculated : false,
   };
 };

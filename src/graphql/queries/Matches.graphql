@@ -9,6 +9,7 @@ query GetMatches {
     fdr1
     fdr2
     location
+    pointsCalculated
     firstOpponent {
       id
       name

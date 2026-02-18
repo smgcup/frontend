@@ -130,6 +130,7 @@ export type Match = {
   id: Scalars['ID']['output'];
   location?: Maybe<MatchLocation>;
   mvp?: Maybe<Player>;
+  pointsCalculated: Scalars['Boolean']['output'];
   round: Scalars['Int']['output'];
   score1?: Maybe<Scalars['Int']['output']>;
   score2?: Maybe<Scalars['Int']['output']>;
@@ -177,6 +178,7 @@ export enum MatchStatus {
 export type Mutation = {
   __typename?: 'Mutation';
   adminLogin: AdminLoginResult;
+  calculateMatchPoints: Match;
   createAllPlayerAppearances: Array<PlayerAppearance>;
   createFantasyPlayer: FantasyPlayer;
   createMatch: Match;
@@ -209,6 +211,11 @@ export type Mutation = {
 
 export type MutationAdminLoginArgs = {
   passkey: Scalars['String']['input'];
+};
+
+
+export type MutationCalculateMatchPointsArgs = {
+  matchId: Scalars['String']['input'];
 };
 
 

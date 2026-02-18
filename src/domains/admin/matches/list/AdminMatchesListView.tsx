@@ -20,6 +20,7 @@ const AdminMatchesListView = ({ matches }: AdminMatchesListViewProps) => {
     deleteLoading,
     onDeleteMatch,
     onStartMatch,
+    onCalculateMatchPoints,
   } = useAdminMatchesList(matches);
 
   return (
@@ -34,6 +35,7 @@ const AdminMatchesListView = ({ matches }: AdminMatchesListViewProps) => {
       deleteLoading={deleteLoading}
       onDeleteMatch={onDeleteMatch}
       onStartMatch={onStartMatch}
+      onCalculateMatchPoints={onCalculateMatchPoints}
     />
   );
 };

@@ -8,6 +8,7 @@ export * from '../generated/types';
 export * from './mutations/AdminCreatePlayer.generated';
 export * from './mutations/AdminCreateTeam.generated';
 export * from './mutations/AdminLogin.generated';
+export * from './mutations/CalculateMatchPoints.generated';
 export * from './mutations/CreateAllPlayerAppearances.generated';
 export * from './mutations/CreateFantasyPlayer.generated';
 export * from './mutations/CreateMatch.generated';

@@ -46,6 +46,7 @@ export const mapPrediction = (prediction: PredictionFromQuery): Prediction => {
       score2: match.score2 ?? undefined,
       round: match.round,
       location: match.location ?? undefined,
+      pointsCalculated: false,
     },
     predictedScore1: predictedScore1 ?? 0,
     predictedScore2: predictedScore2 ?? 0,
