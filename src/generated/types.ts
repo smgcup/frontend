@@ -175,6 +175,12 @@ export enum MatchStatus {
   Scheduled = 'SCHEDULED'
 }
 
+export type MatchTopPredictions = {
+  __typename?: 'MatchTopPredictions';
+  matchId: Scalars['ID']['output'];
+  topPredictions: Array<PopularPrediction>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   adminLogin: AdminLoginResult;
@@ -417,6 +423,13 @@ export enum PlayerPosition {
   Midfielder = 'MIDFIELDER'
 }
 
+export type PopularPrediction = {
+  __typename?: 'PopularPrediction';
+  percentage: Scalars['Float']['output'];
+  predictedScore1: Scalars['Int']['output'];
+  predictedScore2: Scalars['Int']['output'];
+};
+
 export type Prediction = {
   __typename?: 'Prediction';
   createdAt: Scalars['Date']['output'];
@@ -459,6 +472,7 @@ export type Query = {
   teamById: Team;
   teams: Array<Team>;
   topPlayers: Array<Player>;
+  topPredictionsByRound: Array<MatchTopPredictions>;
   user: User;
 };
 
@@ -522,6 +536,11 @@ export type QueryTeamByIdArgs = {
 
 export type QueryTeamsArgs = {
   leaderboardOrder?: Scalars['Boolean']['input'];
+};
+
+
+export type QueryTopPredictionsByRoundArgs = {
+  round: Scalars['Int']['input'];
 };
 
 export type RegisterUserInput = {
@@ -705,5 +724,6 @@ export enum Queries {
   teamById = 'teamById',
   teams = 'teams',
   topPlayers = 'topPlayers',
+  topPredictionsByRound = 'topPredictionsByRound',
   user = 'user',
 }

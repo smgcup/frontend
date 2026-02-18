@@ -30,6 +30,7 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
     filteredMatches,
     availableRounds,
     predictedCount,
+    popularPredictionsByMatchId,
     handlePredictionChange,
     handleSave,
     handleToggleBooster,
@@ -114,6 +115,7 @@ const PredictorViewUi = ({ matches }: PredictorViewUiProps) => {
                 prediction={predictions[match.id] ?? null}
                 savedPrediction={allSavedPredictions[match.id] ?? null}
                 existingPredictionId={allExistingPredictionIds[match.id]}
+                popularPredictions={popularPredictionsByMatchId[match.id] ?? []}
                 onPredictionChange={(prediction) => handlePredictionChange(match.id, prediction)}
                 onSave={isAuthenticated ? () => handleSave(match.id) : undefined}
                 isSaving={submittingMatchId === match.id}

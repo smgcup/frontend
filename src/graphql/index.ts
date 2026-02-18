@@ -43,6 +43,7 @@ export * from './queries/GetTeamById.generated';
 export * from './queries/GetTeams.generated';
 export * from './queries/GetTeamsWithPlayers.generated';
 export * from './queries/GetTopPlayers.generated';
+export * from './queries/GetTopPredictionsByRound.generated';
 export * from './queries/MatchById.generated';
 export * from './queries/MatchEvents.generated';
 export * from './queries/Matches.generated';

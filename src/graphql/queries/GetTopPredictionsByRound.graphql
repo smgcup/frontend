@@ -1,0 +1,10 @@
+query GetTopPredictionsByRound($round: Int!) {
+  topPredictionsByRound(round: $round) {
+    matchId
+    topPredictions {
+      predictedScore1
+      predictedScore2
+      percentage
+    }
+  }
+}
