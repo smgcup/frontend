@@ -1,9 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { fantasyTheme } from '@/lib/gamemodeThemes';
+import fallbackJersey from '@/public/icons/fallback-jersey.svg';
 import type { FantasyPlayer } from '../../contracts';
-import JerseyIcon from '../../shared/components/JerseyIcon';
 import { X } from 'lucide-react';
 
 type PlayerCardProps = {
@@ -62,15 +63,22 @@ const PlayerCard = ({ player, showPrice = false, onPriceClose }: PlayerCardProps
         </div>
       )}
 
-      {/* Jersey area */}
-      <div className={cn('flex-1 flex items-center justify-center', 'py-1.5', showPrice && 'pt-4')}>
-        <JerseyIcon
-          color={player.jersey.color}
-          textColor={player.jersey.textColor}
-          label={player.jersey.label}
-          size={showPrice ? 42 : 52}
-        />
-      </div>
+      {/* Player image or jersey fallback */}
+      {player.celebrationImageUrl ? (
+        <div className={cn('relative flex-1 w-full overflow-hidden', showPrice && 'pt-5')}>
+          <Image
+            src={player.celebrationImageUrl}
+            alt={player.displayName}
+            fill
+            className="object-cover object-top"
+            sizes="72px"
+          />
+        </div>
+      ) : (
+        <div className={cn('relative flex-1 w-full overflow-hidden', showPrice && 'pt-5')}>
+          <Image src={fallbackJersey} alt="Jersey" fill className="object-contain object-center scale-[1.3]" />
+        </div>
+      )}
 
       {/* Name bar */}
       <div className="bg-white px-1 py-0.5 flex items-center justify-center min-h-[18px]">

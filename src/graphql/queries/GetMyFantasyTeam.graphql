@@ -1,0 +1,31 @@
+query GetMyFantasyTeam {
+  myFantasyTeam {
+    id
+    teamName
+    budget
+    freeTransfers
+    captainPlayer {
+      playerId
+    }
+    slots {
+      id
+      isBenched
+      slotOrder
+      fantasyPlayer {
+        playerId
+        displayName
+        price
+        player {
+          id
+          firstName
+          lastName
+          position
+          celebrationImageUrl
+          team {
+            name
+          }
+        }
+      }
+    }
+  }
+}

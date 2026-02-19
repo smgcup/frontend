@@ -1,10 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useMutation } from '@apollo/client/react';
 import { useSearchParams } from 'next/navigation';
 import { Users, ArrowLeftRight, Trophy, ChevronDown, ChevronUp, Rocket, Loader2 } from 'lucide-react';
 import type { FantasyTabItem } from '../shared/components/FantasyTabs';
 import FantasyTabs from '../shared/components/FantasyTabs';
+import { SaveFantasyTeamDocument, GetMyFantasyTeamDocument } from '@/graphql';
 import {
   DndContext,
   DragOverlay,
@@ -212,7 +214,10 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
   const sensors = useSensors(pointerSensor, touchSensor);
 
   const substitutePlayerId = isSubstituting ? (activePlayer?.id ?? null) : null;
-  const [isSaving, setIsSaving] = useState(false);
+
+  const [saveTeam, { loading: isSaving }] = useMutation(SaveFantasyTeamDocument, {
+    refetchQueries: [{ query: GetMyFantasyTeamDocument }],
+  });
 
   // Desktop-only: make the left player list obviously scrollable (gradient + hint)
   const desktopListRef = useRef<HTMLDivElement | null>(null);
@@ -352,11 +357,25 @@ const FantasyViewUi = ({ team, availablePlayers }: FantasyViewUiProps) => {
                 type="button"
                 disabled={isSaving}
                 onClick={() => {
-                  setIsSaving(true);
-                  setTimeout(() => {
-                    console.log('Team saved:', { starters, bench });
-                    setIsSaving(false);
-                  }, 2000);
+                  const captain = [...starters, ...bench].find((p) => p.isCaptain && !removedPlayerIds.has(p.id));
+                  const starterSlots = starters
+                    .filter((p) => !removedPlayerIds.has(p.id))
+                    .map((p, i) => ({ playerId: p.id, isBenched: false, slotOrder: i }));
+                  const benchSlots = bench
+                    .filter((p) => !removedPlayerIds.has(p.id))
+                    .map((p, i) => ({ playerId: p.id, isBenched: true, slotOrder: i }));
+
+                  saveTeam({
+                    variables: {
+                      input: {
+                        teamName: team.teamName ?? 'My Team',
+                        budget,
+                        freeTransfers: team.freeTransfers,
+                        captainPlayerId: captain?.id ?? starterSlots[0]?.playerId ?? '',
+                        slots: [...starterSlots, ...benchSlots],
+                      },
+                    },
+                  });
                 }}
                 className="mt-4 w-full max-w-lg mx-auto flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-cyan-400 to-fuchsia-500 px-6 py-3 text-sm font-bold text-[#1a0028] shadow-[0_4px_20px_rgba(139,92,246,0.3)] transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:brightness-100"
               >
