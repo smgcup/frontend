@@ -87,7 +87,7 @@ const StandingsTable = ({ teams, limit, title = 'Standings' }: StandingsTablePro
                     <p className="font-semibold">{team.name}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
-                    <p className="font-medium">{team.stats?.points}</p>
+                    <p className="font-medium">{team.stats?.matchesPlayed}</p>
                   </td>
                   <td className="px-3 py-4 text-center">
                     <p className="font-medium">{team.stats?.wins}</p>
