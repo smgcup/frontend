@@ -13,7 +13,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Pencil, Trash2, Calendar, Clock, Loader2, Radio, Trophy, MapPin, MoreVertical, Play, Users } from 'lucide-react';
+import {
+  Pencil,
+  Trash2,
+  Calendar,
+  Clock,
+  Loader2,
+  Radio,
+  Trophy,
+  MapPin,
+  MoreVertical,
+  Play,
+  Users,
+  Zap,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -21,6 +34,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { type Match } from '@/domains/matches/contracts';
 import { MatchStatus } from '@/graphql';
 import { formatLocation } from '../../utils/formatLocation';
@@ -34,6 +48,8 @@ type AdminMatchCardProps = {
   onToggleMatchId: (id: string) => void;
   startingId: string | null;
   onStartMatch: (id: string) => Promise<void>;
+  calculatingPointsId: string | null;
+  onCalculateMatchPoints: (id: string) => Promise<void>;
 };
 
 const AdminMatchCard = ({
@@ -45,6 +61,8 @@ const AdminMatchCard = ({
   onToggleMatchId,
   startingId,
   onStartMatch,
+  calculatingPointsId,
+  onCalculateMatchPoints,
 }: AdminMatchCardProps) => {
   //TODO: Extract to a helper function in the utils folder
   const formatDate = (dateString: string | null | undefined) => {
@@ -226,6 +244,37 @@ const AdminMatchCard = ({
                 Manage Live
               </Link>
             </Button>
+          )}
+          {/* Show "Calculate Points" button for FINISHED matches */}
+          {match.status === MatchStatus.Finished && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 cursor-pointer"
+                    onClick={() => onCalculateMatchPoints(match.id)}
+                    disabled={match.pointsCalculated || calculatingPointsId === match.id}
+                  >
+                    {calculatingPointsId === match.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Zap className="h-4 w-4" />
+                    )}
+                    {calculatingPointsId === match.id ? 'Calculating...' : 'Calc Points'}
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {match.pointsCalculated && (
+                <TooltipContent
+                  className="bg-zinc-900 text-zinc-100 border border-zinc-700"
+                  arrowClassName="bg-zinc-900 fill-zinc-900"
+                >
+                  Points already calculated for this match
+                </TooltipContent>
+              )}
+            </Tooltip>
           )}
           {/* Show "Appearances" button for FINISHED matches */}
           {match.status === MatchStatus.Finished && (

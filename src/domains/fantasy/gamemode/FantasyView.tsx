@@ -1,8 +1,23 @@
 'use client';
 
-import { PlayerPosition } from '@/graphql';
+import { useQuery } from '@apollo/client/react';
+import { GetMyFantasyTeamDocument, GetFantasyPlayersDocument, PlayerPosition } from '@/graphql';
+import type { GetFantasyPlayersQuery } from '@/graphql';
 import FantasyViewUi from './FantasyViewUi';
 import type { FantasyTeamData, FantasyAvailablePlayer, FantasyPlayer } from '../contracts';
+import { mapMyFantasyTeam } from './mappers/mapMyFantasyTeam';
+
+const mapAvailablePlayers = (data: GetFantasyPlayersQuery): FantasyAvailablePlayer[] =>
+  data.fantasyPlayers.map((fp) => ({
+    id: fp.player.id,
+    firstName: fp.player.firstName,
+    lastName: fp.player.lastName,
+    displayName: fp.displayName ?? fp.player.lastName,
+    position: fp.player.position,
+    teamShort: fp.player.team.name,
+    price: fp.price,
+    points: 0,
+  }));
 
 const emptyJersey = { color: '#6B7280', textColor: '#FFFFFF', label: '' };
 
@@ -30,7 +45,7 @@ const emptyBench: FantasyPlayer[] = [
   emptySlot('empty-bench-3', PlayerPosition.Forward),
 ];
 
-// TODO: Replace with real API data. This mock represents the user's current team.
+/* TODO: Replace with real API data. This mock represents the user's current team.
 const mockTeam: FantasyTeamData = {
   teamName: 'Nasko FC',
   latestPoints: 17,
@@ -389,8 +404,19 @@ const mockTeam: FantasyTeamData = {
   ],
   initialRemovedPlayerIds: new Set([...emptyStarters, ...emptyBench].map((p) => p.id)),
 };
+*/
 
-// TODO: Replace with real API data. This mock represents all players available for transfer.
+const emptyTeam: FantasyTeamData = {
+  gameweek: 1,
+  freeTransfers: 1,
+  budget: 100,
+  transferCost: 0,
+  starters: emptyStarters,
+  bench: emptyBench,
+  initialRemovedPlayerIds: new Set([...emptyStarters, ...emptyBench].map((p) => p.id)),
+};
+
+/* TODO: Replace with real API data. This mock represents all players available for transfer.
 const mockAvailablePlayers: FantasyAvailablePlayer[] = [
   {
     id: 'p1',
@@ -693,9 +719,18 @@ const mockAvailablePlayers: FantasyAvailablePlayer[] = [
     points: 110,
   },
 ];
+*/
 
 const FantasyView = () => {
-  return <FantasyViewUi team={mockTeam} availablePlayers={mockAvailablePlayers} />;
+  const { data, loading } = useQuery(GetMyFantasyTeamDocument);
+  const { data: playersData } = useQuery(GetFantasyPlayersDocument);
+
+  const team = data ? (mapMyFantasyTeam(data) ?? emptyTeam) : emptyTeam;
+  const availablePlayers = playersData ? mapAvailablePlayers(playersData) : [];
+
+  if (loading) return null;
+
+  return <FantasyViewUi team={team} availablePlayers={availablePlayers} />;
 };
 
 export default FantasyView;

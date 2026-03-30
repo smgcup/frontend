@@ -43,6 +43,8 @@ export type CreateFantasyPlayerDto = {
 
 export type CreateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
+  fdr1?: InputMaybe<Scalars['Int']['input']>;
+  fdr2?: InputMaybe<Scalars['Int']['input']>;
   firstOpponentId: Scalars['String']['input'];
   location?: InputMaybe<MatchLocation>;
   round: Scalars['Int']['input'];
@@ -99,6 +101,27 @@ export type FantasyPlayer = {
   price: Scalars['Float']['output'];
 };
 
+export type FantasyTeam = {
+  __typename?: 'FantasyTeam';
+  budget: Scalars['Float']['output'];
+  captainPlayer: FantasyPlayer;
+  createdAt: Scalars['Date']['output'];
+  freeTransfers: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  slots: Array<FantasyTeamSlot>;
+  teamName: Scalars['String']['output'];
+  updatedAt: Scalars['Date']['output'];
+  user: User;
+};
+
+export type FantasyTeamSlot = {
+  __typename?: 'FantasyTeamSlot';
+  fantasyPlayer: FantasyPlayer;
+  id: Scalars['ID']['output'];
+  isBenched: Scalars['Boolean']['output'];
+  slotOrder: Scalars['Int']['output'];
+};
+
 export type ImageUploadInput = {
   fileBase64: Scalars['String']['input'];
   mimeType: Scalars['String']['input'];
@@ -122,10 +145,13 @@ export type LoginInput = {
 export type Match = {
   __typename?: 'Match';
   date?: Maybe<Scalars['Date']['output']>;
+  fdr1?: Maybe<Scalars['Int']['output']>;
+  fdr2?: Maybe<Scalars['Int']['output']>;
   firstOpponent: Team;
   id: Scalars['ID']['output'];
   location?: Maybe<MatchLocation>;
   mvp?: Maybe<Player>;
+  pointsCalculated: Scalars['Boolean']['output'];
   round: Scalars['Int']['output'];
   score1?: Maybe<Scalars['Int']['output']>;
   score2?: Maybe<Scalars['Int']['output']>;
@@ -170,9 +196,16 @@ export enum MatchStatus {
   Scheduled = 'SCHEDULED'
 }
 
+export type MatchTopPredictions = {
+  __typename?: 'MatchTopPredictions';
+  matchId: Scalars['ID']['output'];
+  topPredictions: Array<PopularPrediction>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   adminLogin: AdminLoginResult;
+  calculateMatchPoints: Match;
   createAllPlayerAppearances: Array<PlayerAppearance>;
   createFantasyPlayer: FantasyPlayer;
   createMatch: Match;
@@ -191,6 +224,7 @@ export type Mutation = {
   deleteTeam: Team;
   login: AuthResponse;
   register: AuthResponse;
+  saveFantasyTeam: FantasyTeam;
   startMatch: Match;
   updateFantasyPlayer: FantasyPlayer;
   updateMatch: Match;
@@ -205,6 +239,11 @@ export type Mutation = {
 
 export type MutationAdminLoginArgs = {
   passkey: Scalars['String']['input'];
+};
+
+
+export type MutationCalculateMatchPointsArgs = {
+  matchId: Scalars['String']['input'];
 };
 
 
@@ -296,6 +335,11 @@ export type MutationLoginArgs = {
 
 export type MutationRegisterArgs = {
   registerInput: RegisterUserInput;
+};
+
+
+export type MutationSaveFantasyTeamArgs = {
+  input: SaveFantasyTeamDto;
 };
 
 
@@ -406,6 +450,13 @@ export enum PlayerPosition {
   Midfielder = 'MIDFIELDER'
 }
 
+export type PopularPrediction = {
+  __typename?: 'PopularPrediction';
+  percentage: Scalars['Float']['output'];
+  predictedScore1: Scalars['Int']['output'];
+  predictedScore2: Scalars['Int']['output'];
+};
+
 export type Prediction = {
   __typename?: 'Prediction';
   createdAt: Scalars['Date']['output'];
@@ -433,6 +484,7 @@ export type Query = {
   matchById: Match;
   matchEvents: Array<MatchEvent>;
   matches: Array<Match>;
+  myFantasyTeam?: Maybe<FantasyTeam>;
   myPredictionForMatch?: Maybe<Prediction>;
   myPredictionStats: UserPredictionStats;
   myPredictions: Array<Prediction>;
@@ -448,6 +500,7 @@ export type Query = {
   teamById: Team;
   teams: Array<Team>;
   topPlayers: Array<Player>;
+  topPredictionsByRound: Array<MatchTopPredictions>;
   user: User;
 };
 
@@ -513,6 +566,11 @@ export type QueryTeamsArgs = {
   leaderboardOrder?: Scalars['Boolean']['input'];
 };
 
+
+export type QueryTopPredictionsByRoundArgs = {
+  round: Scalars['Int']['input'];
+};
+
 export type RegisterUserInput = {
   /** Email address */
   email: Scalars['String']['input'];
@@ -524,6 +582,20 @@ export type RegisterUserInput = {
   password: Scalars['String']['input'];
   /** Username */
   username: Scalars['String']['input'];
+};
+
+export type SaveFantasyTeamDto = {
+  budget: Scalars['Float']['input'];
+  captainPlayerId: Scalars['String']['input'];
+  freeTransfers: Scalars['Int']['input'];
+  slots: Array<SaveFantasyTeamSlotDto>;
+  teamName: Scalars['String']['input'];
+};
+
+export type SaveFantasyTeamSlotDto = {
+  isBenched: Scalars['Boolean']['input'];
+  playerId: Scalars['String']['input'];
+  slotOrder: Scalars['Int']['input'];
 };
 
 export type StatisticsOutput = {
@@ -585,6 +657,8 @@ export type UpdateFantasyPlayerDto = {
 
 export type UpdateMatchDto = {
   date?: InputMaybe<Scalars['Date']['input']>;
+  fdr1?: InputMaybe<Scalars['Int']['input']>;
+  fdr2?: InputMaybe<Scalars['Int']['input']>;
   firstOpponentId?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<MatchLocation>;
   mvpId?: InputMaybe<Scalars['String']['input']>;
@@ -677,6 +751,7 @@ export enum Queries {
   matchById = 'matchById',
   matchEvents = 'matchEvents',
   matches = 'matches',
+  myFantasyTeam = 'myFantasyTeam',
   myPredictionForMatch = 'myPredictionForMatch',
   myPredictionStats = 'myPredictionStats',
   myPredictions = 'myPredictions',
@@ -692,5 +767,6 @@ export enum Queries {
   teamById = 'teamById',
   teams = 'teams',
   topPlayers = 'topPlayers',
+  topPredictionsByRound = 'topPredictionsByRound',
   user = 'user',
 }

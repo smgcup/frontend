@@ -1,0 +1,6 @@
+mutation CalculateMatchPoints($matchId: String!) {
+  calculateMatchPoints(matchId: $matchId) {
+    id
+    pointsCalculated
+  }
+}

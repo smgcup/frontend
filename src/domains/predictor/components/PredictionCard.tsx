@@ -14,53 +14,12 @@ type PopularPrediction = {
   percentage: number;
 };
 
-const getMockPopularPredictions = (matchId: string): PopularPrediction[] => {
-  // Generate deterministic mock data based on matchId
-  let hash = 0;
-  for (let i = 0; i < matchId.length; i++) {
-    hash = (hash * 31 + matchId.charCodeAt(i)) | 0;
-  }
-  const seed = Math.abs(hash);
-
-  const scoreOptions = [
-    { score1: 1, score2: 0 },
-    { score1: 2, score2: 1 },
-    { score1: 1, score2: 1 },
-    { score1: 0, score2: 1 },
-    { score1: 2, score2: 0 },
-    { score1: 1, score2: 2 },
-    { score1: 0, score2: 0 },
-    { score1: 3, score2: 1 },
-    { score1: 2, score2: 2 },
-    { score1: 3, score2: 0 },
-  ];
-
-  const i1 = seed % scoreOptions.length;
-  const i2 = (seed * 7 + 3) % scoreOptions.length;
-  const i3 = (seed * 13 + 5) % scoreOptions.length;
-
-  const picks = [
-    scoreOptions[i1],
-    scoreOptions[i2 === i1 ? (i2 + 1) % scoreOptions.length : i2],
-    scoreOptions[i3 === i1 || i3 === i2 ? (i3 + 2) % scoreOptions.length : i3],
-  ];
-
-  const p1 = 30 + (seed % 25);
-  const p2 = 10 + ((seed * 3) % 15);
-  const p3 = 5 + ((seed * 7) % 12);
-
-  return picks.map((p, idx) => ({
-    score1: p.score1,
-    score2: p.score2,
-    percentage: [p1, p2, p3][idx],
-  }));
-};
-
 type PredictionCardProps = {
   match: Match;
   prediction: ScorePrediction | null;
   savedPrediction?: ScorePrediction | null;
   existingPredictionId?: string;
+  popularPredictions?: PopularPrediction[];
   onPredictionChange: (prediction: ScorePrediction) => void;
   onSave?: () => Promise<void>;
   isSaving?: boolean;
@@ -78,6 +37,7 @@ const PredictionCard = ({
   prediction,
   savedPrediction,
   existingPredictionId,
+  popularPredictions = [],
   onPredictionChange,
   onSave,
   isSaving,
@@ -115,6 +75,11 @@ const PredictionCard = ({
   const predictedScore1 = prediction?.predictedScore1 ?? 0;
   const predictedScore2 = prediction?.predictedScore2 ?? 0;
   const hasPrediction = prediction !== null;
+  const formatPercentage = (percentage: number) => {
+    if (!Number.isFinite(percentage)) return '-';
+    const rounded = Math.round(percentage);
+    return `${rounded}%`;
+  };
 
   // Check if prediction or booster has changed from saved values
   const hasScoreChanges =
@@ -219,7 +184,7 @@ const PredictionCard = ({
 
       {/* Booster glow effect */}
       {isBoosted && (
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-purple-500/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-br from-purple-500/10 via-transparent to-purple-500/5 pointer-events-none" />
       )}
 
       <div className="p-5 pt-6">
@@ -372,30 +337,34 @@ const PredictionCard = ({
         {/* Popular Predictions */}
         <div className="mt-5 rounded-xl">
           <p className="text-center text-sm font-semibold mb-3 text-muted-foreground">Popular predictions</p>
-          <div className="flex justify-center gap-3">
-            {getMockPopularPredictions(match.id).map((pop) => (
-              <div key={`${pop.score1}-${pop.score2}`} className="flex flex-col items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() =>
-                    onPredictionChange({
-                      predictedScore1: pop.score1,
-                      predictedScore2: pop.score2,
-                    })
-                  }
-                  disabled={isSaving}
-                  className={cn(
-                    'px-4 py-1.5 rounded-full text-sm font-bold transition-all',
-                    'bg-background/80 hover:bg-background shadow-sm',
-                    'disabled:opacity-50 disabled:cursor-not-allowed',
-                  )}
-                >
-                  {pop.score1} - {pop.score2}
-                </button>
-                <span className="text-xs text-muted-foreground">{pop.percentage}%</span>
-              </div>
-            ))}
-          </div>
+          {popularPredictions.length === 0 ? (
+            <p className="text-center text-sm text-muted-foreground">No predictions yet</p>
+          ) : (
+            <div className="flex justify-center gap-3">
+              {popularPredictions.map((pop) => (
+                <div key={`${pop.score1}-${pop.score2}`} className="flex flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onPredictionChange({
+                        predictedScore1: pop.score1,
+                        predictedScore2: pop.score2,
+                      })
+                    }
+                    disabled={isSaving}
+                    className={cn(
+                      'px-4 py-1.5 rounded-full text-sm font-bold transition-all',
+                      'bg-background/80 hover:bg-background shadow-sm',
+                      'disabled:opacity-50 disabled:cursor-not-allowed',
+                    )}
+                  >
+                    {pop.score1} - {pop.score2}
+                  </button>
+                  <span className="text-xs text-muted-foreground">{formatPercentage(pop.percentage)}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Booster Toggle & Submit Button */}
@@ -405,12 +374,13 @@ const PredictionCard = ({
             <button
               type="button"
               onClick={onToggleBooster}
-              disabled={isSaving}
+              disabled={isSaving || (!canUseBooster && !isBoosted)}
               className={cn(
                 'w-full h-9 flex items-center justify-center gap-2 px-4 rounded-md text-sm font-medium transition-all',
                 isBoosted
                   ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/25'
                   : 'bg-muted hover:bg-purple-500/20 hover:text-purple-500 border border-dashed border-purple-500/30',
+                (!canUseBooster && !isBoosted) && 'opacity-50 cursor-not-allowed',
               )}
             >
               <Zap className={cn('h-4 w-4', isBoosted && 'fill-current')} />

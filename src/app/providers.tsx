@@ -2,12 +2,13 @@
 import { ReactNode } from 'react';
 import { ApolloNextAppProvider } from '@apollo/client-integration-nextjs';
 import { makeClient } from '../lib/apollo';
+import { TooltipProvider } from '@/components/ui/tooltip';
 export default function Providers({ children }: { children: ReactNode }) {
   return (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     <ApolloNextAppProvider makeClient={() => makeClient() as any}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-        {children}
+        <TooltipProvider>{children}</TooltipProvider>
       </ThemeProvider>
     </ApolloNextAppProvider>
   );

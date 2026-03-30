@@ -10,6 +10,9 @@ import {
   StartMatchDocument,
   type StartMatchMutation,
   type StartMatchMutationVariables,
+  CalculateMatchPointsDocument,
+  type CalculateMatchPointsMutation,
+  type CalculateMatchPointsMutationVariables,
 } from '@/graphql';
 import type { Match } from '@/domains/matches/contracts';
 
@@ -32,6 +35,12 @@ export const useAdminMatchesList = (matches: Match[]) => {
 
   // Mutation hook to start a match
   const [startMatchMutation] = useMutation<StartMatchMutation, StartMatchMutationVariables>(StartMatchDocument);
+
+  // Mutation hook to calculate match points for fantasy
+  const [calculateMatchPointsMutation] = useMutation<
+    CalculateMatchPointsMutation,
+    CalculateMatchPointsMutationVariables
+  >(CalculateMatchPointsDocument);
 
   const filteredMatches = useMemo(() => {
     let result = matches;
@@ -61,6 +70,11 @@ export const useAdminMatchesList = (matches: Match[]) => {
     router.refresh();
   };
 
+  const onCalculateMatchPoints = async (matchId: string) => {
+    await calculateMatchPointsMutation({ variables: { matchId } });
+    router.refresh();
+  };
+
   return {
     filteredMatches,
     totalCount: matches.length,
@@ -72,5 +86,6 @@ export const useAdminMatchesList = (matches: Match[]) => {
     deleteLoading,
     onDeleteMatch,
     onStartMatch,
+    onCalculateMatchPoints,
   };
 };

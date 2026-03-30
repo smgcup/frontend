@@ -3,5 +3,14 @@ query GetFantasyPlayers {
     playerId
     displayName
     price
+    player {
+      id
+      firstName
+      lastName
+      position
+      team {
+        name
+      }
+    }
   }
 }

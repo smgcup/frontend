@@ -59,7 +59,6 @@ export type FantasyPlayer = Omit<Player, 'position'> & {
   form?: MatchResult[];
   /** Upcoming fixtures – shown in PlayerDetailDrawer */
   fixtures?: UpcomingFixture[];
-  // imageUrl inherited from Player — not redeclared
 };
 
 /**

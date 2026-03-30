@@ -20,8 +20,11 @@ export type Match = {
   score1?: number;
   score2?: number;
   round: number;
+  fdr1?: number | null;
+  fdr2?: number | null;
   location?: MatchLocation | null;
   mvp?: MatchMvp | null;
+  pointsCalculated: boolean;
 };
 
 export type MatchEvent = {

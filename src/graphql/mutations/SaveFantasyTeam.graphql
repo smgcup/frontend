@@ -1,0 +1,27 @@
+mutation SaveFantasyTeam($input: SaveFantasyTeamDto!) {
+  saveFantasyTeam(input: $input) {
+    id
+    teamName
+    budget
+    freeTransfers
+    captainPlayer {
+      playerId
+    }
+    slots {
+      id
+      isBenched
+      slotOrder
+      fantasyPlayer {
+        playerId
+        displayName
+        price
+        player {
+          id
+          firstName
+          lastName
+          position
+        }
+      }
+    }
+  }
+}

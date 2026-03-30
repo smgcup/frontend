@@ -7,9 +7,9 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
+import fallbackJersey from '@/public/icons/fallback-jersey.svg';
 import type { FantasyPlayer, MatchResult } from '../../contracts';
 import { toPositionLabel } from '../../shared/utils/positionUtils';
-import JerseyIcon from '../../shared/components/JerseyIcon';
 import MatchBreakdownDrawer from './MatchBreakdownDrawer';
 import BreakdownContent from './BreakdownContent';
 
@@ -104,15 +104,10 @@ const PlayerDetailDrawer = ({ player, open, onOpenChange, onSetCaptain, onSubsti
             {/* Player avatar area */}
             <div className="relative shrink-0">
               <div className="w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden">
-                {player.imageUrl ? (
-                  <Image src={player.imageUrl} alt={player.displayName} fill className="object-cover" />
+                {player.celebrationImageUrl ? (
+                  <Image src={player.celebrationImageUrl} alt={player.displayName} fill className="object-cover object-top" />
                 ) : (
-                  <JerseyIcon
-                    color={player.jersey.color}
-                    textColor={player.jersey.textColor}
-                    label={player.jersey.label}
-                    size={48}
-                  />
+                  <Image src={fallbackJersey} alt="Jersey" fill className="object-contain p-2" />
                 )}
               </div>
               {player.isCaptain && (

@@ -139,6 +139,7 @@ const FantasyPitchCard = ({
                 onClick={() => onGameweekChange?.(gameweek - 1)}
               />
               <div className="text-white font-extrabold text-lg tracking-tight">Gameweek {gameweek}</div>
+              {team.teamName && <div className="text-white/50 text-sm mt-0.5">{team.teamName}</div>}
               <GameweekNavButton
                 ariaLabel="Next gameweek"
                 icon={ChevronRight}
@@ -171,9 +172,10 @@ const FantasyPitchCard = ({
           </>
         ) : (
           <div className="flex flex-col items-center gap-3">
-            <h2 className="text-white font-extrabold text-2xl tracking-tight mb-2">
+            <h2 className="text-white font-extrabold text-2xl tracking-tight">
               {activeTab === 'pickTeam' ? 'Pick Team' : 'Transfers'}
             </h2>
+            {team.teamName && <p className="text-white/50 text-sm mb-2">{team.teamName}</p>}
             <div className="grid grid-cols-4 w-full">
               <div className="flex flex-col items-center px-2">
                 <div className="h-9 flex items-center justify-center">
